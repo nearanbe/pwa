@@ -228,3 +228,17 @@ add_action(
 		}
 	}
 );
+
+/*
+ * Tema, aynı adlı eski bir temanın üzerine yüklendiyse "etkinleştirme" olayı
+ * tetiklenmez. Bu durumda kurulum, panele ilk girişte bir kez çalışır.
+ */
+add_action(
+	'admin_init',
+	function () {
+		if ( get_option( 'fc_setup_done' ) || ! current_user_can( 'edit_theme_options' ) || wp_doing_ajax() ) {
+			return;
+		}
+		fc_run_setup();
+	}
+);
