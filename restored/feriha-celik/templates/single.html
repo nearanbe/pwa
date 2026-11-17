@@ -1,0 +1,35 @@
+<!-- wp:template-part {"slug":"header","tagName":"header","className":"fc-site-header"} /-->
+
+<!-- wp:group {"tagName":"main","className":"fc-main fc-section","layout":{"type":"constrained"}} -->
+<main class="wp-block-group fc-main fc-section"><!-- wp:shortcode -->
+[fc_breadcrumb]
+<!-- /wp:shortcode -->
+
+<!-- wp:post-terms {"term":"category","className":"fc-post-cats"} /-->
+
+<!-- wp:post-title {"level":1} /-->
+
+<!-- wp:group {"className":"fc-post-meta","layout":{"type":"flex","flexWrap":"wrap"}} -->
+<div class="wp-block-group fc-post-meta"><!-- wp:post-date /-->
+
+<!-- wp:post-author-name /--></div>
+<!-- /wp:group -->
+
+<!-- wp:post-featured-image {"aspectRatio":"16/9","align":"wide","className":"fc-post-hero"} /-->
+
+<!-- wp:post-content {"layout":{"type":"constrained"}} /-->
+
+<!-- wp:post-terms {"term":"post_tag","prefix":"Etiketler: ","className":"fc-post-tags"} /-->
+
+<!-- wp:pattern {"slug":"feriha-celik/author-box"} /-->
+
+<!-- wp:pattern {"slug":"feriha-celik/cta"} /-->
+
+<!-- wp:group {"className":"fc-post-nav","layout":{"type":"flex","justifyContent":"space-between","flexWrap":"wrap"}} -->
+<div class="wp-block-group fc-post-nav"><!-- wp:post-navigation-link {"type":"previous","label":"Önceki yazı","showTitle":true,"arrow":"arrow"} /-->
+
+<!-- wp:post-navigation-link {"label":"Sonraki yazı","showTitle":true,"arrow":"arrow"} /--></div>
+<!-- /wp:group --></main>
+<!-- /wp:group -->
+
+<!-- wp:template-part {"slug":"footer","tagName":"footer","className":"fc-site-footer"} /-->
