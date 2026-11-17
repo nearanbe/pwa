@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 720" width="600" height="720" role="img" aria-label="Huzur veren yeşil ağaç illüstrasyonu">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#E3F1E7"/>
+      <stop offset="1" stop-color="#CFE6D6"/>
+    </linearGradient>
+    <linearGradient id="hill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#A9CFB5"/>
+      <stop offset="1" stop-color="#8DBD9D"/>
+    </linearGradient>
+  </defs>
+  <rect width="600" height="720" fill="url(#bg)"/>
+  <circle cx="455" cy="150" r="62" fill="#FAF7F0" opacity=".9"/>
+  <path d="M0 560 C140 500 260 520 360 545 C460 570 530 545 600 520 V720 H0Z" fill="url(#hill)"/>
+  <path d="M0 610 C150 570 300 600 420 615 C510 626 560 610 600 600 V720 H0Z" fill="#7FB08F" opacity=".8"/>
+  <path d="M292 575 C296 500 290 440 300 380 C305 350 318 330 330 312" stroke="#5E8C6A" stroke-width="16" fill="none" stroke-linecap="round"/>
+  <path d="M298 450 C270 425 248 420 222 422" stroke="#5E8C6A" stroke-width="9" fill="none" stroke-linecap="round"/>
+  <path d="M303 410 C330 390 352 386 380 392" stroke="#5E8C6A" stroke-width="9" fill="none" stroke-linecap="round"/>
+  <g fill="#6FA382">
+    <circle cx="300" cy="300" r="118"/>
+    <circle cx="210" cy="360" r="80"/>
+    <circle cx="395" cy="352" r="84"/>
+  </g>
+  <g fill="#8CC09E">
+    <circle cx="262" cy="262" r="70"/>
+    <circle cx="352" cy="286" r="62"/>
+    <circle cx="232" cy="338" r="44"/>
+  </g>
+  <g fill="#B5DAC0" opacity=".9">
+    <circle cx="282" cy="236" r="30"/>
+    <circle cx="372" cy="262" r="22"/>
+    <circle cx="214" cy="322" r="18"/>
+  </g>
+  <g fill="#FAF7F0" opacity=".85">
+    <ellipse cx="120" cy="200" rx="10" ry="5" transform="rotate(-30 120 200)"/>
+    <ellipse cx="500" cy="300" rx="9" ry="4.5" transform="rotate(25 500 300)"/>
+    <ellipse cx="90" cy="420" rx="8" ry="4" transform="rotate(-15 90 420)"/>
+  </g>
+</svg>

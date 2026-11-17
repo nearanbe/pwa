@@ -1,0 +1,43 @@
+<!-- wp:template-part {"slug":"header","tagName":"header","className":"fc-site-header"} /-->
+
+<!-- wp:group {"tagName":"main","className":"fc-main fc-section","layout":{"type":"constrained","contentSize":"1180px"}} -->
+<main class="wp-block-group fc-main fc-section"><!-- wp:heading {"textAlign":"center","level":1} -->
+<h1 class="wp-block-heading has-text-align-center">Blog ve Makaleler</h1>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph {"align":"center","className":"fc-section__lead"} -->
+<p class="has-text-align-center fc-section__lead">Ruh sağlığı, ilişkiler, ebeveynlik ve çocuk gelişimi üzerine yazılar.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:query {"queryId":1,"query":{"perPage":9,"pages":0,"offset":0,"postType":"post","order":"desc","orderBy":"date","author":"","search":"","exclude":[],"sticky":"","inherit":true},"align":"wide"} -->
+<div class="wp-block-query alignwide"><!-- wp:post-template {"className":"fc-cards","layout":{"type":"grid","minimumColumnWidth":"17rem"}} -->
+<!-- wp:group {"className":"fc-card","layout":{"type":"default"}} -->
+<div class="wp-block-group fc-card"><!-- wp:post-featured-image {"isLink":true,"aspectRatio":"16/10","sizeSlug":"fc-card"} /-->
+
+<!-- wp:group {"className":"fc-card__body","layout":{"type":"default"}} -->
+<div class="wp-block-group fc-card__body"><!-- wp:post-date /-->
+
+<!-- wp:post-title {"level":3,"isLink":true,"fontSize":"large"} /-->
+
+<!-- wp:post-excerpt {"moreText":"Devamını oku","excerptLength":22} /--></div>
+<!-- /wp:group --></div>
+<!-- /wp:group -->
+<!-- /wp:post-template -->
+
+<!-- wp:query-pagination {"paginationArrow":"arrow","className":"fc-pagination","layout":{"type":"flex","justifyContent":"center"}} -->
+<!-- wp:query-pagination-previous {"label":"Önceki"} /-->
+
+<!-- wp:query-pagination-numbers /-->
+
+<!-- wp:query-pagination-next {"label":"Sonraki"} /-->
+<!-- /wp:query-pagination -->
+
+<!-- wp:query-no-results -->
+<!-- wp:paragraph {"align":"center"} -->
+<p class="has-text-align-center">Burada henüz yazı yok.</p>
+<!-- /wp:paragraph -->
+<!-- /wp:query-no-results --></div>
+<!-- /wp:query --></main>
+<!-- /wp:group -->
+
+<!-- wp:template-part {"slug":"footer","tagName":"footer","className":"fc-site-footer"} /-->

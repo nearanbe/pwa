@@ -1,0 +1,419 @@
+/* ==========================================================================
+   Feriha Çelik teması — tasarım katmanı
+   Renk, yazı tipi ve boşluk değerleri theme.json'dan (CSS değişkenleri) gelir.
+   ========================================================================== */
+
+:root {
+	--fc-radius: 20px;
+	--fc-radius-sm: 12px;
+	--fc-shadow: 0 6px 24px rgba(34, 49, 42, 0.08);
+	--fc-shadow-lg: 0 14px 40px rgba(34, 49, 42, 0.12);
+	--fc-wa: #157A43;
+	--fc-wa-dark: #0F5F33;
+	--fc-border: #DCEBE1;
+}
+
+html { scroll-behavior: smooth; scroll-padding-top: 96px; }
+body { -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+img { height: auto; }
+
+:where(a, button, input, select, textarea, summary):focus-visible {
+	outline: 3px solid var(--wp--preset--color--primary);
+	outline-offset: 2px;
+	border-radius: 6px;
+}
+
+/* ---------- Üst bölüm ---------- */
+.fc-site-header {
+	position: sticky;
+	top: 0;
+	z-index: 50;
+}
+.admin-bar .fc-site-header { top: 32px; }
+@media (max-width: 782px) { .admin-bar .fc-site-header { top: 0; } }
+
+.fc-header {
+	border-bottom: 1px solid var(--fc-border);
+	transition: box-shadow .2s ease;
+}
+.fc-header.is-scrolled { box-shadow: 0 4px 18px rgba(34, 49, 42, .07); }
+.fc-header__inner { gap: 1rem; }
+.fc-brand { gap: .75rem; min-width: 0; }
+.fc-brand .wp-block-site-logo img { max-height: 64px; width: auto; }
+.fc-brand:has(.wp-block-site-logo img) .wp-block-site-title { display: none; }
+.fc-brand .wp-block-site-title { margin: 0; line-height: 1.2; }
+.fc-nav-wrap { gap: 1.25rem; }
+.fc-nav .wp-block-navigation-item__content { padding: .35rem .1rem; }
+.fc-nav .wp-block-navigation-item__content:hover { color: var(--wp--preset--color--primary); }
+.fc-nav .wp-block-navigation__submenu-container {
+	border: 1px solid var(--fc-border) !important;
+	border-radius: var(--fc-radius-sm);
+	box-shadow: var(--fc-shadow);
+	padding: .4rem 0;
+	min-width: 230px !important;
+}
+.fc-nav .wp-block-navigation__submenu-container .wp-block-navigation-item__content { padding: .5rem 1rem; }
+.fc-header__cta .wp-block-button__link { padding: .6rem 1.2rem; font-size: .95rem; }
+
+/* Mobil menü */
+.wp-block-navigation__responsive-container.is-menu-open {
+	padding: 1.5rem !important;
+}
+.wp-block-navigation__responsive-container.is-menu-open .wp-block-navigation__responsive-container-content {
+	font-size: 1.25rem;
+	gap: 1rem;
+}
+.wp-block-navigation__responsive-container-open svg,
+.wp-block-navigation__responsive-container-close svg { width: 30px; height: 30px; }
+
+@media (max-width: 599px) {
+	.fc-brand .wp-block-site-logo img { max-height: 48px; }
+	.fc-brand .wp-block-site-title { font-size: 1rem; }
+	.fc-nav-wrap { gap: .6rem; }
+	.fc-header__cta .wp-block-button__link { padding: .5rem .9rem; font-size: .875rem; }
+}
+
+/* ---------- Genel bölümler ---------- */
+.fc-main { padding-bottom: 0; }
+.fc-section { padding-top: var(--wp--preset--spacing--50); padding-bottom: var(--wp--preset--spacing--50); }
+.fc-main.fc-section { padding-top: var(--wp--preset--spacing--40); }
+.fc-section__title { margin-bottom: .5rem; }
+.fc-section__lead { color: var(--wp--preset--color--muted); max-width: 640px; margin-left: auto !important; margin-right: auto !important; margin-bottom: var(--wp--preset--spacing--40); }
+
+.fc-eyebrow {
+	display: inline-block;
+	font-weight: 700;
+	font-size: .85rem;
+	letter-spacing: .06em;
+	text-transform: uppercase;
+	color: var(--wp--preset--color--primary-dark);
+	background: var(--wp--preset--color--soft);
+	padding: .35rem .9rem;
+	border-radius: 999px;
+}
+
+/* ---------- Butonlar ---------- */
+.wp-block-button .wp-block-button__link { transition: background-color .15s ease, transform .15s ease, box-shadow .15s ease; }
+.wp-block-button .wp-block-button__link:hover { transform: translateY(-1px); box-shadow: var(--fc-shadow); }
+.wp-block-button.is-style-outline > .wp-block-button__link {
+	background: transparent;
+	color: var(--wp--preset--color--primary-dark);
+	border: 2px solid var(--wp--preset--color--primary);
+	padding: calc(.8rem - 2px) calc(1.6rem - 2px);
+}
+.wp-block-button.is-style-outline > .wp-block-button__link:hover { background: var(--wp--preset--color--surface); }
+.wp-block-button.is-style-whatsapp > .wp-block-button__link { background: var(--fc-wa); color: #fff; }
+.wp-block-button.is-style-whatsapp > .wp-block-button__link:hover { background: var(--fc-wa-dark); }
+.wp-block-button.is-style-whatsapp > .wp-block-button__link::before {
+	content: "";
+	display: inline-block;
+	width: 1.15em; height: 1.15em;
+	margin-right: .5em;
+	vertical-align: -.2em;
+	background: currentColor;
+	-webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16 3a13 13 0 0 0-11.2 19.6L3 29l6.6-1.7A13 13 0 1 0 16 3zm5.8 15.7c-.3-.2-1.9-.9-2.2-1-.3-.1-.5-.2-.7.2l-1 1.2c-.2.2-.4.2-.7.1a8.7 8.7 0 0 1-4.3-3.8c-.3-.6.3-.5.9-1.7.1-.2 0-.4 0-.6l-1-2.4c-.3-.6-.5-.5-.7-.5h-.6c-.2 0-.6.1-.9.4-.3.3-1.2 1.1-1.2 2.8s1.2 3.3 1.4 3.5c.2.2 2.4 3.7 5.8 5.1 2.2.9 3 1 4.1.8.7-.1 1.9-.8 2.2-1.5.3-.8.3-1.4.2-1.5z'/%3E%3C/svg%3E") center / contain no-repeat;
+	mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16 3a13 13 0 0 0-11.2 19.6L3 29l6.6-1.7A13 13 0 1 0 16 3zm5.8 15.7c-.3-.2-1.9-.9-2.2-1-.3-.1-.5-.2-.7.2l-1 1.2c-.2.2-.4.2-.7.1a8.7 8.7 0 0 1-4.3-3.8c-.3-.6.3-.5.9-1.7.1-.2 0-.4 0-.6l-1-2.4c-.3-.6-.5-.5-.7-.5h-.6c-.2 0-.6.1-.9.4-.3.3-1.2 1.1-1.2 2.8s1.2 3.3 1.4 3.5c.2.2 2.4 3.7 5.8 5.1 2.2.9 3 1 4.1.8.7-.1 1.9-.8 2.2-1.5.3-.8.3-1.4.2-1.5z'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+/* ---------- Hero ---------- */
+.fc-hero {
+	position: relative;
+	overflow: hidden;
+	padding-top: var(--wp--preset--spacing--50);
+	padding-bottom: var(--wp--preset--spacing--50);
+	margin-top: 0 !important;
+}
+.fc-hero::before {
+	content: "";
+	position: absolute;
+	width: 520px; height: 520px;
+	right: -160px; top: -200px;
+	border-radius: 50%;
+	background: radial-gradient(circle, rgba(207, 230, 214, .9), rgba(207, 230, 214, 0) 70%);
+	pointer-events: none;
+}
+.fc-hero__cols { gap: var(--wp--preset--spacing--50) !important; position: relative; }
+.fc-hero__title { margin-top: 1rem; }
+.fc-hero__lead { color: var(--wp--preset--color--muted); max-width: 36rem; }
+.fc-hero__buttons { margin-top: 1.75rem; }
+.fc-hero__photo { margin: 0; }
+.fc-hero__photo img {
+	width: 100%;
+	aspect-ratio: 5 / 6;
+	object-fit: cover;
+	border-radius: 48% 52% 44% 56% / 38% 40% 60% 62%;
+	box-shadow: var(--fc-shadow-lg);
+	background: var(--wp--preset--color--soft);
+}
+.fc-badges {
+	list-style: none;
+	padding: 0 !important;
+	margin-top: 1.75rem;
+	display: flex;
+	flex-wrap: wrap;
+	gap: .5rem 1.25rem;
+	color: var(--wp--preset--color--primary-dark);
+	font-weight: 600;
+	font-size: .95rem;
+}
+.fc-badges li { display: flex; align-items: center; gap: .4rem; }
+.fc-badges li::before,
+.fc-checks li::before {
+	content: "";
+	flex: none;
+	width: 1.1em; height: 1.1em;
+	border-radius: 50%;
+	background: var(--wp--preset--color--primary) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 12.5l4 4 8-9'/%3E%3C/svg%3E") center / 70% no-repeat;
+}
+@media (max-width: 781px) {
+	.fc-hero__media { order: -1; }
+	.fc-hero__photo { max-width: 340px; margin: 0 auto; }
+	.fc-hero__text { text-align: left; }
+}
+
+/* ---------- Hizmet kartları ---------- */
+.fc-services__grid { gap: 1.25rem; }
+.fc-service-card {
+	background: #fff;
+	border: 1px solid var(--fc-border);
+	border-radius: var(--fc-radius);
+	padding: 1.75rem 1.5rem 1.5rem;
+	box-shadow: var(--fc-shadow);
+	display: flex;
+	flex-direction: column;
+	transition: transform .2s ease, box-shadow .2s ease;
+}
+.fc-service-card:hover { transform: translateY(-3px); box-shadow: var(--fc-shadow-lg); }
+.fc-service-card > * { margin-block: 0; }
+.fc-service-card > * + * { margin-top: .75rem; }
+.fc-service-card__icon {
+	display: inline-grid;
+	place-items: center;
+	width: 56px; height: 56px;
+	border-radius: 16px;
+	background: var(--wp--preset--color--surface);
+	color: var(--wp--preset--color--primary);
+}
+.fc-service-card__intro { color: var(--wp--preset--color--muted); font-size: .95rem; }
+.fc-service-card__list { list-style: none; padding: 0 !important; margin-top: 1rem !important; border-top: 1px solid var(--fc-border); }
+.fc-service-card__list li { border-bottom: 1px solid var(--fc-border); }
+.fc-service-card__list a {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	gap: .5rem;
+	padding: .6rem 0;
+	color: var(--wp--preset--color--contrast);
+	text-decoration: none;
+	font-weight: 600;
+	font-size: .975rem;
+}
+.fc-service-card__list a::after { content: "›"; color: var(--wp--preset--color--primary); font-size: 1.3em; line-height: 1; }
+.fc-service-card__list a:hover { color: var(--wp--preset--color--primary); }
+
+/* ---------- Randevu adımları ---------- */
+.fc-steps__grid { gap: 1.25rem; margin-bottom: var(--wp--preset--spacing--40); counter-reset: step; }
+.fc-step {
+	background: #fff;
+	border-radius: var(--fc-radius);
+	padding: 1.5rem;
+	box-shadow: var(--fc-shadow);
+	position: relative;
+}
+.fc-step > * { margin-block: 0; }
+.fc-step > * + * { margin-top: .6rem; }
+.fc-step p:not(.fc-step__num) { color: var(--wp--preset--color--muted); font-size: .95rem; }
+.fc-step__num {
+	display: grid;
+	place-items: center;
+	width: 44px; height: 44px;
+	border-radius: 50%;
+	background: var(--wp--preset--color--primary);
+	color: #fff;
+	font-weight: 800;
+	font-size: 1.15rem;
+}
+
+/* ---------- Blog kartları ---------- */
+.fc-cards { gap: 1.5rem !important; }
+.fc-card {
+	height: 100%;
+	background: #fff;
+	border: 1px solid var(--fc-border);
+	border-radius: var(--fc-radius);
+	overflow: hidden;
+	box-shadow: var(--fc-shadow);
+	transition: transform .2s ease, box-shadow .2s ease;
+	display: flex;
+	flex-direction: column;
+}
+.fc-card:hover { transform: translateY(-3px); box-shadow: var(--fc-shadow-lg); }
+.fc-card .wp-block-post-featured-image { margin: 0; }
+.fc-card .wp-block-post-featured-image img { width: 100%; display: block; }
+.fc-card__body { padding: 1.25rem 1.4rem 1.5rem; margin: 0 !important; }
+.fc-card__body > * { margin-block: 0; }
+.fc-card__body > * + * { margin-top: .5rem; }
+.fc-card .wp-block-post-title a:hover { color: var(--wp--preset--color--primary); }
+.fc-card .wp-block-post-excerpt__excerpt { color: var(--wp--preset--color--muted); font-size: .95rem; margin: 0; }
+.fc-card .wp-block-post-excerpt__more-text { margin-top: .6rem; font-weight: 700; }
+.fc-card .wp-block-post-excerpt__more-link { text-decoration: none; }
+.fc-thumb-placeholder { aspect-ratio: 16 / 10; margin: 0; background: linear-gradient(135deg, var(--wp--preset--color--surface), var(--wp--preset--color--soft)); }
+.fc-thumb-placeholder a { display: grid; place-items: center; height: 100%; color: var(--wp--preset--color--primary); }
+.fc-thumb-placeholder .fc-icon { width: 64px; height: 64px; opacity: .7; }
+.fc-pagination { margin-top: var(--wp--preset--spacing--40); gap: .5rem; }
+.fc-pagination .page-numbers { padding: .3rem .75rem; border-radius: 8px; text-decoration: none; }
+.fc-pagination .page-numbers.current { background: var(--wp--preset--color--primary); color: #fff; }
+
+/* ---------- Randevu çağrısı ---------- */
+.fc-cta {
+	border-radius: var(--fc-radius);
+	padding: var(--wp--preset--spacing--40) var(--wp--preset--spacing--30);
+	margin-top: var(--wp--preset--spacing--40) !important;
+	margin-bottom: var(--wp--preset--spacing--30) !important;
+	border: 1px solid var(--fc-border);
+}
+.fc-cta h2 { margin-top: 0; }
+
+/* ---------- Sayfa / yazı ---------- */
+.fc-breadcrumb { font-size: .9rem; color: var(--wp--preset--color--muted); display: flex; flex-wrap: wrap; gap: .4rem; align-items: center; }
+.fc-breadcrumb a { color: var(--wp--preset--color--muted); text-decoration: none; }
+.fc-breadcrumb a:hover { color: var(--wp--preset--color--primary); text-decoration: underline; }
+.fc-breadcrumb__sep { opacity: .6; }
+.wp-block-shortcode:has(.fc-breadcrumb) { margin: 0; }
+
+.fc-post-cats a { font-size: .85rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; text-decoration: none; background: var(--wp--preset--color--surface); padding: .25rem .7rem; border-radius: 999px; }
+.fc-post-meta { gap: .4rem 1rem; color: var(--wp--preset--color--muted); font-size: .95rem; }
+.fc-post-hero img { border-radius: var(--fc-radius); }
+.wp-block-post-content > p:first-child { font-size: 1.15rem; }
+.wp-block-post-content img { border-radius: var(--fc-radius-sm); }
+.fc-post-nav { margin-top: var(--wp--preset--spacing--40); gap: 1rem; font-weight: 600; }
+.fc-post-nav a { text-decoration: none; }
+
+.fc-author {
+	gap: 1.25rem;
+	padding: 1.5rem;
+	border-radius: var(--fc-radius);
+	background: var(--wp--preset--color--cream);
+	margin-top: var(--wp--preset--spacing--40) !important;
+}
+.fc-author__img { width: 84px; height: 84px; border-radius: 50%; object-fit: cover; flex: none; }
+.fc-author p { margin: 0; }
+.fc-author p + p { margin-top: .35rem; }
+
+.wp-block-details {
+	border: 1px solid var(--fc-border);
+	border-radius: var(--fc-radius-sm);
+	padding: 1rem 1.25rem;
+	background: #fff;
+}
+.wp-block-details + .wp-block-details { margin-top: .75rem; }
+.wp-block-details summary { font-weight: 700; cursor: pointer; color: var(--wp--preset--color--primary-dark); }
+.wp-block-details[open] summary { margin-bottom: .5rem; }
+
+/* Hizmet sayfası */
+.fc-page-hero {
+	padding-top: var(--wp--preset--spacing--40);
+	padding-bottom: var(--wp--preset--spacing--40);
+	margin-top: 0 !important;
+}
+.fc-page-hero .wp-block-post-title { margin-top: .5rem; }
+.fc-page-hero__lead { color: var(--wp--preset--color--muted); max-width: 46rem; }
+.fc-service-layout { gap: var(--wp--preset--spacing--50) !important; padding-top: var(--wp--preset--spacing--40); padding-bottom: var(--wp--preset--spacing--50); }
+.fc-service-layout__main h2 { margin-top: 2.25rem; }
+.fc-aside {
+	position: sticky;
+	top: 110px;
+	background: #fff;
+	border: 1px solid var(--fc-border);
+	border-radius: var(--fc-radius);
+	box-shadow: var(--fc-shadow);
+	padding: 1.5rem;
+}
+.fc-aside h2 { margin-top: 0; }
+.fc-aside .wp-block-buttons { gap: .6rem; }
+.fc-checks { list-style: none; padding: 0 !important; }
+.fc-checks li { display: flex; gap: .5rem; align-items: center; padding: .2rem 0; }
+.fc-related { margin-top: 1.25rem; border-top: 1px solid var(--fc-border); padding-top: 1rem; }
+.fc-related__title { font-weight: 700; color: var(--wp--preset--color--primary-dark); margin: 0 0 .4rem; }
+.fc-related ul { list-style: none; padding: 0; margin: 0; }
+.fc-related a { display: block; padding: .3rem 0; text-decoration: none; font-size: .95rem; }
+@media (max-width: 781px) { .fc-aside { position: static; } }
+
+/* İletişim kartları */
+.fc-contact-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1rem; margin-top: 1.5rem; }
+.fc-contact-card {
+	display: flex;
+	flex-direction: column;
+	gap: .35rem;
+	padding: 1.4rem;
+	border-radius: var(--fc-radius);
+	border: 1px solid var(--fc-border);
+	background: #fff;
+	box-shadow: var(--fc-shadow);
+	color: var(--wp--preset--color--contrast);
+	text-decoration: none;
+}
+a.fc-contact-card:hover { border-color: var(--wp--preset--color--primary); transform: translateY(-2px); }
+.fc-contact-card .fc-icon { color: var(--wp--preset--color--primary); }
+.fc-contact-card strong { font-size: 1.1rem; color: var(--wp--preset--color--primary-dark); }
+.fc-contact-card span { color: var(--wp--preset--color--muted); }
+.fc-contact-card--wide { grid-column: 1 / -1; }
+
+.fc-search { max-width: 520px; margin-left: auto !important; margin-right: auto !important; }
+.fc-search .wp-block-search__input { border-radius: 999px; padding: .7rem 1.1rem; border: 1px solid var(--fc-border); }
+.fc-search .wp-block-search__button { border-radius: 999px; margin-left: .5rem; }
+
+/* ---------- Alt bölüm ---------- */
+.fc-site-footer { margin-top: 0; }
+.fc-footer {
+	padding-top: var(--wp--preset--spacing--50);
+	padding-bottom: var(--wp--preset--spacing--30);
+	margin-top: 0 !important;
+}
+.fc-footer a { color: #E2F1E7; text-decoration: none; }
+.fc-footer a:hover { color: #fff; text-decoration: underline; }
+.fc-footer .wp-block-site-title a { color: #fff; font-size: 1.25rem; }
+.fc-footer__cols { gap: var(--wp--preset--spacing--40) !important; }
+.fc-footer__h { color: #fff !important; font-family: var(--wp--preset--font-family--body) !important; font-size: 1rem !important; font-weight: 800 !important; letter-spacing: .06em; text-transform: uppercase; }
+.fc-footer__area { opacity: .85; }
+.fc-footer__links, .fc-footer__contact { list-style: none; padding: 0 !important; margin: 0; font-size: .95rem; }
+.fc-footer__links li { padding: .2rem 0; }
+.fc-footer__contact li { display: flex; gap: .6rem; align-items: flex-start; padding: .3rem 0; }
+.fc-footer__contact .fc-icon { width: 20px; height: 20px; flex: none; margin-top: .2rem; opacity: .85; }
+.fc-footer__sep { border-color: rgba(255, 255, 255, .18) !important; margin-top: var(--wp--preset--spacing--40) !important; opacity: 1; }
+.fc-footer__bottom { opacity: .8; }
+
+/* ---------- Yüzen WhatsApp butonu ---------- */
+.fc-wa-float {
+	position: fixed;
+	right: max(16px, env(safe-area-inset-right));
+	bottom: max(16px, env(safe-area-inset-bottom));
+	z-index: 60;
+	display: inline-flex;
+	align-items: center;
+	gap: .5rem;
+	padding: .75rem 1.1rem .75rem .9rem;
+	border-radius: 999px;
+	background: var(--fc-wa);
+	color: #fff !important;
+	text-decoration: none !important;
+	font-weight: 700;
+	box-shadow: 0 8px 24px rgba(21, 122, 67, .35);
+	transition: transform .15s ease, background-color .15s ease;
+}
+.fc-wa-float:hover { background: var(--fc-wa-dark); transform: translateY(-2px); }
+@media (max-width: 599px) {
+	.fc-wa-float { padding: .85rem; }
+	.fc-wa-float span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+}
+
+/* Randevu eklentisi yoksa gösterilen kutu */
+.fc-booking-fallback { padding: 1.5rem; border-radius: var(--fc-radius); background: var(--wp--preset--color--surface); }
+
+@media (prefers-reduced-motion: reduce) {
+	*, *::before, *::after { transition: none !important; animation: none !important; scroll-behavior: auto !important; }
+}
+
+/* Hizalama yardımcıları (çekirdek stiller her sayfada yüklenmeyebilir) */
+.has-text-align-center { text-align: center; }
+.has-text-align-right { text-align: right; }

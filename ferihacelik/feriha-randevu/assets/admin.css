@@ -1,0 +1,29 @@
+.fr-wrap { max-width: 1100px; }
+.fr-box { background: #fff; border: 1px solid #dcebe1; border-radius: 14px; padding: 20px 24px; margin: 20px 0; }
+.fr-box h2 { margin-top: 0; color: #2F5A43; }
+.fr-help { font-size: 14px; color: #50575e; }
+.fr-key { display: inline-block; width: 14px; height: 14px; border-radius: 4px; vertical-align: -2px; margin-left: 6px; }
+.fr-key--open { background: #4A7A5E; }
+.fr-key--closed { background: #e4e7e5; }
+.fr-key--booked { background: #fff; border: 2px solid #b26200; border-radius: 50%; }
+.fr-cal-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 20px; }
+.fr-cal__title { font-weight: 700; font-size: 15px; margin-bottom: 8px; color: #22312A; }
+.fr-cal__head, .fr-cal__days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+.fr-cal__head span { text-align: center; font-size: 12px; color: #646970; }
+.fr-day { position: relative; aspect-ratio: 1; border: 0; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; }
+.fr-day.is-open { background: #4A7A5E; color: #fff; }
+.fr-day.is-closed { background: #e4e7e5; color: #50575e; }
+.fr-day.is-past { opacity: .35; cursor: default; }
+.fr-day.has-booking::after { content: ""; position: absolute; top: 4px; right: 4px; width: 8px; height: 8px; border-radius: 50%; background: #f0a24a; box-shadow: 0 0 0 2px #fff; }
+.fr-day:not([disabled]):hover { outline: 2px solid #2F5A43; outline-offset: 1px; }
+.fr-week { border-collapse: collapse; width: 100%; }
+.fr-week th, .fr-week td { padding: 8px 6px; text-align: left; border-bottom: 1px solid #f0f0f1; }
+.fr-week input[type=time] { width: 110px; }
+.fr-switch { display: inline-flex; gap: 6px; align-items: center; }
+.fr-save { position: sticky; bottom: 0; background: #f0f0f1; padding: 12px 0; margin: 0; }
+@media (max-width: 782px) {
+	.fr-week thead { display: none; }
+	.fr-week tr { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; padding: 10px 0; border-bottom: 1px solid #ddd; }
+	.fr-week th, .fr-week td { border: 0; padding: 2px; }
+	.fr-week th { grid-column: 1 / -1; font-size: 16px; }
+}
