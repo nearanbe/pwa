@@ -116,3 +116,53 @@ function fr_status_labels() {
 		'cancelled' => 'İptal edildi',
 	);
 }
+
+/* Ayarları REST API'ye aç (yalnızca yöneticiler; /wp/v2/settings içinde "fr_settings"). */
+add_action(
+	'init',
+	function () {
+		$props = array();
+		foreach ( array( 'session_minutes', 'step_minutes', 'min_notice', 'horizon_days', 'auto_confirm' ) as $k ) {
+			$props[ $k ] = array( 'type' => 'integer' );
+		}
+		foreach ( array( 'notify_email', 'online_note', 'office_note', 'services_extra' ) as $k ) {
+			$props[ $k ] = array( 'type' => 'string' );
+		}
+		register_setting(
+			'fr',
+			'fr_settings',
+			array(
+				'type'              => 'object',
+				'show_in_rest'      => array(
+					'schema' => array(
+						'type'                 => 'object',
+						'properties'           => $props,
+						'additionalProperties' => true,
+					),
+				),
+				'sanitize_callback' => function ( $in ) {
+					$cur = get_option( 'fr_settings', array() );
+					$cur = is_array( $cur ) ? $cur : array();
+					$in  = is_array( $in ) ? $in : array();
+					foreach ( array( 'session_minutes', 'step_minutes', 'min_notice', 'horizon_days', 'auto_confirm' ) as $k ) {
+						if ( isset( $in[ $k ] ) ) {
+							$cur[ $k ] = absint( $in[ $k ] );
+						}
+					}
+					if ( isset( $in['notify_email'] ) ) {
+						$cur['notify_email'] = sanitize_email( $in['notify_email'] );
+					}
+					foreach ( array( 'online_note', 'office_note', 'services_extra' ) as $k ) {
+						if ( isset( $in[ $k ] ) ) {
+							$cur[ $k ] = sanitize_textarea_field( $in[ $k ] );
+						}
+					}
+					if ( isset( $in['ical_token'] ) && is_string( $in['ical_token'] ) && preg_match( '/^[A-Za-z0-9]{20,64}$/', $in['ical_token'] ) ) {
+						$cur['ical_token'] = $in['ical_token'];
+					}
+					return $cur;
+				},
+			)
+		);
+	}
+);

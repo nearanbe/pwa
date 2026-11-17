@@ -130,6 +130,33 @@ add_action(
 	}
 );
 
+/* Ayarları REST API'ye aç (yalnızca yöneticiler; /wp/v2/settings içinde "fc_site"). */
+add_action(
+	'init',
+	function () {
+		$props = array();
+		foreach ( fc_setting_fields() as $key => $field ) {
+			$props[ $key ] = array( 'type' => ( isset( $field['type'] ) && 'image' === $field['type'] ) ? 'integer' : 'string' );
+		}
+		register_setting(
+			'fc_site_group',
+			'fc_site',
+			array(
+				'type'              => 'object',
+				'sanitize_callback' => 'fc_sanitize_settings',
+				'default'           => array(),
+				'show_in_rest'      => array(
+					'schema' => array(
+						'type'                 => 'object',
+						'properties'           => $props,
+						'additionalProperties' => false,
+					),
+				),
+			)
+		);
+	}
+);
+
 /**
  * Ayarları temizler.
  *
@@ -137,7 +164,9 @@ add_action(
  * @return array
  */
 function fc_sanitize_settings( $input ) {
-	$out = array();
+	$input = is_array( $input ) ? $input : array();
+	$input = array_merge( (array) get_option( 'fc_site', array() ), $input );
+	$out   = array();
 	foreach ( fc_setting_fields() as $key => $field ) {
 		$val  = isset( $input[ $key ] ) ? $input[ $key ] : '';
 		$type = isset( $field['type'] ) ? $field['type'] : 'text';
