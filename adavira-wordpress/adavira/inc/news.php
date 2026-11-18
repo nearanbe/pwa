@@ -204,3 +204,60 @@ function adv_rss_img($c) {
 add_action('pre_get_posts', function ($q) {
 	if ($q->is_main_query() && $q->is_feed() && !$q->get('post_type')) $q->set('post_type', ['blog', 'haber']);
 });
+
+/* ---------- Sosyal medya paylaşım görseli (Instagram JPEG ister, WebP kabul etmez) ---------- */
+
+/** Yazının kapak görselinden 1440x810 JPEG üretir: uploads/sosyal/{yazı}-{görsel}.jpg */
+function adv_social_jpg($post, $create = true) {
+	$post = get_post($post);
+	$tid = $post ? (int) get_post_thumbnail_id($post) : 0;
+	if (!$tid) return '';
+	$up = wp_upload_dir();
+	$rel = 'sosyal/' . $post->ID . '-' . $tid . '.jpg';
+	$abs = $up['basedir'] . '/' . $rel;
+	if (!is_file($abs)) {
+		if (!$create) return '';
+		$src = get_attached_file($tid);
+		if (!$src || !is_file($src)) return '';
+		$ed = wp_get_image_editor($src);
+		if (is_wp_error($ed)) return '';
+		$sz = $ed->get_size();
+		// Instagram oranı 4:5 ile 1.91:1 arasında olmalı; 16:9'a ortadan kırp
+		$w = $sz['width']; $h = $sz['height']; $tw = $w; $th = (int) round($w * 9 / 16);
+		if ($th > $h) { $th = $h; $tw = (int) round($h * 16 / 9); }
+		$ed->crop((int) (($w - $tw) / 2), (int) (($h - $th) / 2), $tw, $th, min(1440, $tw), (int) round(min(1440, $tw) * 9 / 16));
+		$ed->set_quality(88);
+		wp_mkdir_p(dirname($abs));
+		$GLOBALS['adv_keep_jpeg'] = true; // WebP dönüşümünü bu kayıt için kapat
+		$r = $ed->save($abs, 'image/jpeg');
+		$GLOBALS['adv_keep_jpeg'] = false;
+		if (is_wp_error($r) || !is_file($abs)) return '';
+	}
+	return $up['baseurl'] . '/' . $rel;
+}
+add_filter('image_editor_output_format', function ($f) {
+	if (!empty($GLOBALS['adv_keep_jpeg'])) { unset($f['image/jpeg'], $f['image/png'], $f['image/webp']); $f['image/webp'] = 'image/jpeg'; }
+	return $f;
+}, 99);
+
+// Yayınlanınca görseli hemen hazırla (n8n akışı okuduğunda hazır olsun)
+add_action('transition_post_status', function ($new, $old, $post) {
+	if ($new === 'publish' && in_array($post->post_type, ['blog', 'haber'], true)) adv_social_jpg($post);
+}, 20, 3);
+add_action('save_post', function ($id, $post) {
+	if ($post->post_status === 'publish' && in_array($post->post_type, ['blog', 'haber'], true)) adv_social_jpg($post);
+}, 30, 2);
+
+// RSS: paylaşım görseli (enclosure), konu/hashtag ve kısa özet
+add_action('rss2_item', function () {
+	$p = get_post();
+	if (!$p || !in_array($p->post_type, ['blog', 'haber'], true)) return;
+	$u = adv_social_jpg($p);
+	if ($u) {
+		$f = wp_upload_dir()['basedir'] . '/sosyal/' . basename($u);
+		echo '<enclosure url="' . esc_url($u) . '" length="' . (int) @filesize($f) . '" type="image/jpeg" />' . "\n";
+	}
+	$terms = get_the_terms($p, 'konu');
+	if ($terms && !is_wp_error($terms)) foreach ($terms as $t) echo '<category><![CDATA[' . $t->name . ']]></category>' . "\n";
+	echo '<category><![CDATA[' . ($p->post_type === 'haber' ? 'Bizden Haberler' : 'Blog') . ']]></category>' . "\n";
+});
