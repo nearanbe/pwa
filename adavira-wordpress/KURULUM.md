@@ -85,7 +85,7 @@ Eski dosyalar `httpdocs` içinde yedek olarak kalır. Bir sorun olursa document 
 - **Video:** Sağdaki "Haber / Röportaj / Video" kutusuna YouTube adresini yapıştırın. Video yazının başında
   görünür ve Google video sonuçları için işaretlenir.
 - **Röportaj:** Aynı kutuya konuğun adını ve unvanını yazın.
-- **Manşet:** "Ana sayfada manşette göster" kutusunu işaretleyin. İşaretli haber yoksa en son haber manşet olur.
+- **Manşet:** Ana sayfada her zaman en son yayınlanan yazı (blog ya da haber) manşet olur.
 - **Yazarlar:** Kullanıcılar → Yeni ekle → rol olarak **Yazar** seçin. Kullanıcı profilinde Görünen ad,
   Biyografik bilgi, Unvan ve Profil fotoğrafı alanlarını doldurun. Yazar sayfası: adavira.com/yazar/ad-soyad
 - **Kapak görseli:** Google Discover için en az **1200 px** genişliğinde olmalı.

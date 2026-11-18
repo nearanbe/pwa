@@ -97,7 +97,7 @@ Yükleme: Görünüm → Temalar → Yeni ekle → Tema yükle → **"Yüklenenl
 - **Haber:** Bizden Haberler → Yeni haber → sağda **Konular** seçin.
 - **Video haber:** Sağdaki "Haber / Röportaj / Video" kutusuna YouTube adresini yapıştırın.
 - **Röportaj:** Aynı kutuya konuk adını ve unvanını yazın.
-- **Manşet:** "Ana sayfada manşette göster" kutusunu işaretleyin.
+- **Manşet:** Ana sayfada her zaman en son yayınlanan yazı manşet olur.
 - **Yazarlar:** Kullanıcılar → Yeni ekle → rol **Yazar** → profilde Görünen ad, Biyografi, Unvan, Fotoğraf.
 - Yayınlanan her yazı önbelleği temizler, site haritalarına girer ve 15 dk içinde Facebook ile Instagram'da paylaşılır.
 

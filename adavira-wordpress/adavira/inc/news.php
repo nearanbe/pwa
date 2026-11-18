@@ -79,7 +79,7 @@ function adv_person_schema($uid) {
 
 /* ---------- Röportaj / video alanları ---------- */
 
-const ADV_META = ['adv_youtube' => 'YouTube video adresi', 'adv_guest' => 'Röportaj konuğu (ad soyad)', 'adv_guest_title' => 'Konuğun unvanı / kurumu', 'adv_featured' => 'Manşet (1 = ana sayfada manşette göster)'];
+const ADV_META = ['adv_youtube' => 'YouTube video adresi', 'adv_guest' => 'Röportaj konuğu (ad soyad)', 'adv_guest_title' => 'Konuğun unvanı / kurumu'];
 
 add_action('init', function () {
 	foreach (['blog', 'haber'] as $pt) foreach (ADV_META as $k => $_) {
@@ -91,7 +91,6 @@ add_action('add_meta_boxes', function () {
 		wp_nonce_field('adv_media', 'adv_media_n');
 		foreach (ADV_META as $k => $l) {
 			$v = get_post_meta($p->ID, $k, true);
-			if ($k === 'adv_featured') { echo '<p><label><input type="checkbox" name="adv_featured" value="1"' . checked($v, '1', false) . '> Ana sayfada manşette göster</label></p>'; continue; }
 			echo '<p><label for="' . $k . '"><strong>' . esc_html($l) . '</strong></label><br><input class="widefat" id="' . $k . '" name="' . $k . '" value="' . esc_attr($v) . '"></p>';
 		}
 		echo '<p class="description">YouTube adresi girilirse video yazının başında gösterilir ve Google video sonuçları için işaretlenir. Konuk girilirse yazı röportaj olarak gösterilir.</p>';
@@ -100,7 +99,7 @@ add_action('add_meta_boxes', function () {
 add_action('save_post', function ($id) {
 	if (!isset($_POST['adv_media_n']) || !wp_verify_nonce($_POST['adv_media_n'], 'adv_media') || (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) || !current_user_can('edit_post', $id)) return;
 	foreach (ADV_META as $k => $_) {
-		$v = $k === 'adv_featured' ? (empty($_POST[$k]) ? '' : '1') : trim(wp_unslash($_POST[$k] ?? ''));
+		$v = trim(wp_unslash($_POST[$k] ?? ''));
 		$v === '' ? delete_post_meta($id, $k) : update_post_meta($id, $k, $k === 'adv_youtube' ? esc_url_raw($v) : sanitize_text_field($v));
 	}
 });
@@ -152,10 +151,9 @@ function adv_share($p) {
 function adv_latest_news($n = 5) {
 	return get_posts(['post_type' => ['haber', 'blog'], 'numberposts' => $n, 'post_status' => 'publish']);
 }
+/** Manşet: her zaman en son yayınlanan yazı (blog ya da haber). */
 function adv_headline() {
-	$f = get_posts(['post_type' => ['haber', 'blog'], 'numberposts' => 1, 'meta_key' => 'adv_featured', 'meta_value' => '1']);
-	if ($f) return $f[0];
-	$h = get_posts(['post_type' => 'haber', 'numberposts' => 1]);
+	$h = get_posts(['post_type' => ['haber', 'blog'], 'numberposts' => 1, 'post_status' => 'publish', 'orderby' => 'date', 'order' => 'DESC']);
 	return $h ? $h[0] : null;
 }
 function adv_news_bar() {
