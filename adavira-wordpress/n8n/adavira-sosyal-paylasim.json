@@ -1,28 +1,74 @@
 {
-  "name": "AdaVira – Yeni yazıyı Facebook ve Instagram'da paylaş",
+  "name": "AdaVira – Yeni yazıyı Facebook ve Instagram'da paylaş (v2)",
   "nodes": [
     {
       "parameters": {
-        "pollTimes": { "item": [ { "mode": "everyX", "value": 15, "unit": "minutes" } ] },
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyX",
+              "value": 15,
+              "unit": "minutes"
+            }
+          ]
+        },
         "feedUrl": "https://adavira.com/feed"
       },
       "id": "a1f0c6b2-0001-4c1a-9a01-000000000001",
       "name": "Yeni yazı (RSS)",
       "type": "n8n-nodes-base.rssFeedReadTrigger",
       "typeVersion": 1,
-      "position": [0, 300]
+      "position": [
+        0,
+        300
+      ]
     },
     {
       "parameters": {
         "assignments": {
           "assignments": [
-            { "id": "s1", "name": "graphVersion", "type": "string", "value": "v27.0" },
-            { "id": "s2", "name": "pageId", "type": "string", "value": "FACEBOOK_SAYFA_ID" },
-            { "id": "s3", "name": "igUserId", "type": "string", "value": "INSTAGRAM_ISLETME_ID" },
-            { "id": "s4", "name": "link", "type": "string", "value": "={{ $json.link }}" },
-            { "id": "s5", "name": "imageUrl", "type": "string", "value": "={{ $json.enclosure ? $json.enclosure.url : '' }}" },
-            { "id": "s6", "name": "fbMessage", "type": "string", "value": "={{ $json.title }}\n\n{{ ($json.contentSnippet || '').trim() }}" },
-            { "id": "s7", "name": "igCaption", "type": "string", "value": "={{ $json.title }}\n\n{{ ($json.contentSnippet || '').trim() }}\n\nYazının tamamı için profilimizdeki bağlantıya tıklayın: adavira.com\n\n#AdaVira #Girne #KKTC #KuzeyKıbrıs #DijitalAjans {{ ($json.categories || []).map(c => '#' + String(c).replace(/[^\\p{L}\\p{N}]+/gu, '')).join(' ') }}" }
+            {
+              "id": "s1",
+              "name": "graphVersion",
+              "type": "string",
+              "value": "v27.0"
+            },
+            {
+              "id": "s2",
+              "name": "pageId",
+              "type": "string",
+              "value": "FACEBOOK_SAYFA_ID"
+            },
+            {
+              "id": "s3",
+              "name": "igUserId",
+              "type": "string",
+              "value": "INSTAGRAM_ISLETME_ID"
+            },
+            {
+              "id": "s4",
+              "name": "link",
+              "type": "string",
+              "value": "={{ $json.link }}"
+            },
+            {
+              "id": "s5",
+              "name": "imageUrl",
+              "type": "string",
+              "value": "={{ $json.enclosure ? $json.enclosure.url : '' }}"
+            },
+            {
+              "id": "s6",
+              "name": "fbMessage",
+              "type": "string",
+              "value": "={{ $json.title }}\n\n{{ ($json.contentSnippet || '').trim() }}"
+            },
+            {
+              "id": "s7",
+              "name": "igCaption",
+              "type": "string",
+              "value": "={{ $json.title }}\n\n{{ ($json.contentSnippet || '').trim() }}\n\nYazının tamamı için profilimizdeki bağlantıya tıklayın: adavira.com\n\n#AdaVira #Girne #KKTC #KuzeyKıbrıs #DijitalAjans {{ ($json.categories || []).map(c => '#' + String(c).replace(/[^\\p{L}\\p{N}]+/gu, '')).join(' ') }}"
+            }
           ]
         },
         "options": {}
@@ -31,7 +77,10 @@
       "name": "Ayarlar ve metinler",
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
-      "position": [240, 300]
+      "position": [
+        240,
+        300
+      ]
     },
     {
       "parameters": {
@@ -43,8 +92,14 @@
         "contentType": "form-urlencoded",
         "bodyParameters": {
           "parameters": [
-            { "name": "message", "value": "={{ $json.fbMessage }}" },
-            { "name": "link", "value": "={{ $json.link }}" }
+            {
+              "name": "message",
+              "value": "={{ $json.fbMessage }}"
+            },
+            {
+              "name": "link",
+              "value": "={{ $json.link }}"
+            }
           ]
         },
         "options": {}
@@ -53,15 +108,35 @@
       "name": "Facebook sayfasına paylaş",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [500, 160],
-      "credentials": { "httpQueryAuth": { "id": "", "name": "Meta sayfa erişim anahtarı" } }
+      "position": [
+        500,
+        160
+      ],
+      "credentials": {
+        "httpQueryAuth": {
+          "id": "",
+          "name": "Meta sayfa erişim anahtarı"
+        }
+      }
     },
     {
       "parameters": {
         "conditions": {
-          "options": { "caseSensitive": true, "typeValidation": "loose" },
+          "options": {
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
           "conditions": [
-            { "id": "c1", "leftValue": "={{ $json.imageUrl }}", "rightValue": "", "operator": { "type": "string", "operation": "notEmpty", "singleValue": true } }
+            {
+              "id": "c1",
+              "leftValue": "={{ $json.imageUrl }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
           ],
           "combinator": "and"
         },
@@ -71,7 +146,10 @@
       "name": "Kapak görseli var mı?",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
-      "position": [500, 440]
+      "position": [
+        500,
+        440
+      ]
     },
     {
       "parameters": {
@@ -83,8 +161,14 @@
         "contentType": "form-urlencoded",
         "bodyParameters": {
           "parameters": [
-            { "name": "image_url", "value": "={{ $json.imageUrl }}" },
-            { "name": "caption", "value": "={{ $json.igCaption }}" }
+            {
+              "name": "image_url",
+              "value": "={{ $json.imageUrl }}"
+            },
+            {
+              "name": "caption",
+              "value": "={{ $json.igCaption }}"
+            }
           ]
         },
         "options": {}
@@ -93,16 +177,33 @@
       "name": "Instagram gönderisi hazırla",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [740, 420],
-      "credentials": { "httpQueryAuth": { "id": "", "name": "Meta sayfa erişim anahtarı" } }
+      "position": [
+        740,
+        420
+      ],
+      "credentials": {
+        "httpQueryAuth": {
+          "id": "",
+          "name": "Meta sayfa erişim anahtarı"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
     },
     {
-      "parameters": { "amount": 30, "unit": "seconds" },
+      "parameters": {
+        "amount": 60,
+        "unit": "seconds"
+      },
       "id": "a1f0c6b2-0006-4c1a-9a01-000000000006",
-      "name": "Instagram işlesin (30 sn)",
+      "name": "Instagram işlesin (60 sn)",
       "type": "n8n-nodes-base.wait",
       "typeVersion": 1.1,
-      "position": [980, 420],
+      "position": [
+        980,
+        420
+      ],
       "webhookId": "a1f0c6b2-0006-4c1a-9a01-0000000000aa"
     },
     {
@@ -115,7 +216,10 @@
         "contentType": "form-urlencoded",
         "bodyParameters": {
           "parameters": [
-            { "name": "creation_id", "value": "={{ $('Instagram gönderisi hazırla').item.json.id }}" }
+            {
+              "name": "creation_id",
+              "value": "={{ $('Instagram gönderisi hazırla').item.json.id }}"
+            }
           ]
         },
         "options": {}
@@ -124,17 +228,86 @@
       "name": "Instagram'da yayınla",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [1220, 420],
-      "credentials": { "httpQueryAuth": { "id": "", "name": "Meta sayfa erişim anahtarı" } }
+      "position": [
+        1220,
+        420
+      ],
+      "credentials": {
+        "httpQueryAuth": {
+          "id": "",
+          "name": "Meta sayfa erişim anahtarı"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 4,
+      "waitBetweenTries": 5000
     }
   ],
   "connections": {
-    "Yeni yazı (RSS)": { "main": [ [ { "node": "Ayarlar ve metinler", "type": "main", "index": 0 } ] ] },
-    "Ayarlar ve metinler": { "main": [ [ { "node": "Facebook sayfasına paylaş", "type": "main", "index": 0 }, { "node": "Kapak görseli var mı?", "type": "main", "index": 0 } ] ] },
-    "Kapak görseli var mı?": { "main": [ [ { "node": "Instagram gönderisi hazırla", "type": "main", "index": 0 } ], [] ] },
-    "Instagram gönderisi hazırla": { "main": [ [ { "node": "Instagram işlesin (30 sn)", "type": "main", "index": 0 } ] ] },
-    "Instagram işlesin (30 sn)": { "main": [ [ { "node": "Instagram'da yayınla", "type": "main", "index": 0 } ] ] }
+    "Yeni yazı (RSS)": {
+      "main": [
+        [
+          {
+            "node": "Ayarlar ve metinler",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ayarlar ve metinler": {
+      "main": [
+        [
+          {
+            "node": "Facebook sayfasına paylaş",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Kapak görseli var mı?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Kapak görseli var mı?": {
+      "main": [
+        [
+          {
+            "node": "Instagram gönderisi hazırla",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Instagram gönderisi hazırla": {
+      "main": [
+        [
+          {
+            "node": "Instagram işlesin (60 sn)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Instagram işlesin (60 sn)": {
+      "main": [
+        [
+          {
+            "node": "Instagram'da yayınla",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
   },
-  "settings": { "executionOrder": "v1" },
+  "settings": {
+    "executionOrder": "v1"
+  },
   "active": false
 }
