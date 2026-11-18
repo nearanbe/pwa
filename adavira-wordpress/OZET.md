@@ -118,6 +118,17 @@ Yükleme: Görünüm → Temalar → Yeni ekle → Tema yükle → **"Yüklenenl
 
 ---
 
+## 9. Görsel üretimi (Cloudflare Workers AI)
+
+- **Servis:** Cloudflare Workers AI, ücretsiz plan (günlük 10.000 neuron). Hesap ID: `b30a1eee1d8de12b206e7a49257b419a`
+- **Model:** FLUX.2 [dev], doğrudan 1600×896 üretim. Yedek model: FLUX.1 [schnell] (Apache 2.0).
+- **Araç:** `araclar/gorsel.py`. Sahne tarifinden görsel üretir, 1600×900 JPEG yapar, başlık, alt metin ve açıklamalarla
+  adavira.com'a yükler, istenirse yazının kapağı yapar. Haberlerde "(Temsili görsel)" notu ekler.
+- **Anahtar:** Cloudflare API anahtarı yalnızca çalışma ortamının ağ sırlarında durur, dosyalarda yoktur.
+- **Günlük hak dolarsa:** O gün yeni görsel üretilmez, ertesi gün devam edilir. Ücret kesilmez.
+
+---
+
 ## 8. Bu paketin içeriği
 
 ```
