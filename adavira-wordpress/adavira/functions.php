@@ -4,10 +4,11 @@
  */
 defined('ABSPATH') || exit;
 
-define('ADV_VER', '1.2.3');
+define('ADV_VER', '1.2.4');
 define('ADV_DIR', get_template_directory());
 define('ADV_URI', get_template_directory_uri());
 
+require ADV_DIR . '/inc/cloudflare.php';
 require ADV_DIR . '/inc/data.php';
 require ADV_DIR . '/inc/helpers.php';
 require ADV_DIR . '/inc/settings.php';
