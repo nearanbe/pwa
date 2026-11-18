@@ -1,6 +1,6 @@
 # AdaVira WordPress teması: kurulum (Plesk)
 
-`adavira-tema.zip` içinde WordPress teması ve eski PHP siteden içerik aktarım aracı bulunur.
+`adavira-tema-<sürüm>.zip` (ör. `adavira-tema-1.0.1.zip`) içinde WordPress teması ve eski PHP siteden içerik aktarım aracı bulunur.
 Eski siteniz bu süreçte **hiç değişmez**. Yeni site hazır olunca alan adı yeni siteye çevrilir.
 
 ## Neler korunuyor?
@@ -20,7 +20,7 @@ Eski siteyi bozmamak için WordPress'i sitenin **ana klasörüne değil**, `yeni
    Sonuç `https://adavira.com/yeni` olmalı. Bu alan boş kalırsa WordPress eski sitenin üzerine kurulur!
 3. Veritabanı için **yeni** bir veritabanı oluşturulsun (eski sitenin veritabanını seçmeyin).
 4. WordPress paneli (`https://adavira.com/yeni/wp-admin`) → **Görünüm → Temalar → Yeni ekle → Tema yükle**
-   → `adavira-tema.zip` → **Etkinleştir**. Tema etkinleşince kalıcı bağlantılar ayarlanır, Hakkımızda ve
+   → `adavira-tema-<sürüm>.zip` (ör. `adavira-tema-1.0.1.zip`) → **Etkinleştir**. Tema etkinleşince kalıcı bağlantılar ayarlanır, Hakkımızda ve
    İletişim sayfaları oluşturulur.
 5. **Ayarlar → Okuma** → "Arama motorlarının bu siteyi dizinlemesini engelle" kutusunu işaretleyin
    (deneme süresince).
