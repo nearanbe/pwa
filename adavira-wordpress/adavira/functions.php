@@ -4,7 +4,7 @@
  */
 defined('ABSPATH') || exit;
 
-define('ADV_VER', '1.1.1');
+define('ADV_VER', '1.2.0');
 define('ADV_DIR', get_template_directory());
 define('ADV_URI', get_template_directory_uri());
 

@@ -103,7 +103,7 @@ function adv_post_card($p, $sizes = '(max-width:820px) 100vw, 360px') {
 	$u = get_permalink($p);
 	$th = has_post_thumbnail($p)
 		? '<a class="pc-img" href="' . esc_url($u) . '" tabindex="-1" aria-hidden="true">' . get_the_post_thumbnail($p, 'adv-800', ['sizes' => $sizes, 'loading' => 'lazy', 'decoding' => 'async', 'alt' => adv_thumb_alt($p)]) . '</a>'
-		: '<a class="pc-img pc-ph" href="' . esc_url($u) . '" tabindex="-1" aria-hidden="true"><span>VA</span></a>';
+		: '<a class="pc-img pc-ph" href="' . esc_url($u) . '" tabindex="-1" aria-hidden="true"><img src="' . esc_url(ADV_URI . '/assets/icon-192.png') . '" width="96" height="96" alt="" loading="lazy"></a>';
 	$lbl = function_exists('adv_kind') ? adv_kind($p) : ($p->post_type === 'haber' ? 'Bizden Haberler' : 'Blog');
 	return '<article class="pc">' . $th . '<div class="pc-b"><p class="pc-m"><span>' . $lbl . '</span><time datetime="' . esc_attr(get_the_date('c', $p)) . '">' . esc_html(get_the_date('d.m.Y', $p)) . '</time></p><h3><a href="' . esc_url($u) . '">' . adv_e(get_the_title($p)) . '</a></h3><p>' . adv_e(adv_excerpt($p, 140)) . '</p></div></article>';
 }
@@ -188,4 +188,10 @@ function adv_req_path() {
 	$base = rtrim((string) parse_url(home_url('/'), PHP_URL_PATH), '/');
 	if ($base !== '' && strpos($path, $base) === 0) $path = substr($path, strlen($base));
 	return $path === '' ? '/' : $path;
+}
+
+/** Yatay logo (header ve footer). Görselde "AdaVira Dijital Ajans" yazdığı için alt metin aynısı. */
+function adv_logo($h = 52) {
+	$w = (int) round(337 * $h / 104);
+	return '<img class="logo-img" src="' . esc_url(ADV_URI . '/assets/logo.webp?v=' . ADV_VER) . '" width="' . $w . '" height="' . (int) $h . '" alt="AdaVira Dijital Ajans logosu" decoding="async">';
 }

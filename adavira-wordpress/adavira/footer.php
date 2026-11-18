@@ -3,7 +3,7 @@
 <footer class="ftr">
 	<div class="w ftop">
 		<div class="fbrand">
-			<a class="logo" href="<?php echo esc_url(home_url('/')); ?>"><svg class="logo-m" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="14" fill="#C9A86A"/><text x="32" y="43" text-anchor="middle" font-family="Georgia,'Times New Roman',serif" font-size="30" font-weight="700" fill="#0F2730">VA</text></svg><span>AdaVira</span></a>
+			<a class="logo" href="<?php echo esc_url(home_url('/')); ?>"><?php echo adv_logo(); ?></a>
 			<p>Girne merkezli dijital ajans. Web tasarım, SEO, sosyal medya ve video prodüksiyon tek ekipte.</p>
 			<ul class="fcontact">
 				<li><?php echo adv_icon('mail'); ?><a href="mailto:<?php echo esc_attr(adv_email()); ?>"><?php echo esc_html(adv_email()); ?></a></li>

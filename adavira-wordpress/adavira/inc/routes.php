@@ -82,9 +82,9 @@ add_action('template_redirect', function () {
 		if (is_file($up['basedir'] . '/' . $m[1])) { wp_redirect($up['baseurl'] . '/' . $m[1], 301); exit; }
 	}
 	// Kökteki ikonlar (sunucuya ayrıca kopyalanmadıysa)
-	$root = ['/favicon.svg' => 'image/svg+xml', '/favicon-32.png' => 'image/png', '/apple-touch-icon.png' => 'image/png', '/icon-192.png' => 'image/png', '/assets/og-default.png' => 'image/png'];
+	$root = ['/favicon.ico' => 'image/png', '/favicon-32.png' => 'image/png', '/icon-512.png' => 'image/png', '/apple-touch-icon.png' => 'image/png', '/icon-192.png' => 'image/png', '/assets/og-default.png' => 'image/png'];
 	if (isset($root[$path])) {
-		$f = ADV_DIR . '/assets/' . basename($path);
+		$f = ADV_DIR . '/assets/' . ($path === '/favicon.ico' ? 'favicon-32.png' : basename($path));
 		if (is_file($f)) { status_header(200); header('Content-Type: ' . $root[$path]); header('Cache-Control: public, max-age=31536000'); readfile($f); exit; }
 	}
 }, 1);

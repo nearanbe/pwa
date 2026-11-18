@@ -119,7 +119,7 @@ add_action('wp_head', function () {
 	// schema.org: yerel işletme
 	$org = [
 		'@context' => 'https://schema.org', '@type' => 'ProfessionalService', '@id' => home_url('/#org'),
-		'name' => 'AdaVira', 'url' => home_url('/'), 'logo' => ADV_URI . '/assets/icon-192.png', 'image' => ADV_URI . '/assets/og-default.png',
+		'name' => 'AdaVira', 'url' => home_url('/'), 'logo' => ADV_URI . '/assets/icon-512.png', 'image' => ADV_URI . '/assets/og-default.png',
 		'email' => adv_email(), 'telephone' => '+' . $wa,
 		'address' => ['@type' => 'PostalAddress', 'addressLocality' => 'Girne', 'addressCountry' => 'CY', 'streetAddress' => adv_opt('address', 'Ozanköy - Girne / KKTC')],
 		'areaServed' => 'Kuzey Kıbrıs', 'priceRange' => '₺₺',
@@ -150,7 +150,7 @@ add_action('wp_head', function () {
 			'datePublished' => get_the_date('c', $p), 'dateModified' => get_the_modified_date('c', $p),
 			'mainEntityOfPage' => ['@type' => 'WebPage', '@id' => get_permalink($p)], 'inLanguage' => 'tr-TR',
 			'author' => adv_person_schema((int) $p->post_author), 'isAccessibleForFree' => true,
-			'publisher' => ['@type' => 'Organization', 'name' => 'AdaVira', 'logo' => ['@type' => 'ImageObject', 'url' => ADV_URI . '/assets/icon-192.png']],
+			'publisher' => ['@type' => 'Organization', 'name' => 'AdaVira', 'logo' => ['@type' => 'ImageObject', 'url' => ADV_URI . '/assets/icon-512.png']],
 		];
 	}
 	if (is_singular(['blog', 'haber']) && ($yid = adv_yt_id(get_post_meta(get_queried_object_id(), 'adv_youtube', true)))) {
@@ -163,7 +163,7 @@ add_action('wp_head', function () {
 	foreach ($ld as $x) $h .= '<script type="application/ld+json">' . wp_json_encode($x, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . "</script>\n";
 
 	$h .= '<meta name="theme-color" content="#0F2730">';
-	$h .= '<link rel="icon" href="' . esc_url(ADV_URI . '/assets/favicon.svg') . '" type="image/svg+xml"><link rel="icon" href="' . esc_url(ADV_URI . '/assets/favicon-32.png') . '" sizes="32x32" type="image/png"><link rel="apple-touch-icon" href="' . esc_url(ADV_URI . '/assets/apple-touch-icon.png') . '">' . "\n";
+	if (!has_site_icon()) $h .= '<link rel="icon" href="' . esc_url(ADV_URI . '/assets/favicon-32.png') . '" sizes="32x32" type="image/png"><link rel="icon" href="' . esc_url(ADV_URI . '/assets/icon-192.png') . '" sizes="192x192" type="image/png"><link rel="apple-touch-icon" href="' . esc_url(ADV_URI . '/assets/apple-touch-icon.png') . '">' . "\n";
 	echo $h;
 }, 1);
 

@@ -102,7 +102,7 @@ function adv_activate() {
 
 // Yönetim paneli girişinde marka
 add_action('login_enqueue_scripts', function () {
-	echo '<style>body.login{background:#0B1A20}#login h1 a{background:none;width:auto;height:auto;text-indent:0;font:600 34px "Cormorant Garamond",Georgia,serif;color:#C9A86A}.login #backtoblog a,.login #nav a{color:#9FB0B5!important}</style>';
+	echo '<style>body.login{background:#0B1A20}#login h1 a{background:url(' . esc_url(ADV_URI . '/assets/logo.webp') . ') center/contain no-repeat;width:280px;height:86px;text-indent:-9999px}.login #backtoblog a,.login #nav a{color:#9FB0B5!important}</style>';
 });
 add_filter('login_headerurl', function () { return home_url('/'); });
 add_filter('login_headertext', function () { return 'AdaVira'; });

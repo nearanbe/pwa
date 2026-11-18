@@ -13,8 +13,7 @@ $nav = ['/sektorler' => 'Sektörler', '/hizmetler' => 'Hizmetler', '/blog' => 'B
 <header class="hdr">
 	<div class="w nav">
 		<a class="logo" href="<?php echo esc_url(home_url('/')); ?>" aria-label="AdaVira ana sayfa">
-			<svg class="logo-m" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="14" fill="#C9A86A"/><text x="32" y="43" text-anchor="middle" font-family="Georgia,'Times New Roman',serif" font-size="30" font-weight="700" fill="#0F2730">VA</text></svg>
-			<span>AdaVira</span>
+			<?php echo adv_logo(); ?>
 		</a>
 		<button id="menu" class="burger" aria-label="Menüyü aç" aria-expanded="false" aria-controls="nav"><span></span></button>
 		<nav id="nav" aria-label="Ana menü">
