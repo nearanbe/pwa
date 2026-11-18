@@ -1,4 +1,8 @@
-<?php defined('ABSPATH') || exit; [$msg, $good, $old] = adv_contact_handle(); get_header(); the_post(); $wa = adv_wa();
+<?php defined('ABSPATH') || exit;
+// Form güvenlik jetonu her ziyaretçiye özeldir: bu sayfa önbelleğe alınmaz
+if (!defined('DONOTCACHEPAGE')) define('DONOTCACHEPAGE', true);
+nocache_headers();
+[$msg, $good, $old] = adv_contact_handle(); get_header(); the_post(); $wa = adv_wa();
 echo adv_page_head('İletişim', 'Projenizi anlatın, size en kısa sürede dönüş yapalım.', [['İletişim', '']], 'Bize ulaşın');
 ?>
 <section class="sec"><div class="w contact">

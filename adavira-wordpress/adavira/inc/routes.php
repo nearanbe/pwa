@@ -51,6 +51,12 @@ add_filter('body_class', function ($c) { if ($v = adv_view()) $c[] = 'v-' . sani
 
 /** Eski adresler için 301 yönlendirmeleri ve kök dosyalar */
 add_action('template_redirect', function () {
+	// www.adavira.com -> adavira.com (tek adres; Google için yinelenen site olmasın)
+	$want = parse_url(home_url('/'), PHP_URL_HOST);
+	$host = strtolower((string) ($_SERVER['HTTP_HOST'] ?? ''));
+	if ($want && $host && $host !== $want && preg_replace('/^www\./', '', $host) === preg_replace('/^www\./', '', $want)) {
+		wp_redirect(set_url_scheme('https://' . $want . ($_SERVER['REQUEST_URI'] ?? '/')), 301); exit;
+	}
 	$path = adv_req_path();
 
 	if (adv_view() === 'sitemap') { adv_sitemap(); exit; }
