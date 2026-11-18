@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Feriha Randevu
  * Description: Basit online randevu sistemi — müsait gün/saat seçimi, randevu formu, Apple Takvim (iCal) aboneliği ve e-posta bildirimleri. Kısa kod: [feriha_randevu]
- * Version: 1.0.1
+ * Version: 1.1.0
  * Author: Feriha Çelik
  * Requires at least: 6.2
  * Requires PHP: 7.4
@@ -14,7 +14,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'FR_VERSION', '1.0.1' );
+define( 'FR_VERSION', '1.1.0' );
 define( 'FR_FILE', __FILE__ );
 define( 'FR_DIR', plugin_dir_path( __FILE__ ) );
 define( 'FR_URL', plugin_dir_url( __FILE__ ) );
@@ -27,6 +27,7 @@ require_once FR_DIR . 'includes/admin-settings.php';
 require_once FR_DIR . 'includes/booking-form.php';
 require_once FR_DIR . 'includes/ical-feed.php';
 require_once FR_DIR . 'includes/notifications.php';
+require_once FR_DIR . 'includes/smtp.php';
 
 register_activation_hook(
 	__FILE__,

@@ -87,14 +87,7 @@ function fc_service_content( $item, $gkey ) {
 function fc_page_definitions() {
 	$name = esc_html( fc_opt( 'person_name' ) );
 
-	$about  = fc_b_p( 'Merhaba, ben ' . $name . '. Kuzey Kıbrıs\'ta yetişkinler, çocuklar, ergenler, çiftler ve ailelerle yüz yüze ve online olarak çalışan bir uzman klinik psikoloğum.' );
-	$about .= fc_b_h( 'Eğitim' );
-	$about .= fc_b_list( array( 'Lisans: Psikoloji — (üniversite adı, yıl)', 'Yüksek Lisans: Klinik Psikoloji — (üniversite adı, yıl)', '(Diğer eğitim ve sertifikalar)' ) );
-	$about .= fc_b_h( 'Uzmanlık alanlarım' );
-	$about .= fc_b_list( array( 'Bireysel ve yetişkin terapisi', 'Bilişsel Davranışçı Terapi (BDT)', 'Çift, evlilik ve aile terapisi', 'Çocuk ve ergen terapisi', 'Psikolojik test ve ölçekler (MMPI, Beck, AGTE)' ) );
-	$about .= fc_b_h( 'Çalışma yaklaşımım' );
-	$about .= fc_b_p( 'Her danışanın hikâyesinin kendine özgü olduğuna inanıyorum. Görüşmelerde yargısız, güvenli ve saygılı bir alan oluşturmayı; bilimsel temelli yöntemleri sizin ihtiyaçlarınıza göre uyarlamayı önemsiyorum.' );
-	$about .= fc_b_p( '<em>(Bu metni kendi cümlelerinizle değiştirebilirsiniz.)</em>' );
+	$about  = fc_b_shortcode( '[fc_hakkimda]' );
 	$about .= fc_b_pattern( 'cta' );
 
 	$services  = fc_b_p( 'Kuzey Kıbrıs\'ta yüz yüze ve online olarak sunduğum psikolojik danışmanlık, terapi ve değerlendirme hizmetleri aşağıdadır. Ayrıntılı bilgi için ilgili hizmete tıklayabilirsiniz.' );

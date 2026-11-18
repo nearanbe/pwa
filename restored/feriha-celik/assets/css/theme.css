@@ -417,3 +417,14 @@ a.fc-contact-card:hover { border-color: var(--wp--preset--color--primary); trans
 /* Hizalama yardımcıları (çekirdek stiller her sayfada yüklenmeyebilir) */
 .has-text-align-center { text-align: center; }
 .has-text-align-right { text-align: right; }
+
+/* ---------- Hakkımda (self-servis) ---------- */
+.fc-about__figure{margin:0 0 1.2rem;float:right;max-width:300px;margin-left:1.5rem}
+.fc-about__photo{width:100%;height:auto;border-radius:16px;display:block}
+.fc-about__intro p:first-child{font-size:1.15rem}
+.fc-about h2{clear:both}
+.fc-about ul{padding-left:1.1rem}
+.fc-about ul li{margin:.25rem 0}
+@media (max-width:640px){
+  .fc-about__figure{float:none;max-width:260px;margin:0 auto 1.2rem}
+}

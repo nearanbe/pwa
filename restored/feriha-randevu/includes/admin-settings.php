@@ -78,7 +78,7 @@ function fr_render_settings_page() {
 		</form>
 
 		<h2>E-postalar ulaşmıyor mu?</h2>
-		<p>Bazı sunucularda e-postalar gereksiz (spam) klasörüne düşebilir. Ücretsiz <strong>WP Mail SMTP</strong> eklentisini kurup Gmail/Outlook hesabınızla bağlamanız önerilir.</p>
+		<p>Bazı sunucularda e-postalar gereksiz (spam) klasörüne düşer ya da hiç ulaşmaz. Bunu çözmek için <a href="<?php echo esc_url( admin_url( 'edit.php?post_type=' . FR_CPT . '&page=fr-smtp' ) ); ?>"><strong>E-posta (SMTP)</strong></a> ekranından Gmail/Outlook hesabınızı bağlayın ve test e-postası gönderin. Ayrı bir eklenti kurmanıza gerek yoktur.</p>
 	</div>
 	<?php
 }
