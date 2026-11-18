@@ -11,9 +11,19 @@ class ADV_Importer {
 	private $pdo;
 	private $old;
 	private $env = [];
+	private $json = null;
 
 	public function __construct($old_dir, $db = []) {
 		$this->old = rtrim((string) $old_dir, '/');
+		// Yedek klasörü (adavira-yedek.zip içeriği: yazilar.json + uploads) verildiyse veritabanı gerekmez
+		$jf = $this->old . '/yazilar.json';
+		if ($this->old && !is_file($jf) && is_file($this->old . '/yedek/yazilar.json')) { $this->old .= '/yedek'; $jf = $this->old . '/yazilar.json'; }
+		if ($this->old && is_file($jf) && !is_file($this->old . '/.env')) {
+			$this->json = json_decode((string) file_get_contents($jf), true);
+			if (!is_array($this->json)) throw new Exception('yazilar.json okunamadı.');
+			$this->say('Yedek dosyasından aktarılıyor: ' . count($this->json) . ' kayıt');
+			return;
+		}
 		if ($this->old && is_file($this->old . '/.env')) $this->env = @parse_ini_file($this->old . '/.env') ?: [];
 		$host = $db['host'] ?? '' ?: ($this->env['DB_HOST'] ?? 'localhost');
 		$name = $db['name'] ?? '' ?: ($this->env['DB_NAME'] ?? '');
@@ -26,6 +36,21 @@ class ADV_Importer {
 
 	private function say($s) { $this->log[] = $s; if (defined('WP_CLI') && WP_CLI) WP_CLI::log($s); }
 
+	/** Eski tablo satırları (veritabanından ya da yedek JSON'dan, aynı biçimde) */
+	private function rows($table) {
+		if ($this->json === null) return $this->has_table($table) ? $this->pdo->query('SELECT * FROM `' . $table . '`' . ($table === 'pages' ? '' : ' ORDER BY id'))->fetchAll() : [];
+		$dt = function ($v) { if (!$v) return ''; $t = strtotime($v); return $t ? gmdate('Y-m-d H:i:s', $t + (int) (get_option('gmt_offset') * HOUR_IN_SECONDS)) : ''; };
+		$out = [];
+		foreach ($this->json as $i => $x) {
+			$isp = ($x['tur'] ?? '') === 'sayfa';
+			if (($table === 'pages') !== $isp || $table === 'messages') continue;
+			$out[] = ['id' => 'j' . ($x['slug'] ?? $i), 'type' => $x['tur'] ?? 'blog', 'slug' => $x['slug'] ?? '', 'title' => $x['baslik'] ?? '', 'excerpt' => $x['ozet'] ?? '',
+				'body' => $x['icerik_html'] ?? '', 'published' => 1, 'created_at' => $dt($x['yayin_tarihi'] ?? '') ?: current_time('mysql'), 'updated_at' => $dt($x['guncelleme_tarihi'] ?? ''),
+				'image' => $x['kapak'] ?? '', 'image_alt' => $x['kapak_alt'] ?? ''];
+		}
+		return $out;
+	}
+
 	private function has_col($t, $c) {
 		try { return (bool) $this->pdo->query("SHOW COLUMNS FROM `$t` LIKE " . $this->pdo->quote($c))->fetch(); } catch (Throwable $e) { return false; }
 	}
@@ -33,7 +58,7 @@ class ADV_Importer {
 		try { return (bool) $this->pdo->query('SHOW TABLES LIKE ' . $this->pdo->quote($t))->fetch(); } catch (Throwable $e) { return false; }
 	}
 
-	private function uploads_src() { return $this->old ? $this->old . '/public/uploads' : ''; }
+	private function uploads_src() { if (!$this->old) return ''; return $this->json !== null ? $this->old . '/uploads' : $this->old . '/public/uploads'; }
 
 	/** public/uploads -> wp-content/uploads (aynı yıl/ay klasörleri) */
 	public function copy_uploads() {
@@ -102,11 +127,11 @@ class ADV_Importer {
 	}
 
 	public function posts() {
-		if (!$this->has_table('posts')) { $this->say('posts tablosu yok, atlandı.'); return; }
-		$rows = $this->pdo->query('SELECT * FROM posts ORDER BY id')->fetchAll();
+		$rows = $this->rows('posts');
+		if (!$rows) { $this->say('Aktarılacak yazı bulunamadı.'); return; }
 		$c = 0;
 		foreach ($rows as $r) {
-			$key = 'post:' . $r['id'];
+			$key = 'post:' . $r['type'] . ':' . $r['slug'];
 			$type = $r['type'] === 'haber' ? 'haber' : 'blog';
 			$arr = [
 				'post_type' => $type, 'post_status' => !empty($r['published']) ? 'publish' : 'draft',
@@ -129,8 +154,7 @@ class ADV_Importer {
 	}
 
 	public function pages() {
-		if (!$this->has_table('pages')) return;
-		foreach ($this->pdo->query('SELECT * FROM pages')->fetchAll() as $r) {
+		foreach ($this->rows('pages') as $r) {
 			$p = get_page_by_path($r['slug']);
 			$arr = ['post_type' => 'page', 'post_status' => 'publish', 'post_name' => $r['slug'], 'post_title' => $r['title'] ?: 'Hakkımızda', 'post_excerpt' => (string) $r['excerpt'], 'post_content' => $this->fix_body($r['body'])];
 			if ($p) { $arr['ID'] = $p->ID; $id = wp_update_post(wp_slash($arr), true); } else $id = wp_insert_post(wp_slash($arr), true);
@@ -142,9 +166,8 @@ class ADV_Importer {
 	}
 
 	public function messages() {
-		if (!$this->has_table('messages')) return;
 		$c = 0;
-		foreach ($this->pdo->query('SELECT * FROM messages ORDER BY id')->fetchAll() as $r) {
+		foreach ($this->rows('messages') as $r) {
 			$key = 'msg:' . $r['id'];
 			if ($this->find($key)) continue;
 			$ph = $r['phone'] ?? '' ?: ($r['email'] ?? '');
@@ -213,7 +236,7 @@ function adv_import_page() {
 	if ($log) echo '<div class="notice notice-success"><pre style="white-space:pre-wrap">' . esc_html(implode("\n", $log)) . '</pre></div>';
 	echo '<form method="post">';
 	wp_nonce_field('adv_import');
-	echo '<table class="form-table"><tr><th><label for="old">Eski site klasörü</label></th><td><input class="large-text code" id="old" name="old" value="' . esc_attr($dir) . '" placeholder="/var/www/vhosts/adavira.com/httpdocs"><p class="description">İçinde <code>.env</code>, <code>inc</code> ve <code>public/uploads</code> olan klasör. Veritabanı bilgileri .env dosyasından okunur.</p></td></tr>';
+	echo '<table class="form-table"><tr><th><label for="old">Eski site klasörü</label></th><td><input class="large-text code" id="old" name="old" value="' . esc_attr($dir) . '" placeholder="/var/www/vhosts/adavira.com/httpdocs"><p class="description">İçinde <code>.env</code>, <code>inc</code> ve <code>public/uploads</code> olan klasör. Veritabanı bilgileri .env dosyasından okunur.<br>Eski site silindiyse: <code>adavira-yedek.zip</code> dosyasını sunucuda bir klasöre açıp o klasörün yolunu yazın (içinde <code>yazilar.json</code> ve <code>uploads</code> olmalı).</p></td></tr>';
 	echo '<tr><th>Veritabanı (isteğe bağlı)</th><td><input name="db_host" placeholder="localhost"> <input name="db_name" placeholder="veritabanı adı"> <input name="db_user" placeholder="kullanıcı"> <input type="password" name="db_pass" placeholder="şifre" autocomplete="new-password"><p class="description">Boş bırakırsanız .env içindeki bilgiler kullanılır.</p></td></tr>';
 	echo '<tr><th>Neler aktarılsın?</th><td>';
 	foreach (['uploads' => 'Görseller (public/uploads)', 'posts' => 'Blog ve Bizden Haberler', 'pages' => 'Hakkımızda sayfası', 'messages' => 'İletişim formu mesajları', 'settings' => 'Ayarlar (.env: WhatsApp, sosyal medya, SMTP)'] as $k => $v)
