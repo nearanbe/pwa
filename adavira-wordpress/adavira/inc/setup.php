@@ -97,7 +97,6 @@ function adv_activate() {
 			]);
 		}
 	}
-	update_option('blog_public', 1);
 	flush_rewrite_rules();
 }
 

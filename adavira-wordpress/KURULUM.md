@@ -13,11 +13,17 @@ Eski siteniz bu süreçte **hiç değişmez**. Yeni site hazır olunca alan adı
 - İletişim formu: ülke kodu ve (5xx) xxx xx xx telefon alanı, bot koruması (matematik sorusu veya
   Cloudflare Turnstile), SMTP ile e-posta. Mesajlar ayrıca panelde **Mesajlar** menüsünde saklanır.
 
-## 1. WordPress'i deneme adresine kurun
-1. Plesk → **Websites & Domains → Add Subdomain** → `yeni.adavira.com`.
-2. Plesk → **WordPress → Install** → alan olarak `yeni.adavira.com` seçin. Dil: Türkçe.
-3. WordPress paneli → **Görünüm → Temalar → Yeni ekle → Tema yükle** → `adavira-tema.zip` → **Etkinleştir**.
-   Tema etkinleşince kalıcı bağlantılar ayarlanır, Hakkımızda ve İletişim sayfaları oluşturulur.
+## 1. WordPress'i adavira.com/yeni klasörüne kurun
+Eski siteyi bozmamak için WordPress'i sitenin **ana klasörüne değil**, `yeni` adlı bir alt klasöre kurun.
+1. Plesk → **WordPress → Install** (veya **Install → Custom**).
+2. Alan adı: `adavira.com`. **Installation path** (kurulum yolu) alanına `yeni` yazın.
+   Sonuç `https://adavira.com/yeni` olmalı. Bu alan boş kalırsa WordPress eski sitenin üzerine kurulur!
+3. Veritabanı için **yeni** bir veritabanı oluşturulsun (eski sitenin veritabanını seçmeyin).
+4. WordPress paneli (`https://adavira.com/yeni/wp-admin`) → **Görünüm → Temalar → Yeni ekle → Tema yükle**
+   → `adavira-tema.zip` → **Etkinleştir**. Tema etkinleşince kalıcı bağlantılar ayarlanır, Hakkımızda ve
+   İletişim sayfaları oluşturulur.
+5. **Ayarlar → Okuma** → "Arama motorlarının bu siteyi dizinlemesini engelle" kutusunu işaretleyin
+   (deneme süresince).
 
 ## 2. Eski içerikleri aktarın
 1. **Araçlar → AdaVira Aktarım** menüsünü açın.
@@ -42,19 +48,21 @@ WP-CLI kullanıyorsanız: `wp adavira import --old=/var/www/vhosts/adavira.com/h
 
 **İletişim** sayfasından deneme mesajı gönderin, sonra hem e-postayı hem **Mesajlar** menüsünü kontrol edin.
 
-## 4. Yayına alın (alan adını çevirin)
-1. Plesk → `adavira.com` → **Hosting Settings → Document root** değerini WordPress'in kurulu olduğu
-   klasöre çevirin. Bunun yerine WP Toolkit'in **Clone** özelliğiyle `yeni.adavira.com`'u `adavira.com`'a
-   da kopyalayabilirsiniz.
-2. WordPress → **Ayarlar → Genel**: WordPress adresi ve Site adresi `https://adavira.com` olmalı.
-   WP Toolkit'te klonladıysanız bu adım kendiliğinden yapılır.
-3. Plesk → `adavira.com` → **Apache & nginx Settings → Additional nginx directives** alanına şunu ekleyin
+## 4. Yayına alın (adavira.com'u WordPress'e çevirin)
+1. Plesk → `adavira.com` → **Hosting & DNS → Hosting Settings → Document root**: şu anki değerin
+   sonuna `/yeni` ekleyin (ör. `httpdocs/public` ise `httpdocs/public/yeni`). **Kaydet**.
+2. WordPress → **Ayarlar → Genel**: "WordPress adresi" ve "Site adresi" alanlarının ikisini de
+   `https://adavira.com` yapın. **Kaydet** (sizi yeniden giriş ekranına atabilir: `https://adavira.com/wp-admin`).
+3. **Araçlar → AdaVira Aktarım** → aktarımı **bir kez daha** çalıştırın. Yazı içindeki görsel adresleri
+   `/yeni` olmadan güncellenir. (Bu adımdan önce yazıları panelde düzenlemeyin, aktarım üzerine yazar.)
+4. **Ayarlar → Kalıcı bağlantılar** → hiçbir şey değiştirmeden **Kaydet**.
+5. **Ayarlar → Okuma** → dizinleme engeli kutusunun işaretini **kaldırın**.
+6. Plesk → **Apache & nginx Settings → Additional nginx directives** alanına şunu ekleyin
    (eski görsel adresleri için):
    ```
    location ^~ /uploads/ { return 301 /wp-content$request_uri; }
    ```
-4. Google Search Console → **Site haritaları** → `https://adavira.com/sitemap.xml` adresini yeniden gönderin.
-5. Deneme alt alanını (`yeni.adavira.com`) silin ya da arama motorlarına kapatın.
+7. Google Search Console → **Site haritaları** → `https://adavira.com/sitemap.xml` adresini yeniden gönderin.
 
 Eski dosyalar `httpdocs` içinde yedek olarak kalır. Bir sorun olursa document root'u geri almanız yeterli.
 

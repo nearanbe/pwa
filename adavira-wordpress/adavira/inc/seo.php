@@ -73,7 +73,7 @@ function adv_meta() {
 
 function adv_canonical() {
 	if (is_singular()) return get_permalink();
-	$path = (string) parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
+	$path = adv_req_path();
 	return home_url(user_trailingslashit($path === '/' ? '/' : untrailingslashit($path)));
 }
 

@@ -50,7 +50,7 @@ add_filter('body_class', function ($c) { if ($v = adv_view()) $c[] = 'v-' . sani
 
 /** Eski adresler için 301 yönlendirmeleri ve kök dosyalar */
 add_action('template_redirect', function () {
-	$path = rawurldecode((string) parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH));
+	$path = adv_req_path();
 
 	if (adv_view() === 'sitemap') { adv_sitemap(); exit; }
 

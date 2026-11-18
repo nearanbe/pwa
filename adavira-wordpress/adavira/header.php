@@ -1,4 +1,4 @@
-<?php defined('ABSPATH') || exit; $wa = adv_wa(); $cur = (string) parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
+<?php defined('ABSPATH') || exit; $wa = adv_wa(); $cur = adv_req_path();
 $nav = ['/sektorler' => 'Sektörler', '/hizmetler' => 'Hizmetler', '/blog' => 'Blog', '/bizden-haberler' => 'Bizden Haberler', '/hakkimizda' => 'Hakkımızda'];
 ?><!doctype html>
 <html <?php language_attributes(); ?>>

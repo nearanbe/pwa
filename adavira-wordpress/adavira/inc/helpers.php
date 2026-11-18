@@ -181,3 +181,11 @@ function adv_ctx($k = null, $v = null) {
 	if (func_num_args() === 2) { $c[$k] = $v; return $v; }
 	return $c[$k] ?? null;
 }
+
+/** İstek yolu, WordPress bir alt klasördeyse (ör. /yeni) o önek çıkarılmış olarak. */
+function adv_req_path() {
+	$path = rawurldecode((string) parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH));
+	$base = rtrim((string) parse_url(home_url('/'), PHP_URL_PATH), '/');
+	if ($base !== '' && strpos($path, $base) === 0) $path = substr($path, strlen($base));
+	return $path === '' ? '/' : $path;
+}
