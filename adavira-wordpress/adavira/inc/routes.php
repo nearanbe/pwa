@@ -61,6 +61,9 @@ add_action('template_redirect', function () {
 		'/blog/kibris-ta-milyonluk-villalar-neden-ilanlarda-neden-aylarca-bekliyor' => '/blog/kibris-ta-milyonluk-villalar-neden-ilanlarda-aylarca-bekliyor',
 		'/yonetim.php' => '/wp-admin/',
 	];
+	// Eski sitenin Google'da kayıtlı yazıları: yeni sistemde yoksa Blog / Bizden Haberler sayfasına yönlendir
+	foreach (['/blog/kktc-ve-girne-deki-oto-galeriler-icin-arac-satislarini-hizlandiran-dijital-vitrin-rehberi', '/blog/girne-ve-kktc-de-klinik-dis-hekimi-ve-uzmanlar-icin-hasta-kazandiran-dijital-rehber', '/blog/kibris-ta-milyonluk-villalar-neden-ilanlarda-aylarca-bekliyor', '/blog/girne-isletmeleri-icin-google-seo'] as $o) $redirects[$o] = $redirects[$o] ?? '/blog';
+	foreach (['/bizden-haberler/girne-ve-kktc-isletmeleri-icin-dijitalde-yeni-donem-saha-tecrubesi-ve-olculebilir-buyume', '/bizden-haberler/adavira-yayinda'] as $o) $redirects[$o] = '/bizden-haberler';
 	$k = rtrim($path, '/');
 	// Yalnızca sayfa yoksa yönlendir (aynı adreste gerçek bir yazı varsa o gösterilir)
 	if (isset($redirects[$k]) && (is_404() || $k === '/yonetim.php')) { wp_safe_redirect(home_url($redirects[$k]), 301); exit; }

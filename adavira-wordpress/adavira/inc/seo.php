@@ -165,3 +165,13 @@ add_action('template_redirect', function () {
 	if (is_attachment()) { $p = get_post(); wp_redirect($p && $p->post_parent ? get_permalink($p->post_parent) : home_url('/'), 301); exit; }
 	if (is_author() || is_date()) { wp_redirect(home_url('/blog'), 301); exit; }
 });
+
+// Kullanıcı adı sızmasını önle: /?author=1 ve /author/... adresleri kullanıcı adını göstermesin
+add_action('parse_request', function ($wp) {
+	if (!is_admin() && (isset($_GET['author']) || !empty($wp->query_vars['author']) || !empty($wp->query_vars['author_name']))) { wp_redirect(home_url('/'), 301); exit; }
+});
+add_filter('rest_endpoints', function ($e) {
+	if (!is_user_logged_in()) { unset($e['/wp/v2/users'], $e['/wp/v2/users/(?P<id>[\\d]+)']); }
+	return $e;
+});
+add_filter('oembed_response_data', function ($d) { unset($d['author_name'], $d['author_url']); return $d; });
