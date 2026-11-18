@@ -8,3 +8,7 @@ var ph=d.getElementById('phone'),cc=d.getElementById('cc');
 function fmt(){var v=ph.value.replace(/\D/g,'');if(cc.value==='90'){v=v.replace(/^0/,'').slice(0,10);var o='';if(v.length){o='('+v.slice(0,3);if(v.length>3)o+=') '+v.slice(3,6);if(v.length>6)o+=' '+v.slice(6,8);if(v.length>8)o+=' '+v.slice(8,10);}ph.value=o;ph.placeholder='(5xx) xxx xx xx';}else{ph.value=v.slice(0,14);ph.placeholder='Telefon numaranız';}}
 if(ph&&cc){ph.addEventListener('input',fmt);cc.addEventListener('change',fmt);if(ph.value)fmt();}
 })();
+(function(){var d=document;
+d.querySelectorAll('.vid-in[data-yt]').forEach(function(a){a.addEventListener('click',function(e){e.preventDefault();var f=d.createElement('iframe');f.src='https://www.youtube-nocookie.com/embed/'+a.dataset.yt+'?autoplay=1&rel=0';f.title=a.querySelector('img').alt;f.allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';f.allowFullscreen=true;a.replaceWith(Object.assign(d.createElement('div'),{className:'vid-in'}));d.querySelector('.vid .vid-in').appendChild(f);});});
+d.querySelectorAll('.share .copy').forEach(function(b){b.addEventListener('click',function(){var u=b.dataset.url;(navigator.clipboard?navigator.clipboard.writeText(u):Promise.reject()).then(function(){b.textContent='Kopyalandı ✓';},function(){prompt('Bağlantı:',u);});});});
+})();

@@ -4,7 +4,7 @@
  */
 defined('ABSPATH') || exit;
 
-define('ADV_VER', '1.0.2');
+define('ADV_VER', '1.1.0');
 define('ADV_DIR', get_template_directory());
 define('ADV_URI', get_template_directory_uri());
 
@@ -16,3 +16,4 @@ require ADV_DIR . '/inc/routes.php';
 require ADV_DIR . '/inc/seo.php';
 require ADV_DIR . '/inc/contact.php';
 require ADV_DIR . '/inc/importer.php';
+require ADV_DIR . '/inc/news.php';

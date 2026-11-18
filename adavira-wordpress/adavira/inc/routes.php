@@ -31,7 +31,8 @@ add_action('wp', function () {
 	$v = adv_view();
 	if (!$v) return;
 	global $wp_query;
-	$ok = ($v === 'hizmetler' || $v === 'sektorler' || $v === 'sitemap')
+	$ok = ($v === 'hizmetler' || $v === 'sektorler' || $v === 'sitemap' || $v === 'newsmap')
+		|| ($v === 'yazar' && adv_author_by_slug(get_query_var('adv_slug')))
 		|| ($v === 'hizmet' && isset($GLOBALS['ADV_SERVICES'][get_query_var('adv_slug')]))
 		|| ($v === 'sektor' && isset($GLOBALS['ADV_SECTORS'][get_query_var('adv_slug')]));
 	if ($ok) { $wp_query->is_home = false; $wp_query->is_404 = false; status_header(200); }
@@ -41,7 +42,7 @@ add_action('wp', function () {
 add_filter('template_include', function ($t) {
 	$v = adv_view();
 	if (!$v || is_404()) return $t;
-	$map = ['hizmetler' => 'hizmetler', 'hizmet' => 'hizmet', 'sektorler' => 'sektorler', 'sektor' => 'sektor'];
+	$map = ['hizmetler' => 'hizmetler', 'hizmet' => 'hizmet', 'sektorler' => 'sektorler', 'sektor' => 'sektor', 'yazar' => 'yazar'];
 	if (isset($map[$v])) return ADV_DIR . '/templates/' . $map[$v] . '.php';
 	return $t;
 });
@@ -53,6 +54,7 @@ add_action('template_redirect', function () {
 	$path = adv_req_path();
 
 	if (adv_view() === 'sitemap') { adv_sitemap(); exit; }
+	if (adv_view() === 'newsmap') { adv_news_sitemap(); exit; }
 
 	$redirects = [
 		'/blog/kibris-ta-milyonluk-villalar-i-lanlarda-neden-aylarca-bekliyor-pahali-portfoyun-ucuz-fotograf-cikmazi' => '/blog/kibris-ta-milyonluk-villalar-neden-ilanlarda-aylarca-bekliyor',
@@ -83,7 +85,7 @@ add_action('template_redirect', function () {
 
 add_filter('robots_txt', function ($out, $public) {
 	if (!$public) return $out;
-	return "User-agent: *\nAllow: /\nDisallow: /wp-admin/\nAllow: /wp-admin/admin-ajax.php\nDisallow: /?s=\nDisallow: /search/\n\nSitemap: " . home_url('/sitemap.xml') . "\n";
+	return "User-agent: *\nAllow: /\nDisallow: /wp-admin/\nAllow: /wp-admin/admin-ajax.php\nDisallow: /?s=\nDisallow: /search/\n\nSitemap: " . home_url('/sitemap.xml') . "\nSitemap: " . home_url('/news-sitemap.xml') . "\n";
 }, 10, 2);
 
 function adv_sitemap() {
@@ -97,6 +99,11 @@ function adv_sitemap() {
 		$img = has_post_thumbnail($p) ? wp_get_attachment_image_url(get_post_thumbnail_id($p), 'full') : '';
 		$u[] = [wp_make_link_relative(get_permalink($p)), get_post_modified_time('Y-m-d', true, $p), $img];
 	}
+	$terms = get_terms(['taxonomy' => 'konu', 'hide_empty' => true]);
+	if (!is_wp_error($terms)) foreach ($terms as $t) $u[] = [wp_make_link_relative(get_term_link($t)), '', ''];
+	$au = [];
+	foreach (get_posts(['post_type' => ['blog', 'haber'], 'numberposts' => 1000, 'fields' => 'ids']) as $pid) $au[(int) get_post_field('post_author', $pid)] = 1;
+	foreach (array_keys($au) as $uid) $u[] = ['/yazar/' . adv_author_slug($uid), '', ''];
 	echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n" . '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">';
 	foreach ($u as $x) {
 		echo '<url><loc>' . esc_url(home_url($x[0])) . '</loc>' . ($x[1] ? '<lastmod>' . $x[1] . '</lastmod>' : '') . ($x[2] ? '<image:image><image:loc>' . esc_url($x[2]) . '</image:loc></image:image>' : '') . '</url>';

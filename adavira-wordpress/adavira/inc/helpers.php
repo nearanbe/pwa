@@ -104,7 +104,7 @@ function adv_post_card($p, $sizes = '(max-width:820px) 100vw, 360px') {
 	$th = has_post_thumbnail($p)
 		? '<a class="pc-img" href="' . esc_url($u) . '" tabindex="-1" aria-hidden="true">' . get_the_post_thumbnail($p, 'adv-800', ['sizes' => $sizes, 'loading' => 'lazy', 'decoding' => 'async', 'alt' => adv_thumb_alt($p)]) . '</a>'
 		: '<a class="pc-img pc-ph" href="' . esc_url($u) . '" tabindex="-1" aria-hidden="true"><span>VA</span></a>';
-	$lbl = $p->post_type === 'haber' ? 'Bizden Haberler' : 'Blog';
+	$lbl = function_exists('adv_kind') ? adv_kind($p) : ($p->post_type === 'haber' ? 'Bizden Haberler' : 'Blog');
 	return '<article class="pc">' . $th . '<div class="pc-b"><p class="pc-m"><span>' . $lbl . '</span><time datetime="' . esc_attr(get_the_date('c', $p)) . '">' . esc_html(get_the_date('d.m.Y', $p)) . '</time></p><h3><a href="' . esc_url($u) . '">' . adv_e(get_the_title($p)) . '</a></h3><p>' . adv_e(adv_excerpt($p, 140)) . '</p></div></article>';
 }
 

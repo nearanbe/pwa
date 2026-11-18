@@ -37,6 +37,12 @@ function adv_meta() {
 	} elseif ($v === 'sektor' && isset($S[$slug])) {
 		$m['title'] = $S[$slug][1] . ' | AdaVira'; $m['desc'] = $S[$slug][2];
 		$m['crumbs'] = [['Sektörler', '/sektorler'], [$S[$slug][0], '/sektor/' . $slug]];
+	} elseif ($v === 'yazar' && ($uid = adv_author_by_slug($slug))) {
+		$n = adv_author_name($uid);
+		$m['title'] = $n . ' | AdaVira Yazarı';
+		$m['desc'] = trim((string) get_the_author_meta('description', $uid)) ?: $n . ' tarafından yazılan AdaVira haberleri ve yazıları.';
+		$m['crumbs'] = [['Yazarlar', ''], [$n, '/yazar/' . $slug]];
+		$m['author'] = $uid;
 	} elseif (is_post_type_archive(['blog', 'haber'])) {
 		$nm = is_post_type_archive('blog') ? 'Blog' : 'Bizden Haberler';
 		$m['title'] = $nm . ' | AdaVira Girne' . (get_query_var('paged') > 1 ? ' – Sayfa ' . (int) get_query_var('paged') : '');
@@ -132,7 +138,7 @@ add_action('wp_head', function () {
 
 	if ($m['crumbs'] && !(adv_seo_plugin() && function_exists('rank_math'))) {
 		$it = [['@type' => 'ListItem', 'position' => 1, 'name' => 'Ana Sayfa', 'item' => home_url('/')]];
-		foreach ($m['crumbs'] as $i => $c) $it[] = ['@type' => 'ListItem', 'position' => $i + 2, 'name' => $c[0], 'item' => home_url($c[1])];
+		foreach (array_values(array_filter($m['crumbs'], function ($c) { return $c[1] !== ''; })) as $i => $c) $it[] = ['@type' => 'ListItem', 'position' => $i + 2, 'name' => $c[0], 'item' => home_url($c[1])];
 		$ld[] = ['@context' => 'https://schema.org', '@type' => 'BreadcrumbList', 'itemListElement' => $it];
 	}
 	if ($m['type'] === 'article' && !adv_seo_plugin()) {
@@ -143,10 +149,17 @@ add_action('wp_head', function () {
 			'headline' => get_the_title($p), 'description' => $m['desc'], 'image' => [$img],
 			'datePublished' => get_the_date('c', $p), 'dateModified' => get_the_modified_date('c', $p),
 			'mainEntityOfPage' => ['@type' => 'WebPage', '@id' => get_permalink($p)], 'inLanguage' => 'tr-TR',
-			'author' => ['@type' => 'Organization', 'name' => 'AdaVira', 'url' => home_url('/')],
+			'author' => adv_person_schema((int) $p->post_author), 'isAccessibleForFree' => true,
 			'publisher' => ['@type' => 'Organization', 'name' => 'AdaVira', 'logo' => ['@type' => 'ImageObject', 'url' => ADV_URI . '/assets/icon-192.png']],
 		];
 	}
+	if (is_singular(['blog', 'haber']) && ($yid = adv_yt_id(get_post_meta(get_queried_object_id(), 'adv_youtube', true)))) {
+		$p = get_queried_object();
+		$ld[] = ['@context' => 'https://schema.org', '@type' => 'VideoObject', 'name' => get_the_title($p), 'description' => $m['desc'] ?: get_the_title($p),
+			'thumbnailUrl' => ['https://i.ytimg.com/vi/' . $yid . '/hqdefault.jpg'], 'uploadDate' => get_the_date('c', $p),
+			'embedUrl' => 'https://www.youtube.com/embed/' . $yid, 'contentUrl' => 'https://www.youtube.com/watch?v=' . $yid, 'publisher' => ['@id' => home_url('/#org')]];
+	}
+	if (!empty($m['author'])) $ld[] = ['@context' => 'https://schema.org', '@type' => 'ProfilePage', 'mainEntity' => adv_person_schema($m['author'])];
 	foreach ($ld as $x) $h .= '<script type="application/ld+json">' . wp_json_encode($x, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . "</script>\n";
 
 	$h .= '<meta name="theme-color" content="#0F2730">';

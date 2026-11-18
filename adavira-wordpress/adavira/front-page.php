@@ -1,4 +1,5 @@
 <?php defined('ABSPATH') || exit; get_header(); $wa = adv_wa(); ?>
+<?php echo adv_news_bar(); ?>
 <section class="hero">
 	<div class="w hero-in">
 		<div class="hero-tx">
@@ -22,6 +23,8 @@
 	</div>
 	<div class="ticker" aria-hidden="true"><div class="ticker-in"><?php $tk = ['Web Tasarım', 'SEO', 'Sosyal Medya', 'Google ve Meta Reklam', 'Marka Kimliği', 'Drone 4K', 'Video Kurgu', 'AI Asistan']; for ($i = 0; $i < 2; $i++) foreach ($tk as $t) echo '<span>' . esc_html($t) . '</span>'; ?></div></div>
 </section>
+
+<?php echo adv_news_block(); ?>
 
 <section class="sec" id="hizmetler">
 	<div class="w">
@@ -68,8 +71,6 @@
 	<div class="w">
 		<div class="sh"><div><p class="eyebrow">İçerikler</p><h2>Blog</h2></div><a class="more" href="<?php echo esc_url(home_url('/blog')); ?>">Tüm yazılar <?php echo adv_icon('arrow'); ?></a></div>
 		<?php echo adv_post_grid(adv_posts('blog', 3)); ?>
-		<div class="sh mt"><div><h2>Bizden Haberler</h2></div><a class="more" href="<?php echo esc_url(home_url('/bizden-haberler')); ?>">Tüm haberler <?php echo adv_icon('arrow'); ?></a></div>
-		<?php echo adv_post_grid(adv_posts('haber', 3)); ?>
 	</div>
 </section>
 

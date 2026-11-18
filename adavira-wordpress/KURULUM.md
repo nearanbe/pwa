@@ -78,3 +78,16 @@ Eski dosyalar `httpdocs` içinde yedek olarak kalır. Bir sorun olursa document 
   (Plesk → Mail Settings → DKIM'i açın, DNS'e `v=DMARC1; p=none;` kaydı ekleyin).
 - Aktarım bitince güvenlik için eski sitenin `.env` dosyasındaki şifreleri (veritabanı, SMTP) değiştirin
   ve yeni şifreleri **AdaVira Ayarları** sayfasına girin.
+
+## Haber / medya kullanımı (tema 1.1.0+)
+- **Haber eklemek:** Bizden Haberler → Yeni haber. Bölümü sağdaki **Konular** kutusundan seçin
+  (Sektör Haberleri, Röportaj, Video, Ajans Duyuruları).
+- **Video:** Sağdaki "Haber / Röportaj / Video" kutusuna YouTube adresini yapıştırın. Video yazının başında
+  görünür ve Google video sonuçları için işaretlenir.
+- **Röportaj:** Aynı kutuya konuğun adını ve unvanını yazın.
+- **Manşet:** "Ana sayfada manşette göster" kutusunu işaretleyin. İşaretli haber yoksa en son haber manşet olur.
+- **Yazarlar:** Kullanıcılar → Yeni ekle → rol olarak **Yazar** seçin. Kullanıcı profilinde Görünen ad,
+  Biyografik bilgi, Unvan ve Profil fotoğrafı alanlarını doldurun. Yazar sayfası: adavira.com/yazar/ad-soyad
+- **Kapak görseli:** Google Discover için en az **1200 px** genişliğinde olmalı.
+- **Google News:** Search Console → Site haritaları → `https://adavira.com/news-sitemap.xml` gönderin,
+  ardından publishercenter.google.com adresinden siteyi ekleyin.
