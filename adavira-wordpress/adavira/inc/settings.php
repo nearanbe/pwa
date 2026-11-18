@@ -36,20 +36,35 @@ add_action('admin_menu', function () {
 	add_theme_page('AdaVira Ayarları', 'AdaVira Ayarları', 'manage_options', 'adavira-ayarlar', 'adv_settings_page');
 });
 
-add_action('admin_init', function () {
+add_action('init', function () {
+	// REST API'de (uygulama parolasıyla, yalnızca yöneticiler) şifre olmayan alanlar okunup yazılabilir
+	$props = [];
+	foreach (adv_settings_fields() as $g) foreach ($g as $k => $f) if (($f[2] ?? '') !== 'password') $props[$k] = ['type' => 'string'];
 	register_setting('adavira_settings', 'adavira_settings', [
-		'type' => 'array',
+		'type' => 'object',
+		'default' => [],
+		'show_in_rest' => ['schema' => ['type' => 'object', 'properties' => $props, 'additionalProperties' => false]],
 		'sanitize_callback' => function ($in) {
 			$old = get_option('adavira_settings', []);
+			$in = (array) $in;
 			$out = [];
 			foreach (adv_settings_fields() as $g) foreach ($g as $k => $f) {
-				$v = isset($in[$k]) ? trim(wp_unslash($in[$k])) : '';
+				if (!array_key_exists($k, $in)) { $out[$k] = $old[$k] ?? ''; continue; } // gönderilmeyen alan korunur
+				$v = trim(wp_unslash((string) $in[$k]));
 				if (($f[2] ?? '') === 'password' && $v === '') $v = $old[$k] ?? ''; // boş bırakılırsa eski şifre korunur
 				$out[$k] = strpos($k, 'social_') === 0 ? esc_url_raw($v) : sanitize_text_field($v);
 			}
 			return $out;
 		},
 	]);
+	// REST çıktısında şifre alanları hiç yer almaz
+	add_filter('rest_pre_get_setting', function ($v, $name) use ($props) {
+		if ($name !== 'adavira_settings') return $v;
+		$o = (array) get_option('adavira_settings', []);
+		$r = [];
+		foreach ($props as $k => $_) $r[$k] = (string) ($o[$k] ?? '');
+		return $r;
+	}, 10, 2);
 });
 
 function adv_settings_page() {
