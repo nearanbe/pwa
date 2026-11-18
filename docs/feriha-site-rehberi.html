@@ -1,0 +1,417 @@
+<title>Feriha için Site Rehberi</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+  /* Layout: tek sütun, geniş boşluklu, soldan içindekiler; markaya uygun pastel yeşil + sıcak serif başlık */
+  :root{
+    --bg:#f5f9f5; --surface:#ffffff; --surface-2:#eef5f0;
+    --fg:#233029; --muted:#5a6b60; --border:#d8e7dd;
+    --accent:#2f6b49; --accent-2:#3f7d5a; --accent-soft:#e3f1e8;
+    --tip:#2f7d57; --tip-bg:#e6f4ec;
+    --warn:#9a6a12; --warn-bg:#fbf1dc;
+    --ex:#2f5fa6; --ex-bg:#e7eefb;
+    --shadow:0 1px 2px rgba(20,50,30,.05),0 6px 20px rgba(20,50,30,.06);
+    --maxw:820px;
+    --h:'Lora',Georgia,'Times New Roman',serif;
+    --b:'Nunito','Segoe UI',system-ui,sans-serif;
+  }
+  @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+    --bg:#141d18; --surface:#1d2822; --surface-2:#223029;
+    --fg:#e8f0ea; --muted:#a6b7ac; --border:#304236;
+    --accent:#86c7a1; --accent-2:#79be96; --accent-soft:#233229;
+    --tip:#86c7a1; --tip-bg:#1f2f26;
+    --warn:#e3b765; --warn-bg:#2e2817;
+    --ex:#8fb3ef; --ex-bg:#1b2434;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 6px 20px rgba(0,0,0,.25);
+    color-scheme:dark;
+  }}
+  :root[data-theme="dark"]{
+    --bg:#141d18; --surface:#1d2822; --surface-2:#223029;
+    --fg:#e8f0ea; --muted:#a6b7ac; --border:#304236;
+    --accent:#86c7a1; --accent-2:#79be96; --accent-soft:#233229;
+    --tip:#86c7a1; --tip-bg:#1f2f26;
+    --warn:#e3b765; --warn-bg:#2e2817;
+    --ex:#8fb3ef; --ex-bg:#1b2434;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 6px 20px rgba(0,0,0,.25);
+    color-scheme:dark;
+  }
+
+  *{box-sizing:border-box}
+  body{background:var(--bg);color:var(--fg);font-family:var(--b);line-height:1.7;font-size:17px;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding-left:max(18px,env(safe-area-inset-left,0px));padding-right:max(18px,env(safe-area-inset-right,0px));padding-block:0}
+
+  h1,h2,h3{font-family:var(--h);text-wrap:balance;line-height:1.25;color:var(--fg)}
+  h1{font-size:2.1rem;margin:0}
+  h2{font-size:1.5rem;margin:0 0 .2rem}
+  h3{font-size:1.18rem;margin:1.6rem 0 .3rem;color:var(--accent)}
+  p{margin:.6rem 0}
+  a{color:var(--accent);text-underline-offset:3px}
+
+  /* Üst başlık bandı */
+  header.hero{background:linear-gradient(160deg,var(--accent-soft),var(--surface));border-bottom:1px solid var(--border)}
+  .hero .wrap{padding-block:40px 30px}
+  .kicker{font-family:var(--b);text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:800;color:var(--accent-2);margin:0 0 .5rem}
+  .hero p.lead{font-size:1.08rem;color:var(--muted);max-width:60ch;margin:.7rem 0 0}
+  .leaf{width:30px;height:30px;color:var(--accent);flex:0 0 auto}
+  .brandrow{display:flex;align-items:center;gap:12px}
+
+  /* İçindekiler */
+  nav.toc{background:var(--surface);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow);padding:18px 20px;margin:26px 0}
+  nav.toc h2{font-size:1.05rem;margin:0 0 .5rem;color:var(--accent)}
+  nav.toc ol{margin:0;padding-left:1.2rem;columns:2;column-gap:28px}
+  @media (max-width:560px){nav.toc ol{columns:1}}
+  nav.toc li{margin:.25rem 0;break-inside:avoid}
+  nav.toc a{text-decoration:none;color:var(--fg)}
+  nav.toc a:hover{color:var(--accent);text-decoration:underline}
+
+  section.card{background:var(--surface);border:1px solid var(--border);border-radius:18px;box-shadow:var(--shadow);padding:26px 26px 30px;margin:22px 0;scroll-margin-top:16px}
+  @media (max-width:560px){section.card{padding:20px 18px 24px}}
+  .sec-num{display:inline-flex;align-items:center;justify-content:center;min-width:2rem;height:2rem;padding:0 .5rem;border-radius:999px;background:var(--accent);color:#fff;font-family:var(--b);font-weight:800;font-size:.95rem;margin-right:.6rem}
+  :root[data-theme="dark"] .sec-num,:root:not([data-theme="light"]) .sec-num{color:#10201a}
+  @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .sec-num{color:#10201a}}
+  .sec-head{display:flex;align-items:center;gap:0;margin-bottom:.6rem}
+
+  /* Adım adım listeler */
+  ol.steps{counter-reset:step;list-style:none;margin:1rem 0;padding:0}
+  ol.steps>li{counter-increment:step;position:relative;padding:14px 16px 14px 54px;margin:10px 0;background:var(--surface-2);border:1px solid var(--border);border-radius:12px}
+  ol.steps>li::before{content:counter(step);position:absolute;left:14px;top:12px;width:28px;height:28px;border-radius:50%;background:var(--accent);color:#fff;font-weight:800;font-size:.9rem;display:flex;align-items:center;justify-content:center;font-family:var(--b)}
+  :root[data-theme="dark"] ol.steps>li::before{color:#10201a}
+  @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) ol.steps>li::before{color:#10201a}}
+  ol.steps strong{color:var(--fg)}
+
+  ul.plain{margin:.6rem 0;padding-left:1.2rem}
+  ul.plain li{margin:.3rem 0}
+
+  /* Kutular */
+  .box{border-radius:12px;padding:14px 16px 14px 16px;margin:14px 0;border:1px solid var(--border);border-left-width:5px}
+  .box .tag{font-weight:800;font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;display:block;margin-bottom:.25rem}
+  .box p{margin:.25rem 0}
+  .box.tip{background:var(--tip-bg);border-left-color:var(--tip)} .box.tip .tag{color:var(--tip)}
+  .box.warn{background:var(--warn-bg);border-left-color:var(--warn)} .box.warn .tag{color:var(--warn)}
+  .box.ex{background:var(--ex-bg);border-left-color:var(--ex)} .box.ex .tag{color:var(--ex)}
+
+  code,.path{font-family:ui-monospace,Menlo,Consolas,monospace;background:var(--surface-2);border:1px solid var(--border);border-radius:6px;padding:.08em .4em;font-size:.9em;white-space:nowrap}
+  .path{color:var(--accent-2);font-weight:700}
+
+  .menu{display:inline-flex;align-items:center;gap:.35em;flex-wrap:wrap}
+  .menu b{background:var(--accent-soft);border:1px solid var(--border);border-radius:7px;padding:.1em .5em;font-family:var(--b);font-weight:700;font-size:.92em;color:var(--accent);white-space:nowrap}
+  .menu .arr{color:var(--muted);font-weight:700}
+
+  table.kw{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.96rem}
+  table.kw th,table.kw td{text-align:left;padding:9px 11px;border-bottom:1px solid var(--border);vertical-align:top}
+  table.kw th{background:var(--surface-2);font-family:var(--b);color:var(--accent)}
+  .scroll{overflow-x:auto}
+
+  .divider{height:1px;background:var(--border);border:0;margin:1.4rem 0}
+  footer{color:var(--muted);text-align:center;padding:30px 0 50px;font-size:.92rem}
+  .pill{display:inline-block;background:var(--accent-soft);color:var(--accent);border:1px solid var(--border);border-radius:999px;padding:.12em .7em;font-size:.82rem;font-weight:700;margin:.15rem .2rem}
+  .good::before{content:"✓ ";color:var(--tip);font-weight:900}
+  .bad::before{content:"✗ ";color:#c0563f;font-weight:900}
+  @media print{nav.toc{display:none}section.card{break-inside:avoid;box-shadow:none}}
+</style>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="brandrow">
+      <svg class="leaf" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2C7 4 4 8 4 13a8 8 0 0 0 16 0c0-1.7-.5-3.3-1.3-4.7C17 11 14 12 11 12c2-1.5 3.5-4 4-7-1 .3-2 .7-3 1.3V2z"/></svg>
+      <p class="kicker" style="margin:0">Uzman Klinik Psikolog Feriha Çelik</p>
+    </div>
+    <h1 style="margin-top:14px">Siteni Kullanma Rehberi</h1>
+    <p class="lead">Merhaba Feriha Hanım 🌿 Bu rehber, sitenizi hiç bilgisayar/WordPress bilmeseniz bile rahatça kullanabilmeniz için hazırlandı. Her şeyi <strong>adım adım, sırayla</strong> anlatıyor. Acele etmeyin; yanlış bir tuşa basıp bir şeyi bozmanız neredeyse imkânsız. Takıldığınız yerde bu sayfaya dönün.</p>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <nav class="toc" aria-label="İçindekiler">
+    <h2>İçindekiler</h2>
+    <ol>
+      <li><a href="#giris">Siteye (panele) nasıl girilir</a></li>
+      <li><a href="#panel">Panelde ne nerede</a></li>
+      <li><a href="#yazi">Yeni blog yazısı (haber) ekleme</a></li>
+      <li><a href="#gorsel">Yazıya görsel ekleme + alt metin</a></li>
+      <li><a href="#link">Metne link (bağlantı) ekleme</a></li>
+      <li><a href="#kategori">Kategori oluşturma</a></li>
+      <li><a href="#yayinla">Önizleme ve yayınlama</a></li>
+      <li><a href="#seo">Google'da bulunmak (SEO) nedir</a></li>
+      <li><a href="#anahtar">Anahtar kelime mantığı</a></li>
+      <li><a href="#kullanim">Anahtar kelimeyi yazıda kullanma</a></li>
+      <li><a href="#yoast">Yoast SEO: yeşil ışık</a></li>
+      <li><a href="#sablon">Hazır blog yazısı iskeleti</a></li>
+      <li><a href="#bilgiler">Hakkımda ve iletişim bilgilerini güncelleme</a></li>
+      <li><a href="#randevu">Müsait günlerinizi ayarlama</a></li>
+      <li><a href="#altin">Altın kurallar</a></li>
+      <li><a href="#sozluk">Küçük sözlük</a></li>
+    </ol>
+  </nav>
+
+  <div class="box tip">
+    <span class="tag">Önce şunu bilin</span>
+    <p>Sitenizde <strong>iki tür</strong> içerik var: <strong>Sayfalar</strong> (Hakkımda, Hizmetler, İletişim gibi sabit bölümler — bunlar hazır, pek dokunmayacaksınız) ve <strong>Yazılar</strong> (blog/haber/makaleler — işte bunları siz ekleyeceksiniz). Bu rehberin kalbi "Yazılar" kısmıdır.</p>
+  </div>
+
+  <section class="card" id="giris">
+    <div class="sec-head"><span class="sec-num">1</span><h2>Siteye (panele) nasıl girilir</h2></div>
+    <p>Sitenizi düzenlediğiniz yere "yönetim paneli" denir. Oraya girmek için:</p>
+    <ol class="steps">
+      <li>İnternet tarayıcınızın (Chrome gibi) adres çubuğuna şunu yazın: <span class="path">ferihacelik.com.tr/wp-admin</span></li>
+      <li>Açılan ekranda <strong>kullanıcı adınızı</strong> ve <strong>şifrenizi</strong> yazın, <strong>Giriş Yap</strong>'a basın.</li>
+      <li>Karşınıza gri-mavi bir ekran ve <strong>solda bir menü</strong> çıkar. İşte burası sizin yönetim panelinizdir.</li>
+    </ol>
+    <div class="box warn">
+      <span class="tag">Dikkat</span>
+      <p>Kullanıcı adı/şifrenizi kimseyle paylaşmayın ve bir yere not edin. Şifrenizi unutursanız giriş ekranındaki <strong>"Parolanızı mı unuttunuz?"</strong> ile e-postanızdan yenileyebilirsiniz.</p>
+    </div>
+  </section>
+
+  <section class="card" id="panel">
+    <div class="sec-head"><span class="sec-num">2</span><h2>Panelde ne nerede</h2></div>
+    <p>Soldaki menüde işinize yarayacak başlıca bölümler şunlar:</p>
+    <ul class="plain">
+      <li><span class="menu"><b>Yazılar</b></span> — Blog/haber/makale yazılarınız. <strong>En çok burayı kullanacaksınız.</strong></li>
+      <li><span class="menu"><b>Ortamlar</b></span> (Medya) — Yüklediğiniz tüm fotoğraflar burada toplanır.</li>
+      <li><span class="menu"><b>Sayfalar</b></span> — Hakkımda, Hizmetler gibi sabit sayfalar.</li>
+      <li><span class="menu"><b>Site Bilgileri</b></span> — Telefon, WhatsApp, adres, anasayfa fotoğrafı gibi bilgiler (bkz. bölüm 13).</li>
+      <li><span class="menu"><b>Randevular</b></span> — Gelen randevular ve müsait günleriniz (bkz. bölüm 14).</li>
+      <li><span class="menu"><b>Yoast SEO</b></span> — Google'da bulunmanıza yardım eden araç (bkz. bölüm 11).</li>
+    </ul>
+    <div class="box tip"><span class="tag">İpucu</span><p>Panelin en üstünde, sol köşede sitenizin adına tıklarsanız sitenizin <strong>gerçek görünümüne</strong> geçersiniz. Oradan yine sol üstten panele geri dönebilirsiniz.</p></div>
+  </section>
+
+  <section class="card" id="yazi">
+    <div class="sec-head"><span class="sec-num">3</span><h2>Yeni blog yazısı (haber) ekleme</h2></div>
+    <p>Diyelim ki "Çocuklarda sınav kaygısı" diye bir yazı yazacaksınız. Adımlar:</p>
+    <ol class="steps">
+      <li>Sol menüden <span class="menu"><b>Yazılar</b><span class="arr">›</span><b>Yeni Ekle</b></span>'ye tıklayın.</li>
+      <li>En üstteki büyük boş alana <strong>yazının başlığını</strong> yazın. Örn: <em>Çocuklarda Sınav Kaygısı Nasıl Anlaşılır?</em></li>
+      <li>Başlığın altındaki geniş boş alana tıklayın ve <strong>yazmaya başlayın</strong>. Her <strong>Enter</strong>'a bastığınızda yeni bir paragraf açılır.</li>
+      <li>Yeni bir şey (fotoğraf, başlık, liste vb.) eklemek için satır başındaki ya da sol üstteki <strong>+ (artı)</strong> düğmesine basın. Buna "blok eklemek" denir.</li>
+      <li>Ara başlık eklemek isterseniz: <strong>+</strong> › <strong>Başlık</strong> seçin. (Ara başlıklar hem okuması kolaylaştırır hem Google için iyidir.)</li>
+    </ol>
+    <div class="box ex">
+      <span class="tag">Örnek düşünce</span>
+      <p>Yazıyı Word'de yazar gibi düşünün: başlık, sonra paragraflar, araya fotoğraf, araya küçük ara başlıklar. WordPress de aynı mantıkta çalışır, sadece her parça bir "blok"tur.</p>
+    </div>
+    <div class="box tip"><span class="tag">İpucu</span><p>Yazınız kaybolmaz: WordPress <strong>otomatik taslak kaydeder</strong>. Yine de arada bir sağ üstteki <strong>Taslağı kaydet</strong>'e basmak güven verir.</p></div>
+  </section>
+
+  <section class="card" id="gorsel">
+    <div class="sec-head"><span class="sec-num">4</span><h2>Yazıya görsel ekleme + "alt metin"</h2></div>
+    <p>Fotoğraf eklemek yazıyı canlı ve profesyonel yapar. Şöyle eklenir:</p>
+    <ol class="steps">
+      <li>Fotoğrafı koymak istediğiniz yere gelin, <strong>+</strong> › <strong>Görsel</strong>'e tıklayın.</li>
+      <li><strong>Karşıya Yükle</strong> deyip bilgisayarınızdan fotoğrafı seçin. (Daha önce yüklediyseniz <strong>Ortam Kitaplığı</strong>'ndan seçebilirsiniz.)</li>
+      <li>Fotoğraf eklenince, sağ taraftaki ayar bölümünde <strong>"Alternatif metin (Alt Text)"</strong> kutusunu bulun.</li>
+      <li>Bu kutuya, fotoğrafta <strong>ne olduğunu kısaca yazın</strong>. Örn: <em>"Masada ödev yapan kaygılı bir çocuk"</em>.</li>
+    </ol>
+    <h3>"Alt metin" nedir, neden önemli?</h3>
+    <p>Alt metin, <strong>fotoğrafı göremeyenler için fotoğrafın yazıyla anlatılmış hâlidir</strong>. İki işe yarar:</p>
+    <ul class="plain">
+      <li>Görme engelli ziyaretçilerin ekran okuyucusu bu metni sesli okur.</li>
+      <li><strong>Google fotoğrafın ne olduğunu ancak bu metinden anlar</strong> — yani SEO'ya yardım eder.</li>
+    </ul>
+    <div class="box tip"><span class="tag">İyi alt metin</span>
+      <p><span class="good">"Kıbrıs'ta çift terapisi seansında konuşan bir çift"</span><br>
+      <span class="bad">"resim1.jpg" ya da boş bırakmak</span></p>
+    </div>
+    <div class="box warn"><span class="tag">Dikkat: fotoğraf boyutu</span>
+      <p>Çok büyük fotoğraflar siteyi yavaşlatır. Telefon/fotoğraf makinesinden geleni doğrudan değil, mümkünse <strong>biraz küçültülmüş</strong> (örn. genişliği 1500 piksel civarı) yükleyin. Emin değilseniz sorun değil, yine de yükleyebilirsiniz.</p>
+    </div>
+  </section>
+
+  <section class="card" id="link">
+    <div class="sec-head"><span class="sec-num">5</span><h2>Metne link (bağlantı) ekleme</h2></div>
+    <p>Link, bir kelimeye tıklanınca başka bir sayfaya götüren bağlantıdır. Örneğin "<em>çift terapisi</em>" yazısının içinde, kendi <em>Çift Terapisi</em> hizmet sayfanıza link verebilirsiniz.</p>
+    <ol class="steps">
+      <li>Link yapmak istediğiniz <strong>kelimeyi fareyle seçin</strong> (üzerini boyayın).</li>
+      <li>Çıkan küçük araç çubuğunda <strong>zincir şeklindeki 🔗 düğmesine</strong> tıklayın.</li>
+      <li>Açılan kutuya gitmesini istediğiniz adresi yazın ya da kendi sayfalarınızdan birinin adını yazıp seçin.</li>
+      <li><strong>Enter</strong>'a basın. Kelime artık link olur (genelde renkli/altı çizili görünür).</li>
+    </ol>
+    <h3>İki tür link</h3>
+    <ul class="plain">
+      <li><strong>İç link:</strong> Kendi sitenizin başka bir sayfasına (örn. bir yazıdan "Online Terapi" sayfasına). <span class="pill">Google bunu çok sever</span></li>
+      <li><strong>Dış link:</strong> Başka bir siteye (örn. güvenilir bir sağlık kaynağına). Dış linklerde kutudaki <strong>"Yeni sekmede aç"</strong> seçeneğini açın ki ziyaretçi sizin sitenizden çıkmasın.</li>
+    </ul>
+    <div class="box tip"><span class="tag">İpucu</span><p>Her yazıda <strong>1–2 iç link</strong> verin (ilgili hizmet sayfanıza ya da başka bir yazınıza). Bu, hem ziyaretçiyi sitede tutar hem Google'da yükselmenize yardım eder.</p></div>
+  </section>
+
+  <section class="card" id="kategori">
+    <div class="sec-head"><span class="sec-num">6</span><h2>Kategori oluşturma</h2></div>
+    <p>Kategori, yazılarınızı <strong>konularına göre gruplayan etiketlerdir</strong>. Kütüphanedeki raflar gibi düşünün: "Çocuk", "Çift ve Aile", "Kaygı", "Online Terapi"... Ziyaretçi ilgilendiği rafa gidip o konudaki tüm yazıları bir arada görebilir.</p>
+    <h3>Yazı yazarken yeni kategori oluşturmak</h3>
+    <ol class="steps">
+      <li>Yazı ekranında sağ taraftaki ayarlarda <strong>"Kategoriler"</strong> bölümünü bulun. (Görünmüyorsa sağ üstteki dişli/ayar simgesine tıklayın.)</li>
+      <li><strong>"+ Yeni kategori ekle"</strong>ye tıklayın.</li>
+      <li>Kategori adını yazın (örn. <em>Çocuk ve Ergen</em>) ve <strong>Ekle</strong>'ye basın.</li>
+      <li>Oluşan kategorinin <strong>yanındaki kutucuğu işaretleyin</strong> ki yazı o kategoriye girsin.</li>
+    </ol>
+    <div class="box tip"><span class="tag">İpucu</span><p>Kategorileri sade tutun; <strong>5–8 tane</strong> yeter. Her yazı için 1 (en fazla 2) kategori seçin. Çok fazla kategori hem sizi hem ziyaretçiyi yorar.</p></div>
+    <div class="box ex"><span class="tag">Örnek kategoriler</span>
+      <p>Bireysel Terapi · Çift ve Aile · Çocuk ve Ergen · Kaygı ve Depresyon · Online Terapi · Testler ve Ölçekler</p>
+    </div>
+  </section>
+
+  <section class="card" id="yayinla">
+    <div class="sec-head"><span class="sec-num">7</span><h2>Önizleme ve yayınlama</h2></div>
+    <ol class="steps">
+      <li>Yazı bitince, göndermeden önce sağ üstteki <strong>Önizle</strong> ile <strong>nasıl göründüğünü</strong> kontrol edin.</li>
+      <li>Her şey güzelse sağ üstteki mavi <strong>Yayımla</strong> düğmesine basın.</li>
+      <li>Bir onay çıkar, tekrar <strong>Yayımla</strong> deyin. Tebrikler, yazınız artık internette! 🎉</li>
+      <li>Sonradan düzeltmek isterseniz: <span class="menu"><b>Yazılar</b><span class="arr">›</span><b>Tüm Yazılar</b></span>'dan yazıya tıklayıp düzenleyin, sonra <strong>Güncelle</strong>'ye basın.</li>
+    </ol>
+    <div class="box warn"><span class="tag">Silmek yerine</span><p>Bir yazıyı yayından kaldırmak isterseniz silmek zorunda değilsiniz; yazıyı açıp sağdaki <strong>Durum</strong>'u <strong>Taslak</strong> yaparsanız siteden gizlenir ama kaybolmaz.</p></div>
+  </section>
+
+  <section class="card" id="seo">
+    <div class="sec-head"><span class="sec-num">8</span><h2>Google'da bulunmak (SEO) nedir?</h2></div>
+    <p><strong>SEO</strong>, "arama motoru optimizasyonu"nun kısaltması. Basitçe: <strong>birisi Google'a bir şey yazdığında sizin sayfanızın üst sıralarda çıkmasını sağlama işi.</strong></p>
+    <p>Düşünün: Kıbrıs'ta bir anne Google'a <em>"Girne çocuk psikoloğu"</em> yazıyor. Sizin siteniz ilk sayfada çıkarsa, size ulaşır. İşte SEO, tam olarak bunun olma ihtimalini artırmaktır.</p>
+    <div class="box ex"><span class="tag">En önemli gerçek</span>
+      <p>Google, <strong>insanlara gerçekten yardım eden, net ve samimi yazıları</strong> ödüllendirir. Yani en iyi SEO = ziyaretçinin sorusuna <strong>sade ve doğru</strong> cevap veren yazı yazmaktır. Siz zaten bunu yapabiliyorsunuz. 🌿</p>
+    </div>
+    <p>Blog yazmak neden önemli? Çünkü her yazı, Google'da yeni bir <strong>"bulunma kapısı"</strong> açar. Ne kadar çok faydalı yazı, o kadar çok kapı.</p>
+  </section>
+
+  <section class="card" id="anahtar">
+    <div class="sec-head"><span class="sec-num">9</span><h2>Anahtar kelime mantığı</h2></div>
+    <p><strong>Anahtar kelime</strong>, insanların Google'a yazdığı kelime/cümledir. Yani <strong>"sizi arayan kişi ne yazar?"</strong> sorusunun cevabı.</p>
+    <p>Yazıya başlamadan önce kendinize şunu sorun: <em>"Bu yazıyı bulmak isteyen biri Google'a ne yazar?"</em> İşte o cümle sizin anahtar kelimenizdir.</p>
+    <div class="scroll">
+    <table class="kw">
+      <thead><tr><th>Yazı konusu</th><th>İyi anahtar kelime (insanlar böyle arar)</th></tr></thead>
+      <tbody>
+        <tr><td>Çiftlerin iletişim sorunları</td><td>çift terapisi Kıbrıs · evlilikte iletişim sorunları</td></tr>
+        <tr><td>Çocukta öfke nöbetleri</td><td>çocukta öfke nöbeti ne yapmalı</td></tr>
+        <tr><td>Online görüşme anlatımı</td><td>online terapi Kıbrıs · online psikolog KKTC</td></tr>
+        <tr><td>Sınav kaygısı</td><td>sınav kaygısı nasıl geçer</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <h3>İyi anahtar kelime nasıl seçilir?</h3>
+    <ul class="plain">
+      <li><strong>Bölge ekleyin:</strong> "psikolog" yerine <em>"Kıbrıs psikolog"</em>, "KKTC psikolog", "Girne psikolog". Sizi yakındakiler bulsun.</li>
+      <li><strong>İnsan gibi düşünün:</strong> Kimse "anksiyete bozukluğu tedavi protokolü" yazmaz; "<em>sürekli endişe nasıl geçer</em>" yazar.</li>
+      <li><strong>Soru hâline getirin:</strong> "çocukta öfke" yerine "<em>çocukta öfke nöbeti nasıl geçer</em>" gibi. İnsanlar soru sorar.</li>
+    </ul>
+    <div class="box tip"><span class="tag">Küçük yöntem</span><p>Bir kelimeyi Google'a yazmaya başlayın; Google'ın <strong>otomatik tamamladığı öneriler</strong> (aşağı açılan liste), insanların gerçekten aradığı cümlelerdir. Oradan fikir alın.</p></div>
+  </section>
+
+  <section class="card" id="kullanim">
+    <div class="sec-head"><span class="sec-num">10</span><h2>Anahtar kelimeyi yazıda nasıl kullanmalı</h2></div>
+    <p>Bir anahtar kelime seçtiniz (örn. <em>"sınav kaygısı nasıl geçer"</em>). Şimdi onu yazının <strong>doğru yerlerine, abartmadan</strong> serpiştireceksiniz:</p>
+    <ol class="steps">
+      <li><strong>Başlıkta:</strong> Mümkünse yazının başlığında geçsin. Örn: <em>"Sınav Kaygısı Nasıl Geçer? 5 Pratik Öneri"</em></li>
+      <li><strong>İlk paragrafta:</strong> İlk 2–3 cümlede bir kez geçsin. Google en çok başa bakar.</li>
+      <li><strong>Bir-iki ara başlıkta:</strong> Ara başlıklardan birinde geçmesi iyidir.</li>
+      <li><strong>Metin içinde doğal olarak:</strong> Yazı boyunca 2–3 kez, zorlamadan geçsin.</li>
+      <li><strong>Bir fotoğrafın alt metninde:</strong> Uygun düşüyorsa alt metinde de kullanın.</li>
+    </ol>
+    <div class="box warn"><span class="tag">Çok önemli: abartmayın</span>
+      <p>Aynı kelimeyi arka arkaya 20 kez yazmak <strong>ters teper</strong> — Google bunu "spam" sayar ve sizi aşağı atar. Kural basit: <strong>önce insan okusun, doğal olsun.</strong> Kelime zorlama duruyorsa çıkarın.</p>
+    </div>
+    <div class="box ex"><span class="tag">Doğal kullanım örneği</span>
+      <p>"Sınav döneminde birçok öğrenci yoğun bir gerginlik yaşar. Peki <strong>sınav kaygısı nasıl geçer</strong>? Bu yazıda uygulaması kolay birkaç yöntemi anlatıyorum..."</p>
+    </div>
+  </section>
+
+  <section class="card" id="yoast">
+    <div class="sec-head"><span class="sec-num">11</span><h2>Yoast SEO: yeşil ışık mantığı</h2></div>
+    <p>Sitenizde <strong>Yoast SEO</strong> adında bir yardımcı var. Yazı yazarken, aşağıda bir bölüm açılır ve size <strong>trafik ışığı gibi</strong> renklerle yol gösterir: <span class="pill" style="color:#c0563f">🔴 kırmızı</span> <span class="pill" style="color:var(--warn)">🟠 turuncu</span> <span class="pill" style="color:var(--tip)">🟢 yeşil</span>. Hedef: olabildiğince <strong>yeşil</strong>.</p>
+    <ol class="steps">
+      <li>Yazı ekranında aşağı inince <strong>"Yoast SEO"</strong> bölümünü bulun.</li>
+      <li><strong>"Odak anahtar kelimesi"</strong> kutusuna, bu yazı için seçtiğiniz anahtar kelimeyi yazın (örn. <em>sınav kaygısı nasıl geçer</em>).</li>
+      <li>Yoast size <strong>öneriler listesi</strong> verir ("anahtar kelime ilk paragrafta yok", "yazı biraz kısa" gibi). Bunları elinizden geldiğince yeşile çevirin.</li>
+      <li><strong>"Meta açıklaması"</strong> kutusunu doldurun: Bu, Google'da başlığın altında görünen <strong>2 satırlık tanıtım</strong> yazısıdır. Anahtar kelimeyi içeren, merak uyandıran bir cümle yazın.</li>
+    </ol>
+    <div class="box tip"><span class="tag">Rahat olun</span><p>Her şeyin yeşil olması <strong>şart değil</strong>. Turuncu da gayet iyidir. Önemli olan yazının insana faydalı olması; Yoast sadece yardımcı bir rehberdir, patron değil. 🙂</p></div>
+  </section>
+
+  <section class="card" id="sablon">
+    <div class="sec-head"><span class="sec-num">12</span><h2>Hazır blog yazısı iskeleti</h2></div>
+    <p>Takılırsanız her yazıyı şu kalıba göre yazabilirsiniz:</p>
+    <ul class="plain">
+      <li><strong>Başlık:</strong> Anahtar kelimeyi içeren, merak uyandıran bir başlık.</li>
+      <li><strong>Giriş (2–3 cümle):</strong> Okuyucunun derdine dokunun + anahtar kelime. ("Birçok ebeveyn çocuğunun öfke nöbetleri karşısında çaresiz hisseder...")</li>
+      <li><strong>Ara başlık 1:</strong> Konuyu açın (örn. "Öfke nöbeti neden olur?").</li>
+      <li><strong>Ara başlık 2:</strong> Pratik öneriler, maddeler hâlinde.</li>
+      <li><strong>Araya 1 fotoğraf</strong> (alt metniyle).</li>
+      <li><strong>Kapanış:</strong> Kısa bir özet + nazik bir davet: "Zorlanıyorsanız birlikte çalışabiliriz. <em>Randevu Al</em> sayfasından bana ulaşabilirsiniz." (Burada <strong>iç link</strong> verin.)</li>
+      <li><strong>Kategori seçin</strong> ve <strong>Yayımla.</strong></li>
+    </ul>
+    <div class="box ex"><span class="tag">Uzunluk</span><p>İdeal blog yazısı <strong>300–800 kelime</strong> arası. Çok kısa olmasın (Google sevmez), roman da olmasın. Bir konuyu rahatça anlatacak kadar yeter.</p></div>
+  </section>
+
+  <section class="card" id="bilgiler">
+    <div class="sec-head"><span class="sec-num">13</span><h2>Hakkımda ve iletişim bilgilerini güncelleme</h2></div>
+    <p>Bu bilgiler için blok editörüyle uğraşmanıza gerek yok; sizin için <strong>basit formlar</strong> hazırladık.</p>
+    <h3>Telefon, WhatsApp, adres, anasayfa fotoğrafı</h3>
+    <ol class="steps">
+      <li>Sol menüden <span class="menu"><b>Site Bilgileri</b></span>'ne tıklayın.</li>
+      <li>Açılan formdaki kutuları doldurun (telefon, WhatsApp, e-posta, adres...).</li>
+      <li><strong>Anasayfa fotoğrafı</strong> için ilgili kutudan <strong>Fotoğraf seç / yükle</strong> deyin.</li>
+      <li>En altta <strong>Kaydet</strong>'e basın. Bu bilgiler sitenin her yerinde otomatik güncellenir.</li>
+    </ol>
+    <h3>Hakkımda metni (eğitim, sertifika, biyografi)</h3>
+    <ol class="steps">
+      <li><span class="menu"><b>Site Bilgileri</b><span class="arr">›</span><b>Hakkımda metni</b></span>'ne gidin.</li>
+      <li>Eğitim, sertifika, uzmanlık, deneyim ve kısa biyografinizi ilgili kutulara yazın (her satıra bir madde).</li>
+      <li><strong>Kaydet</strong>'e, sonra <strong>"Hakkımda sayfasını bu bilgilerle güncelle"</strong>ye basın. Hakkımda sayfanız anında güncellenir.</li>
+    </ol>
+    <div class="box warn"><span class="tag">Şimdi yapılmalı</span><p>Hakkımda sayfasında şu an <em>"(üniversite adı, yıl)"</em> gibi örnek yazılar var. Lütfen bunları <strong>kendi gerçek bilgilerinizle</strong> değiştirin.</p></div>
+  </section>
+
+  <section class="card" id="randevu">
+    <div class="sec-head"><span class="sec-num">14</span><h2>Müsait günlerinizi ayarlama</h2></div>
+    <p>Ziyaretçiler sitenizden randevu alabiliyor. Hangi gün/saatlerde müsait olduğunuzu <strong>siz belirlersiniz</strong>:</p>
+    <ol class="steps">
+      <li>Sol menüden <span class="menu"><b>Randevular</b><span class="arr">›</span><b>Müsait günlerim</b></span>'e gidin.</li>
+      <li>Çalıştığınız gün ve saatleri seçin/işaretleyin, kaydedin. Form yalnızca bu saatleri ziyaretçiye gösterir.</li>
+      <li>Yeni bir randevu geldiğinde <strong>e-posta ile haberiniz olur</strong> (<span class="path">bilgi@ferihacelik.com.tr</span>).</li>
+      <li>Randevuyu onaylamak için gelen e-postadaki bağlantıya ya da <span class="menu"><b>Randevular</b></span> listesine tıklayın.</li>
+    </ol>
+    <div class="box tip"><span class="tag">Apple Takvim</span><p><span class="menu"><b>Randevular</b><span class="arr">›</span><b>Ayarlar ve Apple Takvim</b></span> bölümünden, randevularınızı iPhone/Mac takviminize <strong>bir kez abone olarak</strong> otomatik aktarabilirsiniz.</p></div>
+  </section>
+
+  <section class="card" id="altin">
+    <div class="sec-head"><span class="sec-num">15</span><h2>Altın kurallar</h2></div>
+    <h3>Yapın</h3>
+    <ul class="plain">
+      <li><span class="good">Düzenli yazın — ayda 1–2 yazı bile Google için çok değerli.</span></li>
+      <li><span class="good">İnsan gibi, sade ve samimi yazın.</span></li>
+      <li><span class="good">Her yazıya 1 fotoğraf + alt metin koyun.</span></li>
+      <li><span class="good">Her yazıda 1–2 iç link verin.</span></li>
+      <li><span class="good">Yazıyı yayımlamadan Önizle ile kontrol edin.</span></li>
+    </ul>
+    <h3>Yapmayın</h3>
+    <ul class="plain">
+      <li><span class="bad">Aynı anahtar kelimeyi defalarca tekrarlamayın.</span></li>
+      <li><span class="bad">Başka sitelerden metin kopyalamayın (Google ceza verir).</span></li>
+      <li><span class="bad">Dev boyutlu fotoğraf yüklemeyin (site yavaşlar).</span></li>
+      <li><span class="bad">Panikle bir şeyleri silmeyin — taslağa almak yeter.</span></li>
+    </ul>
+  </section>
+
+  <section class="card" id="sozluk">
+    <div class="sec-head"><span class="sec-num">16</span><h2>Küçük sözlük</h2></div>
+    <ul class="plain">
+      <li><strong>Panel (wp-admin):</strong> Siteyi yönettiğiniz arka oda.</li>
+      <li><strong>Yazı (Post):</strong> Blog/haber/makale.</li>
+      <li><strong>Sayfa (Page):</strong> Hakkımda, İletişim gibi sabit bölümler.</li>
+      <li><strong>Blok:</strong> Yazıdaki her parça (paragraf, başlık, fotoğraf...).</li>
+      <li><strong>Alt metin:</strong> Fotoğrafın yazıyla anlatımı.</li>
+      <li><strong>Kategori:</strong> Yazıların konu rafları.</li>
+      <li><strong>Link:</strong> Tıklanınca başka sayfaya götüren bağlantı.</li>
+      <li><strong>SEO:</strong> Google'da üst sıralarda çıkma çabası.</li>
+      <li><strong>Anahtar kelime:</strong> İnsanların Google'a yazdığı arama cümlesi.</li>
+      <li><strong>Meta açıklama:</strong> Google'da başlığın altındaki 2 satırlık tanıtım.</li>
+      <li><strong>Taslak:</strong> Henüz yayımlanmamış, kaydedilmiş yazı.</li>
+    </ul>
+    <div class="box tip"><span class="tag">Son söz</span><p>Bu rehberi bir kenara kaydedin; her yazı yazdığınızda bir süre yanınızda bulunsun. Birkaç yazıdan sonra hepsi kendiliğinden gelecek. Siteniz artık <strong>sizin sesiniz</strong> — bol bol yazın! 🌿</p></div>
+  </section>
+
+  <footer>
+    Uzman Klinik Psikolog Feriha Çelik · ferihacelik.com.tr<br>
+    Bu rehber sitenizle birlikte sizin için hazırlandı. Takıldığınızda buraya dönün.
+  </footer>
+
+</div>
