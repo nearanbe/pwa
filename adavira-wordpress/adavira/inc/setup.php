@@ -106,3 +106,11 @@ add_action('login_enqueue_scripts', function () {
 });
 add_filter('login_headerurl', function () { return home_url('/'); });
 add_filter('login_headertext', function () { return 'AdaVira'; });
+
+// Jetpack Social: Blog ve Haber yazıları Facebook / Instagram'da otomatik paylaşılabilsin
+add_action('init', function () {
+	foreach (['blog', 'haber'] as $pt) add_post_type_support($pt, 'publicize');
+}, 20);
+// Paylaşım etiketlerini (Open Graph) tema üretir; Jetpack'in ikinci bir set eklemesini engelle
+add_filter('jetpack_enable_open_graph', '__return_false', 99);
+add_filter('jetpack_disable_twitter_cards', '__return_true', 99);
