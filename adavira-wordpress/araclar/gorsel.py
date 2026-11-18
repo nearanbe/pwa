@@ -22,7 +22,7 @@ ayar.json:
     "sadece_uret": false                                 (true: yüklemeden yalnızca dosyayı kaydet)
   }
 """
-import base64, io, json, sys, time, urllib.request, uuid
+import base64, io, json, sys, time, urllib.error, urllib.request, uuid
 
 ACCOUNT = 'b30a1eee1d8de12b206e7a49257b419a'
 CF = f'https://api.cloudflare.com/client/v4/accounts/{ACCOUNT}/ai/run/@cf/black-forest-labs/'
@@ -79,7 +79,13 @@ def wp(method, path, data=None, raw=None, headers=None):
         body = json.dumps(data).encode(); h['Content-Type'] = 'application/json'
     if raw is not None:
         body = raw
-    return json.loads(urllib.request.urlopen(urllib.request.Request(WP + path, data=body, method=method, headers=h), timeout=180).read())
+    for i in range(5):  # sunucudaki geçici 502/503/504 hatalarında yeniden dene
+        try:
+            return json.loads(urllib.request.urlopen(urllib.request.Request(WP + path, data=body, method=method, headers=h), timeout=180).read())
+        except urllib.error.HTTPError as e:
+            if e.code not in (502, 503, 504) or i == 4:
+                raise
+            time.sleep(3 * (i + 1))
 
 
 def main(cfg):
