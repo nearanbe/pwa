@@ -56,10 +56,14 @@ add_action('template_redirect', function () {
 
 	$redirects = [
 		'/blog/kibris-ta-milyonluk-villalar-i-lanlarda-neden-aylarca-bekliyor-pahali-portfoyun-ucuz-fotograf-cikmazi' => '/blog/kibris-ta-milyonluk-villalar-neden-ilanlarda-aylarca-bekliyor',
+		'/blog/kibris-ta-milyonluk-villalar-i-lanlarda-neden-aylarca-bekliyor' => '/blog/kibris-ta-milyonluk-villalar-neden-ilanlarda-aylarca-bekliyor',
+		'/blog/kibris-ta-milyonluk-villalar-ilanlarda-neden-aylarca-bekliyor-pahali-portfoyun-ucuz-fotograf-cikmazi' => '/blog/kibris-ta-milyonluk-villalar-neden-ilanlarda-aylarca-bekliyor',
+		'/blog/kibris-ta-milyonluk-villalar-neden-ilanlarda-neden-aylarca-bekliyor' => '/blog/kibris-ta-milyonluk-villalar-neden-ilanlarda-aylarca-bekliyor',
 		'/yonetim.php' => '/wp-admin/',
 	];
 	$k = rtrim($path, '/');
-	if (isset($redirects[$k])) { wp_safe_redirect(home_url($redirects[$k]), 301); exit; }
+	// Yalnızca sayfa yoksa yönlendir (aynı adreste gerçek bir yazı varsa o gösterilir)
+	if (isset($redirects[$k]) && (is_404() || $k === '/yonetim.php')) { wp_safe_redirect(home_url($redirects[$k]), 301); exit; }
 
 	// Eski görsel adresleri: /uploads/2026/11/x.webp -> /wp-content/uploads/2026/11/x.webp
 	if (preg_match('#^/uploads/(\d{4}/\d{2}/[\w.-]+\.(?:webp|jpe?g|png))$#i', $path, $m)) {
