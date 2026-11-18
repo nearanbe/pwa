@@ -19,6 +19,7 @@
 			<a href="<?php echo esc_url(home_url('/blog')); ?>">Blog</a>
 			<a href="<?php echo esc_url(home_url('/bizden-haberler')); ?>">Bizden Haberler</a>
 			<a href="<?php echo esc_url(home_url('/iletisim')); ?>">İletişim</a>
+			<a href="<?php echo esc_url(home_url('/gizlilik-politikasi')); ?>">Gizlilik Politikası</a>
 			<a href="<?php echo esc_url(home_url('/sitemap.xml')); ?>">Site Haritası</a>
 		</div>
 	</div>

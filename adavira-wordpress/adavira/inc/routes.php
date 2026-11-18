@@ -98,7 +98,7 @@ function adv_sitemap() {
 	status_header(200);
 	header('Content-Type: application/xml; charset=utf-8');
 	$u = [];
-	foreach (['/', '/hizmetler', '/sektorler', '/blog', '/bizden-haberler', '/hakkimizda', '/iletisim'] as $x) $u[] = [$x, '', ''];
+	foreach (['/', '/hizmetler', '/sektorler', '/blog', '/bizden-haberler', '/hakkimizda', '/iletisim', '/gizlilik-politikasi'] as $x) $u[] = [$x, '', ''];
 	foreach ($GLOBALS['ADV_SERVICES'] as $s => $_) $u[] = ['/hizmet/' . $s, '', ''];
 	foreach ($GLOBALS['ADV_SECTORS'] as $s => $_) $u[] = ['/sektor/' . $s, '', ''];
 	foreach (get_posts(['post_type' => ['blog', 'haber'], 'post_status' => 'publish', 'numberposts' => 1000, 'orderby' => 'date', 'order' => 'DESC']) as $p) {
