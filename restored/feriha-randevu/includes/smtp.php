@@ -19,15 +19,17 @@ defined( 'ABSPATH' ) || exit;
  */
 function fr_smtp() {
 	$defaults = array(
-		'enabled'    => 0,
-		'host'       => '',
-		'port'       => 587,
-		'secure'     => 'tls', // none | ssl | tls
-		'auth'       => 1,
-		'user'       => '',
-		'pass'       => '',
-		'from_email' => '',
-		'from_name'  => '',
+		'enabled'       => 0,
+		'method'        => 'smtp', // smtp | brevo_api
+		'brevo_api_key' => '',
+		'host'          => '',
+		'port'          => 587,
+		'secure'        => 'tls', // none | ssl | tls
+		'auth'          => 1,
+		'user'          => '',
+		'pass'          => '',
+		'from_email'    => '',
+		'from_name'     => '',
 	);
 	$s = get_option( 'fr_smtp', array() );
 	return wp_parse_args( is_array( $s ) ? $s : array(), $defaults );
@@ -58,7 +60,7 @@ add_action(
 	'phpmailer_init',
 	function ( $phpmailer ) {
 		$s = fr_smtp();
-		if ( ! $s['enabled'] || '' === $s['host'] ) {
+		if ( ! $s['enabled'] || 'smtp' !== $s['method'] || '' === $s['host'] ) {
 			return;
 		}
 		$phpmailer->isSMTP();
@@ -118,7 +120,17 @@ function fr_render_smtp_page() {
 			</div>
 		<?php endif; ?>
 
-		<p style="font-size:15px;max-width:760px">Randevu bildirimlerinin size ve danışanlara ulaşması için e-postaların gerçek bir posta sunucusundan gönderilmesi gerekir. Aşağıya Gmail (veya başka bir) hesabınızın SMTP bilgilerini girin. <strong>Normal şifrenizi değil, uygulama şifresi (app password) kullanın.</strong></p>
+		<p style="font-size:15px;max-width:760px">Randevu bildirimlerinin size ve danışanlara ulaşması için e-postaların güvenilir bir servisten gönderilmesi gerekir. <strong>Önerilen yöntem: Brevo API</strong> — sunucunuz SMTP portlarını (587/465) engelliyorsa bile çalışır, çünkü standart HTTPS (443) üzerinden gönderir. SMTP yöntemi "kimlik doğrulanamadı" hatası veriyorsa, aşağıdan <strong>Brevo API</strong>'yi seçin.</p>
+
+		<div style="background:#eef6ff;border:1px solid #cfe2f5;border-radius:14px;padding:16px 22px;margin:18px 0;max-width:760px">
+			<h2 style="margin-top:0;color:#1d4e89">Brevo API ile gönderim (önerilen)</h2>
+			<ol style="font-size:14px;line-height:1.7">
+				<li>Brevo panelinde <strong>SMTP &amp; API → API Keys</strong> → <strong>Generate a new API key</strong>.</li>
+				<li>Oluşan anahtarı (<code>xkeysib-</code> ile başlar) kopyalayın.</li>
+				<li>Aşağıda <strong>Gönderim yöntemi</strong> olarak <strong>Brevo API</strong>'yi seçin, anahtarı <strong>Brevo API anahtarı</strong> alanına yapıştırın.</li>
+				<li>Gönderen e-posta: doğruladığınız adres (<code>bilgi@ferihacelik.com.tr</code>). Kaydedin ve test edin.</li>
+			</ol>
+		</div>
 
 		<div style="background:#f3faf5;border:1px solid #dcebe1;border-radius:14px;padding:16px 22px;margin:18px 0;max-width:760px">
 			<h2 style="margin-top:0;color:#2F5A43">Gmail için hazır ayarlar</h2>
@@ -133,8 +145,19 @@ function fr_render_smtp_page() {
 			<input type="hidden" name="action" value="fr_save_smtp">
 			<?php wp_nonce_field( 'fr_save_smtp' ); ?>
 			<table class="form-table" role="presentation">
-				<tr><th scope="row">SMTP'yi kullan</th>
-					<td><label><input type="checkbox" name="fr_smtp[enabled]" value="1" <?php checked( (bool) $s['enabled'] ); ?>> E-postaları SMTP ile gönder</label></td></tr>
+				<tr><th scope="row">Kendi gönderim ayarımı kullan</th>
+					<td><label><input type="checkbox" name="fr_smtp[enabled]" value="1" <?php checked( (bool) $s['enabled'] ); ?>> E-postaları aşağıdaki yöntemle gönder</label></td></tr>
+				<tr><th scope="row">Gönderim yöntemi</th>
+					<td>
+						<label><input type="radio" name="fr_smtp[method]" value="brevo_api" <?php checked( 'brevo_api', $s['method'] ); ?>> <strong>Brevo API (önerilen)</strong> — port engeli olan sunucularda bile çalışır</label><br>
+						<label><input type="radio" name="fr_smtp[method]" value="smtp" <?php checked( 'smtp', $s['method'] ); ?>> SMTP (Gmail / kendi mail sunucunuz)</label>
+					</td></tr>
+				<tr><th scope="row"><label for="fr-brevokey">Brevo API anahtarı (v3)</label></th>
+					<td>
+						<input id="fr-brevokey" type="password" class="large-text" name="fr_smtp[brevo_api_key]" value="<?php echo esc_attr( $s['brevo_api_key'] ); ?>" autocomplete="new-password" placeholder="xkeysib-...">
+						<p class="description">Brevo panelinde <strong>SMTP &amp; API → API Keys</strong> bölümünden oluşturduğunuz anahtar (<code>xkeysib-</code> ile başlar). "Gönderim yöntemi: Brevo API" seçiliyken kullanılır. SMTP kullanıcı adı/şifresi burada <em>gerekmez.</em></p>
+					</td></tr>
+				<tr><td colspan="2"><hr><p class="description">Aşağıdaki alanlar yalnızca <strong>SMTP</strong> yöntemi için gereklidir:</p></td></tr>
 				<tr><th scope="row"><label for="fr-host">Sunucu (host)</label></th>
 					<td><input id="fr-host" type="text" class="regular-text" name="fr_smtp[host]" value="<?php echo esc_attr( $s['host'] ); ?>" placeholder="smtp.gmail.com"></td></tr>
 				<tr><th scope="row"><label for="fr-port">Port</label></th>
@@ -186,6 +209,10 @@ add_action(
 		$s  = fr_smtp();
 
 		$s['enabled']    = empty( $in['enabled'] ) ? 0 : 1;
+		$s['method']     = ( ( $in['method'] ?? 'smtp' ) === 'brevo_api' ) ? 'brevo_api' : 'smtp';
+		// API anahtarı boş gönderilirse mevcut korunur.
+		$api_key              = isset( $in['brevo_api_key'] ) ? trim( (string) $in['brevo_api_key'] ) : '';
+		$s['brevo_api_key']   = '' === $api_key ? $s['brevo_api_key'] : sanitize_text_field( $api_key );
 		$s['host']       = sanitize_text_field( $in['host'] ?? '' );
 		$s['port']       = min( 65535, max( 1, absint( $in['port'] ?? 587 ) ) );
 		$s['secure']     = in_array( ( $in['secure'] ?? 'tls' ), array( 'none', 'ssl', 'tls' ), true ) ? $in['secure'] : 'tls';
