@@ -32,7 +32,7 @@ Gereken: tema **1.2.2+**, n8n, Instagram **İşletme/İçerik üreticisi** hesab
 5. Çıkan kısa süreli anahtarı uzun süreliye çevirin. Tarayıcıda şu adresi açın (köşeli parantezleri kendi
    değerlerinizle değiştirin):
    ```
-   https://graph.facebook.com/v23.0/oauth/access_token?grant_type=fb_exchange_token&client_id=[APP_ID]&client_secret=[APP_SECRET]&fb_exchange_token=[KISA_ANAHTAR]
+   https://graph.facebook.com/v27.0/oauth/access_token?grant_type=fb_exchange_token&client_id=[APP_ID]&client_secret=[APP_SECRET]&fb_exchange_token=[KISA_ANAHTAR]
    ```
    Yanıttaki `access_token` değeri **uzun süreli kullanıcı anahtarı**dır.
 6. Explorer'da bu uzun süreli anahtarı kutuya yapıştırın ve şu sorguyu çalıştırın: `me/accounts`
@@ -51,7 +51,7 @@ Gereken: tema **1.2.2+**, n8n, Instagram **İşletme/İçerik üreticisi** hesab
 4. **Ayarlar ve metinler** düğümünde:
    - `pageId` → Sayfa ID
    - `igUserId` → Instagram işletme ID
-   - `graphVersion` → `v23.0` (Meta yeni sürüm çıkardıkça güncellenebilir)
+   - `graphVersion` → `v27.0` (Meta yeni sürüm çıkardıkça güncellenebilir)
 5. Sağ üstten akışı **Active** yapın.
 
 > İlk etkinleştirmede n8n, akıştaki mevcut yazıları "eski" sayar ve paylaşmaz. Yalnızca bundan sonra

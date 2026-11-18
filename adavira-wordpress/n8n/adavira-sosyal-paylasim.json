@@ -16,7 +16,7 @@
       "parameters": {
         "assignments": {
           "assignments": [
-            { "id": "s1", "name": "graphVersion", "type": "string", "value": "v23.0" },
+            { "id": "s1", "name": "graphVersion", "type": "string", "value": "v27.0" },
             { "id": "s2", "name": "pageId", "type": "string", "value": "FACEBOOK_SAYFA_ID" },
             { "id": "s3", "name": "igUserId", "type": "string", "value": "INSTAGRAM_ISLETME_ID" },
             { "id": "s4", "name": "link", "type": "string", "value": "={{ $json.link }}" },
