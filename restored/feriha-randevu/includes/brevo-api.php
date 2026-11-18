@@ -80,7 +80,12 @@ function fr_brevo_pre_wp_mail( $short, $atts ) {
 		foreach ( explode( ',', (string) $one ) as $piece ) {
 			$addr = fr_brevo_parse_address( $piece );
 			if ( $addr ) {
-				$to_list[] = $addr;
+				// Brevo boş "name" alanını reddediyor; yalnızca doluysa ekle.
+				$entry = array( 'email' => $addr['email'] );
+				if ( '' !== $addr['name'] ) {
+					$entry['name'] = $addr['name'];
+				}
+				$to_list[] = $entry;
 			}
 		}
 	}
