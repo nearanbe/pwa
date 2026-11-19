@@ -1,0 +1,210 @@
+{
+  "name": "Haber Sitesi - Sosyal Medya Paylaşımı",
+  "nodes": [
+    {
+      "id": "00000000-0000-4000-8000-000000000006",
+      "name": "Her 5 dakikada",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 5
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000007",
+      "name": "Paylaşılmamış haberleri al",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        220,
+        0
+      ],
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $env.SITE_URL }}/api/social/pending",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $env.SITE_API_TOKEN }}"
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000008",
+      "name": "Haberleri ayır",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        440,
+        0
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "return ($input.first().json.items || []).map((a) => ({ json: a }));"
+      }
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000009",
+      "name": "Telegram kanalında paylaş",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        660,
+        -100
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.telegram.org/bot{{ $env.TELEGRAM_BOT_TOKEN }}/sendPhoto",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ chat_id: $env.TELEGRAM_CHANNEL_ID, photo: $json.image, caption: ($json.is_breaking ? '⚡ SON DAKİKA\\n\\n' : '') + '<b>' + $json.title.replace(/&/g,'&amp;').replace(/</g,'&lt;') + '</b>\\n\\n' + $json.summary.replace(/&/g,'&amp;').replace(/</g,'&lt;') + '\\n\\n' + $json.url, parse_mode: 'HTML' }) }}",
+        "options": {}
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000010",
+      "name": "Facebook sayfasında paylaş",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        660,
+        100
+      ],
+      "disabled": true,
+      "onError": "continueRegularOutput",
+      "parameters": {
+        "method": "POST",
+        "url": "=https://graph.facebook.com/v21.0/{{ $env.FB_PAGE_ID }}/feed",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ message: $json.title + '\\n\\n' + $json.summary, link: $json.url, access_token: $env.FB_PAGE_TOKEN }) }}",
+        "options": {}
+      }
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000011",
+      "name": "ID'leri topla",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        880,
+        0
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const ids = $('Haberleri ayır').all().map((i) => i.json.id);\nreturn ids.length ? [{ json: { ids } }] : [];"
+      }
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000012",
+      "name": "Paylaşıldı olarak işaretle",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1100,
+        0
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.SITE_URL }}/api/social/mark",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $env.SITE_API_TOKEN }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ ids: $json.ids }) }}",
+        "options": {}
+      }
+    }
+  ],
+  "connections": {
+    "Her 5 dakikada": {
+      "main": [
+        [
+          {
+            "node": "Paylaşılmamış haberleri al",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Paylaşılmamış haberleri al": {
+      "main": [
+        [
+          {
+            "node": "Haberleri ayır",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Haberleri ayır": {
+      "main": [
+        [
+          {
+            "node": "Telegram kanalında paylaş",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Facebook sayfasında paylaş",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram kanalında paylaş": {
+      "main": [
+        [
+          {
+            "node": "ID'leri topla",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ID'leri topla": {
+      "main": [
+        [
+          {
+            "node": "Paylaşıldı olarak işaretle",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Europe/Istanbul"
+  },
+  "active": false
+}

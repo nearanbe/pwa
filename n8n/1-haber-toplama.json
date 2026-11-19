@@ -1,0 +1,152 @@
+{
+  "name": "Haber Sitesi - Haber Toplama",
+  "nodes": [
+    {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "name": "Her 15 dakikada",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 15
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000002",
+      "name": "RSS kaynaklarını oku",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        220,
+        0
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// n8n \"Code\" düğümünde çalışır (Mode: Run Once for All Items).\n// Kaynak listesini buradan düzenleyebilirsin.\nconst FEEDS = [\n  { name: \"AA\", url: \"https://www.aa.com.tr/tr/rss/default?cat=guncel\" },\n  { name: \"TRT Haber\", url: \"https://www.trthaber.com/sondakika_articles.rss\" },\n  { name: \"NTV\", url: \"https://www.ntv.com.tr/son-dakika.rss\" },\n  { name: \"CNN Türk\", url: \"https://www.cnnturk.com/feed/rss/all/news\" },\n  { name: \"Hürriyet\", url: \"https://www.hurriyet.com.tr/rss/anasayfa\" },\n  { name: \"BBC Türkçe\", url: \"https://feeds.bbci.co.uk/turkce/rss.xml\" },\n  { name: \"DW Türkçe\", url: \"https://rss.dw.com/rdf/rss-tur-all\" },\n];\nconst MAX_AGE_HOURS = 6;\n\nfunction decode(s) {\n  return (s || \"\")\n    .replace(/<!\\[CDATA\\[([\\s\\S]*?)\\]\\]>/g, \"$1\")\n    .replace(/<[^>]+>/g, \" \")\n    .replace(/&lt;/g, \"<\").replace(/&gt;/g, \">\").replace(/&quot;/g, '\"').replace(/&#39;|&apos;/g, \"'\")\n    .replace(/&#(\\d+);/g, (_, n) => String.fromCharCode(Number(n)))\n    .replace(/&nbsp;/g, \" \").replace(/&amp;/g, \"&\")\n    .replace(/\\s+/g, \" \").trim();\n}\nfunction tag(block, name) {\n  const m = block.match(new RegExp(`<${name}[^>]*>([\\\\s\\\\S]*?)</${name}>`, \"i\"));\n  return m ? m[1] : \"\";\n}\nfunction parse(xml, source) {\n  const blocks = xml.match(/<item[\\s>][\\s\\S]*?<\\/item>|<entry[\\s>][\\s\\S]*?<\\/entry>/gi) || [];\n  return blocks.map((b) => {\n    let link = decode(tag(b, \"link\"));\n    if (!link) { const m = b.match(/<link[^>]*href=\"([^\"]+)\"/i); link = m ? m[1] : \"\"; }\n    if (!link) link = decode(tag(b, \"guid\"));\n    return {\n      title: decode(tag(b, \"title\")),\n      link: link.trim(),\n      summary: decode(tag(b, \"description\") || tag(b, \"summary\") || tag(b, \"content\")).slice(0, 1000),\n      source,\n      published: decode(tag(b, \"pubDate\") || tag(b, \"published\") || tag(b, \"dc:date\") || tag(b, \"updated\")),\n    };\n  }).filter((i) => i.title && /^https?:\\/\\//.test(i.link));\n}\n\nconst items = [];\nconst errors = [];\nconst cutoff = Date.now() - MAX_AGE_HOURS * 3600 * 1000;\nfor (const f of FEEDS) {\n  try {\n    const xml = await this.helpers.httpRequest({ url: f.url, timeout: 15000, headers: { \"User-Agent\": \"Mozilla/5.0\" } });\n    for (const it of parse(String(xml), f.name)) {\n      const t = Date.parse(it.published);\n      if (!isNaN(t) && t < cutoff) continue; // çok eski haberleri atla\n      items.push(it);\n    }\n  } catch (e) {\n    errors.push(`${f.name}: ${e.message}`);\n  }\n}\nreturn [{ json: { items: items.slice(0, 300), errors } }];\n"
+      }
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000003",
+      "name": "Siteye gönder (AI yazar)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        440,
+        0
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.SITE_URL }}/api/ingest",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $env.SITE_API_TOKEN }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ items: $json.items }) }}",
+        "options": {
+          "timeout": 600000
+        }
+      }
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000004",
+      "name": "Bildirim mesajlarını hazırla",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        660,
+        0
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const res = $input.first().json;\nconst esc = (s) => String(s).replace(/&/g, \"&amp;\").replace(/</g, \"&lt;\").replace(/>/g, \"&gt;\");\nconst out = [];\nfor (const a of res.created || []) {\n  let head;\n  if (a.status === \"draft\") head = \"🔴 <b>ONAY BEKLİYOR</b> (yüksek risk)\";\n  else if (a.status === \"published\") head = \"⚡ <b>SON DAKİKA - YAYINLANDI</b>\";\n  else head = \"🕔 <b>\" + Math.round((a.publish_at - Date.now()) / 60000) + \" dk sonra otomatik yayınlanacak</b>\";\n  let text = head + \"\\n\\n\" + esc(a.title);\n  if (a.risk === \"high\") text += \"\\n\\n<i>Neden: \" + esc(a.risk_reason) + \"</i>\";\n  text += \"\\n\\n👉 <a href=\\\"\" + a.review_url + \"\\\">Önizle / Onayla / Durdur</a>\";\n  out.push({ json: { text } });\n}\nif ((res.skipped || []).length) out.push({ json: { text: \"ℹ️ Atlanan: \" + esc(res.skipped.join(\" | \")).slice(0, 3500) } });\nreturn out;"
+      }
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000005",
+      "name": "Telegram'a bildir",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        880,
+        0
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.telegram.org/bot{{ $env.TELEGRAM_BOT_TOKEN }}/sendMessage",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ chat_id: $env.TELEGRAM_ADMIN_CHAT_ID, text: $json.text, parse_mode: 'HTML', disable_web_page_preview: true }) }}",
+        "options": {}
+      },
+      "onError": "continueRegularOutput"
+    }
+  ],
+  "connections": {
+    "Her 15 dakikada": {
+      "main": [
+        [
+          {
+            "node": "RSS kaynaklarını oku",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RSS kaynaklarını oku": {
+      "main": [
+        [
+          {
+            "node": "Siteye gönder (AI yazar)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Siteye gönder (AI yazar)": {
+      "main": [
+        [
+          {
+            "node": "Bildirim mesajlarını hazırla",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Bildirim mesajlarını hazırla": {
+      "main": [
+        [
+          {
+            "node": "Telegram'a bildir",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Europe/Istanbul"
+  },
+  "active": false
+}

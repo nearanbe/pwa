@@ -1,0 +1,53 @@
+# Sunucuda: cd deploy && docker compose --env-file ../.env up -d --build
+services:
+  site:
+    build: ..
+    restart: unless-stopped
+    env_file: ../.env
+    volumes:
+      - site-data:/app/data
+
+  n8n:
+    image: docker.n8n.io/n8nio/n8n:latest
+    restart: unless-stopped
+    environment:
+      - N8N_HOST=${N8N_DOMAIN}
+      - N8N_PROTOCOL=https
+      - WEBHOOK_URL=https://${N8N_DOMAIN}/
+      - GENERIC_TIMEZONE=Europe/Istanbul
+      - TZ=Europe/Istanbul
+      - N8N_BLOCK_ENV_ACCESS_IN_NODE=false
+      - N8N_RUNNERS_ENABLED=true
+      # Akışların kullandığı değişkenler
+      - SITE_URL=http://site:3000
+      - SITE_API_TOKEN=${API_TOKEN}
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - TELEGRAM_ADMIN_CHAT_ID=${TELEGRAM_ADMIN_CHAT_ID}
+      - TELEGRAM_CHANNEL_ID=${TELEGRAM_CHANNEL_ID}
+      - FB_PAGE_ID=${FB_PAGE_ID}
+      - FB_PAGE_TOKEN=${FB_PAGE_TOKEN}
+    volumes:
+      - n8n-data:/home/node/.n8n
+    depends_on:
+      - site
+
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      - SITE_DOMAIN=${SITE_DOMAIN}
+      - N8N_DOMAIN=${N8N_DOMAIN}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+    depends_on:
+      - site
+      - n8n
+
+volumes:
+  site-data:
+  n8n-data:
+  caddy-data:
