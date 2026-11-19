@@ -54,6 +54,31 @@ Gündemi RSS kaynaklarından takip eden, Claude ile özgün haber metni yazan, r
 4. **n8n:** `https://n8n.ornekhaber.com` adresine gir ve hesabını oluştur. *Workflows → Import from File* ile `n8n/1-haber-toplama.json` ve `n8n/2-sosyal-medya.json` dosyalarını içe aktar. Önce **Test workflow** ile bir kez elle çalıştır. "RSS kaynaklarını oku" düğümünün çıktısındaki `errors` alanında çalışmayan kaynak varsa düğümdeki listeden çıkar. Sonra iki akışı da **Active** yap.
 5. `.env` dosyasını değiştirdiğinde değişikliğin geçerli olması için: `docker compose --env-file ../.env up -d`
 
+### AlmaLinux / Rocky / RHEL üzerinde
+
+AlmaLinux'ta varsayılan olarak Podman gelir; bu kurulum **Docker CE** ile test edildi. Kurulum (AlmaLinux 8 ve 9):
+
+```bash
+sudo dnf -y install dnf-plugins-core git
+sudo dnf config-manager --add-repo https://download.docker.com/linux/rhel/docker-ce.repo
+sudo dnf -y remove podman buildah runc 2>/dev/null || true
+sudo dnf -y install docker-ce docker-ce-cli containerd.io docker-compose-plugin
+sudo systemctl enable --now docker
+```
+
+```bash
+sudo firewall-cmd --permanent --add-service=http --add-service=https
+```
+
+```bash
+sudo firewall-cmd --reload
+```
+
+- **SELinux** açık kalabilir; `docker-compose.yml` içindeki `:Z` etiketi gerekli izni veriyor.
+- Sunucuda cPanel, Plesk veya Apache/Nginx zaten 80/443 portlarını kullanıyorsa Caddy başlayamaz. Bu durumda ya o servisi kapat ya da bana yaz; mevcut web sunucusunun arkasına kuracak şekilde ayarlarım.
+
+Bundan sonra yukarıdaki kurulum adımları aynen geçerli.
+
 ## Google AdSense
 
 1. Sitede en az 20-30 kaliteli haber ve doldurulmuş yasal sayfalar (künye, gizlilik, iletişim) olduktan sonra başvur.

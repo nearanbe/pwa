@@ -41,7 +41,7 @@ services:
       - SITE_DOMAIN=${SITE_DOMAIN}
       - N8N_DOMAIN=${N8N_DOMAIN}
     volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro,Z
       - caddy-data:/data
     depends_on:
       - site
