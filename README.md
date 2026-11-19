@@ -75,9 +75,52 @@ sudo firewall-cmd --reload
 ```
 
 - **SELinux** açık kalabilir; `docker-compose.yml` içindeki `:Z` etiketi gerekli izni veriyor.
-- Sunucuda cPanel, Plesk veya Apache/Nginx zaten 80/443 portlarını kullanıyorsa Caddy başlayamaz. Bu durumda ya o servisi kapat ya da bana yaz; mevcut web sunucusunun arkasına kuracak şekilde ayarlarım.
+- Sunucuda Plesk varsa aşağıdaki **Plesk'li sunucuda** bölümünü izle; Docker'ı Plesk'in Docker uzantısı kurar.
 
 Bundan sonra yukarıdaki kurulum adımları aynen geçerli.
+
+### Plesk'li sunucuda (AlmaLinux + Plesk)
+
+Plesk 80/443 portlarını kullandığı için Caddy kullanılmaz. HTTPS'i Plesk'in Let's Encrypt'i verir, Plesk'in nginx'i istekleri konteynerlere iletir.
+
+**1) Docker'ı kur.** Plesk > Uzantılar > **Docker** uzantısını kur; bu, Docker'ı da kurar. Ardından SSH'tan `docker compose version` komutunu dene. Komut yoksa `sudo dnf -y install docker-compose-plugin` ile ekle.
+
+**2) Plesk'te alan adlarını aç.**
+- Siteler ve Alan Adları > **Alan adı ekle**: `ornekhaber.com`
+- Aynı alan adına **alt alan adı ekle**: `n8n.ornekhaber.com`
+- İkisinde de **SSL/TLS Sertifikaları > Let's Encrypt** ile ücretsiz sertifika al. Ana alan adında "www" seçeneğini de işaretle.
+
+**3) Sistemi başlat (SSH, root):**
+
+```bash
+cd /opt && git clone <bu-repo> haber && cd haber
+cp .env.example .env && nano .env
+```
+
+```bash
+cd deploy && docker compose -f docker-compose.plesk.yml --env-file ../.env up -d --build
+```
+
+```bash
+curl -I http://127.0.0.1:3000
+```
+
+Son komutta `200 OK` görmelisin.
+
+**4) Yönlendirmeyi ayarla.** Her iki alan adında: **Apache ve nginx Ayarları** sayfasını aç.
+- **"Proxy modu"** kutusunun işaretini kaldır (Apache'yi devre dışı bırakır, isteği nginx karşılar).
+- **"Ek nginx yönergeleri"** kutusuna şunları yapıştırıp kaydet:
+  - `ornekhaber.com` için `deploy/plesk/site-nginx.conf`
+  - `n8n.ornekhaber.com` için `deploy/plesk/n8n-nginx.conf`
+- Yine bu sayfada, ya da **Barındırma Ayarları**'nda, "HTTP'den HTTPS'ye kalıcı yönlendirme" seçeneğini aç.
+
+**5) SELinux:** nginx'in yerel porta bağlanabilmesi için bir kez çalıştır:
+
+```bash
+sudo setsebool -P httpd_can_network_connect 1
+```
+
+Bundan sonra `https://ornekhaber.com` ve `https://n8n.ornekhaber.com` açılır. n8n ve Telegram adımları yukarıdakiyle aynı. Güncelleme için: `git pull` ve 3. adımdaki `docker compose ... up -d --build` komutu.
 
 ## Google AdSense
 
