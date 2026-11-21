@@ -1,9 +1,11 @@
 <?php
 /**
  * Otomatik döviz kurları. Günde bir kez (ec_daily) çekilir.
- * Kaynak 1: KKTC Merkez Bankası günlük kur XML'i (TL bazlı)
- * Kaynak 2: Frankfurter (Avrupa Merkez Bankası referans kurları, anahtar gerektirmez)
- * Kaynak 3: open.er-api.com (yedek, anahtar gerektirmez)
+ * Kaynak 1: TCMB (Türkiye Cumhuriyet Merkez Bankası) günlük kur XML'i — KKTC'de TL'nin resmi referansı
+ * Kaynak 2: KKTC Merkez Bankası günlük kur XML'i
+ * Kaynak 3: Frankfurter (Avrupa Merkez Bankası referans kurları)
+ * Kaynak 4: open.er-api.com (yedek)
+ * TL bazlı kaynaklarda "döviz" kurları kullanılır (efektif/nakit değil); alış, satış veya ortalama ayarlanabilir.
  * Gelen değer makul aralıkta değilse kaydedilmez; eski kur korunur.
  */
 
@@ -17,6 +19,11 @@ const EC_RATE_BOUNDS = ['EUR' => [0.8, 2.0], 'USD' => [0.8, 2.6], 'TRY' => [10, 
 function ec_rates_sources(): array
 {
     return [
+        'tcmb' => [
+            'urls' => ['https://www.tcmb.gov.tr/kurlar/today.xml'],
+            'parse' => 'ec_rates_parse_kktcmb',
+            'label' => 'TCMB (Türkiye Cumhuriyet Merkez Bankası)',
+        ],
         'kktcmb' => [
             'urls' => ['https://mb.gov.ct.tr/kur/gunluk.xml', 'https://www.kktcmerkezbankasi.org/kur/gunluk.xml', 'http://www.kktcmerkezbankasi.org/kur/gunluk.xml'],
             'parse' => 'ec_rates_parse_kktcmb',
@@ -24,14 +31,17 @@ function ec_rates_sources(): array
         ],
         'frankfurter' => [
             'urls' => ['https://api.frankfurter.dev/v1/latest?base=GBP&symbols=EUR,USD,TRY', 'https://api.frankfurter.app/latest?from=GBP&to=EUR,USD,TRY'],
-            'parse' => fn(string $b) => (json_decode($b, true)['rates'] ?? null),
+            'parse' => function (string $b) {
+                $j = json_decode($b, true);
+                return isset($j['rates']) ? $j['rates'] + ['_date' => (string) ($j['date'] ?? '')] : null;
+            },
             'label' => 'Avrupa Merkez Bankası (Frankfurter)',
         ],
         'er-api' => [
             'urls' => ['https://open.er-api.com/v6/latest/GBP'],
             'parse' => function (string $b) {
                 $j = json_decode($b, true);
-                return ($j['result'] ?? '') === 'success' ? ($j['rates'] ?? null) : null;
+                return ($j['result'] ?? '') === 'success' && isset($j['rates']) ? $j['rates'] + ['_date' => isset($j['time_last_update_unix']) ? gmdate('Y-m-d', (int) $j['time_last_update_unix']) : ''] : null;
             },
             'label' => 'ExchangeRate-API (open.er-api.com)',
         ],
@@ -54,7 +64,7 @@ function ec_parse_number(string $v): ?float
 }
 
 /**
- * KKTC Merkez Bankası günlük kur XML'i. Kurlar TL karşılığıdır (1 birim döviz = x TL).
+ * TL bazlı günlük kur XML'i (TCMB ve KKTC Merkez Bankası). Kurlar TL karşılığıdır (1 birim döviz = x TL).
  * Alan adlarına bağlı kalmamak için esnek okunur: her kayıtta döviz kodu (USD/EUR/GBP),
  * varsa "Birim" ve alış/satış rakamları aranır; ikisi de varsa ortalaması alınır.
  * @return array|null 1 GBP karşılığı ['EUR'=>..,'USD'=>..,'TRY'=>..]
@@ -111,7 +121,13 @@ function ec_rates_parse_kktcmb(string $body): ?array
                 $any = $n;
             }
         }
-        $val = ($buy && $sell) ? ($buy + $sell) / 2 : ($buy ?: ($sell ?: $any));
+        $side = get_option('ec_rates_side', 'mid');
+        $val = match (true) {
+            $side === 'buy' && $buy => $buy,
+            $side === 'sell' && $sell => $sell,
+            $buy && $sell => ($buy + $sell) / 2,
+            default => $buy ?: ($sell ?: $any),
+        };
         if ($val) {
             $try[$code] = $val / $unit;
         }
@@ -119,7 +135,14 @@ function ec_rates_parse_kktcmb(string $body): ?array
     if (empty($try['GBP']) || empty($try['EUR']) || empty($try['USD'])) {
         return null;
     }
-    return ['EUR' => $try['GBP'] / $try['EUR'], 'USD' => $try['GBP'] / $try['USD'], 'TRY' => $try['GBP']];
+    // Kur tarihi: XML içindeki ilk gg.aa.yyyy (veya yyyy-aa-gg) tarihi
+    $date = '';
+    if (preg_match('/(\d{2})[.\/](\d{2})[.\/](\d{4})/', $body, $d)) {
+        $date = "$d[3]-$d[2]-$d[1]";
+    } elseif (preg_match('/(\d{4})-(\d{2})-(\d{2})/', $body, $d)) {
+        $date = "$d[1]-$d[2]-$d[3]";
+    }
+    return ['EUR' => $try['GBP'] / $try['EUR'], 'USD' => $try['GBP'] / $try['USD'], 'TRY' => $try['GBP'], '_date' => $date];
 }
 
 /**
@@ -133,7 +156,7 @@ function ec_rates_update()
     $sample = '';
     foreach (ec_rates_sources() as $key => $src) {
         foreach ($src['urls'] as $url) {
-            $res = wp_remote_get($url, ['timeout' => 15, 'redirection' => 3, 'user-agent' => 'Mozilla/5.0 (compatible; EmlakCore/' . EC_VERSION . ')']);
+            $res = wp_remote_get($url, ['timeout' => in_array($key, ['tcmb', 'kktcmb'], true) ? 8 : 15, 'redirection' => 3, 'user-agent' => 'Mozilla/5.0 (compatible; EmlakCore/' . EC_VERSION . ')']);
             if (is_wp_error($res)) {
                 $errors[] = $key . ': ' . $res->get_error_message();
                 continue;
@@ -147,7 +170,7 @@ function ec_rates_update()
             $rates = ($src['parse'])($body);
             if (!is_array($rates)) {
                 $errors[] = "$key: cevap okunamadı";
-                if ($key === 'kktcmb' && !$sample) {
+                if (in_array($key, ['tcmb', 'kktcmb'], true) && !$sample) {
                     $sample = mb_substr(wp_strip_all_tags(str_replace('><', "> <", $body)), 0, 600);
                 }
                 continue;
@@ -162,7 +185,8 @@ function ec_rates_update()
                 $new[$c] = round($v, 4);
             }
             update_option('ec_rates', $new);
-            update_option('ec_rates_meta', ['source' => $src['label'], 'updated_at' => ec_now(), 'error' => $errors ? implode(' | ', $errors) : '', 'sample' => '']);
+            $rateDate = preg_match('/^\d{4}-\d{2}-\d{2}$/', (string) ($rates['_date'] ?? '')) ? $rates['_date'] : gmdate('Y-m-d');
+            update_option('ec_rates_meta', ['source' => $src['label'], 'source_key' => $key, 'rate_date' => $rateDate, 'updated_at' => ec_now(), 'error' => $errors ? implode(' | ', $errors) : '', 'sample' => '']);
             ec_recompute_price_gbp();
             return $new;
         }
@@ -185,4 +209,54 @@ function ec_recompute_price_gbp(): void
             $wpdb->query($wpdb->prepare("UPDATE $t SET price_gbp = ROUND(price / %f, 2) WHERE currency = %s", $r, $c));
         }
     }
+}
+
+/**
+ * Kurları saatte bir kontrol et (merkez bankaları günde bir kez yayınlar; saatlik kontrol
+ * yeni yayını en geç bir saat içinde yakalar). Son başarılı çekimden 50 dakika geçmediyse atlanır.
+ */
+function ec_rates_maybe_update(bool $force = false): void
+{
+    if (!get_option('ec_rates_auto', 1) && !$force) {
+        return;
+    }
+    $meta = (array) get_option('ec_rates_meta', []);
+    $last = !empty($meta['updated_at']) ? strtotime($meta['updated_at'] . ' UTC') : 0;
+    $failed = !empty($meta['failed_at']) ? strtotime($meta['failed_at'] . ' UTC') : 0;
+    if (!$force && (time() - $last < 50 * MINUTE_IN_SECONDS || time() - $failed < 20 * MINUTE_IN_SECONDS)) {
+        return;
+    }
+    if (get_transient('ec_rates_lock')) {
+        return;
+    }
+    set_transient('ec_rates_lock', 1, 2 * MINUTE_IN_SECONDS);
+    ec_rates_update();
+    delete_transient('ec_rates_lock');
+}
+
+add_action('init', function () {
+    if (!wp_next_scheduled('ec_rates_hourly')) {
+        wp_schedule_event(time() + 60, 'hourly', 'ec_rates_hourly');
+    }
+});
+add_action('ec_rates_hourly', 'ec_rates_maybe_update');
+
+/** Hiç güncelleme yapılmadıysa yönetim paneli ilk açıldığında hemen çek */
+add_action('admin_init', function () {
+    $meta = (array) get_option('ec_rates_meta', []);
+    if (empty($meta['updated_at']) && current_user_can('manage_options') && !wp_doing_ajax()) {
+        ec_rates_maybe_update();
+    }
+});
+
+/** Sitede gösterilecek kur bilgisi */
+function ec_rates_info(): array
+{
+    $meta = (array) get_option('ec_rates_meta', []);
+    return [
+        'source' => (string) ($meta['source'] ?? ''),
+        'source_key' => (string) ($meta['source_key'] ?? ''),
+        'date' => (string) ($meta['rate_date'] ?? (!empty($meta['updated_at']) ? substr($meta['updated_at'], 0, 10) : '')),
+        'checked' => !empty($meta['updated_at']) ? get_date_from_gmt($meta['updated_at'], 'Y-m-d H:i') : '',
+    ];
 }

@@ -284,7 +284,8 @@ function ec_clean_socials(array $in): array
 /** Kurlar: 1 GBP karşılığı. Yönetim ekranından güncellenir. */
 function ec_rates(): array
 {
-    $default = ['GBP' => 1, 'EUR' => 1.17, 'USD' => 1.27, 'TRY' => 58];
+    // Yedek değerler (Kasım 2026); ilk otomatik güncellemeden sonra kullanılmaz.
+    $default = ['GBP' => 1, 'EUR' => 1.19, 'USD' => 1.31, 'TRY' => 66.3];
     $saved = get_option('ec_rates');
     return is_array($saved) ? array_merge($default, $saved) : $default;
 }

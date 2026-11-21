@@ -62,7 +62,8 @@ Blog yazıları genel bilgilendirme amaçlı taslaklardır. Yayında tutacaksan�
 
 ## Otomatik kur ve fiyat endeksi
 
-- **Kurlar** her gün otomatik güncellenir. Önce **KKTC Merkez Bankası** günlük kur XML'i (`mb.gov.ct.tr/kur/gunluk.xml`) okunur, ulaşılamazsa Avrupa Merkez Bankası (api.frankfurter.dev), o da olmazsa open.er-api.com kullanılır. Merkez Bankası cevabı okunamazsa Ayarlar ekranında cevabın başı gösterilir; o metni geliştiriciye gönderin. **Emlak → Ayarlar** ekranında son güncelleme zamanı görünür, ayrıca **Kurları şimdi güncelle** düğmesi vardır. Makul aralık dışındaki değerler kaydedilmez.
+- **Kurlar** saatte bir kontrol edilir. Kaynak sırası: **TCMB** (`tcmb.gov.tr/kurlar/today.xml`, her iş günü 15:30'da yayımlanır) → KKTC Merkez Bankası → Avrupa Merkez Bankası (api.frankfurter.dev) → open.er-api.com. **Kur türü** Ayarlar'dan seçilir: ortalama (varsayılan), döviz alış ya da döviz satış. Efektif (nakit) kurları kullanılmaz. Ayarlar ekranında kaynak, **kur tarihi** ve son kontrol zamanı görünür. TL bazlı bir kaynak okunamazsa cevabın başı gösterilir; o metni geliştiriciye gönderin. Makul aralık dışındaki değerler kaydedilmez.
+- **Döviz çevirici:** Fiyatın yanındaki parantezli tutara (ör. ₺119.038,39), ilan detayındaki "⇄ Döviz çevirici" düğmesine ya da alt bilgideki linke tıklanınca açılır. Kurlar sitedeki kurların aynısıdır; kaynak ve kur tarihi pencerede yazar.
 - **Fiyat endeksi** (`/tr/fiyat-endeksi/`) her gün yayındaki konut ilanlarından hesaplanır: şehir bazında m² başına istenen fiyatın medyanı, en az 3 ilan. Her ayın satırı ay bitince sabit kalır, böylece geçmiş zamanla birikir.
 - Bu iki görev WordPress'in zamanlayıcısı (WP-Cron) ile çalışır. WP-Cron sitenin ziyaret edilmesiyle tetiklendiği için, trafik azken Plesk'te **Zamanlanmış Görevler** bölümüne şu görevi eklemek daha güvenilirdir (her 15 dakikada bir):
 

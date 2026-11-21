@@ -27,7 +27,14 @@
     return (D.sym[cur] || '') + v.toLocaleString('de-DE', { minimumFractionDigits: dec ? 2 : 0, maximumFractionDigits: dec ? 2 : 0 });
   }
   function opt(v, t, sel) { var o = document.createElement('option'); o.value = v; o.textContent = t; if (sel) o.selected = true; return o; }
-  function num(v) { if (v === '' || v === null || v === undefined) return null; var n = parseFloat(String(v).replace(/\./g, '').replace(',', '.')); return isNaN(n) ? null : n; }
+  /* Türkçe yazım: "250.000" → 250000, "1.250,50" → 1250.5, "85,5" ve "85.5" → 85.5 */
+  function num(v) {
+    if (v === '' || v === null || v === undefined) return null;
+    var s = String(v).trim().replace(/[\s₺£€$]/g, '');
+    if (s.indexOf(',') > -1) s = s.replace(/\./g, '').replace(',', '.');
+    else if (/^\d{1,3}(\.\d{3})+$/.test(s)) s = s.replace(/\./g, '');
+    var n = parseFloat(s); return isNaN(n) ? null : n;
+  }
   function fillCities(sel, value) {
     sel.innerHTML = ''; sel.appendChild(opt('', '—'));
     Object.keys(D.cities).forEach(function (k) { sel.appendChild(opt(k, D.cities[k].name, k === value)); });

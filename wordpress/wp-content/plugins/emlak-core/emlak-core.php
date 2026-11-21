@@ -47,6 +47,7 @@ register_activation_hook(__FILE__, function () {
 
 register_deactivation_hook(__FILE__, function () {
     wp_clear_scheduled_hook('ec_daily');
+    wp_clear_scheduled_hook('ec_rates_hourly');
     flush_rewrite_rules();
 });
 
@@ -57,10 +58,7 @@ add_action('init', function () {
     }
 });
 add_action('ec_daily', function () {
-    if (get_option('ec_rates_auto', 1)) {
-        ec_rates_update();
-    }
-    ec_index_compute();
+    ec_index_compute(); // kurlar ayrıca saatlik kontrol edilir (ec_rates_hourly)
 });
 
 add_action('plugins_loaded', function () {

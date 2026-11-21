@@ -33,16 +33,30 @@ add_action('wp_enqueue_scripts', function () {
     wp_enqueue_style('ae-fonts', 'https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Inter:wght@400;600&display=swap', [], null);
     wp_enqueue_style('ae-main', get_theme_file_uri('assets/css/main.css'), [], AE_VER);
     wp_enqueue_script('ae-main', get_theme_file_uri('assets/js/main.js'), [], AE_VER, ['in_footer' => true, 'strategy' => 'defer']);
+    wp_enqueue_script('ae-converter', get_theme_file_uri('assets/js/converter.js'), ['ae-main'], AE_VER, ['in_footer' => true, 'strategy' => 'defer']);
     wp_localize_script('ae-main', 'AE', [
         'lang' => ec_lang(),
         'rates' => ec_rates(),
         'sym' => AE_SYM,
         'api' => home_url('/api/v1/'),
         'favsUrl' => ec_url_section('favs'),
+        'rateInfo' => function_exists('ec_rates_info') ? (function () {
+            $i = ec_rates_info();
+            $src = ['tcmb' => 'TCMB', 'kktcmb' => 'KKTC Merkez Bankası', 'frankfurter' => 'ECB', 'er-api' => 'open.er-api.com'][$i['source_key']] ?? $i['source'];
+            return [
+                'source' => $src ? ae_t('conv_source', $src) : '',
+                'date' => $i['date'] ? ae_t('conv_date', wp_date('d.m.Y', strtotime($i['date'] . ' 12:00'))) : '',
+            ];
+        })() : [],
         'msg' => [
             'notFoundNo' => ae_t('not_found_no'),
             'copied' => ae_t('copied'),
             'noPhone' => ae_t('no_phone'),
+            'convTitle' => ae_t('conv_title'),
+            'convAmount' => ae_t('conv_amount'),
+            'convOpen' => ae_t('conv_open'),
+            'convNote' => ae_t('conv_note'),
+            'close' => ae_t('close'),
         ],
     ]);
     $ads = get_option('ec_ads', []);

@@ -8,6 +8,14 @@ if (!defined('ABSPATH')) {
 function adaev_strings_panel(): array
 {
     return [
+        // Döviz çevirici
+        'conv_title' => ['Döviz çevirici', 'Currency converter', 'Конвертер валют'],
+        'conv_amount' => ['Tutar', 'Amount', 'Сумма'],
+        'conv_open' => ['Döviz çeviriciyi aç', 'Open currency converter', 'Открыть конвертер'],
+        'conv_source' => ['Kaynak: %s', 'Source: %s', 'Источник: %s'],
+        'conv_date' => ['Kur tarihi: %s', 'Rate date: %s', 'Дата курса: %s'],
+        'conv_note' => ['Bilgi amaçlıdır; bankanızın uyguladığı kur farklı olabilir.', 'For information only; your bank’s rate may differ.', 'Справочно; курс вашего банка может отличаться.'],
+        'conv_rates_line' => ['Kur: %s · %s', 'Rate: %s · %s', 'Курс: %s · %s'],
         // Giriş / kayıt
         'login' => ['Giriş Yap', 'Log in', 'Войти'],
         'logout' => ['Çıkış', 'Log out', 'Выйти'],

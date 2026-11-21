@@ -55,6 +55,7 @@ $blog = ae_blog_url();
     <a href="<?php echo esc_url(add_query_arg('tur', 'ofis', ec_url_section('register'))); ?>"><?php ae_e('corp_member'); ?></a>
     <a href="<?php echo esc_url(ec_url_section('add')); ?>#paketler"><?php ae_e('packages'); ?></a>
     <a href="<?php echo esc_url($blog); ?>"><?php ae_e('blog'); ?></a>
+    <a href="#" data-conv="1000">⇄ <?php ae_e('conv_title'); ?></a>
   </div>
   <div><div class="flogo"><img src="<?php echo esc_url(get_theme_file_uri('assets/img/favicon.svg')); ?>" alt="" width="40" height="40"><?php echo esc_html(ae_brand()); ?></div><div class="fdesc"><?php ae_e('footer_note'); ?></div>
     <?php $soc = ae_social_icons((array) get_option('ec_social', []), 'socials fsocial'); if ($soc) : ?><div class="ffollow"><?php ae_e('follow_us'); ?></div><?php echo $soc; endif; ?></div>

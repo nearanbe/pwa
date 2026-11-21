@@ -56,7 +56,7 @@ function ae_price(float $gbp, string $mode = 'sale', bool $second = true): strin
     $h = ae_money($gbp) . esc_html(ae_price_suffix($mode));
     if ($second && $gbp > 0) {
         $c2 = ae_second_currency();
-        $h .= ' <small class="money2" data-gbp="' . esc_attr((string) $gbp) . '">(' . esc_html(ae_format_money2($gbp, $c2)) . ')</small>';
+        $h .= ' <small class="money2" role="button" tabindex="0" aria-haspopup="dialog" title="' . esc_attr(ae_t('conv_open')) . '" data-gbp="' . esc_attr((string) $gbp) . '">(' . esc_html(ae_format_money2($gbp, $c2)) . ')</small>';
     }
     return $h;
 }
@@ -463,4 +463,18 @@ function ae_pct_label(float $v): string
 {
     $n = number_format(abs($v), 0, ',', '.');
     return ec_lang() === 'tr' ? '%' . $n : $n . '%';
+}
+
+/** "Kur: TCMB · 20.11.2026" satırı */
+function ae_rate_line(): string
+{
+    if (!function_exists('ec_rates_info')) {
+        return '';
+    }
+    $i = ec_rates_info();
+    if (!$i['date']) {
+        return '';
+    }
+    $src = ['tcmb' => 'TCMB', 'kktcmb' => 'KKTC Merkez Bankası', 'frankfurter' => 'ECB', 'er-api' => 'open.er-api.com'][$i['source_key']] ?? $i['source'];
+    return ae_t('conv_rates_line', $src, wp_date('d.m.Y', strtotime($i['date'] . ' 12:00')));
 }

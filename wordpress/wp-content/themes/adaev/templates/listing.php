@@ -119,6 +119,7 @@ get_header();
         <?php if ($a['currency'] !== ae_currency()) : ?>
           <div class="sub"><?php ae_e('original_price'); ?>: <?php echo esc_html(AE_SYM[$a['currency']] . number_format($a['price'], 0, ',', '.')); ?></div>
         <?php endif; ?>
+        <?php if ($rl = ae_rate_line()) : ?><div class="sub rateline"><button type="button" class="linkbtn" data-conv="<?php echo esc_attr((string) $a['price_gbp']); ?>">⇄ <?php ae_e('conv_title'); ?></button> · <?php echo esc_html($rl); ?></div><?php endif; ?>
         <h1 class="dtitle"><?php echo esc_html($a['title']); ?></h1>
         <div class="sub"><?php echo esc_html($loc); ?> · <?php ae_e('ref'); ?> #<?php echo (int) $a['id']; ?></div>
         <table class="facts">

@@ -260,9 +260,9 @@ function ec_admin_settings(): void
         echo '<tr><th>' . $c . '</th><td><input name="rate_' . $c . '" type="number" step="0.0001" min="0" value="' . esc_attr($rates[$c]) . '"></td></tr>';
     }
     $meta = (array) get_option('ec_rates_meta', []);
-    echo '<tr><th>Otomatik güncelleme</th><td><label><input type="checkbox" name="rates_auto" value="1"' . checked((int) get_option('ec_rates_auto', 1), 1, false) . '> Kurları her gün otomatik çek</label>';
+    echo '<tr><th>Otomatik güncelleme</th><td><label><input type="checkbox" name="rates_auto" value="1"' . checked((int) get_option('ec_rates_auto', 1), 1, false) . '> Kurları otomatik güncelle (saatte bir kontrol)</label>';
     if (!empty($meta['updated_at'])) {
-        echo '<p class="description">Son güncelleme: ' . esc_html(get_date_from_gmt($meta['updated_at'], 'd.m.Y H:i')) . ' · Kaynak: ' . esc_html($meta['source'] ?? '') . '</p>';
+        echo '<p class="description">Kaynak: <b>' . esc_html($meta['source'] ?? '') . '</b> · Kur tarihi: <b>' . esc_html(!empty($meta['rate_date']) ? date_i18n('d.m.Y', strtotime($meta['rate_date'])) : '—') . '</b> · Son kontrol: ' . esc_html(get_date_from_gmt($meta['updated_at'], 'd.m.Y H:i')) . ' (saatte bir kontrol edilir)</p>';
     }
     if (!empty($meta['error'])) {
         echo '<p class="description" style="color:#b32d2e">Son deneme başarısız: ' . esc_html($meta['error']) . '</p>';
@@ -271,6 +271,8 @@ function ec_admin_settings(): void
         echo '<p class="description">KKTC Merkez Bankası cevabının başı (okunamadı; bu metni geliştiriciye gönderin):</p><textarea readonly rows="4" class="large-text code">' . esc_textarea($meta['sample']) . '</textarea>';
     }
     echo '</td></tr>';
+    $side = get_option('ec_rates_side', 'mid');
+    echo '<tr><th>Kur türü (TCMB / KKTC MB)</th><td><select name="rates_side"><option value="mid"' . selected($side, 'mid', false) . '>Ortalama (döviz alış + satış) / 2</option><option value="buy"' . selected($side, 'buy', false) . '>Döviz alış</option><option value="sell"' . selected($side, 'sell', false) . '>Döviz satış</option></select><p class="description">Kaynak sırası: TCMB → KKTC Merkez Bankası → Avrupa Merkez Bankası → open.er-api.com. TCMB her iş günü 15:30’da yayımlar.</p></td></tr>';
     echo '</table><p class="description">İlanlar kendi para birimiyle saklanır; arama ve sıralama için GBP karşılığı bu kurlarla hesaplanır. Otomatik güncelleme açıkken elle girilen değerlerin üzerine her gün yazılır.</p>';
     echo '<h2>Reklam (Google AdSense)</h2><table class="form-table">';
     foreach (['client' => 'Yayıncı kimliği (ca-pub-...)', 'top' => 'Üst alan slot', 'feed' => 'İlan arası slot', 'mid' => 'Orta alan slot', 'detail' => 'İlan detay slot'] as $k => $n) {
@@ -366,6 +368,9 @@ add_action('admin_post_ec_settings', function () {
     }
     update_option('ec_rates', $rates);
     update_option('ec_rates_auto', !empty($p['rates_auto']) ? 1 : 0);
+    $newSide = in_array($p['rates_side'] ?? 'mid', ['mid', 'buy', 'sell'], true) ? $p['rates_side'] : 'mid';
+    $sideChanged = $newSide !== get_option('ec_rates_side', 'mid');
+    update_option('ec_rates_side', $newSide);
     $ads = [];
     foreach (['client', 'top', 'feed', 'mid', 'detail'] as $k) {
         $ads[$k] = preg_replace('/[^a-zA-Z0-9-]/', '', (string) ($p['ads_' . $k] ?? ''));
@@ -394,6 +399,9 @@ add_action('admin_post_ec_settings', function () {
         'token' => $keep($cf, 'token', sanitize_text_field($p['cf_token'] ?? '')),
     ]);
     ec_recompute_price_gbp();
+    if ($sideChanged && get_option('ec_rates_auto', 1)) {
+        ec_rates_maybe_update(true);
+    }
     ec_admin_back('ec-settings', 'Ayarlar kaydedildi.');
 });
 
