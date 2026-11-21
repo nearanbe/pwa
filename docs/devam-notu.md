@@ -55,6 +55,24 @@ Dal: `claude/jolly-carson-l927uv`. Kod buradadır, her şey commit edilip gönde
 - **Ortam izinleri:** commons.wikimedia.org ve upload.wikimedia.org izinli. thumb.wikimedia.org izinli değil; küçük görsel adreslerinde alan adı upload.wikimedia.org ile değiştirilir. Wikimedia sık istekte 429 verir; istekler arasında beklenir.
 - **Örnek içerikler** ("Hello world!" yazısı 1, "Sample Page" sayfası 2, yorum 1): silme ve çöpe taşıma bu oturumda otomatik izin denetimine takıldı. Kullanıcı kendisi siler.
 
+## 1d. Canlı demo verisi (21.11.2026)
+
+- **Demo verisi:** kullanıcı canlı sitede yükledi (Emlak → Ayarlar → Araçlar): 62 ilan, 6 firma, 6 proje.
+- **Fotoğraflar:** çizim görseller REST ile Cloudflare yapay zekâsı (`@cf/leonardo/lucid-origin`) ile üretilmiş gerçekçi fotoğraflarla değiştirildi.
+  - 20 fotoğraf: 11 dış cephe ve 9 iç mekân. Toplam 230 yükleme; 138 eski çizim silindi.
+  - 360° panoramalar 2048×1024: 10002 Lapta villa (Teras, Salon), 10007 Long Beach 1+1, 10003 Lefkoşa penthouse, 10010 Long Beach kiralık villa.
+  - Betikler oturumun geçici klasöründeydi (`upload.py`, `delold.py`). Mantığı:
+    1. `/emlak/v1/listings` ile ilanları listele.
+    2. `POST /listings/{id}/photos` ile yeni fotoğrafları yükle.
+    3. `PUT …/photos/order` ile yenileri başa al.
+    4. `DELETE …/photos/{pid}` ile eski çizimleri sil.
+    5. `POST …/panos` ile 360° ekle.
+- **Gerçek ilan fotoğrafı kullanılmadı:** telifli ve yanıltıcı olurdu. Demo, Ayarlar → Araçlar → Demo verisini sil ile fotoğraflarıyla birlikte silinir.
+- **Bu ortamdan yapılamayanlar:**
+  - Cloudflare önbelleğini temizlemek: ortamdaki api.cloudflare.com anahtarının zone yetkisi yok.
+  - Telegram'a bağlanmak (api.telegram.org kapalı); Telegram testini kullanıcı telefonundan yapar.
+- **Yerel test:** uygulama parolası HTTP üzerinde sadece `WP_ENVIRONMENT_TYPE=local` iken çalışır.
+
 ## 2. Proje özeti
 
 - **Amaç:** KKTC (Kuzey Kıbrıs) emlak ilan portalı. Rakipler: 101evler.com ve hangiev.com. İkisi de Cloudflare bot korumalı; bu ortamdan açılamaz.
