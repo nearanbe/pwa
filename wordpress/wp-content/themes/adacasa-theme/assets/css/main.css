@@ -906,3 +906,7 @@ input[type=checkbox],input[type=radio]{width:18px;height:18px;padding:0;margin:0
 @media print{.gv,.gbtns{display:none!important}}
 #gvpano{height:calc(100vh - 200px)!important;min-height:320px}
 @media(max-width:720px){#gvpano{height:calc(100vh - 170px)!important}}
+
+/* Yönetici çubuğu (sadece giriş yapmış yöneticide) tam ekran pencerelerin üstünü kapatmasın */
+body.admin-bar .ov.lb,body.admin-bar .ov.gv{top:32px}
+@media screen and (max-width:782px){body.admin-bar .ov.lb,body.admin-bar .ov.gv{top:46px}}
