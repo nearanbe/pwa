@@ -23,6 +23,22 @@ Dal: `claude/jolly-carson-l927uv`. Kod buradadır, her şey commit edilip gönde
 - **Rehber:** `docs/neden-biz.html` ve `.pdf` AdaCasa adı, logosu ve paletiyle yeniden üretildi; aynı adresten yeniden yayımlandı.
 - **Testler:** `tests/social-test.php` artık `/tmp/x/pano1.jpg` dosyasını yoksa kendisi üretiyor. Eski 0.7'den 1.0.1'e geçiş yerelde denendi (wp-cli).
 
+## 1b. Sürüm 1.0.2: profesyonel görünüm (teslim edildi)
+
+- Canlı site: adacasa.com, Plesk ve WordPress üzerinde, Cloudflare arkasında. Bu ortamda `adacasa.com` izinli adres listesinde; WP uygulama parolası ortamın ağ sırrı olarak kayıtlı (Basic auth). Uygulama parolası sadece REST API'de geçerli, wp-admin sayfalarına giriş yapmaz.
+  - `/wp/v2/users/me` adresi Plesk tarafından 403 ile engelleniyor; yetki kontrolü için `/wp/v2/settings` kullanılır.
+- **Ana sayfa:** fotoğraflı giriş, `ae_hero_photo()`. Seçenek `ec_hero_photo`, yoksa `assets/img/hero-*.webp`. Bu görseller Cloudflare `@cf/leonardo/lucid-origin` ile üretildi; belirli bir yeri göstermeyen genel bir Akdeniz kıyısı.
+  - İlan slaytları kaldırıldı; öne çıkan ilanlar zaten aşağıda ayrı bölümde.
+- **Arama kutusu:** `.sf-main` (Konut, Şehir, Bölge ve sabit Ara) ile `.sf-more` (diğer filtreler). Telefonda "Detaylı arama" ile açılır, Ara düğmesi hep en altta kalır.
+- **Üst bar:** `.bar>.tools` telefonda ☰ ile açılan panel. Dikkat: ilan sayfası yan kutusunda da `.tools` sınıfı var; seçiciler `.bar>` ile sınırlı.
+- **Diğer:**
+  - `ae_ad()` reklam kodu yoksa ziyaretçiye boş döner.
+  - `ae_date()` tarihi sayfanın diline göre yazar.
+  - Danışman kartlarında ad tekrarı kaldırıldı; yerine "Emlak Ofisi · Şehir" yazıyor.
+  - Alt bilgide marka, WhatsApp ve e-posta solda.
+  - Telefonda ilan ve proje sayfalarında `.mbar` alt iletişim çubuğu var; sıralama galeri → bilgiler → iletişim.
+- **Kullanıcıdan beklenen:** şehir kartları için gerçek fotoğraflar. Unsplash bot korumalı, buradan alınamadı.
+
 ## 2. Proje özeti
 
 - **Amaç:** KKTC (Kuzey Kıbrıs) emlak ilan portalı. Rakipler: 101evler.com ve hangiev.com. İkisi de Cloudflare bot korumalı; bu ortamdan açılamaz.
@@ -47,8 +63,8 @@ Dal: `claude/jolly-carson-l927uv`. Kod buradadır, her şey commit edilip gönde
 
 | Parça | Kullanıcıya verilen son sürüm | Daldaki sürüm (teslim bekliyor) |
 |---|---|---|
-| Eklenti (adacasa-core, eski emlak-core) | **1.0.1** | 1.0.1 |
-| Tema (adacasa-theme, eski emlak-tema) | **1.0.1** | 1.0.1 |
+| Eklenti (adacasa-core, eski emlak-core) | **1.0.2** | 1.0.2 |
+| Tema (adacasa-theme, eski emlak-tema) | **1.0.2** | 1.0.2 |
 | Chrome eklentisi | **0.4.1** | 0.4.1 |
 
 Kullanıcının kuralı: "Her şey tamam olana kadar yeni sürüm verme." 0.7 içeriği marka değişikliğiyle birlikte **AdaCasa 1.0.1** olarak teslim edildi.

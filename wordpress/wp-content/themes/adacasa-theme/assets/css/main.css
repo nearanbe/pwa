@@ -740,3 +740,87 @@ input[type=checkbox],input[type=radio]{width:18px;height:18px;padding:0;margin:0
 .faqa p{margin:0 0 8px}
 .faqmore{margin-top:28px;text-align:center}
 .faqmore .row{justify-content:center}.faqmore .row>*{flex:0 1 auto}
+
+/* ================= 1.0.2: profesyonel görünüm ================= */
+/* Üst bar: telefonda logo + İlan Ver + ☰; araçlar (ilan no, kur, dil, favori, giriş) açılır panelde */
+.bar>.tools{display:contents}
+.burger{display:none}
+@media(max-width:720px){
+  .bar{flex-wrap:nowrap;gap:8px;position:relative}
+  .logo{flex:1 1 auto;min-width:0}
+  .bar>.addbtn{order:0;padding:9px 13px;font-size:14px;white-space:nowrap}
+  .burger{display:inline-flex;flex-direction:column;justify-content:center;gap:4px;flex:0 0 42px;height:40px;padding:0 11px;border:1px solid var(--line);border-radius:12px;background:transparent;color:var(--text);cursor:pointer}
+  .burger span{display:block;height:2px;background:currentColor;border-radius:2px;transition:transform .2s,opacity .2s}
+  .site-header.open .burger span:nth-child(1){transform:translateY(6px) rotate(45deg)}
+  .site-header.open .burger span:nth-child(2){opacity:0}
+  .site-header.open .burger span:nth-child(3){transform:translateY(-6px) rotate(-45deg)}
+  .bar>.tools{display:none}
+  .site-header.open .bar>.tools{display:grid;grid-template-columns:1fr 1fr;gap:10px;position:absolute;left:0;right:0;top:100%;background:var(--card);border-bottom:1px solid var(--line);box-shadow:0 18px 30px rgba(12,26,49,.16);padding:14px 16px 18px;z-index:30}
+  .bar>.tools .ino{grid-column:1/-1}.bar>.tools .ino input{width:100%}
+  .bar>.tools .mini#cur{width:100%}
+  .bar>.tools .langs a{flex:1;text-align:center}
+  .bar>.tools .ghost{justify-content:center}
+  .bar>.tools .hide-s{display:inline}
+}
+
+/* Ana sayfa girişi: tam genişlik fotoğraf, başlık ve üzerinde arama kutusu */
+.hero.hs{height:auto;min-height:clamp(540px,76vh,720px);display:flex;align-items:center;background:#0e1f3d}
+.hbg,.hbg img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.hero.hs::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(8,18,38,.62) 0%,rgba(8,18,38,.28) 42%,rgba(8,18,38,.55) 100%)}
+.hero-in{position:relative;z-index:2;width:100%;max-width:var(--w);margin:0 auto;padding:64px 16px 54px;text-align:center}
+.hero-in h1{font-size:clamp(36px,5.6vw,62px);font-weight:500;letter-spacing:.4px;line-height:1.06;margin:0 0 10px;text-shadow:0 2px 22px rgba(0,0,0,.4)}
+.hsub{margin:0 auto 28px;max-width:660px;color:#eef2f7;font-size:17.5px;text-shadow:0 1px 12px rgba(0,0,0,.5)}
+.hero-in .sbox{text-align:left;max-width:1060px;margin:0 auto;box-shadow:0 24px 60px rgba(4,10,24,.35)}
+.hstats{margin:20px 0 0;color:#eef2f7;font-size:14.5px;letter-spacing:.3px;text-shadow:0 1px 8px rgba(0,0,0,.5)}
+.main.home{margin-top:8px}
+@media(max-width:720px){.hero.hs{min-height:0}.hero-in{padding:30px 16px 26px}.hsub{font-size:15px;margin-bottom:18px}.hero-in h1{font-size:34px}}
+
+/* Arama kutusu (101evler düzeni): üst satır Konut · Şehir · Bölge · [Ara] sabit; alt satır diğer filtreler */
+.sf-main{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr) minmax(0,1.3fr) 176px;gap:10px}
+.sbtn{gap:8px;font-size:16px;padding:12px 18px;height:100%}
+.sf-tog{display:none}
+.sf-more{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-top:10px;align-items:center}
+.sf-more input,.sf-more select{padding:9px 11px;font-size:14.5px}
+.sf-more .pano-chk{display:flex;align-items:center;gap:6px;font-size:14px;color:var(--muted);white-space:nowrap}
+.sbox .tabs button{font-size:15px}
+@media(min-width:1000px){.sf-more{grid-template-columns:repeat(7,minmax(0,1fr))}.sbox .fcur{max-width:none}}
+@media(max-width:720px){
+  .sf{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px}
+  .sf-main{display:contents}
+  .sf #f-ptype{grid-column:1/-1}
+  .sf-tog{display:flex;align-items:center;justify-content:center;gap:8px;grid-column:1/-1;order:2;border:1px dashed var(--line);background:transparent;color:var(--acc);font:inherit;font-weight:600;padding:10px;border-radius:12px;cursor:pointer}
+  .sf-tog::before{content:"+";font-size:19px;line-height:1}
+  .sbox.more .sf-tog::before{content:"−"}
+  .sf-more{grid-column:1/-1;order:3;display:none;grid-template-columns:minmax(0,1fr) minmax(0,1fr);margin:0}
+  .sf-more>*{min-width:0}.sf-more .fcur{max-width:none}
+  .sbox .tabs button{padding:10px 11px;font-size:14px}
+  .sbox.more .sf-more{display:grid}
+  .sf .sbtn{grid-column:1/-1;order:4;padding:13px}
+}
+
+/* Alt bilgi: marka ve iletişim solda */
+.fcols{grid-template-columns:minmax(240px,1.4fr) repeat(3,minmax(150px,1fr))}
+@media(max-width:860px){.fcols{grid-template-columns:1fr 1fr}.fbrand{grid-column:1/-1}}
+@media(max-width:480px){.fcols{grid-template-columns:1fr}}
+.fbrand .fdesc{max-width:320px;line-height:1.5}
+.fcontact{margin-top:14px;display:grid;gap:2px}
+.fcontact a{color:#dde5ef!important;font-weight:600}
+
+/* İlan/proje detayı telefonda: galeri → bilgiler → iletişim (arama ve WhatsApp yapışkan üst çubukta) */
+@media(max-width:900px){.dgrid{grid-template-areas:"gal" "desc" "side"}}
+
+/* Telefonda ilan/proje sayfası: altta sabit iletişim çubuğu */
+.mbar{display:none}
+@media(max-width:720px){
+  .mbar{position:fixed;left:0;right:0;bottom:0;z-index:40;display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:8px;padding:10px 12px calc(10px + env(safe-area-inset-bottom,0px));background:color-mix(in srgb,var(--card) 94%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-top:1px solid var(--line);box-shadow:0 -6px 20px rgba(12,26,49,.08)}
+  .mbar>*{justify-content:center;padding:11px 8px;font-size:15px;border-radius:12px;text-align:center;white-space:nowrap}
+  .mbar .wa{display:flex;align-items:center;justify-content:center;font-weight:600}
+  body:has(.mbar) .site-footer{padding-bottom:calc(96px + env(safe-area-inset-bottom,0px))}
+  .stickhead .sh-in .btn,.stickhead .sh-in .wa{display:none}
+}
+@media print{.mbar{display:none!important}}
+
+/* İç sayfa başlık bandı: giriş fotoğrafı, koyu lacivert örtüyle */
+.pagehead{background:linear-gradient(160deg,rgba(14,31,61,.93),rgba(20,40,75,.86) 60%,rgba(36,71,122,.8)),url(../img/hero-1280.webp) center 62%/cover no-repeat}
+/* İlan yan kutusu: düğmeler tek satır */
+.dside .row .btn,.dside .row .wa{white-space:nowrap}

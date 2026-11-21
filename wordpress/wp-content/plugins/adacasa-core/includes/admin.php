@@ -348,6 +348,7 @@ function ec_admin_settings(): void
     echo '<h2>Benzer / kopya ilan denetimi</h2><table class="form-table"><tr><th>Otomatik denetim</th><td>Fotoğraflar ve açıklamalar her yüklemede ve her gün karşılaştırılır. Birebir benzerlikte ekleyen üyeye “buna benzer ilan zaten yayında” uyarısı gider; başka üyenin ilanıyla eşleşirse onay panelinde “kopya ilan” bildirimi açılır.<br><label><input type="checkbox" name="dup_hold" value="1"' . checked((int) get_option('ec_dup_hold'), 1, false) . '> Başka üyenin ilanıyla eşleşen ilan yayına girmesin, onaya düşsün</label></td></tr></table>';
     echo '<h2>Talepler (Mesaj gönder formu)</h2><table class="form-table"><tr><th>Yöneticiye kopya</th><td><label><input type="checkbox" name="lead_admin_copy" value="1"' . checked((int) get_option('ec_lead_admin_copy', 1), 1, false) . '> İlan sahibine giden her mesajın kopyası bana da gelsin</label></td></tr></table>';
 
+    echo '<h2>Ana sayfa giriş görseli</h2><p class="description">Ana sayfanın en üstündeki büyük fotoğraf (en az 1920 × 1080 önerilir). Medya kütüphanesindeki görselin numarası ya da adresi. Boş bırakılırsa temanın Akdeniz kıyısı görseli kullanılır.</p><table class="form-table"><tr><th>Giriş görseli</th><td><input name="hero_photo" class="regular-text" placeholder="https://… ya da medya no" value="' . esc_attr((string) get_option('ec_hero_photo', '')) . '"></td></tr></table>';
     $cp = (array) get_option('ec_city_photos', []);
     echo '<h2>Ana sayfa şehir kartları</h2><p class="description">Her şehir için bir fotoğraf seçin (Medya kütüphanesindeki görselin numarası ya da adresi). Boş bırakılan şehirde renkli arka plan görünür.</p><table class="form-table">';
     foreach (ec_cities() as $ck => $c) {
@@ -514,6 +515,8 @@ add_action('admin_post_ec_settings', function () {
         }
     }
     update_option('ec_city_photos', $cp);
+    $hp = trim((string) ($p['hero_photo'] ?? ''));
+    update_option('ec_hero_photo', $hp === '' ? '' : (ctype_digit($hp) ? $hp : esc_url_raw($hp)));
     $ext = trim((string) ($p['ext_config'] ?? ''));
     if ($ext === '') {
         delete_option('ec_ext_config');

@@ -1,5 +1,7 @@
 # Kurulum (Plesk VPS)
 
+> **1.0.2 (görünüm):** fotoğraflı ana sayfa girişi ve üzerinde arama kutusu (Ara düğmesi sabit), telefonda ☰ menü, ilan sayfasında telefonda alt iletişim çubuğu, "AdaCasa" logo yazısı, AdSense kodu girilmediyse ziyaretçiye boş reklam kutusu gösterilmez. Giriş fotoğrafı **Emlak → Ayarlar → Ana sayfa giriş görseli** bölümünden değiştirilebilir; şehir kartları için gerçek fotoğraflar **Ana sayfa şehir kartları** bölümüne girilir. Güncelleme: eklenti ve tema zip'leri **Mevcut sürümü değiştir** ile yüklenir, ardından Cloudflare önbelleği temizlenir.
+>
 > **Marka değişti (1.0.1): AdaCasa.** Eklenti `emlak-core` → `adacasa-core`, tema `emlak-tema` → `adacasa-theme` oldu. WordPress eklentiyi ve temayı klasör adından tanıdığı için ikisi de **yeni** olarak kurulur. Veri tabloları (`wp_ec_*`) ve ayarlar aynen kalır, hiçbir şey kaybolmaz.
 > 1. **Eklentiler → Yeni ekle → Eklenti yükle** → `adacasa-core-1.0.1.zip` → **Şimdi kur** → **Etkinleştir**. Eski "Emlak Core" bu sırada kendiliğinden devre dışı bırakılır; ikisi aynı anda çalışmaz. (Elle yapmak isterseniz: önce Emlak Core'u devre dışı bırakın, sonra AdaCasa Core'u etkinleştirin.)
 > 2. **Eklentiler** → **Emlak Core → Sil**. ("Verileri sil" gibi bir soru çıkmaz; tablolar silinmez.)

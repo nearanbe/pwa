@@ -20,7 +20,7 @@ get_header();
               echo AE_ICON;
           } ?></div>
           <div class="body">
-            <div class="sub"><?php echo esc_html(get_the_date()); ?></div>
+            <div class="sub"><?php echo esc_html(ae_date((int) get_post_timestamp())); ?></div>
             <h2 class="ttl"><?php the_title(); ?></h2>
             <p class="sub"><?php echo esc_html(get_the_excerpt()); ?></p>
             <span class="more"><?php ae_e('read_more'); ?> →</span>

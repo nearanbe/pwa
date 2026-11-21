@@ -96,6 +96,15 @@
     thumbs.forEach(function (t) { t.addEventListener('click', function () { g && g.go(Number(t.dataset.go)); }); });
   }
 
+  /* ---- Telefonda üst menü (☰): ilan no, para birimi, dil, favoriler, giriş ---- */
+  var burger = $('.burger'), shead = $('.site-header');
+  if (burger && shead) {
+    var setMenu = function (o) { shead.classList.toggle('open', o); burger.setAttribute('aria-expanded', o ? 'true' : 'false'); };
+    burger.addEventListener('click', function (e) { e.stopPropagation(); setMenu(!shead.classList.contains('open')); });
+    document.addEventListener('click', function (e) { if (shead.classList.contains('open') && !e.target.closest('.bar>.tools')) setMenu(false); });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') setMenu(false); });
+  }
+
   /* ---- Arama kutusu ---- */
   var sb = $('#sbox');
   if (sb) {
@@ -110,6 +119,12 @@
         $$('.sale-only', sb).forEach(function (n) { var on = b.dataset.m === 'sale'; n.hidden = !on; n.disabled = !on; if (!on) n.value = ''; });
       });
     });
+    // Telefonda alt satır (emlak tipi, oda, fiyat…) "Detaylı arama" ile açılır; Ara düğmesi hep en altta kalır
+    var tog = $('.sf-tog', sb);
+    if (tog) {
+      tog.setAttribute('aria-expanded', sb.classList.contains('more') ? 'true' : 'false');
+      tog.addEventListener('click', function () { var o = sb.classList.toggle('more'); tog.setAttribute('aria-expanded', o ? 'true' : 'false'); });
+    }
     var pt = $('#f-ptype', sb), st = $('#f-sub', sb), city = $('#f-city', sb), dist = $('#f-dist', sb);
     pt.addEventListener('change', function () {
       var first = st.options[0].textContent; st.innerHTML = ''; st.appendChild(opt('', first));

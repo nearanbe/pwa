@@ -37,6 +37,13 @@ $blog = ae_blog_url();
 <?php endif; ?>
 
 <footer class="site-footer"><div class="fin"><div class="fcols">
+  <div class="fbrand"><div class="flogo"><?php echo ae_logo_mark('f', 64) . ae_logo_word(); // phpcs:ignore -- sabit SVG, metin kaçışlı ?></div><div class="fdesc"><?php ae_e('footer_note'); ?></div>
+    <?php $fc = (array) get_option('ec_contact', []); $fwa = preg_replace('/\D/', '', (string) ($fc['whatsapp'] ?? '')); $fem = (string) ($fc['email'] ?? ''); ?>
+    <?php if ($fwa || $fem) : ?><div class="fcontact">
+      <?php if ($fwa) : ?><a href="https://wa.me/<?php echo esc_attr($fwa); ?>" rel="noopener" target="_blank">WhatsApp · +<?php echo esc_html($fwa); ?></a><?php endif; ?>
+      <?php if ($fem) : ?><a href="mailto:<?php echo esc_attr($fem); ?>"><?php echo esc_html($fem); ?></a><?php endif; ?>
+    </div><?php endif; ?>
+    <?php $soc = ae_social_icons((array) get_option('ec_social', []), 'socials fsocial'); if ($soc) : ?><div class="ffollow"><?php ae_e('follow_us'); ?></div><?php echo $soc; endif; ?></div>
   <div><h5><?php ae_e('corporate'); ?></h5>
     <a href="<?php echo esc_url($page('hakkimizda')); ?>"><?php ae_e('about'); ?></a>
     <a href="<?php echo esc_url($page('iletisim')); ?>"><?php ae_e('contact'); ?></a>
@@ -58,8 +65,6 @@ $blog = ae_blog_url();
     <a href="<?php echo esc_url($blog); ?>"><?php ae_e('blog'); ?></a>
     <a href="#" data-conv="1000">⇄ <?php ae_e('conv_title'); ?></a>
   </div>
-  <div><div class="flogo"><?php echo ae_logo_mark('f', 64) . ae_logo_word(); // phpcs:ignore -- sabit SVG, metin kaçışlı ?></div><div class="fdesc"><?php ae_e('footer_note'); ?></div>
-    <?php $soc = ae_social_icons((array) get_option('ec_social', []), 'socials fsocial'); if ($soc) : ?><div class="ffollow"><?php ae_e('follow_us'); ?></div><?php echo $soc; endif; ?></div>
 </div>
 <div class="fnote">© <?php echo esc_html(gmdate('Y') . ' ' . ae_brand()); ?>. <?php ae_e('rights'); ?> <?php if (get_option('ec_demo_agents')) : ?><br><?php ae_e('demo_note'); ?><?php endif; ?></div>
 </div></footer>

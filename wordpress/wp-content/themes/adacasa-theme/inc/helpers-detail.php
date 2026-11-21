@@ -167,6 +167,13 @@ function ae_sticky_head(array $o): string
     <?php foreach ($o['sections'] as $id => $label) : ?><a href="#<?php echo esc_attr($id); ?>"><?php echo esc_html($label); ?></a><?php endforeach; ?>
   </nav>
 </div>
+<?php if (!empty($o['tel']) || !empty($o['wa'])) : ?>
+<div class="mbar" role="group" aria-label="<?php ae_e('sec_contact'); ?>">
+  <?php if (!empty($o['tel'])) : ?><a class="btn" href="tel:<?php echo esc_attr(preg_replace('/[^0-9+]/', '', $o['tel'])); ?>"><?php echo ae_icon('phone', 16); ?> <?php ae_e('call'); ?></a><?php endif; ?>
+  <?php if (!empty($o['wa'])) : ?><a class="wa" href="<?php echo esc_url($o['wa']); ?>" target="_blank" rel="noopener">WhatsApp</a><?php endif; ?>
+  <a class="ghost" href="#iletisim"><?php ae_e('lead_title'); ?></a>
+</div>
+<?php endif; ?>
 <?php
     return ob_get_clean();
 }

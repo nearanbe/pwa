@@ -1,5 +1,5 @@
 <?php
-/** Ana sayfa: slider + arama kutusu + öne çıkanlar + son ilanlar + danışmanlar + hızlı linkler */
+/** Ana sayfa: fotoğraflı giriş + arama kutusu + öne çıkanlar + son ilanlar + danışmanlar + hızlı linkler */
 if (!defined('ABSPATH')) {
     exit;
 }
@@ -17,8 +17,6 @@ ae_seo([
 $GLOBALS['ae_quicklinks'] = true;
 
 $featured = ec_listing_featured($lang, null, 8);
-$slides = array_values(array_filter($featured, fn($a) => $a['cover']));
-$slides = array_slice($slides, 0, 5);
 $latest = ec_listing_search(['mode' => 'sale'], $lang, 1, 12)['items'];
 $agents = ec_agents_active(12);
 $projects = ec_projects($lang, 4);
@@ -26,41 +24,26 @@ $idx = array_slice(ec_index_table('sale'), 0, 7);
 $posts = get_posts(['numberposts' => 3]);
 get_header();
 ?>
-<section class="hero" aria-roledescription="carousel" aria-label="<?php ae_e('featured'); ?>">
-  <div class="slides" id="slides">
-    <div class="slide on brand" data-i="0">
-      <div class="scap">
-        <h1><?php ae_e('hero_title'); ?></h1>
-        <p><?php ae_e('hero_sub'); ?></p>
-        <a class="btn gold" href="<?php echo esc_url(ec_url_section('sale')); ?>"><?php ae_e('hero_cta'); ?></a>
-      </div>
-    </div>
-    <?php foreach ($slides as $i => $a) : ?>
-      <div class="slide" data-i="<?php echo $i + 1; ?>" role="group" aria-roledescription="slide" aria-label="<?php echo esc_attr(ae_t('slide', $i + 2)); ?>">
-        <img class="sbg" src="<?php echo esc_url($a['cover']['large']); ?>" alt="" loading="<?php echo $i === 0 ? 'eager' : 'lazy'; ?>" <?php echo $i === 0 ? 'fetchpriority="high"' : ''; ?> decoding="async">
-        <div class="scap">
-          <span class="stag"><?php echo esc_html($a['subtype_name'] . ' · ' . trim(($a['district'] ? $a['district'] . ', ' : '') . $a['city_name'])); ?></span>
-          <h2><?php echo esc_html($a['title']); ?></h2>
-          <p class="sprice"><?php echo ae_price($a['price_gbp'], $a['mode']); ?></p>
-          <a class="btn gold" href="<?php echo esc_url($a['url']); ?>"><?php ae_e('view_listing'); ?></a>
-        </div>
-      </div>
-    <?php endforeach; ?>
+<?php
+$hp = ae_hero_photo();
+global $wpdb;
+$nList = (int) $wpdb->get_var("SELECT COUNT(*) FROM " . ec_table('listings') . " WHERE status = 'published'");
+$nFirm = (int) $wpdb->get_var("SELECT COUNT(*) FROM " . ec_table('agents') . " WHERE status = 'active'");
+?>
+<section class="hero hs">
+  <picture class="hbg">
+    <?php if ($hp['mobile']) : ?><source media="(max-width: 720px)" srcset="<?php echo esc_url($hp['mobile']); ?>"><?php endif; ?>
+    <img src="<?php echo esc_url($hp['src']); ?>"<?php echo $hp['srcset'] ? ' srcset="' . esc_attr($hp['srcset']) . '" sizes="100vw"' : ''; ?> alt="" fetchpriority="high" decoding="async">
+  </picture>
+  <div class="hero-in">
+    <h1><?php ae_e('hero_title'); ?></h1>
+    <p class="hsub"><?php ae_e('hero_sub'); ?></p>
+    <?php ae_search_box(['mode' => 'sale']); ?>
+    <?php if ($nList >= 20) : ?><p class="hstats"><?php ae_e('hero_stats', number_format_i18n($nList), number_format_i18n($nFirm)); ?></p><?php endif; ?>
   </div>
-  <?php if ($slides) : ?>
-    <button class="sarrow prev" type="button" aria-label="<?php ae_e('prev'); ?>">‹</button>
-    <button class="sarrow next" type="button" aria-label="<?php ae_e('next'); ?>">›</button>
-    <div class="sdots" role="tablist">
-      <?php for ($i = 0; $i <= count($slides); $i++) : ?>
-        <button type="button" class="<?php echo $i === 0 ? 'on' : ''; ?>" data-go="<?php echo $i; ?>" aria-label="<?php echo esc_attr(ae_t('slide', $i + 1)); ?>"></button>
-      <?php endfor; ?>
-    </div>
-  <?php endif; ?>
 </section>
 
 <main id="main" class="main home">
-  <?php ae_search_box(['mode' => 'sale']); ?>
-
   <?php $cc = ae_city_counts(); ?>
   <h2 class="sec"><?php ae_e('cities_title'); ?></h2>
   <div class="citygrid">
@@ -127,7 +110,7 @@ get_header();
         <a class="ag" href="<?php echo esc_url($ag['url'] ?: ec_url_section('sale', $lang, null, ['agent' => $ag['id']])); ?>">
           <?php echo $ag['logo'] ? '<img class="aglogo" src="' . esc_url($ag['logo']['small']) . '" alt="" loading="lazy">' : '<div class="av">' . esc_html(mb_substr($ag['name'], 0, 1)) . '</div>'; ?>
           <b><?php echo esc_html($ag['name']); ?></b>
-          <div class="sub"><?php echo esc_html((string) $ag['office']); ?></div>
+          <div class="sub"><?php echo esc_html(implode(' · ', array_filter([ec_member_kinds()[$ag['kind']]['name'][$lang] ?? '', $ag['city'] ? ec_city_name($ag['city'], $lang) : '']))); ?></div>
           <div class="sub"><?php ae_e('agent_listings', $ag['listing_count']); ?></div>
         </a>
       <?php endforeach; ?>
@@ -139,7 +122,7 @@ get_header();
     <div class="grid posts"><?php foreach ($posts as $r) : ?>
       <article class="card post"><a class="cardlink" href="<?php echo esc_url(get_permalink($r)); ?>" aria-label="<?php echo esc_attr(get_the_title($r)); ?>"></a>
         <div class="img"><?php echo get_the_post_thumbnail($r, 'medium_large', ['loading' => 'lazy', 'alt' => '']) ?: AE_ICON; ?></div>
-        <div class="body"><div class="sub"><?php echo esc_html(get_the_date('', $r)); ?></div><h3 class="ttl"><?php echo esc_html(get_the_title($r)); ?></h3><p class="sub"><?php echo esc_html(get_the_excerpt($r)); ?></p></div>
+        <div class="body"><div class="sub"><?php echo esc_html(ae_date((int) get_post_timestamp($r))); ?></div><h3 class="ttl"><?php echo esc_html(get_the_title($r)); ?></h3><p class="sub"><?php echo esc_html(get_the_excerpt($r)); ?></p></div>
       </article>
     <?php endforeach; ?></div>
   <?php endif; ?>

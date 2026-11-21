@@ -26,7 +26,7 @@ get_header();
   <nav class="crumbs" aria-label="breadcrumb"><a href="<?php echo esc_url(ec_url_home()); ?>"><?php ae_e('home'); ?></a> › <a href="<?php echo esc_url(ae_blog_url()); ?>"><?php ae_e('blog'); ?></a></nav>
   <article <?php post_class('panel prose'); ?>>
     <h1><?php the_title(); ?></h1>
-    <div class="sub"><?php echo esc_html(get_the_date()); ?></div>
+    <div class="sub"><?php echo esc_html(ae_date((int) get_post_timestamp())); ?></div>
     <?php if (has_post_thumbnail()) : ?><figure class="hero-img"><?php the_post_thumbnail('large', ['alt' => '']); ?></figure><?php endif; ?>
     <div class="entry"><?php the_content(); ?></div>
   </article>
@@ -35,7 +35,7 @@ get_header();
     <div class="grid posts"><?php foreach ($recent as $r) : ?>
       <article class="card post"><a class="cardlink" href="<?php echo esc_url(get_permalink($r)); ?>" aria-label="<?php echo esc_attr(get_the_title($r)); ?>"></a>
         <div class="img"><?php echo get_the_post_thumbnail($r, 'medium_large', ['loading' => 'lazy', 'alt' => '']) ?: AE_ICON; ?></div>
-        <div class="body"><div class="sub"><?php echo esc_html(get_the_date('', $r)); ?></div><h3 class="ttl"><?php echo esc_html(get_the_title($r)); ?></h3></div>
+        <div class="body"><div class="sub"><?php echo esc_html(ae_date((int) get_post_timestamp($r))); ?></div><h3 class="ttl"><?php echo esc_html(get_the_title($r)); ?></h3></div>
       </article>
     <?php endforeach; ?></div>
   <?php endif; ?>

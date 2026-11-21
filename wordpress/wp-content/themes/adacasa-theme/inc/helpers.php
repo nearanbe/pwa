@@ -166,6 +166,9 @@ function ae_ad(string $slot, string $extra_class = ''): string
     $ads = get_option('ec_ads', []);
     $client = $ads['client'] ?? '';
     $id = $ads[$slot] ?? '';
+    if (!($client && $id) && !current_user_can('manage_options')) {
+        return ''; // reklam kodu girilmemiş: ziyaretçi boş kutu görmesin
+    }
     $inner = ($client && $id)
         ? '<ins class="adsbygoogle" style="display:block" data-ad-client="' . esc_attr($client) . '" data-ad-slot="' . esc_attr($id) . '" data-ad-format="auto" data-full-width-responsive="true"></ins>'
         : '<div class="adph">' . esc_html(ae_t('ad_space')) . '</div>';
@@ -174,7 +177,38 @@ function ae_ad(string $slot, string $extra_class = ''): string
 
 function ae_ad_card(): string
 {
-    return '<div class="card ad-feed">' . ae_ad('feed') . '</div>';
+    $ad = ae_ad('feed');
+    return $ad ? '<div class="card ad-feed">' . $ad . '</div>' : '';
+}
+
+/** Ana sayfa giriş görseli: Emlak → Ayarlar'dan seçilen (medya no ya da adres), yoksa temanın görseli. [src, srcset, mobil] */
+function ae_hero_photo(): array
+{
+    $v = trim((string) get_option('ec_hero_photo', ''));
+    if ($v !== '') {
+        if (ctype_digit($v)) {
+            $src = (string) wp_get_attachment_image_url((int) $v, 'full');
+            $set = (string) wp_get_attachment_image_srcset((int) $v, 'full');
+            if ($src) {
+                return ['src' => $src, 'srcset' => $set, 'mobile' => ''];
+            }
+        } else {
+            return ['src' => $v, 'srcset' => '', 'mobile' => ''];
+        }
+    }
+    $u = fn($f) => get_theme_file_uri('assets/img/' . $f);
+    return ['src' => $u('hero-1920.webp'), 'srcset' => $u('hero-1280.webp') . ' 1280w, ' . $u('hero-1920.webp') . ' 1920w', 'mobile' => $u('hero-m.webp')];
+}
+
+/** Tarih, sayfanın diline göre: 17 Kasım 2026 / 17 November 2026 / 17 ноября 2026 */
+function ae_date(int $ts): string
+{
+    $m = [
+        'tr' => ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'],
+        'en' => ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+        'ru' => ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'],
+    ][ec_lang()] ?? null;
+    return $m ? wp_date('j', $ts) . ' ' . $m[(int) wp_date('n', $ts) - 1] . ' ' . wp_date('Y', $ts) : wp_date('j.m.Y', $ts);
 }
 
 /** Arama kutusu. $s = geçerli filtreler */
@@ -197,8 +231,9 @@ function ae_search_box(array $s = []): void
         }
     }
     $dists = array_map(fn($c) => $c['districts'], $cities);
+    $more = (bool) array_filter(array_intersect_key($s, array_flip(['subtype', 'rooms', 'deed_type', 'min', 'max', 'pano'])));
     ?>
-<form class="sbox" id="sbox" method="get" action="<?php echo esc_url($actions[$mode]); ?>" role="search"
+<form class="sbox<?php echo $more ? ' more' : ''; ?>" id="sbox" method="get" action="<?php echo esc_url($actions[$mode]); ?>" role="search"
       data-actions="<?php echo esc_attr(wp_json_encode($actions)); ?>"
       data-subs="<?php echo esc_attr(wp_json_encode($subs)); ?>"
       data-dists="<?php echo esc_attr(wp_json_encode($dists)); ?>">
@@ -207,58 +242,63 @@ function ae_search_box(array $s = []): void
       <button type="button" role="tab" data-m="<?php echo $m; ?>" class="<?php echo $m === $mode ? 'on' : ''; ?>" aria-selected="<?php echo $m === $mode ? 'true' : 'false'; ?>"><?php ae_e($m === 'project' ? 'projects' : $m); ?></button>
     <?php endforeach; ?>
   </div>
-  <div class="fg">
-    <label class="vh" for="f-ptype"><?php ae_e('property_type'); ?></label>
-    <select id="f-ptype" name="ptype">
-      <?php foreach ($types as $k => $t) : ?>
-        <option value="<?php echo esc_attr($k); ?>" <?php selected($ptype, $k); ?>><?php echo esc_html($t['name'][$lang]); ?></option>
-      <?php endforeach; ?>
-    </select>
-    <label class="vh" for="f-sub"><?php ae_e('property_type'); ?></label>
-    <select id="f-sub" name="subtype">
-      <option value=""><?php ae_e('property_type'); ?></option>
-      <?php foreach ($types[$ptype]['sub'] as $sk => $sn) : ?>
-        <option value="<?php echo esc_attr($sk); ?>" <?php selected($s['subtype'] ?? '', $sk); ?>><?php echo esc_html($sn[$lang]); ?></option>
-      <?php endforeach; ?>
-    </select>
-    <label class="vh" for="f-city"><?php ae_e('city'); ?></label>
-    <select id="f-city" name="city">
-      <option value=""><?php ae_e('city'); ?></option>
-      <?php foreach ($cities as $k => $c) : ?>
-        <option value="<?php echo esc_attr($k); ?>" <?php selected($s['city'] ?? '', $k); ?>><?php echo esc_html($c['name'][$lang]); ?></option>
-      <?php endforeach; ?>
-    </select>
-    <label class="vh" for="f-dist"><?php ae_e('district'); ?></label>
-    <select id="f-dist" name="district">
-      <option value=""><?php ae_e('district'); ?></option>
-      <?php foreach (($cities[$s['city'] ?? '']['districts'] ?? []) as $d) : ?>
-        <option <?php selected($s['district'] ?? '', $d); ?>><?php echo esc_html($d); ?></option>
-      <?php endforeach; ?>
-    </select>
-    <label class="vh" for="f-rooms"><?php ae_e('rooms'); ?></label>
-    <select id="f-rooms" name="rooms">
-      <option value=""><?php ae_e('rooms'); ?></option>
-      <?php foreach (ec_room_options() as $r) : ?>
-        <option <?php selected($s['rooms'] ?? '', $r); ?>><?php echo esc_html($r); ?></option>
-      <?php endforeach; ?>
-    </select>
-    <label class="vh" for="f-deed"><?php ae_e('deed_filter'); ?></label>
-    <select id="f-deed" name="deed_type" class="sale-only" <?php echo $mode === 'sale' ? '' : 'hidden disabled'; ?>>
-      <option value=""><?php ae_e('deed_filter'); ?></option>
-      <?php foreach (ec_deed_types() as $dk => $dn) : if ($dk === 'diger') { continue; } ?>
-        <option value="<?php echo esc_attr($dk); ?>" <?php selected($s['deed_type'] ?? '', $dk); ?>><?php echo esc_html($dn[$lang]); ?></option>
-      <?php endforeach; ?>
-    </select>
-    <label class="vh" for="f-min"><?php ae_e('min_price'); ?></label>
-    <input id="f-min" name="min" inputmode="numeric" placeholder="<?php ae_e('min_price'); ?>" value="<?php echo esc_attr($s['min'] ?? ''); ?>">
-    <label class="vh" for="f-max"><?php ae_e('max_price'); ?></label>
-    <input id="f-max" name="max" inputmode="numeric" placeholder="<?php ae_e('max_price'); ?>" value="<?php echo esc_attr($s['max'] ?? ''); ?>">
-    <label class="vh" for="f-cur"><?php ae_e('currency'); ?></label>
-    <select id="f-cur" name="currency" class="fcur" title="<?php ae_e('currency'); ?>">
-      <?php foreach (EC_CURRENCIES as $c) : ?><option value="<?php echo esc_attr($c); ?>" <?php selected($s['currency'] ?? ae_currency(), $c); ?>><?php echo esc_html(AE_SYM[$c] . ' ' . $c); ?></option><?php endforeach; ?>
-    </select>
-    <label class="pano-chk" title="<?php ae_e('pano_filter'); ?>"><input type="checkbox" name="pano" value="1" <?php checked(!empty($s['pano'])); ?>> 🌐 <?php ae_e('pano_only'); ?></label>
-    <button class="btn" type="submit"><?php ae_e('search'); ?></button>
+  <div class="sf">
+    <div class="sf-main">
+      <label class="vh" for="f-ptype"><?php ae_e('property_type'); ?></label>
+      <select id="f-ptype" name="ptype">
+        <?php foreach ($types as $k => $t) : ?>
+          <option value="<?php echo esc_attr($k); ?>" <?php selected($ptype, $k); ?>><?php echo esc_html($t['name'][$lang]); ?></option>
+        <?php endforeach; ?>
+      </select>
+      <label class="vh" for="f-city"><?php ae_e('city'); ?></label>
+      <select id="f-city" name="city">
+        <option value=""><?php ae_e('city'); ?></option>
+        <?php foreach ($cities as $k => $c) : ?>
+          <option value="<?php echo esc_attr($k); ?>" <?php selected($s['city'] ?? '', $k); ?>><?php echo esc_html($c['name'][$lang]); ?></option>
+        <?php endforeach; ?>
+      </select>
+      <label class="vh" for="f-dist"><?php ae_e('district'); ?></label>
+      <select id="f-dist" name="district">
+        <option value=""><?php ae_e('district'); ?></option>
+        <?php foreach (($cities[$s['city'] ?? '']['districts'] ?? []) as $d) : ?>
+          <option <?php selected($s['district'] ?? '', $d); ?>><?php echo esc_html($d); ?></option>
+        <?php endforeach; ?>
+      </select>
+      <button class="btn sbtn" type="submit"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><?php ae_e('search'); ?></button>
+    </div>
+    <button class="sf-tog" type="button" aria-controls="sf-more" aria-expanded="false"><?php ae_e('more_filters'); ?></button>
+    <div class="sf-more" id="sf-more">
+      <label class="vh" for="f-sub"><?php ae_e('property_type'); ?></label>
+      <select id="f-sub" name="subtype">
+        <option value=""><?php ae_e('property_type'); ?></option>
+        <?php foreach ($types[$ptype]['sub'] as $sk => $sn) : ?>
+          <option value="<?php echo esc_attr($sk); ?>" <?php selected($s['subtype'] ?? '', $sk); ?>><?php echo esc_html($sn[$lang]); ?></option>
+        <?php endforeach; ?>
+      </select>
+      <label class="vh" for="f-rooms"><?php ae_e('rooms'); ?></label>
+      <select id="f-rooms" name="rooms">
+        <option value=""><?php ae_e('rooms'); ?></option>
+        <?php foreach (ec_room_options() as $r) : ?>
+          <option <?php selected($s['rooms'] ?? '', $r); ?>><?php echo esc_html($r); ?></option>
+        <?php endforeach; ?>
+      </select>
+      <label class="vh" for="f-deed"><?php ae_e('deed_filter'); ?></label>
+      <select id="f-deed" name="deed_type" class="sale-only" <?php echo $mode === 'sale' ? '' : 'hidden disabled'; ?>>
+        <option value=""><?php ae_e('deed_filter'); ?></option>
+        <?php foreach (ec_deed_types() as $dk => $dn) : if ($dk === 'diger') { continue; } ?>
+          <option value="<?php echo esc_attr($dk); ?>" <?php selected($s['deed_type'] ?? '', $dk); ?>><?php echo esc_html($dn[$lang]); ?></option>
+        <?php endforeach; ?>
+      </select>
+      <label class="vh" for="f-min"><?php ae_e('min_price'); ?></label>
+      <input id="f-min" name="min" inputmode="numeric" placeholder="<?php ae_e('min_price'); ?>" value="<?php echo esc_attr($s['min'] ?? ''); ?>">
+      <label class="vh" for="f-max"><?php ae_e('max_price'); ?></label>
+      <input id="f-max" name="max" inputmode="numeric" placeholder="<?php ae_e('max_price'); ?>" value="<?php echo esc_attr($s['max'] ?? ''); ?>">
+      <label class="vh" for="f-cur"><?php ae_e('currency'); ?></label>
+      <select id="f-cur" name="currency" class="fcur" title="<?php ae_e('currency'); ?>">
+        <?php foreach (EC_CURRENCIES as $c) : ?><option value="<?php echo esc_attr($c); ?>" <?php selected($s['currency'] ?? ae_currency(), $c); ?>><?php echo esc_html(AE_SYM[$c] . ' ' . $c); ?></option><?php endforeach; ?>
+      </select>
+      <label class="pano-chk" title="<?php ae_e('pano_filter'); ?>"><input type="checkbox" name="pano" value="1" <?php checked(!empty($s['pano'])); ?>> 🌐 <?php ae_e('pano_only'); ?></label>
+    </div>
   </div>
   <div class="recent" id="recent" data-label="<?php ae_e('recent_search'); ?>"></div>
 </form>
@@ -342,7 +382,7 @@ function ae_logo_mark(string $k = 'h', int $w = 52): string
         . '</svg>';
 }
 
-/** Marka yazısı: site adı "AdaCasa" ise logodaki gibi (ada·ca·sa, "ca" altın), değilse düz site adı */
+/** Marka yazısı: site adı "AdaCasa" ise logodaki gibi "Ada" lacivert + "Casa" altın ve alt yazı, değilse düz site adı */
 function ae_logo_word(): string
 {
     $b = ae_brand();
@@ -350,7 +390,7 @@ function ae_logo_word(): string
         return '<span class="lgw">' . esc_html($b) . '</span>';
     }
     $tag = ['tr' => 'GAYRİMENKUL & YATIRIM', 'en' => 'REAL ESTATE & INVESTMENT', 'ru' => 'НЕДВИЖИМОСТЬ И ИНВЕСТИЦИИ'][ec_lang()] ?? 'GAYRİMENKUL & YATIRIM';
-    return '<span class="lgt"><span class="lgw">ada<em>ca</em>sa</span><small>' . esc_html($tag) . '</small></span>';
+    return '<span class="lgt"><span class="lgw">Ada<em>Casa</em></span><small>' . esc_html($tag) . '</small></span>';
 }
 
 /** Logo: Özelleştir → Site kimliği'nden logo yüklendiyse o, yoksa AdaCasa sembolü + marka yazısı */
