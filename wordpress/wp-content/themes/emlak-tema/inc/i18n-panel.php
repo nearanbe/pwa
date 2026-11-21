@@ -5,7 +5,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-function adaev_strings_panel(): array
+function emlak_tema_strings_panel(): array
 {
     return [
         // Döviz çevirici

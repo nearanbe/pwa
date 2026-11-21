@@ -1,11 +1,20 @@
 #!/usr/bin/env bash
-# Tema ve eklentiyi WordPress'e yüklenecek .zip dosyaları olarak dist/ klasörüne paketler.
+# Eklentiyi, temayı ve Chrome eklentisini sürüm numaralı .zip dosyaları olarak dist/ klasörüne paketler.
+# Sürüm, her parçanın kendi başlığından okunur:
+#   emlak-core.php "Version:"  →  dist/emlak-core-0.6.0.zip
+#   style.css "Version:"       →  dist/emlak-tema-0.6.1.zip
+#   manifest.json "version"    →  dist/ilan-aktarici-0.4.0.zip
+# Zip içindeki klasör adı sürümsüzdür (emlak-core/, emlak-tema/); WordPress "mevcut sürümü değiştir" ile günceller.
 # Kullanım: bash scripts/paketle.sh
 set -euo pipefail
 cd "$(dirname "$0")/.."
+ver() { grep -m1 -E "$2" "$1" | sed -E "s/.*$2[[:space:]]*\"?([0-9][0-9.]*)\"?.*/\1/"; }
+V_CORE=$(ver wordpress/wp-content/plugins/emlak-core/emlak-core.php 'Version:')
+V_TEMA=$(ver wordpress/wp-content/themes/emlak-tema/style.css 'Version:')
+V_EXT=$(ver extension/manifest.json '"version":')
 mkdir -p dist
-rm -f dist/emlak-core.zip dist/adaev.zip dist/ilan-aktarici.zip
-(cd wordpress/wp-content/plugins && zip -qr ../../../dist/emlak-core.zip emlak-core -x '*.DS_Store')
-(cd wordpress/wp-content/themes && zip -qr ../../../dist/adaev.zip adaev -x '*.DS_Store')
-(cd extension && zip -qr ../dist/ilan-aktarici.zip . -x '*.DS_Store')
+rm -f dist/emlak-core*.zip dist/emlak-tema*.zip dist/adaev*.zip dist/ilan-aktarici*.zip
+(cd wordpress/wp-content/plugins && zip -qr "../../../dist/emlak-core-$V_CORE.zip" emlak-core -x '*.DS_Store')
+(cd wordpress/wp-content/themes && zip -qr "../../../dist/emlak-tema-$V_TEMA.zip" emlak-tema -x '*.DS_Store')
+(cd extension && zip -qr "../dist/ilan-aktarici-$V_EXT.zip" . -x '*.DS_Store')
 ls -lh dist/*.zip

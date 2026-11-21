@@ -185,7 +185,7 @@ function ae_city_photo(string $city): string
 function ae_city_counts(): array
 {
     global $wpdb;
-    $c = wp_cache_get('ae_city_counts', 'adaev');
+    $c = wp_cache_get('ae_city_counts', 'emlak-tema');
     if (is_array($c)) {
         return $c;
     }
@@ -197,7 +197,7 @@ function ae_city_counts(): array
         }
         set_transient('ae_city_counts', $c, 10 * MINUTE_IN_SECONDS);
     }
-    wp_cache_set('ae_city_counts', $c, 'adaev');
+    wp_cache_set('ae_city_counts', $c, 'emlak-tema');
     return $c;
 }
 

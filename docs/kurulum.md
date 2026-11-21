@@ -1,8 +1,15 @@
 # Kurulum (Plesk VPS)
 
+> **Tema adı değişti (0.6.1): AdaEv → Emlak Tema.** WordPress temayı klasör adından tanıdığı için `emlak-tema-0.6.1.zip` yeni bir tema olarak kurulur:
+> 1. **Görünüm → Temalar → Yeni ekle → Tema yükle** → `emlak-tema-0.6.1.zip` → **Şimdi kur** → **Etkinleştir**. Logo ve Özelleştir ayarları eski temadan kendiliğinden taşınır.
+> 2. Siteyi kontrol et, sonra **Görünüm → Temalar → AdaEv → Sil**.
+> 3. **Emlak → Hız → Cloudflare önbelleğini şimdi tamamen temizle.**
+>
+> Bundan sonraki tema güncellemeleri yine **Mevcut sürümü değiştir** ile yapılır. Zip adları sürüm numarası taşır (ör. `emlak-core-0.6.0.zip`). Zip içindeki klasör adı sabittir, bu yüzden WordPress güncellemeyi doğru tanır.
+>
 > **0.5 yenilikleri:** Paketler (Emlak → Paketler), Facebook ve Instagram paylaşımı ([sosyal-medya-kurulum.md](sosyal-medya-kurulum.md), çizimli rehber: [sosyal-medya-rehberi.html](sosyal-medya-rehberi.html)), hız ayarları ([hiz.md](hiz.md)). Güncelleme sırası aynı: önce eklenti, sonra tema.
 >
-> **0.3'ten 0.4'e güncelleme:** Önce eklentiyi (`emlak-core.zip`), sonra temayı (`adaev.zip`) **Eklentiler / Temalar → Yeni ekle → Yükle → Mevcut sürümü değiştir** ile yükleyin. Yeni tablolar ve adresler kendiliğinden kurulur. Sonra **Emlak → Canlıya çıkış** sayfasını açın, eksikleri sırayla tamamlayın. Plesk zamanlanmış görevini **5 dakikaya** düşürmeyi unutmayın.
+> **0.3'ten 0.4'e güncelleme:** Önce eklentiyi (`emlak-core-SÜRÜM.zip`), sonra temayı (`emlak-tema-SÜRÜM.zip`) **Eklentiler / Temalar → Yeni ekle → Yükle → Mevcut sürümü değiştir** ile yükleyin. Yeni tablolar ve adresler kendiliğinden kurulur. Sonra **Emlak → Canlıya çıkış** sayfasını açın, eksikleri sırayla tamamlayın. Plesk zamanlanmış görevini **5 dakikaya** düşürmeyi unutmayın.
 
 ## Gereksinimler
 
@@ -25,9 +32,9 @@
 bash scripts/paketle.sh
 ```
 
-1. **Eklentiler → Yeni ekle → Eklenti yükle** → `dist/emlak-core.zip` → Etkinleştir.
+1. **Eklentiler → Yeni ekle → Eklenti yükle** → `dist/emlak-core-SÜRÜM.zip` → Etkinleştir.
    Etkinleştirme sırasında veri tabloları (`wp_ec_*`) otomatik oluşturulur.
-2. **Görünüm → Temalar → Yeni ekle → Tema yükle** → `dist/adaev.zip` → Etkinleştir.
+2. **Görünüm → Temalar → Yeni ekle → Tema yükle** → `dist/emlak-tema-SÜRÜM.zip` → Etkinleştir.
 3. **Ayarlar → Genel → Site başlığı** alanına sitenin adını yazın. Bu ad logoda görünür.
 4. **Emlak → Ayarlar** bölümünden döviz kurlarını, WhatsApp numarasını ve (varsa) AdSense kodlarını girin.
 
@@ -38,7 +45,7 @@ rsync -av --delete wordpress/wp-content/plugins/emlak-core/ KULLANICI@SUNUCU:htt
 ```
 
 ```bash
-rsync -av --delete wordpress/wp-content/themes/adaev/ KULLANICI@SUNUCU:httpdocs/wp-content/themes/adaev/
+rsync -av --delete wordpress/wp-content/themes/emlak-tema/ KULLANICI@SUNUCU:httpdocs/wp-content/themes/emlak-tema/
 ```
 
 ## 3. Demo veriler (isteğe bağlı)
@@ -205,7 +212,7 @@ Bir ilan genellikle birkaç sentlik maliyet tutar. Maliyeti azaltmak isterseniz 
 
 ## Chrome eklentisi (101evler ve hangiev)
 
-`dist/ilan-aktarici.zip` dosyası emlakçıya verilir. Kurulum (Chrome Web Store'a yüklenene kadar):
+`dist/ilan-aktarici-SÜRÜM.zip` dosyası emlakçıya verilir. Kurulum (Chrome Web Store'a yüklenene kadar):
 
 1. Zip'i bir klasöre aç.
 2. Chrome → adres çubuğuna `chrome://extensions` → sağ üstte **Geliştirici modu**'nu aç → **Paketlenmemiş öğe yükle** → açılan klasörü seç.

@@ -1,14 +1,14 @@
 <?php
 /**
  * 0.4 arayüz metinleri: ilan / proje detayı, firmalar dizini, talepler, şehir kartları, gün içi kur.
- * adaev_strings() bu listeyi de birleştirir.
+ * emlak_tema_strings() bu listeyi de birleştirir.
  */
 
 if (!defined('ABSPATH')) {
     exit;
 }
 
-add_filter('adaev_strings_extra', function (array $s): array {
+add_filter('emlak_tema_strings_extra', function (array $s): array {
     return array_merge($s, [
         // Detay: başlık ve bölümler
         'sections' => ['Bölümler', 'Sections', 'Разделы'],

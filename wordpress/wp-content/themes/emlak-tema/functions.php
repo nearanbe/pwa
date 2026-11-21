@@ -7,7 +7,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-define('AE_VER', '0.6.0');
+define('AE_VER', '0.6.1');
 
 if (!function_exists('ec_table')) {
     // Eklenti kapalıysa: hiçbir eklenti fonksiyonu TANIMLANMAZ (aksi halde eklenti etkinleştirilirken
@@ -133,6 +133,18 @@ add_action('wp_head', function () {
 add_filter('language_attributes', function ($out) {
     return 'lang="' . esc_attr(ec_lang()) . '"';
 });
+
+/**
+ * Tema etkinleştirilince: eski "adaev" temasının ayarlarını (logo, Özelleştir seçenekleri, menü yerleri)
+ * bu temaya bir kez taşı. Tema klasörü adaev → emlak-tema olarak değişti (0.6.1).
+ */
+add_action('after_switch_theme', function () {
+    $old = get_option('theme_mods_adaev');
+    $new = get_option('theme_mods_' . get_stylesheet());
+    if (is_array($old) && $old && (!is_array($new) || count(array_filter($new)) <= 1)) {
+        update_option('theme_mods_' . get_stylesheet(), $old);
+    }
+}, 5);
 
 /** Tema etkinleştirilince blog sayfasını hazırla */
 add_action('after_switch_theme', function () {

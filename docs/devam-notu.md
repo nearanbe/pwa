@@ -11,9 +11,12 @@ Bu dosya, projeyi yeni bir oturumda kaldığı yerden sürdürmek için yazıld�
   - Fiyatlar: aylık 100 ilan 50 €, haftalık 30 ilan 20 €, tek ilan 2 €.
 - **Altyapı:** Kullanıcının Plesk VPS'inde WordPress (PHP 8.1+). İleride Next.js + Supabase'e "bir gecelik bakım" ile geçilecek şekilde tasarlandı: kendi tabloları, sabit linkler ve `/api/v1` API'si var.
 - **Marka:** Henüz kesin değil. Şimdilik "AdaEv". Elde boşta `emlak392.com` alan adı var (392 KKTC'nin telefon kodu). Logo ve ikonlar yazısız sembol, site adı WordPress'in "Site başlığı" ayarından geliyor.
-- **Kod:** `wordpress/wp-content/plugins/emlak-core/` (iş mantığı), `wordpress/wp-content/themes/adaev/` (görünüm), `extension/` (Chrome eklentisi).
-- **Paketleme:** `bash scripts/paketle.sh` komutu `dist/emlak-core.zip`, `dist/adaev.zip` ve `dist/ilan-aktarici.zip` dosyalarını üretir. Kullanıcı bunları yönetim panelinden "mevcut sürümü değiştir" seçeneğiyle yükler.
+- **Kod:** `wordpress/wp-content/plugins/emlak-core/` (iş mantığı), `wordpress/wp-content/themes/emlak-tema/` (görünüm), `extension/` (Chrome eklentisi).
+- **Paketleme:** `bash scripts/paketle.sh` komutu `dist/emlak-core-SÜRÜM.zip`, `dist/emlak-tema-SÜRÜM.zip` ve `dist/ilan-aktarici-SÜRÜM.zip` dosyalarını üretir. Kullanıcı bunları yönetim panelinden "mevcut sürümü değiştir" seçeneğiyle yükler.
 - **Dal:** `claude/jolly-carson-l927uv`.
+
+## Tema adı (0.6.1)
+Tema klasörü `adaev` → `emlak-tema`, tema adı "Emlak Tema". Etkinleştirmede `theme_mods_adaev` yeni temaya taşınır (`functions.php`). İç fonksiyon önekleri (`ae_`) aynı kaldı. Marka (site adı) hâlâ "Site başlığı" ayarından gelir.
 
 ## Sürüm durumu (0.6)
 
@@ -153,4 +156,4 @@ Notlar:
 - Türkçe konuşulur.
 - Kullanıcı "bekle" derse hiçbir işlem yapılmaz.
 - Büyük işlerden önce plan ve sorular yazılır, onay beklenir.
-- Her teslimde zip paketleri gönderilir ve kurulum sırası hatırlatılır.
+- Her teslimde zip paketleri **sürüm numaralı** gönderilir (`emlak-core-X.Y.Z.zip`, `emlak-tema-X.Y.Z.zip`, `ilan-aktarici-X.Y.Z.zip`; `scripts/paketle.sh` sürümü başlıklardan okur) ve kurulum sırası hatırlatılır. Bir parça değiştiyse onun sürümü artırılır.

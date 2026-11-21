@@ -8,7 +8,7 @@ Site WordPress üzerinde çalışır. Ancak ileride Next.js altyapısına **bir 
 | Parça | Klasör | Görevi |
 |---|---|---|
 | **Emlak Core** eklentisi | `wordpress/wp-content/plugins/emlak-core/` | Kendi veri tabloları, TR/EN/RU link yapısı, `/api/v1` REST API, yönetim ekranları |
-| **AdaEv** teması | `wordpress/wp-content/themes/adaev/` | Görünüm: slider'lı ana sayfa, arama, ilan detayı, projeler, ilan ver, favoriler |
+| **Emlak Tema** (`emlak-tema`) | `wordpress/wp-content/themes/emlak-tema/` | Görünüm: slider'lı ana sayfa, arama, ilan detayı, projeler, ilan ver, favoriler |
 | Chrome eklentisi | `extension/` | 101evler ve hangiev formlarını emlakçının tarayıcısında doldurur |
 | Belgeler | `docs/` | [Kurulum](docs/kurulum.md) · [Hız](docs/hiz.md) · [Sosyal medya](docs/sosyal-medya-kurulum.md) · [API sözleşmesi](docs/api.md) · [Veri modeli ve geçiş planı](docs/veri-modeli.md) |
 
@@ -31,4 +31,4 @@ Plesk sunucusuna kurulum için [docs/kurulum.md](docs/kurulum.md) dosyasına bak
 bash scripts/paketle.sh
 ```
 
-Bu komut `dist/emlak-core.zip`, `dist/adaev.zip` ve `dist/ilan-aktarici.zip` (Chrome eklentisi) dosyalarını üretir. WordPress yönetiminden önce eklentiyi, sonra temayı yükleyip etkinleştirin.
+Bu komut `dist/emlak-core-SÜRÜM.zip`, `dist/emlak-tema-SÜRÜM.zip` ve `dist/ilan-aktarici-SÜRÜM.zip` (Chrome eklentisi) dosyalarını üretir. WordPress yönetiminden önce eklentiyi, sonra temayı yükleyip etkinleştirin.
