@@ -195,3 +195,16 @@ Paket ve kota kuralları:
 İlan nesnesine eklenenler: `pano_count` (her yerde) ve `panos` (sadece detayda).
 
 **Tapu türü kuralı (0.6):** `deed_type` sadece `mode: "sale"` ilanlarda saklanır ve döner. Kiralık ve günlük ilanda gönderilen değer yok sayılır, `deed_type` / `deed_name` her zaman `null` döner. Aramada kiralık için `deed_type` filtresi uygulanmaz.
+
+## 0.7 uçları
+
+| Uç | Açıklama |
+|---|---|
+| `GET /listings/{id}/duplicates` | (ilan sahibi) `{"items":[{"id","photos":2,"text":true,"same_agent":false,"title","url","status","agent"}],"message":"Buna benzer bir ilan zaten yayında: …"}` |
+
+`GET /listings` yeni filtreler:
+- `rooms[]` (çoklu), `amin` / `amax` (m²), `baths` (en az), `furnished` (`0` / `1`)
+- `feat[]` (özelliklerin hepsi), `kind[]` (`ofis`, `insaat`, `danisman`, `sahibi`), `days` (`1`, `3`, `7`, `30`)
+- `q` (başlık/açıklama/bölge/ilan no), `sort=m2_asc|area_desc`
+
+İlan nesnesine eklenenler: `photo_count`, `lat`, `lng` (liste cevabında da).

@@ -109,6 +109,7 @@ $steps = ['basics' => 'f_step_basics', 'location' => 'f_step_location', 'details
     <div id="pv" class="pv"></div>
   </section>
 
+  <p class="note warn dupwarn" id="dupwarn" role="alert" hidden></p>
   <p class="formmsg" role="status" id="lmsg"></p>
   <div class="wnav">
     <button class="ghost" type="button" id="wprev">‹ <?php ae_e('f_back'); ?></button>

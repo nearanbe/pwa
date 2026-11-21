@@ -489,6 +489,11 @@ function ec_tg_preview(int $id): void
         $lines[] = '✨ ' . ec_tg_esc(implode(', ', array_slice($it['feature_names'], 0, 10)));
     }
     $lines[] = '📷 ' . count($it['photos']) . ' fotoğraf' . ($it['pano_count'] ? ' · 360° ' . $it['pano_count'] : '') . ' · 🌐 ' . strtoupper(implode(' / ', array_keys($it['translations'])));
+    $dups = function_exists('ec_dup_check_listing') ? ec_dup_check_listing((int) $it['id']) : [];
+    if ($dups) {
+        $lines[] = '';
+        $lines[] = '⚠️ ' . ec_tg_esc(ec_dup_message($dups, 'tr'));
+    }
     if (!empty($ai['missing'])) {
         $lines[] = '';
         $lines[] = '⚠️ Eksik: ' . ec_tg_esc(implode(', ', $ai['missing']));

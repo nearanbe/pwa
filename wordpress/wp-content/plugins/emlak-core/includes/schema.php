@@ -105,10 +105,15 @@ function ec_install_schema(): void
   featured_until datetime DEFAULT NULL,
   source varchar(20) NOT NULL DEFAULT 'panel',
   views int(10) unsigned NOT NULL DEFAULT 0,
+  text_md5 char(32) DEFAULT NULL,
+  text_hash bigint(20) DEFAULT NULL,
+  dup_of bigint(20) unsigned DEFAULT NULL,
+  dup_checked datetime DEFAULT NULL,
   created_at datetime NOT NULL,
   updated_at datetime NOT NULL,
   published_at datetime DEFAULT NULL,
   PRIMARY KEY  (id),
+  KEY text_md5 (text_md5),
   KEY search (status,mode,ptype,city),
   KEY price_gbp (price_gbp),
   KEY agent_id (agent_id),
@@ -131,9 +136,12 @@ function ec_install_schema(): void
   path varchar(255) NOT NULL,
   width int(10) unsigned DEFAULT NULL,
   height int(10) unsigned DEFAULT NULL,
+  phash bigint(20) DEFAULT NULL,
+  phash2 bigint(20) DEFAULT NULL,
   created_at datetime NOT NULL,
   PRIMARY KEY  (id),
-  KEY listing_id (listing_id,sort)
+  KEY listing_id (listing_id,sort),
+  KEY phash (phash)
 ) $c;");
 
     dbDelta("CREATE TABLE $projects (
@@ -393,6 +401,11 @@ function ec_install_schema(): void
     $max = (int) $wpdb->get_var("SELECT IFNULL(MAX(id),0) FROM $listings");
     if ($max < 10000) {
         $wpdb->query("ALTER TABLE $listings AUTO_INCREMENT = 10001");
+    }
+
+    // 0.7: eski fotoğrafların görsel parmak izlerini arka planda hesapla
+    if (!wp_next_scheduled('ec_dup_backfill')) {
+        wp_schedule_single_event(time() + 30, 'ec_dup_backfill');
     }
 
     update_option('ec_db_version', EC_DB_VERSION);

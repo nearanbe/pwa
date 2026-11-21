@@ -194,11 +194,23 @@
     }
 
     // Kaydet (yeni → POST, var → PATCH)
+    // Benzer / kopya ilan uyarısı (fotoğraf ve açıklama karşılaştırması sunucuda)
+    function checkDup() {
+      if (!id) return;
+      api('GET', 'listings/' + id + '/duplicates').then(function (r) {
+        var w = $('#dupwarn'); if (!w) return;
+        if (!r.items || !r.items.length) { w.hidden = true; return; }
+        w.innerHTML = ''; w.appendChild(document.createTextNode('⚠️ ' + r.message + ' '));
+        r.items.slice(0, 3).forEach(function (d) { var a = document.createElement('a'); a.href = d.url; a.target = '_blank'; a.textContent = '#' + d.id + ' ↗'; w.appendChild(a); w.appendChild(document.createTextNode(' ')); });
+        w.hidden = false;
+      }).catch(function () {});
+    }
     function save(status) {
       var body = collect();
       if (status) body.status = status;
       var req = id ? api('PATCH', 'listings/' + id, body) : api('POST', 'listings', Object.assign(body, { status: status || 'draft' }));
       return req.then(function (r) {
+        setTimeout(checkDup, 300);
         id = r.id; F.dataset.id = id;
         if (history.replaceState) history.replaceState(null, '', D.panel + (D.panel.indexOf('?') > -1 ? '&' : '?') + 'bolum=ilan&id=' + id);
         return r;
@@ -341,7 +353,7 @@
     function uploadNormal(files) {
       var i = 0;
       (function nextFile() {
-        if (i >= files.length) { msg(lmsg, T.saved + ' ✓', true); return; }
+        if (i >= files.length) { msg(lmsg, T.saved + ' ✓', true); checkDup(); return; }
         msg(lmsg, T.uploading + ' ' + (i + 1) + '/' + files.length, true);
         var fd = new FormData(); fd.append('photos[]', files[i++]);
         api('POST', 'listings/' + id + '/photos', fd, true)
@@ -379,7 +391,7 @@
       pv.appendChild(b);
     }
 
-    if (id) renderPhotos();
+    if (id) { renderPhotos(); checkDup(); }
     show(0);
   })();
 

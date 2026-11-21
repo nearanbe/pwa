@@ -15,6 +15,34 @@ Bu dosya, projeyi yeni bir oturumda kaldığı yerden sürdürmek için yazıld�
 - **Paketleme:** `bash scripts/paketle.sh` komutu `dist/emlak-core-SÜRÜM.zip`, `dist/emlak-tema-SÜRÜM.zip` ve `dist/ilan-aktarici-SÜRÜM.zip` dosyalarını üretir. Kullanıcı bunları yönetim panelinden "mevcut sürümü değiştir" seçeneğiyle yükler.
 - **Dal:** `claude/jolly-carson-l927uv`.
 
+## ⏳ Henüz teslim edilmemiş sürüm: 0.7.0 (eklenti 0.7.0, tema 0.7.0)
+
+Kullanıcının isteği: **"Her şey tamam olana kadar bana yeni sürüm verme, işlemleri yap."** Bu yüzden 0.7 değişiklikleri dalda duruyor, zip gönderilmedi. Kullanıcı "tamam / sürüm ver" deyince `bash scripts/paketle.sh` → `emlak-core-0.7.0.zip` + `emlak-tema-0.7.0.zip` gönderilecek. Kurulum notu: önce eklenti, sonra tema (Mevcut sürümü değiştir), sonra Emlak → Ayarlar → Araçlar → "Benzer ilanları şimdi tara".
+
+0.7'de yapılanlar:
+1. **Yönetim panelinde 360°:**
+   - Emlak → Yeni ilan formunda 360° alanı.
+   - Emlak → İlanlar → "Fotoğraflar / 360°" ekranı (`includes/admin-media.php`): fotoğraf yükleme/silme/kapak, 360° yükleme, oda adı, silme. 2:1 oranlı dosya normal yükleyiciden de 360°'a gider.
+2. **Benzer / kopya ilan denetimi (`includes/duplicates.php`, DB v8):**
+   - Her fotoğrafa yatay + dikey dHash (`phash`, `phash2`).
+   - Açıklamanın normalleştirilmiş md5'i (`text_md5`; simhash `text_hash` saklanıyor, ileride kullanılabilir).
+   - Birebir eşleşme kuralı: iki parmak izi de ≤4 bit fark ya da aynı metin. Testte yeniden kaydedilen/küçültülen kopya 0 fark, farklı fotoğraf 41/32 fark verdi.
+   - Uyarı yerleri: üye paneli (kaydet ve fotoğraf yükleme sonrası), İlanlarım rozeti, Telegram önizlemesi.
+   - Başka üyenin ilanıyla eşleşirse onay panelinde otomatik "kopya ilan" bildirimi (demo ilanlar hariç).
+   - Günlük tarama; şikâyete otomatik kontrol sonucu eklenir.
+   - Ayarlar: "eşleşen ilan onaya düşsün" (`ec_dup_hold`); Araçlar: "Benzer ilanları şimdi tara".
+   - Eski fotoğraflar güncellemede arka planda taranır (`ec_dup_backfill`).
+3. **101evler'e benzer arama sayfası:**
+   - Solda filtre paneli; telefonda alttan açılan "Filtreler" çekmecesi.
+   - Yeni filtreler: kelime/ilan no, çoklu oda, m² aralığı, banyo, eşya, özellikler, kimden, ilan tarihi, 360°.
+   - Sıralama: m² fiyatı, en büyük.
+   - Izgara / Liste / Harita görünümü (harita: fiyat etiketleri + yakın ilan grupları), numaralı sayfalar, ince başlık bandı.
+   - Kartlarda fotoğraf sayısı rozeti ve oda/banyo/m² simge satırı.
+4. **Tasarım kontrolü:**
+   - 16 sayfa tipi 390 px ve 1280 px'te taranıp düzeltildi: kayıt sayfası yatay taşma, onay kutularının görünümü, Telegram kutusu başlığı.
+   - "İlan Ver" sayfası artık "Yakında" yazmıyor; paketleri Emlak → Paketler'den gösteriyor.
+5. Testler: backend 29/29, social 30/30, arama/harita/çekmece, yönetim 360° ekranı, tasarım taraması temiz.
+
 ## Tema adı (0.6.1)
 Tema klasörü `adaev` → `emlak-tema`, tema adı "Emlak Tema". Etkinleştirmede `theme_mods_adaev` yeni temaya taşınır (`functions.php`). İç fonksiyon önekleri (`ae_`) aynı kaldı. Marka (site adı) hâlâ "Site başlığı" ayarından gelir.
 

@@ -113,6 +113,15 @@ Nasıl çalışır:
 
   **Emlak → Canlıya çıkış** bunu kontrol eder.
 
+## Benzer / kopya ilan denetimi (0.7)
+- Her fotoğrafın görsel parmak izi ve her açıklamanın özeti saklanır.
+- Bir ilan yayındaki başka bir ilanla **birebir** aynı fotoğrafı ya da açıklamayı taşıyorsa, ekleyen üyeye **"Buna benzer ilan zaten yayında"** uyarısı gider. Uyarı Panelim'de, İlanlarım listesinde ve Telegram önizlemesinde görünür.
+- Eşleşme başka bir üyenin ilanıyla ise onay panelinde (`/tr/onay/`) otomatik **"kopya ilan"** bildirimi açılır ve sana e-posta gider.
+- Her gün tüm ilanlar yeniden taranır. Ziyaretçi "Hatalı ilan bildir → aynı ilan / fotoğraflar başka mülke ait" seçerse kontrol hemen yapılır, sonucu bildirimin altına yazılır.
+- **Emlak → Ayarlar → Benzer / kopya ilan denetimi:** "Başka üyenin ilanıyla eşleşen ilan yayına girmesin, onaya düşsün" kutusu.
+- **Araçlar → Benzer ilanları şimdi tara:** güncellemeden sonra bir kez bas.
+- Yönetici de **Emlak → İlanlar → Fotoğraflar / 360°** ekranından fotoğraf ve 360° fotoğraf ekleyebilir.
+
 ## Tapu türü sadece satılıkta (0.6)
 
 Kiralık ve günlük kiralık ilanlarda tapu türü sorulmaz, saklanmaz ve gösterilmez. Arama kutusunda kiralık sekmesinde tapu filtresi yoktur. Eski kiralık ilanlardaki tapu bilgileri güncellemede kendiliğinden silinir.

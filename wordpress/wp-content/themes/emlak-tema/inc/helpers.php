@@ -129,10 +129,11 @@ function ae_card(array $a): string
     $img = $a['cover']
         ? '<img src="' . esc_url($a['cover']['small']) . '" alt="' . esc_attr($a['title']) . '" loading="lazy" decoding="async" width="640" height="400">'
         : AE_ICON;
-    $meta = array_filter([
-        $a['area_m2'] ? $a['area_m2'] . ' m²' : null,
-        $a['rooms'] ?: null,
-        $a['deed_name'] ?: null,
+    // Simgeli bilgi satırı: oda · banyo · m² (101evler kartlarındaki gibi)
+    $specs = array_filter([
+        $a['rooms'] ? ['bed', $a['rooms'], ae_t('bedrooms')] : null,
+        $a['baths'] ? ['bath', (string) $a['baths'], ae_t('baths')] : null,
+        $a['area_m2'] ? ['area', $a['area_m2'] . ' m²', ae_t('area')] : null,
     ]);
     ob_start(); ?>
 <article class="card<?php echo $a['featured'] ? ' fcard' : ''; ?>">
@@ -142,14 +143,15 @@ function ae_card(array $a): string
     <span class="tag"><?php echo esc_html($a['subtype_name']); ?></span>
     <?php if ($a['featured']) : ?><span class="fbadge"><?php ae_e('featured_badge'); ?></span><?php endif; ?>
     <?php if ($a['status'] === 'sold') : ?><span class="sbadge"><?php ae_e('sold'); ?></span><?php endif; ?>
-    <?php if (!empty($a['pano_count'])) : ?><span class="pbadge" title="<?php ae_e('pano_tour'); ?>">360°</span><?php endif; ?>
+    <span class="cbadges"><?php if (!empty($a['photo_count'])) : ?><span class="phbadge" title="<?php ae_e('all_photos', (int) $a['photo_count']); ?>"><?php echo ae_icon('grid', 13); ?> <?php echo (int) $a['photo_count']; ?></span><?php endif; ?><?php if (!empty($a['pano_count'])) : ?><span class="pbadge" title="<?php ae_e('pano_tour'); ?>">360°</span><?php endif; ?></span>
     <button class="heart<?php echo $fav ? ' on' : ''; ?>" type="button" data-fav="<?php echo (int) $a['id']; ?>" aria-pressed="<?php echo $fav ? 'true' : 'false'; ?>" aria-label="<?php ae_e('favourites'); ?>">♥</button>
   </div>
   <div class="body">
     <div class="price"><?php echo ae_price($a['price_gbp'], $a['mode']); ?></div>
     <h3 class="ttl"><?php echo esc_html($a['title']); ?></h3>
     <div class="sub"><?php echo esc_html(trim(($a['district'] ? $a['district'] . ', ' : '') . $a['city_name'])); ?></div>
-    <?php if ($meta) : ?><div class="sub"><?php echo esc_html(implode(' · ', $meta)); ?></div><?php endif; ?>
+    <?php if ($specs) : ?><ul class="cspecs"><?php foreach ($specs as [$ic, $v, $lb]) : ?><li title="<?php echo esc_attr($lb); ?>"><?php echo ae_icon($ic, 16); ?><span><?php echo esc_html($v); ?></span></li><?php endforeach; ?></ul><?php endif; ?>
+    <?php if ($a['deed_name']) : ?><div class="cdeed"><?php echo ae_icon('deed', 14); ?> <?php echo esc_html($a['deed_name']); ?></div><?php endif; ?>
     <?php if (!empty($a['agent'])) : $ag = $a['agent']; ?>
       <div class="cagent"><?php echo $ag['logo'] ? '<img src="' . esc_url($ag['logo']['small']) . '" alt="" loading="lazy" width="28" height="28">' : '<span class="av xs">' . esc_html(mb_substr($ag['name'], 0, 1)) . '</span>'; ?><span><?php echo esc_html($ag['name']); ?></span><?php if ($ag['verified']) : ?> <span class="vbadge sm" title="<?php ae_e('of_verified'); ?>">✔</span><?php endif; ?></div>
     <?php endif; ?>

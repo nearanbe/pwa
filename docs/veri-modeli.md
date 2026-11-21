@@ -93,6 +93,11 @@ Sohbet başına açık taslak: `chat_id`, `agent_id`, `state` (`collecting` / `p
 
 `wp_ec_listings.deed_type` 0.6'dan itibaren sadece `mode = 'sale'` ilanlarda doludur.
 
+0.7'de eklenen alanlar:
+- `wp_ec_photos.phash`, `phash2`: görsel parmak izleri (yatay ve dikey dHash, 64 bit; `0` = okunamadı).
+- `wp_ec_listings.text_md5`, `text_hash`: açıklama özetleri.
+- `wp_ec_listings.dup_of`: en güçlü benzer ilan. `dup_checked`: son tarama zamanı.
+
 ## Geçiş gecesi (WordPress → Next.js + Supabase)
 
 Geçiş için ölçüt ilan sayısı değil. Şu işaretlerden biri görüldüğünde düşünülmeli:

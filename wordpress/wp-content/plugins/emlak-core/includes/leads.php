@@ -182,9 +182,11 @@ function ec_report_create(int $listing_id, array $in)
         'listing_id' => $listing_id, 'reason' => $reason, 'note' => $note, 'email' => $email ?: null,
         'status' => 'open', 'ip_hash' => ec_ip_hash(), 'created_at' => ec_now(),
     ]);
+    $rid = (int) $wpdb->insert_id;
+    do_action('ec_report_created', $rid, $listing_id, $reason);
     $item = ec_listings_present([$row], 'tr')[0];
     ec_notify_admin("⚠️ Hatalı ilan bildirimi #$listing_id\n{$item['title']}\nSebep: " . ec_report_reasons()[$reason]['tr'] . ($note ? "\nNot: $note" : '') . ($email ? "\nBildiren: $email" : ''), ec_url_section('review', 'tr'));
-    return (int) $wpdb->insert_id;
+    return $rid;
 }
 
 function ec_reports_open(int $limit = 100): array

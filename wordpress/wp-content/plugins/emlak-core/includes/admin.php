@@ -75,6 +75,7 @@ function ec_admin_listings(): void
             $links[] = $act('passive', 'Pasife al');
         }
         $links[] = $featured ? $act('unfeature', 'Öne çıkarmayı kaldır') : $act('feature', 'Öne çıkar (30 gün)');
+        $links[] = '<a href="' . esc_url(admin_url('admin.php?page=ec-media&id=' . $r['id'])) . '">Fotoğraflar / 360°</a>';
         $view = ec_listings_present([$r], 'tr')[0]['url'];
         echo '<tr><td>#' . (int) $r['id'] . '</td><td><a href="' . esc_url($view) . '" target="_blank">' . esc_html($r['title']) . '</a>' . ($featured ? ' <span class="dashicons dashicons-star-filled" title="Öne çıkan"></span>' : '') . '</td>'
             . '<td>' . esc_html(ec_subtype_name($r['ptype'], (string) $r['subtype'], 'tr')) . ' / ' . esc_html($r['mode']) . '</td>'
@@ -152,6 +153,7 @@ function ec_admin_new(): void
         echo '<tr><th>Başlık / Açıklama (' . $n . ')</th><td><input name="title_' . $l . '" class="large-text"' . ($l === 'tr' ? ' required' : '') . '><br><textarea name="desc_' . $l . '" rows="4" class="large-text"></textarea></td></tr>';
     }
     echo '<tr><th>Fotoğraflar</th><td><input type="file" name="photos[]" multiple accept="image/jpeg,image/png,image/webp"><p class="description">İlk fotoğraf kapak olur. JPG/PNG/WebP, en çok ' . EC_PHOTO_MAX . ' adet.</p></td></tr>';
+    echo '<tr><th>🌐 360° fotoğraflar</th><td><input type="file" name="panos[]" multiple accept="image/jpeg,image/png,image/webp"><p class="description">Küresel fotoğraf (genişlik = 2 × yükseklik), en çok ' . EC_PANO_MAX . ' adet. Dosya adı oda adı olur (ör. salon.jpg → “salon”). Dosya başına sınır: ' . esc_html(size_format(wp_max_upload_size())) . '.</p></td></tr>';
     echo '<tr><th>Durum</th><td>' . ec_admin_select('status', ['published' => 'Hemen yayınla', 'draft' => 'Taslak']) . '</td></tr>';
     echo '</table>';
     submit_button('İlanı kaydet');
@@ -190,6 +192,7 @@ add_action('admin_post_ec_new', function () {
         wp_die('İlan kaydedilemedi: ' . esc_html(wp_json_encode($id->get_error_data())));
     }
     $n = 0;
+    [, $np] = ec_admin_take_uploads($id, 'panos', true);
     if (!empty($_FILES['photos']['tmp_name'])) {
         foreach ((array) $_FILES['photos']['tmp_name'] as $i => $tmp) {
             if (($_FILES['photos']['error'][$i] ?? 1) === UPLOAD_ERR_OK && is_uploaded_file($tmp) && !is_wp_error(ec_photo_add($id, $tmp))) {
@@ -197,7 +200,7 @@ add_action('admin_post_ec_new', function () {
             }
         }
     }
-    ec_admin_back('ec-listings', "İlan #$id kaydedildi ($n fotoğraf).");
+    ec_admin_back('ec-listings', "İlan #$id kaydedildi ($n fotoğraf, $np adet 360°). <a href=\"" . esc_url(admin_url('admin.php?page=ec-media&id=' . $id)) . '">Fotoğrafları düzenle →</a>');
 });
 
 function ec_admin_agents(): void
@@ -342,6 +345,7 @@ function ec_admin_settings(): void
     }
     echo '</select></td></tr></table>';
 
+    echo '<h2>Benzer / kopya ilan denetimi</h2><table class="form-table"><tr><th>Otomatik denetim</th><td>Fotoğraflar ve açıklamalar her yüklemede ve her gün karşılaştırılır. Birebir benzerlikte ekleyen üyeye “buna benzer ilan zaten yayında” uyarısı gider; başka üyenin ilanıyla eşleşirse onay panelinde “kopya ilan” bildirimi açılır.<br><label><input type="checkbox" name="dup_hold" value="1"' . checked((int) get_option('ec_dup_hold'), 1, false) . '> Başka üyenin ilanıyla eşleşen ilan yayına girmesin, onaya düşsün</label></td></tr></table>';
     echo '<h2>Talepler (Mesaj gönder formu)</h2><table class="form-table"><tr><th>Yöneticiye kopya</th><td><label><input type="checkbox" name="lead_admin_copy" value="1"' . checked((int) get_option('ec_lead_admin_copy', 1), 1, false) . '> İlan sahibine giden her mesajın kopyası bana da gelsin</label></td></tr></table>';
 
     $cp = (array) get_option('ec_city_photos', []);
@@ -370,7 +374,7 @@ function ec_admin_settings(): void
         $u = wp_nonce_url(admin_url('admin-post.php?action=ec_tool&do=' . $do), 'ec_tool_' . $do);
         return '<a class="' . $cls . '" href="' . esc_url($u) . '"' . ($confirm ? ' onclick="return confirm(\'' . esc_js($confirm) . '\')"' : '') . '>' . esc_html($label) . '</a> ';
     };
-    echo '<hr><h2>Araçlar</h2><p>' . $tool('rates', 'Kurları şimdi güncelle') . $tool('live', 'Gün içi kuru şimdi çek') . $tool('index', 'Fiyat endeksini şimdi hesapla') . $tool('webhook', 'Telegram webhook’unu kur') . $tool('aitest', 'Yapay zekâyı dene') . $tool('pages', 'Sabit sayfaları taslak olarak oluştur') . '</p>';
+    echo '<hr><h2>Araçlar</h2><p>' . $tool('rates', 'Kurları şimdi güncelle') . $tool('live', 'Gün içi kuru şimdi çek') . $tool('index', 'Fiyat endeksini şimdi hesapla') . $tool('webhook', 'Telegram webhook’unu kur') . $tool('aitest', 'Yapay zekâyı dene') . $tool('pages', 'Sabit sayfaları taslak olarak oluştur') . $tool('dupscan', 'Benzer ilanları şimdi tara') . '</p>';
     echo '<p class="description">Fiyat endeksi her gün otomatik hesaplanır: yayındaki konut ilanlarının m² başına istenen fiyatlarının medyanı (şehir bazında, en az ' . EC_INDEX_MIN_N . ' ilan).</p>';
     echo '<h2>Demo verisi</h2>';
     if (ec_demo_active()) {
@@ -423,6 +427,10 @@ add_action('admin_post_ec_tool', function () {
                 }
             }
             $msg = $made ? esc_html(implode(', ', $made)) . ' taslak olarak oluşturuldu. Sayfalar menüsünden düzenleyip yayınlayın.' : 'Dört sayfa da zaten var.';
+            break;
+        case 'dupscan':
+            do_action('ec_dup_backfill');
+            $msg = ec_dup_scan(2000) . ' ilanda benzerlik bulundu. Başka üyelerle eşleşenler onay panelinde “kopya ilan” bildirimi olarak listelenir.';
             break;
         case 'aitest':
             $r = ec_ai_extract("Girne Alsancak'ta satılık 2+1 daire, 95 m2, deniz manzaralı, ortak havuz. Fiyat 145.000 stg. Türk koçanı, KDV ödendi.");
@@ -497,6 +505,7 @@ add_action('admin_post_ec_settings', function () {
         'effort' => in_array($p['ai_effort'] ?? '', ['low', 'medium', 'high'], true) ? $p['ai_effort'] : 'medium',
     ]);
     update_option('ec_lead_admin_copy', !empty($p['lead_admin_copy']) ? 1 : 0);
+    update_option('ec_dup_hold', !empty($p['dup_hold']) ? 1 : 0);
     $cp = [];
     foreach ((array) ($p['city_photo'] ?? []) as $ck => $v) {
         $v = trim((string) $v);

@@ -231,6 +231,7 @@ function ec_listing_save_i18n(int $id, array $i18n): void
             'description' => $t['description'],
         ]);
     }
+    do_action('ec_listing_texts_saved', $id);
 }
 
 function ec_listing_row(int $id): ?array
@@ -289,6 +290,9 @@ function ec_listings_present(array $rows, string $lang, bool $full = false): arr
             'deed_type' => $r['mode'] === 'sale' ? $r['deed_type'] : null,
             'deed_name' => $r['mode'] === 'sale' && $r['deed_type'] ? (ec_deed_types()[$r['deed_type']][$lang] ?? $r['deed_type']) : null,
             'pano_count' => $panoN[$id] ?? 0,
+            'photo_count' => count($photos[$id] ?? []),
+            'lat' => $r['lat'] !== null ? (float) $r['lat'] : null,
+            'lng' => $r['lng'] !== null ? (float) $r['lng'] : null,
             'agent_id' => $r['agent_id'] ? (int) $r['agent_id'] : null,
             'views' => (int) $r['views'],
             'furnished' => $r['furnished'] === null ? null : (bool) $r['furnished'],
@@ -353,6 +357,45 @@ function ec_listing_search(array $f, string $lang, int $page = 1, int $per = 24)
     if (!empty($f['pano'])) {
         $where[] = 'id IN (SELECT listing_id FROM ' . ec_table('panos') . ')';
     }
+    // Oda: tek değer ya da birden çok (rooms[]=2+1&rooms[]=3+1)
+    if (!empty($f['rooms']) && is_array($f['rooms'])) {
+        $rooms = array_values(array_intersect($f['rooms'], ec_room_options()));
+        if ($rooms) {
+            $where[] = 'rooms IN (' . implode(',', array_fill(0, count($rooms), '%s')) . ')';
+            array_push($args, ...$rooms);
+        }
+        unset($f['rooms']);
+    }
+    foreach (['amin' => 'area_m2 >= %d', 'amax' => 'area_m2 <= %d', 'baths' => 'baths >= %d'] as $k => $sql) {
+        if (isset($f[$k]) && is_numeric($f[$k]) && (int) $f[$k] > 0) {
+            $where[] = $sql;
+            $args[] = (int) $f[$k];
+        }
+    }
+    if (isset($f['furnished']) && in_array((string) $f['furnished'], ['0', '1'], true)) {
+        $where[] = 'furnished = %d';
+        $args[] = (int) $f['furnished'];
+    }
+    // Özellikler: hepsi olmalı
+    foreach (array_slice(array_intersect((array) ($f['feat'] ?? []), array_keys(ec_features())), 0, 12) as $fk) {
+        $where[] = 'features LIKE %s';
+        $args[] = '%"' . $fk . '"%';
+    }
+    // Kimden: emlak ofisi, inşaat firması, danışman, sahibinden
+    $kinds = array_values(array_intersect((array) ($f['kind'] ?? []), array_keys(ec_member_kinds())));
+    if ($kinds) {
+        $where[] = 'agent_id IN (SELECT id FROM ' . ec_table('agents') . ' WHERE kind IN (' . implode(',', array_fill(0, count($kinds), '%s')) . '))';
+        array_push($args, ...$kinds);
+    }
+    if (!empty($f['days']) && in_array((int) $f['days'], [1, 3, 7, 30], true)) {
+        $where[] = 'published_at >= DATE_SUB(UTC_TIMESTAMP(), INTERVAL %d DAY)';
+        $args[] = (int) $f['days'];
+    }
+    if (!empty($f['q'])) {
+        $q = '%' . $wpdb->esc_like(mb_substr(sanitize_text_field((string) $f['q']), 0, 60)) . '%';
+        $where[] = '(id IN (SELECT listing_id FROM ' . ec_table('listing_i18n') . ' WHERE title LIKE %s OR description LIKE %s) OR district LIKE %s OR CAST(id AS CHAR) = %s)';
+        array_push($args, $q, $q, $q, trim((string) $f['q'], '# '));
+    }
     foreach (['mode', 'ptype', 'subtype', 'city', 'district', 'rooms', 'deed_type'] as $k) {
         if (!empty($f[$k])) {
             $where[] = "$k = %s";
@@ -382,6 +425,8 @@ function ec_listing_search(array $f, string $lang, int $page = 1, int $per = 24)
     $order = match ($f['sort'] ?? 'new') {
         'price_asc' => 'price_gbp ASC',
         'price_desc' => 'price_gbp DESC',
+        'm2_asc' => '(area_m2 IS NULL OR area_m2 = 0), price_gbp / NULLIF(area_m2, 0) ASC',
+        'area_desc' => 'area_m2 IS NULL, area_m2 DESC',
         default => '(featured_until IS NOT NULL AND featured_until > UTC_TIMESTAMP()) DESC, published_at DESC, id DESC',
     };
     $w = implode(' AND ', $where);

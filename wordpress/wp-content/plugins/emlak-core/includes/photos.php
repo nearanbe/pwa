@@ -56,6 +56,7 @@ function ec_photo_add(int $listing_id, string $file)
         'created_at' => ec_now(),
     ]);
     $row = $wpdb->get_row($wpdb->prepare("SELECT * FROM $t WHERE id = %d", $wpdb->insert_id), ARRAY_A);
+    do_action('ec_photo_added', $row);
     return ec_photo_present($row);
 }
 

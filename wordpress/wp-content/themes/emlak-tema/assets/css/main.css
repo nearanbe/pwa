@@ -317,10 +317,12 @@ table.facts{width:100%;border-collapse:collapse;margin-top:12px;font-size:14px}
 .kinds{border:0;padding:0;margin:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px}
 .kinds legend{font-weight:600;margin-bottom:8px;font-size:14px}
 .kind{border:1.5px solid var(--line);border-radius:14px;padding:12px;cursor:pointer;display:flex;flex-direction:column;gap:4px;font-weight:400 !important}
-.kind input{position:absolute;opacity:0;pointer-events:none}
+.kind{position:relative}
+.kind input{position:absolute;opacity:0;pointer-events:none;width:1px;height:1px;left:0;top:0}
 .kind.on{border-color:var(--gold);background:var(--soft)}
 .tgq{border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin:0}
-.tgq legend{font-weight:600;padding:0 6px}
+.tgq legend{font-weight:600;padding:0;float:left;width:100%;margin-bottom:6px}
+.tgq legend+*{clear:both}
 .tgq label.chk{display:inline-flex;margin-right:16px}
 
 /* Panelim */
@@ -583,6 +585,77 @@ html{scroll-padding-top:130px}
 .tgsteps{padding-left:20px;line-height:1.6}
 .ptabs .count{font-size:11px;padding:1px 7px;margin-left:4px}
 .printonly{display:none}
+/* ===================== 0.7: arama sonuçları (101evler düzeni) ===================== */
+.sres{display:grid;grid-template-columns:290px minmax(0,1fr);gap:24px;align-items:start}
+.sfilter{position:sticky;top:84px;max-height:calc(100vh - 100px);overflow:auto;background:var(--card);border-radius:18px;box-shadow:var(--shadow);padding:14px 16px;scrollbar-width:thin}
+.sfilter form{display:grid;gap:4px}
+.sf-head{display:none;justify-content:space-between;align-items:center;padding-bottom:8px}
+.sf-x{border:0;background:none;font-size:20px;color:var(--text)}
+.sf-modes{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;background:var(--soft);padding:4px;border-radius:12px;margin-bottom:8px}
+.sf-modes a{text-align:center;text-decoration:none;font-size:13px;font-weight:600;padding:7px 4px;border-radius:9px;color:var(--muted)}
+.sf-modes a.on{background:var(--card);color:var(--text);box-shadow:var(--shadow)}
+.sfilter details{border-top:1px solid var(--line);padding:8px 0}
+.sfilter summary{cursor:pointer;font-weight:600;font-size:14px;list-style:none;display:flex;justify-content:space-between;padding:4px 0}
+.sfilter summary::after{content:"＋";color:var(--muted)}.sfilter details[open] summary::after{content:"－"}
+.sfilter summary::-webkit-details-marker{display:none}
+.sfilter details>*:not(summary){margin-top:8px}
+.sfilter select,.sfilter input:not([type=checkbox]):not([type=radio]){padding:9px 10px;font-size:14px}
+.sf-row{display:flex;gap:6px}.sf-row>*{min-width:0}.sf-cur{flex:0 0 64px}
+.sf-chips{display:flex;flex-wrap:wrap;gap:6px}
+.sf-chips .chip,.sfilter .chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:999px;padding:5px 10px;font-size:13px;cursor:pointer;background:var(--bg)}
+.sfilter .chip input{width:auto;margin:0}
+.sfilter .chip:has(input:checked){border-color:var(--acc);background:color-mix(in srgb,var(--acc) 10%,var(--card))}
+.sf-seg{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.sf-seg label{cursor:pointer;position:relative}.sf-seg input{position:absolute;opacity:0;pointer-events:none;width:1px;height:1px;left:0;top:0}
+.sf-seg span{display:inline-block;border:1px solid var(--line);border-radius:9px;padding:5px 10px;font-size:13px}
+.sf-seg input:checked+span{background:var(--acc);color:var(--acc-t);border-color:var(--acc)}
+.sf-seg input:focus-visible+span{outline:2px solid var(--gold)}
+.sf-foot{position:sticky;bottom:-14px;display:flex;gap:8px;background:var(--card);padding:10px 0 4px;border-top:1px solid var(--line);margin-top:6px}
+.sf-foot>*{flex:1}
+.stools{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
+.scount{font-family:"Cormorant Garamond",Georgia,serif;font-size:24px;margin-right:auto}
+.sf-open{display:none}
+.stools .sortf{margin:0}
+.views{display:flex;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.views a{display:flex;align-items:center;gap:4px;padding:8px 10px;text-decoration:none;font-size:13.5px;color:var(--muted)}
+.views a.on{background:var(--acc);color:var(--acc-t)}
+.sf-backdrop{position:fixed;inset:0;background:rgba(10,20,23,.5);z-index:29}
+.sf-backdrop[hidden]{display:none}
+@media(max-width:1000px){
+  .sres{grid-template-columns:1fr}
+  .sfilter{position:fixed;left:0;right:0;bottom:0;top:auto;max-height:88vh;z-index:30;border-radius:20px 20px 0 0;transform:translateY(105%);transition:transform .25s ease;padding-bottom:calc(14px + env(safe-area-inset-bottom,0px))}
+  .sfilter.open{transform:none}
+  .sf-head{display:flex}
+  .sf-open{display:inline-flex}
+}
+@media (prefers-reduced-motion:reduce){.sfilter{transition:none}}
+/* kartlar */
+.cbadges{position:absolute;right:10px;bottom:10px;display:flex;gap:6px}
+.img .cbadges svg,.img .phbadge svg{width:13px;height:13px;opacity:1}
+.cbadges .pbadge{position:static}
+.phbadge{display:inline-flex;align-items:center;gap:4px;background:rgba(15,34,39,.72);color:#fff;font:600 12px/1 Inter,sans-serif;padding:5px 8px;border-radius:999px}
+.cspecs{list-style:none;padding:0;margin:8px 0 0;display:flex;gap:14px;flex-wrap:wrap;font-size:13.5px;color:var(--muted)}
+.cspecs li{display:flex;align-items:center;gap:5px}.cspecs .ic{color:var(--gold)}
+.cdeed{display:flex;align-items:center;gap:5px;margin-top:6px;font-size:12.5px;color:var(--muted)}
+/* liste görünümü */
+.grid.list{grid-template-columns:1fr}
+.grid.list .card{display:grid;grid-template-columns:minmax(220px,340px) minmax(0,1fr)}
+.grid.list .card .img{aspect-ratio:auto;height:100%;min-height:200px}
+.grid.list .card .body{padding:16px 18px}
+.grid.list .card .ttl{font-size:22px}
+.grid.list .ad-feed{display:none}
+@media(max-width:640px){.grid.list .card{grid-template-columns:1fr}.grid.list .card .img{min-height:0;aspect-ratio:16/10}}
+/* harita görünümü */
+.resmap{height:min(62vh,560px);border-radius:18px;overflow:hidden;margin-bottom:8px;background:var(--soft);z-index:0}
+.grid.compact{grid-template-columns:repeat(auto-fill,minmax(220px,1fr));margin-top:14px}
+.pricepin span{display:inline-block;transform:translate(-50%,-100%);background:var(--acc);color:var(--acc-t);font:600 12px/1 Inter,sans-serif;padding:5px 8px;border-radius:999px;white-space:nowrap;box-shadow:0 2px 6px rgba(0,0,0,.25)}
+.mpop{display:grid;gap:4px;text-decoration:none;color:inherit;width:180px}.mpop img{width:180px;height:110px;object-fit:cover;border-radius:8px}.mpop span{font-size:12px}
+/* numaralı sayfalar */
+.pager{display:flex;gap:6px;justify-content:center;align-items:center;flex-wrap:wrap;margin-top:22px}
+.pager a{min-width:40px;text-align:center;padding:8px 10px;border-radius:10px;text-decoration:none}
+.pager a.on{background:var(--acc);color:var(--acc-t)}
+.pager .gap{color:var(--muted)}
+.dupwarn a{font-weight:600;color:inherit}
 /* 360° tur */
 .pbadge{position:absolute;left:10px;bottom:10px;background:rgba(15,34,39,.78);color:#fff;font:700 12px/1 Inter,sans-serif;padding:5px 8px;border-radius:999px;letter-spacing:.3px}
 .gfull.g360{left:auto;right:64px;text-decoration:none}
@@ -628,3 +701,15 @@ html{scroll-padding-top:130px}
 }
 .leads .myrow{grid-template-columns:1fr auto}.leads .myinfo{min-width:0}@media(max-width:600px){.leads .myrow{grid-template-columns:1fr}}
 #socialbox .btn{width:auto;margin-top:12px}
+
+/* Arama sonuçlarında başlık bandı ince (ilanlar hemen başlasın) */
+.pagehead.slim{padding:16px 16px 18px}
+.pagehead.slim h1{font-size:clamp(24px,3.4vw,32px)}
+.pagehead.slim + .sres{margin-top:18px}
+.clusterpin span{display:flex;align-items:center;justify-content:center;transform:translate(-50%,-50%);width:40px;height:40px;border-radius:50%;background:var(--gold);color:#14262a;font:700 14px/1 Inter,sans-serif;border:3px solid var(--card);box-shadow:0 2px 8px rgba(0,0,0,.25);cursor:pointer}
+
+/* Onay kutuları ve seçenek düğmeleri: genel input stilinden ayır */
+input[type=checkbox],input[type=radio]{width:18px;height:18px;padding:0;margin:0;flex:0 0 auto;accent-color:var(--acc);border-radius:4px}
+.chk{align-items:center}
+.pkfeat{list-style:none;padding:0;margin:10px 0;font-size:13.5px;text-align:left}
+.pkfeat li::before{content:"✓ ";color:var(--gold);font-weight:700}

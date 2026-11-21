@@ -21,6 +21,7 @@ Site WordPress üzerinde çalışır. Ancak ileride Next.js altyapısına **bir 
 - [x] 2. Chrome eklentisi: 101evler ve hangiev modülleri (`extension/`; seçiciler gerçek formla kesinleştirilecek)
 - [x] 0.5. Paketler ve kota (yönetici kontrolünde), Facebook sayfası ve Instagram'da otomatik paylaşım (sitenin ve üyelerin hesapları), hız (sayfa önbelleği, Cloudflare temizleme, yerel yazı tipleri; mobil Lighthouse 96–97)
 - [x] 0.6. 360° fotoğraflar (oda oda tur, arama filtresi, Facebook 360° gönderi), sanal tur linklerinin sayfada açılması; tapu türü sadece satılık ilanlarda
+- [ ] 0.7 (dalda, henüz teslim edilmedi): yönetim panelinde 360°, benzer/kopya ilan denetimi, 101evler düzeninde arama sayfası (filtre paneli, liste/harita görünümü), tasarım düzeltmeleri
 - [ ] 3. Online ödeme (şimdilik paketler elle verilir)
 
 ## Hızlı başlangıç

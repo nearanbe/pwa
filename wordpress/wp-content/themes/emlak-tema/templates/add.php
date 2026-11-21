@@ -12,11 +12,9 @@ ae_seo(['title' => ae_t('add_title'), 'description' => ae_t('add_sub'), 'canonic
 $contact = get_option('ec_contact', []);
 $bot = $contact['telegram_bot'] ?? '';
 $wa = $contact['whatsapp'] ?? '';
-$packages = [
-    ['pkg_single', 2, 1, false],
-    ['pkg_weekly', 20, 30, false],
-    ['pkg_monthly', 50, 100, true],
-];
+$packages = function_exists('ec_packages') ? ec_packages(true) : [];
+$fn = ['syndication' => ae_t('pk_f_syndication'), 'social' => ae_t('pk_f_social'), 'telegram' => ae_t('pk_f_telegram')];
+$best = $packages ? max(array_map(fn($p) => (int) $p['quota'], $packages)) : 0;
 get_header();
 ?>
 <div class="pagehead"><div class="in"><h1><?php ae_e('add_title'); ?></h1><p><?php ae_e('add_sub'); ?></p></div></div>
@@ -24,7 +22,7 @@ get_header();
   <ol class="steps">
     <li><b>1</b><span><?php ae_e('add_step1'); ?></span><a class="btn" href="<?php echo esc_url(ec_url_section('register')); ?>"><?php ae_e('register'); ?></a></li>
     <li><b>2</b><span><?php ae_e('add_step2'); ?></span>
-      <?php if ($bot) : ?><a class="btn" href="https://t.me/<?php echo esc_attr($bot); ?>" target="_blank" rel="noopener">Telegram</a><?php else : ?><span class="pill"><?php ae_e('soon'); ?></span><?php endif; ?>
+      <?php if ($bot) : ?><a class="btn" href="https://t.me/<?php echo esc_attr($bot); ?>" target="_blank" rel="noopener">✈ Telegram</a><?php else : ?><a class="ghost" href="<?php echo esc_url(ec_url_section('panel')); ?>"><?php ae_e('my_panel'); ?></a><?php endif; ?>
     </li>
     <li><b>3</b><span><?php ae_e('add_step3'); ?></span></li>
   </ol>
@@ -32,12 +30,13 @@ get_header();
   <h2 class="sec" id="paketler"><?php ae_e('packages'); ?></h2>
   <p class="lead"><?php ae_e('packages_sub'); ?></p>
   <div class="pkgs">
-    <?php foreach ($packages as [$k, $price, $n, $hl]) : ?>
-      <div class="pkg<?php echo $hl ? ' hl' : ''; ?>">
-        <h3><?php ae_e($k); ?></h3>
-        <div class="price big">€<?php echo (int) $price; ?></div>
-        <div class="sub"><?php ae_e('pkg_n', $n); ?></div>
-        <span class="pill"><?php ae_e('soon'); ?></span>
+    <?php foreach ($packages as $pk) : $feats = array_filter(explode(',', $pk['features'])); ?>
+      <div class="pkg<?php echo (int) $pk['quota'] === $best && $best > 1 ? ' hl' : ''; ?>">
+        <h3><?php echo esc_html($pk['name']); ?></h3>
+        <?php if ($pk['price']) : ?><div class="price big"><?php echo esc_html($pk['price']); ?></div><?php endif; ?>
+        <div class="sub"><?php echo (int) $pk['days']; ?> <?php ae_e('pk_days'); ?><?php echo (int) $pk['quota'] ? ' · ' . (int) $pk['quota'] . ' ' . esc_html(ae_t('pk_listings')) : ''; ?></div>
+        <ul class="pkfeat"><?php foreach ($feats as $f) : ?><li><?php echo esc_html($fn[$f] ?? $f); ?></li><?php endforeach; ?></ul>
+        <?php if ($wa) : ?><a class="ghost sm" href="https://wa.me/<?php echo esc_attr($wa); ?>?text=<?php echo esc_attr(rawurlencode(ae_t('pk_want', $pk['name']))); ?>" target="_blank" rel="noopener"><?php ae_e('pk_buy'); ?></a><?php endif; ?>
       </div>
     <?php endforeach; ?>
   </div>

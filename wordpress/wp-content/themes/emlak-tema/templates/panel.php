@@ -134,7 +134,8 @@ $statusLabel = fn(string $s) => '<span class="st st-' . esc_attr($s) . '">' . es
 
   <?php if ($tab === 'ilanlar') :
       $rows = $wpdb->get_results($wpdb->prepare('SELECT * FROM ' . ec_table('listings') . ' WHERE agent_id = %d ORDER BY FIELD(status,"rejected","pending","draft","published","sold","passive"), id DESC LIMIT 500', $agent['id']), ARRAY_A);
-      $items = ec_listings_present($rows, $lang, true); ?>
+      $items = ec_listings_present($rows, $lang, true);
+      $dupOf = array_column($rows, 'dup_of', 'id'); ?>
     <div class="mylist">
       <?php foreach ($items as $a) : ?>
         <article class="myrow" data-id="<?php echo (int) $a['id']; ?>">
@@ -144,6 +145,7 @@ $statusLabel = fn(string $s) => '<span class="st st-' . esc_attr($s) . '">' . es
             <h3><?php echo esc_html($a['title']); ?></h3>
             <div class="sub"><?php echo esc_html($a['subtype_name'] . ' · ' . trim(($a['district'] ? $a['district'] . ', ' : '') . $a['city_name'])); ?> · <b><?php echo ae_price($a['price_gbp'], $a['mode'], false); ?></b></div>
             <?php if ($a['status'] === 'rejected' && $a['reject_reason']) : ?><p class="ferr"><?php ae_e('reject_reason'); ?>: <?php echo esc_html($a['reject_reason']); ?></p><?php endif; ?>
+            <?php if (!empty($dupOf[$a['id']]) && in_array($a['status'], ['published', 'pending'], true)) : ?><p class="ferr">⚠️ <?php ae_e('dup_badge', (int) $dupOf[$a['id']]); ?> <a href="<?php echo $url('ilan', ['id' => $a['id']]); ?>"><?php ae_e('act_edit'); ?> →</a></p><?php endif; ?>
             <?php $syn = ec_syndication_for((int) $a['id']); if ($syn) : ?><div class="synd"><?php foreach ($syn as $site => $sy) : ?><a class="st st-<?php echo $sy['status'] === 'published' ? 'published' : 'draft'; ?>" <?php echo $sy['remote_url'] ? 'href="' . esc_url($sy['remote_url']) . '" target="_blank" rel="noopener"' : ''; ?>><?php echo esc_html($site); ?> <?php echo $sy['status'] === 'published' ? '✓' : '…'; ?></a><?php endforeach; ?></div><?php endif; ?>
           </div>
           <div class="myact">
