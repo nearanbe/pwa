@@ -1,161 +1,181 @@
-# Devam notu (yeni oturum için)
+# AdaCasa: devam notu (yeni sohbet için)
 
-Bu dosya, projeyi yeni bir oturumda kaldığı yerden sürdürmek için yazıldı. Önce bunu, sonra `README.md`, `docs/kurulum.md`, `docs/api.md` ve `docs/veri-modeli.md` dosyalarını oku.
+Yeni oturumda **önce bu dosyayı oku**, sonra `README.md`, `docs/kurulum.md`, `docs/api.md`, `docs/veri-modeli.md` dosyalarına bak.
+Dal: `claude/jolly-carson-l927uv`. Kod buradadır, her şey commit edilip gönderildi.
 
-## Proje
+---
 
-- **Amaç:** KKTC (Kuzey Kıbrıs) emlak ilan portalı. Rakipler: 101evler.com ve hangiev.com.
-- **Gelir modeli:**
+## 1. Yeni oturumda ilk iş: marka değişikliği (henüz yapılmadı)
+
+Kullanıcının kararı:
+
+- **Marka:** **AdaCasa**. Logodaki alt yazı: "GAYRİMENKUL & YATIRIM".
+- **Alan adı:** **adacasa.com**.
+- **Logo:** `docs/marka/adacasa-logo.png`, aynısının `.webp` hali de var (1024×572, beyaz zemin).
+  - Sol tarafta sembol: ev çatısı, mavi dalgalar, altın kıvrım.
+  - Sağ tarafta yazı: "adacasa"; "ca" altın, gerisi lacivert.
+- **Logo renkleri (yaklaşık):**
+  - Lacivert `#14284B`
+  - Mavi `#4A8FC7` / `#7DB3DF`
+  - Altın `#B8893F`
+
+  Sitenin şimdiki paleti koyu turkuaz (`--acc:#16343b`) ve altın (`--gold:#b48a45`). Yeni oturumda paletin logoya uyumu kullanıcıya sorulmalı.
+- **Paket adları:** kullanıcı yeni sohbette paketleri şu adlarla isteyecek:
+  - `adacasa-them1.01` → büyük olasılıkla **tema**: `adacasa-theme-1.0.1.zip`
+  - `adacasa-core1.0.1` → **eklenti**: `adacasa-core-1.0.1.zip`
+
+  "them" kelimesini ve 1.01 / 1.0.1 farkını kullanıcıya bir kez sor; önerin tema `adacasa-theme`, eklenti `adacasa-core`, ikisi de **1.0.1**.
+
+Yapılacaklar listesi (öneri; büyük iş olduğu için önce kullanıcıya planı göster):
+
+1. **Klasör ve ad değişikliği.**
+   - `plugins/emlak-core` → `plugins/adacasa-core` (ana dosya `adacasa-core.php`, Plugin Name: "AdaCasa Core").
+   - `themes/emlak-tema` → `themes/adacasa-theme` (Theme Name: "AdaCasa").
+   - `scripts/paketle.sh` yeni adlara göre güncellenecek.
+2. **Geçişte dikkat edilecekler.**
+   - WordPress eklentiyi klasör/dosya adından tanır. Klasör adı değişirse eski eklenti devre dışı kalır, yenisi ayrı eklenti olarak kurulur.
+   - Veri tabloları (`wp_ec_*`) ve ayarlar (`ec_*` seçenekleri) aynı kalır, kayıp olmaz. Yeni eklenti etkinleştirilince şema kontrolü kendiliğinden çalışır.
+   - Sıra: yeni eklentiyi yükle → eski "Emlak Core"u devre dışı bırak → yeniyi etkinleştir → eskiyi sil.
+   - Aynı anda ikisi etkin olursa fonksiyon adları çakışır (fatal error). Yeni eklentiye "eski eklenti etkinse etkinleşme, uyarı göster" koruması eklenmeli.
+   - Tema: `after_switch_theme` içindeki ayar taşıma, `theme_mods_emlak-tema` (ve eski `theme_mods_adaev`) → yeni temaya kopyalayacak şekilde genişletilecek.
+   - İç fonksiyon önekleri (`ec_`, `ae_`), tablo adları (`wp_ec_*`) ve REST yolu (`/api/v1`, `emlak/v1`) **değişmesin**. Bot, Chrome eklentisi ve gelecekteki Next.js geçişi bunlara bağlı.
+3. **Logo.** Temada `ae_logo()` şu an SVG sembol ve site adını gösteriyor.
+   - AdaCasa logosu SVG'ye çevrilebilirse en iyisi. Çevrilemezse PNG/WebP ile `assets/img/` altına konulur, şeffaf zemin gerekebilir.
+   - Favicon, `apple-touch-icon`, `og-default.jpg` ve `site.webmanifest` adları/renkleri güncellenecek.
+4. **Marka metinleri.**
+   - Fallback "AdaEv" geçen yerler: `ae_brand()`, demo e-postaları, rehber, SSS.
+   - Site adı WordPress'in "Site başlığı" ayarından gelir; canlıda "AdaCasa" yazılacak.
+5. **Belgeler.**
+   - `docs/neden-biz.html` ve `.pdf` rehberi AdaCasa adı, logosu ve renkleriyle yeniden üretilecek. PDF, Playwright ile `page.pdf` kullanılarak üretilir. Yayımlanmış hali: https://claude.ai/artifact/YL2sUFCN2h12Nt6Te49o2d; aynı dosya yolundan yeniden yayımlanırsa adres aynı kalır.
+   - Kurulum belgelerinde `emlak392.com` örnekleri → `adacasa.com`.
+6. **Chrome eklentisi.** Adı "İlan Aktarıcı" kalabilir ya da "AdaCasa İlan Aktarıcı" olur; manifest sürümü artırılır.
+7. **Teslim.** `emlak-core` 0.7 içeriği yeni adlarla **1.0.1** olarak verilecek (bkz. 3. bölüm).
+   - Kurulum sırası kullanıcıya hatırlatılacak:
+     1. Yeni eklentiyi yükle → eskisini devre dışı bırak → yeniyi etkinleştir → eskisini sil.
+     2. Yeni temayı yükle ve etkinleştir → eski temayı sil.
+     3. Ayarlar → Site başlığı = "AdaCasa".
+     4. Emlak → Ayarlar → Araçlar → "Benzer ilanları şimdi tara".
+     5. Emlak → Hız → Cloudflare önbelleğini temizle.
+
+---
+
+## 2. Proje özeti
+
+- **Amaç:** KKTC (Kuzey Kıbrıs) emlak ilan portalı. Rakipler: 101evler.com ve hangiev.com. İkisi de Cloudflare bot korumalı; bu ortamdan açılamaz.
+- **Gelir:**
   - İlan vermek ücretsiz.
-  - Para, emlakçılara satılan **otomasyon paketlerinden** gelecek: Telegram'a atılan ilan, emlakçının kendi tarayıcısında çalışan bir Chrome eklentisiyle 101evler ve hangiev'e de girilecek.
-  - Fiyatlar: aylık 100 ilan 50 €, haftalık 30 ilan 20 €, tek ilan 2 €.
-- **Altyapı:** Kullanıcının Plesk VPS'inde WordPress (PHP 8.1+). İleride Next.js + Supabase'e "bir gecelik bakım" ile geçilecek şekilde tasarlandı: kendi tabloları, sabit linkler ve `/api/v1` API'si var.
-- **Marka:** Henüz kesin değil. Şimdilik "AdaEv". Elde boşta `emlak392.com` alan adı var (392 KKTC'nin telefon kodu). Logo ve ikonlar yazısız sembol, site adı WordPress'in "Site başlığı" ayarından geliyor.
-- **Kod:** `wordpress/wp-content/plugins/emlak-core/` (iş mantığı), `wordpress/wp-content/themes/emlak-tema/` (görünüm), `extension/` (Chrome eklentisi).
-- **Paketleme:** `bash scripts/paketle.sh` komutu `dist/emlak-core-SÜRÜM.zip`, `dist/emlak-tema-SÜRÜM.zip` ve `dist/ilan-aktarici-SÜRÜM.zip` dosyalarını üretir. Kullanıcı bunları yönetim panelinden "mevcut sürümü değiştir" seçeneğiyle yükler.
-- **Dal:** `claude/jolly-carson-l927uv`.
+  - Para otomasyon paketlerinden gelir: 101evler/hangiev'e Chrome eklentisiyle aktarım ve Facebook/Instagram paylaşımı.
+  - Örnek fiyatlar: aylık 100 ilan 50 €, haftalık 30 ilan 20 €, tek ilan 2 €.
+  - Paketleri yönetici elle verir; online ödeme yok.
+- **Altyapı:**
+  - Kullanıcının Plesk VPS'i, WordPress (PHP 8.1+), DNS Cloudflare'de.
+  - Kendi tablolar, sabit linkler ve `/api/v1` API'si sayesinde ileride Next.js + Supabase'e "bir gecelik bakım" ile geçilebilir. Ölçütler `docs/veri-modeli.md` dosyasında; KKTC ölçeğinde uzun süre gerek yok.
+- **Dil:** TR / EN / RU (`/tr/…`, `/en/…`, `/ru/…`).
+- **Kod:**
+  - `wordpress/wp-content/plugins/emlak-core/`: iş mantığı, tablolar, REST, yönetim.
+  - `wordpress/wp-content/themes/emlak-tema/`: görünüm.
+  - `extension/`: Chrome eklentisi.
+  - `tests/`: testler.
+  - `docs/`: belgeler.
+- **Paketleme:** `bash scripts/paketle.sh`. Sürüm numaraları başlıklardan okunur. Çıktılar: `dist/emlak-core-X.zip`, `dist/emlak-tema-X.zip`, `dist/ilan-aktarici-X.zip`.
 
-## ⏳ Henüz teslim edilmemiş sürüm: 0.7.0 (eklenti 0.7.0, tema 0.7.0)
+## 3. Sürüm durumu
 
-Kullanıcının isteği: **"Her şey tamam olana kadar bana yeni sürüm verme, işlemleri yap."** Bu yüzden 0.7 değişiklikleri dalda duruyor, zip gönderilmedi. Kullanıcı "tamam / sürüm ver" deyince `bash scripts/paketle.sh` → `emlak-core-0.7.0.zip` + `emlak-tema-0.7.0.zip` gönderilecek. Kurulum notu: önce eklenti, sonra tema (Mevcut sürümü değiştir), sonra Emlak → Ayarlar → Araçlar → "Benzer ilanları şimdi tara".
+| Parça | Kullanıcıya verilen son sürüm | Daldaki sürüm (teslim bekliyor) |
+|---|---|---|
+| Eklenti (emlak-core) | 0.6.0 | **0.7.0** |
+| Tema (emlak-tema) | 0.6.1 | **0.7.0** |
+| Chrome eklentisi | 0.4.0 | 0.4.0 |
 
-0.7'de yapılanlar:
-1. **Yönetim panelinde 360°:**
-   - Emlak → Yeni ilan formunda 360° alanı.
-   - Emlak → İlanlar → "Fotoğraflar / 360°" ekranı (`includes/admin-media.php`): fotoğraf yükleme/silme/kapak, 360° yükleme, oda adı, silme. 2:1 oranlı dosya normal yükleyiciden de 360°'a gider.
-2. **Benzer / kopya ilan denetimi (`includes/duplicates.php`, DB v8):**
-   - Her fotoğrafa yatay + dikey dHash (`phash`, `phash2`).
-   - Açıklamanın normalleştirilmiş md5'i (`text_md5`; simhash `text_hash` saklanıyor, ileride kullanılabilir).
-   - Birebir eşleşme kuralı: iki parmak izi de ≤4 bit fark ya da aynı metin. Testte yeniden kaydedilen/küçültülen kopya 0 fark, farklı fotoğraf 41/32 fark verdi.
-   - Uyarı yerleri: üye paneli (kaydet ve fotoğraf yükleme sonrası), İlanlarım rozeti, Telegram önizlemesi.
-   - Başka üyenin ilanıyla eşleşirse onay panelinde otomatik "kopya ilan" bildirimi (demo ilanlar hariç).
-   - Günlük tarama; şikâyete otomatik kontrol sonucu eklenir.
-   - Ayarlar: "eşleşen ilan onaya düşsün" (`ec_dup_hold`); Araçlar: "Benzer ilanları şimdi tara".
-   - Eski fotoğraflar güncellemede arka planda taranır (`ec_dup_backfill`).
-3. **101evler'e benzer arama sayfası:**
-   - Solda filtre paneli; telefonda alttan açılan "Filtreler" çekmecesi.
-   - Yeni filtreler: kelime/ilan no, çoklu oda, m² aralığı, banyo, eşya, özellikler, kimden, ilan tarihi, 360°.
-   - Sıralama: m² fiyatı, en büyük.
-   - Izgara / Liste / Harita görünümü (harita: fiyat etiketleri + yakın ilan grupları), numaralı sayfalar, ince başlık bandı.
-   - Kartlarda fotoğraf sayısı rozeti ve oda/banyo/m² simge satırı.
-4. **Tasarım kontrolü:**
-   - 16 sayfa tipi 390 px ve 1280 px'te taranıp düzeltildi: kayıt sayfası yatay taşma, onay kutularının görünümü, Telegram kutusu başlığı.
-   - "İlan Ver" sayfası artık "Yakında" yazmıyor; paketleri Emlak → Paketler'den gösteriyor.
-5. Testler: backend 29/29, social 30/30, arama/harita/çekmece, yönetim 360° ekranı, tasarım taraması temiz.
-6. **SSS sayfası** `/tr/sss/` · `/en/faq/` · `/ru/voprosy/`: 22 soru, 3 grup, arama kutusu, Google için FAQPage işaretlemesi. İçerik `themes/emlak-tema/inc/faq.php`; hukuki konular genel bilgi, avukata yönlendirir.
-7. **"Neden biz?" emlakçı rehberi:** `docs/neden-biz.html` (Claude'da yayımlandı: https://claude.ai/artifact/YL2sUFCN2h12Nt6Te49o2d) ve A4 PDF `docs/neden-biz.pdf` (11 sayfa). PDF, sayfanın Playwright ile basılmasıyla üretilir. Paket fiyatları rehberde örnek olarak sabit yazılı; paket tanımları değişirse rehber de güncellenmeli.
+Kullanıcının kuralı: "Her şey tamam olana kadar yeni sürüm verme." 0.7 değişiklikleri teslim edilmedi. Marka değişikliğiyle birlikte **AdaCasa 1.0.1** olarak verilecek.
 
-## Tema adı (0.6.1)
-Tema klasörü `adaev` → `emlak-tema`, tema adı "Emlak Tema". Etkinleştirmede `theme_mods_adaev` yeni temaya taşınır (`functions.php`). İç fonksiyon önekleri (`ae_`) aynı kaldı. Marka (site adı) hâlâ "Site başlığı" ayarından gelir.
+### Bitmiş özellikler (0.1 – 0.7)
 
-## Sürüm durumu (0.6)
+**Portal**
+- Slider'lı ana sayfa ve şehir kartları (fotoğraflar Ayarlar'dan; satılık ve kiralık sayıları).
+- Arama, 101evler düzeninde (0.7):
+  - Solda filtre paneli; telefonda alttan açılan çekmece.
+  - Filtreler: kelime/ilan no, çoklu oda, m², banyo, eşya, özellikler, kimden, tarih, 360°.
+  - Izgara / Liste / Harita görünümü; harita fiyat etiketleriyle, yakın ilanlar gruplanır.
+  - Numaralı sayfalar. Kartlarda fotoğraf sayısı ve oda/banyo/m² simgeleri.
+- İlan detayı:
+  - Tam ekran galeri, bilgi şeridi, sabit başlık ve bölüm menüsü, gruplanmış detaylar ve özellikler.
+  - Leaflet harita (görününce yüklenir) ve yakın yerler (Overpass, 30 gün önbellek).
+  - Bölge fiyat trendi, paylaş düğmeleri.
+  - Mesaj gönder (talepler), hatalı ilan bildir, notum, yazdır, ofis yıl rozeti.
+  - 360° tur (Pannellum, tıklayınca yüklenir); Matterport/Kuula gibi sanal turlar sayfa içinde açılır.
+- Proje detayı: kutucuklar (tip, durum, alan), daire tipleri, kat planları, taksit hesabı, broşür, harita.
+- Firmalar dizini `/tr/firmalar/`, ofis vitrini (`/tr/ofis/x/` ya da alt alan adı), fiyat endeksi, blog, favoriler.
+- SSS `/tr/sss/` (22 soru, FAQPage işaretlemesi, içerik `inc/faq.php`).
+- **Tapu türü sadece satılıkta** (0.6); kiralıkta hiçbir yerde yok.
+- Kurlar:
+  - Resmi kur kaynak sırası: TCMB → KKTC MB → ECB → er-api.
+  - Gün içi piyasa kuru: Twelve Data, olmazsa Yahoo; TCMB'den %5'ten fazla sapan değer reddedilir.
+  - Döviz çevirici.
 
-- **360° fotoğraflar (`includes/panos.php`, tablo `wp_ec_panos`):**
-  - 2:1 oran kontrolü; WebP en çok 6000 px + küçük resim; ilan başına 15; her fotoğrafın oda adı var.
-  - Panelde ayrı bölüm. Normal yükleyiciye verilen 2:1 dosya da otomatik 360°'a gider.
-  - Telegram'da "dosya olarak" gönderilen 360° fotoğraf tanınır.
-  - İlan sayfasında Pannellum 2.5.6 (`assets/vendor/pannellum`, tıklayınca yüklenir), oda geçişi.
-  - Matterport/Kuula vb. sanal tur linkleri sayfa içinde açılır (`ec_tour_embed`).
-  - Arama `pano=1` filtresi, kartlarda "360°" rozeti.
-  - Facebook'ta ilk 360° fotoğraf `allow_spherical_photo` ile ayrı gönderi (Ayarlar'da `fb_360`). Instagram'a ortadan düz kesit.
-- **Tapu türü sadece satılıkta:**
-  - Çekirdekte (`ec_listing_create` / `update`) kiralıkta `deed_type` boşaltılıyor. `ec_listings_present` kiralıkta tapu döndürmüyor.
-  - Arama kutusunda kiralık sekmesinde gizli. Form, ilan sayfası, onay paneli, Telegram önizlemesi, yapay zekâ ve sosyal metin buna göre düzenlendi.
-  - DB v6 eski kiralık tapularını sildi.
-- Testler: social-test 30/30 (360° dahil), backend 29/29.
+**Üyelik ve panel**
+- Üyelik: 4 tür, e-posta doğrulama, Turnstile, onay kuralları.
+- Panelim sekmeleri: İlan formu (360° dahil), Projeler, Talepler, **Paketim**, **Sosyal medya**, Profil/vitrin, Telegram.
+- Onay paneli `/tr/onay/`: ilanlar, hesaplar, projeler, hatalı ilan ve kopya ilan bildirimleri.
 
-## Sürüm durumu (0.5)
+**Otomasyon**
+- **Telegram botu:**
+  - Eşleştirme, fotoğraf ve metin toplama, Claude ile alan çıkarma ve 3 dile çeviri.
+  - Önizleme ve Yayınla/Düzelt; yöneticiye Onayla/Reddet.
+  - SMS kodu aktarımı; 360° fotoğraf (dosya olarak gönderilirse).
+- **Chrome "İlan Aktarıcı":**
+  - 101evler/hangiev formlarını doldurur, fotoğrafları ekler; son tık insanda.
+  - Seçiciler sunucudan JSON olarak gelir. Gerçek sayfa kaynakları henüz gelmedi; seçiciler tahmini.
+- **Paketler** (Emlak → Paketler): tanım, verme, uzatma, iptal, kota; bitime 3 gün kala uyarı.
+- **Sosyal medya** (Emlak → Sosyal medya):
+  - Yöneticinin Meta uygulaması; müşteri sayfasında yöneticiye erişim verir.
+  - Facebook çok fotoğraflı gönderi ve ayrıca 360° gönderi; Instagram kaydırmalı gönderi (JPEG'e çevrilir).
+  - Sitenin hesabı her zaman paylaşır; gruplara paylaşım bilerek yok.
+  - Rehberler: `docs/sosyal-medya-kurulum.md` ve `docs/sosyal-medya-rehberi.html` (yayımlandı: https://claude.ai/artifact/FLKHamnsMnGtkd2GU1Svrr).
+- **Kopya ilan denetimi** (0.7):
+  - Fotoğraf parmak izi (yatay + dikey dHash ≤4 bit) ve normalleştirilmiş açıklama md5'i.
+  - Ekleyene uyarı; başka üyeyle eşleşmede otomatik bildirim; günlük tarama; isteğe bağlı onaya düşürme.
 
-0.5'te eklenenler:
-- **Paketler (`includes/packages.php`, yönetim: Emlak → Paketler):**
-  - Yönetici paket tanımlar ve istediği üyeye istediği süre ve kotayla verir; uzatır, iptal eder.
-  - Özellikler: `syndication` (Chrome eklentisi), `social`, `telegram`.
-  - Kota: farklı ilan sayısı; bir ilan bir pakette bir kez sayılır.
-  - Bitişe 3 gün kala üyeye ve yöneticiye uyarı gider.
-  - Panelim → Paketim sekmesi.
-  - Ödeme şimdilik site dışında (elle).
-- **Sosyal medya (`includes/social.php`, yönetim: Emlak → Sosyal medya):**
-  - Yöneticinin tek Meta uygulaması; müşteri kendi sayfasında yöneticiye "tam kontrol" erişimi verir.
-  - Bağlantı iki yoldan kurulur: "Facebook ile bağlan" ya da Graph API Gezgini'nden alınan anahtar. Sayfa anahtarlarının süresi dolmaz ve şifreli saklanır.
-  - Her sayfa listede siteye ya da bir üyeye atanır.
-  - İlan yayına girince (`ec_listing_published` olayı) gönderi sıraya alınır, zamanlanmış görev paylaşır.
-  - Facebook'ta çoklu fotoğraflı gönderi; Instagram'da kaydırmalı gönderi (fotoğraflar JPEG'e çevrilir, `-ig.jpg`).
-  - Metin şablonu 3 dilde. Üye gönderi dilini ve imzasını seçer (Panelim → Sosyal medya).
-  - Facebook grupları **bilerek yok**.
-  - Belgeler: `docs/sosyal-medya-kurulum.md` ve çizimli rehber `docs/sosyal-medya-rehberi.html` (Claude'da yayımlandı: https://claude.ai/artifact/FLKHamnsMnGtkd2GU1Svrr).
-- **Hız (`includes/speed.php`, yönetim: Emlak → Hız):**
-  - Ziyaretçi sayfalarına `s-maxage=600` ve `X-Accel-Expires`, kişisel sayfalara `no-store` başlığı.
-  - İlan değişince Cloudflare'de ilgili adresler temizlenir.
-  - Önbellek açıkken para birimi ve favoriler tarayıcıda uygulanır.
-  - Yazı tipleri temada (`assets/fonts`). Leaflet sadece harita görününce yüklenir.
-  - Mobil Lighthouse 82–85 → 96–97.
-  - Plesk, Cloudflare ve nginx tarifi: `docs/hiz.md` (nginx yapılandırması burada test edildi).
-- Testler: `tests/social-test.php` 28/28. Yerel nginx + php-fpm 8090 portunda (`/etc/nginx/sites-enabled/default`, `conf.d/ec-cache.conf`).
+**Yönetim**
+- Ayarlar, Paketler, Sosyal medya, Hız, Canlıya çıkış kontrolü (`wp emlak check`), Görsel üret (Cloudflare AI).
+- Yönetici fotoğraf ve 360° ekranı: İlanlar → "Fotoğraflar / 360°".
 
-## Sürüm durumu (0.4)
+**Hız** (`docs/hiz.md`)
+- Sayfa önbelleği başlıkları (`s-maxage`, `X-Accel-Expires`); ilan değişince Cloudflare'den ilgili adresler temizlenir.
+- Yerel yazı tipleri. Mobil Lighthouse 96–97.
 
-0.3'te bitmiş olanlar (3 dil, slider, arama, ilan/proje detayı, fiyat endeksi, blog, favoriler, ofis vitrini, üyelik ve onay, Panelim formları, tapu türü, TCMB kurları, döviz çevirici, temsili görsel, demo verisi) aynen duruyor. 0.4'te eklenenler:
+**Belgeler**
+- `kurulum.md`, `hiz.md`, `sosyal-medya-kurulum.md`, `api.md`, `veri-modeli.md`.
+- `neden-biz.html` ve `.pdf` (emlakçı rehberi, 11 sayfa).
 
-- **İlan detayı (101evler eksikleri):**
-  - Tam ekran galeri: yanda küçük resimler, sayaç, slayt gösterisi, klavye ve kaydırma
-  - Simgeli bilgi şeridi, kaydırınca beliren sabit başlık ve bölüm menüsü
-  - Gruplanmış konut detayları, dış / iç / konum diye gruplanmış özellikler
-  - Leaflet harita ve "Haritada gör"
-  - Yakındaki yerler: Overpass, 2 km, 30 gün önbellek
-  - Bölge fiyat trendi grafiği
-  - Paylaş düğmeleri: Facebook, X, WhatsApp, Viber, Telegram, LinkedIn, Pinterest, e-posta, kopyala
-  - "Mesaj gönder" formu: talepler Panelim → Talepler'e, e-postaya ve Telegram'a gider; yöneticiye kopya
-  - "Hatalı ilan bildir" (onay panelinde listelenir), "Notum" (tarayıcıda saklanır), yazdırma CSS'i
-  - Ofis kartında "N. yıl" rozeti ve "Diğer ilanlarını incele"
-- **Proje detayı:**
-  - Bilgi kutucukları; yeni alanlar `project_type`, `build_status`, `land_m2`
-  - İlerleme çubuğu, daire tipi kartları (kat planı, dosya adı daire tipiyle eşleşir), sosyal alanlar
-  - Taksit hesaplayıcı, kat planları, broşür, video, harita
-  - Firmanın diğer projeleri, mesaj ve paylaş
-- **Ana sayfa ve genel:**
-  - Fotoğraflı ve sayılı şehir kartları (fotoğraflar Ayarlar'dan)
-  - Kartlarda ofis logosu ve adı
-  - Firmalar dizini `/tr/firmalar/` (aranabilir)
-  - Arama kutusunda para birimi seçimi
-- **Gün içi kur:**
-  - Twelve Data → Yahoo yedeği
-  - TCMB'ye göre %5 sapma kontrolü, 30 dakikadan eski değer kullanılmaz
-  - Sitede "Piyasa kuru · saat", çeviricide ayrıca TCMB resmi kuru
-  - Ayarlar'dan açılır
-- **Telegram botu ve yapay zekâ:**
-  - Webhook, eşleştirme, fotoğraf ve metin toplama (albüm desteği)
-  - Claude ile alan çıkarma ve 3 dile çeviri (`claude-opus-5-5`, JSON şeması, sunucu tarafı yedek model)
-  - Önizleme: Yayınla / Düzelt / İptal; yöneticiye Onayla / Reddet; komutlar
-  - SMS kodu aktarımı
-- **Chrome eklentisi (`extension/`):**
-  - MV3 popup'ta ilan listesi ve "101evler'e / hangiev'e aktar"
-  - Form doldurma motoru (`filler.js`): önce seçici, sonra etiket metni; bağımlı alanlar (şehir → bölge)
-  - Özellik kutuları, fotoğraflar (WebP → JPEG)
-  - Captcha uyarısı, SMS kodu, "Yayınladım" kaydı
-  - Alan ayarları sunucudan JSON olarak güncellenir
-- **Canlıya çıkış:** Emlak → Canlıya çıkış sayfası ve `wp emlak check`. Sabit sayfaları taslak oluşturma aracı.
-- **Düzeltme:** `sanitize_text_field` "%40 peşin" metnindeki "%40"ı siliyordu. `ec_clean_text` eklendi.
+## 4. Bekleyen işler ve kullanıcıdan beklenenler
 
-Testler (bu oturumda geçti):
-- Arka uç: 28/28, dış servisler taklit edildi.
-- Tarayıcı etkileşimleri: Playwright.
-- Eklenti: gerçek Chromium'da sahte 101evler formuna karşı uçtan uca.
+1. **Marka değişikliği ve 1.0.1 teslimi** (1. bölüm).
+2. **Anahtarlar (kullanıcıda):**
+   - BotFather token ve yönetici chat id
+   - Claude API anahtarı
+   - Turnstile anahtarları
+   - Meta App ID/Secret
+   - Cloudflare Zone ID ve önbellek temizleme anahtarı
+   - (isteğe bağlı) Twelve Data anahtarı
+3. **Kesinleştirilecekler:**
+   - 101evler/hangiev "ilan ver" sayfalarının kaynak kodu (giriş yapılmış hali) gelince eklenti seçicileri.
+   - Meta uygulamasıyla ilk gerçek paylaşım: bu ortamdaki Facebook bağlantısının süresi dolmuştu; Graph API taklitle test edildi.
+4. **Sunucu:**
+   - PHP ayarları: `upload_max_filesize` / `post_max_size` 32M, `memory_limit` 256M.
+   - Plesk'te 5 dakikalık zamanlanmış görev (wp-cron).
+   - Bot Fight Mode kapalı.
+   - Yedekleme ve izleme (UptimeRobot).
+   - İleride fotoğraf deposu: Cloudflare R2.
+5. **Rehber:** paket fiyatları rehberde sabit; değişirse rehber yeniden üretilmeli. İletişim numarası rehbere eklenmedi; kullanıcı verecek.
+6. **Online ödeme** (sürüm 3) ve Chrome Web Store yayını.
 
-## Bekleyen işler
+Bilerek yapılmayanlar: Facebook gruplarına paylaşım, demografik veri (güvenilir kaynak yok).
 
-0. **Sosyal medya canlı deneme:** kullanıcının Meta uygulaması ve bir test sayfasıyla. Bu oturumda Graph API taklitle test edildi. Oturuma bağlı Facebook bağlantısının süresi dolmuştu.
-1. **Eklenti seçicilerini kesinleştirmek:** 101evler ve hangiev'in gerçek "ilan ver" sayfalarının kaynak kodu (giriş yapılmış hâli) gelince `ec_ext_default_config()` güncellenecek. O zamana kadar etiket metnine göre arama yapılıyor.
-2. **Anahtarlar (kullanıcıda):** BotFather token, yönetici chat id, Claude API anahtarı, (isteğe bağlı) Twelve Data anahtarı, Turnstile anahtarları.
-3. **Online ödeme (sürüm 3):** Paketler ve kota hazır; ödeme alındıktan sonra paketin otomatik verilmesi kaldı.
-4. **Chrome Web Store'a yükleme:** Şimdilik "paketlenmemiş öğe yükle" ile kuruluyor.
-5. **Canlıya çıkış:** Emlak → Canlıya çıkış sayfasındaki maddeler; tarifler `docs/kurulum.md` dosyasında.
-
-Bilerek yapılmayanlar: demografik veri (güvenilir kaynak yok, uydurma veri gösterilmez).
-
-## Yerel test ortamı (oturum değişince yeniden kurulur)
+## 5. Yerel test ortamı (oturum değişince yeniden kurulur)
 
 ```bash
-apt-get update && apt-get install -y mariadb-server
+apt-get update && apt-get install -y mariadb-server nginx php8.3-fpm
 ```
 
 ```bash
@@ -169,21 +189,25 @@ curl -sSL -o /usr/local/bin/wp https://raw.githubusercontent.com/wp-cli/builds/g
 Sonra:
 
 1. Veritabanı ve kullanıcı: `adaev` / `adaev`.
-2. `wp core install` ve kalıcı bağlantılar: `/%postname%/`.
-3. Eklenti ve temayı depodan sembolik link olarak bağla.
-4. `php -S 0.0.0.0:8080 -t site` ile sunucuyu başlat (yönlendirici betik verme; verilirse JS/CSS dosyaları da WordPress'e gider).
-5. Demo veri için: `wp emlak seed`.
+2. `wp core install` (admin/admin). Kalıcı bağlantılar: `/%postname%/`.
+3. Eklenti ve temayı depodan sembolik link olarak bağla, ikisini de etkinleştir.
+4. `php -S 0.0.0.0:8080 -t site` (yönlendirici betik verme).
+5. `wp emlak seed`.
 
 Notlar:
-- wordpress.org bu ortamdan engelli, WordPress çekirdeği Composer ile iner.
-- Tarayıcı testleri Playwright ile yapılır.
-- Bu ortamdan Overpass, Telegram, Yahoo ve Twelve Data erişilemiyor; testler `pre_http_request` ile taklit ediliyor.
-- Eklenti testi: Playwright `launchPersistentContext` ile `channel: 'chromium'`, sahte form yerel sunucudan, ayarda `new_url` geçici olarak yerel adrese çevrilir.
-- 101evler ve hangiev Cloudflare bot korumasının arkasında, doğrudan açılamaz. Karşılaştırma kullanıcının ekran görüntüleri ve kaynak kodlarıyla yapılır.
+- Container ara sıra yeniden başlar; MariaDB düşerse `service mariadb start`.
+- nginx önbellek testi için 8090 portunda yapılandırma: `docs/hiz.md` → 5.2.
+- Testler:
+  - `tests/backend-test.php` (29) ve `tests/social-test.php` (30): `wp transient delete --all` ile, taze demo verisiyle çalıştırılır. Dış servisler `pre_http_request` ile taklit edilir.
+  - Tarayıcı testleri: `tests/*.js`.
+  - Eklenti testi: Playwright `launchPersistentContext`, `channel: 'chromium'`.
+- Bu ortamdan erişilemeyenler: wordpress.org, Overpass, Telegram, Yahoo, Twelve Data, harita karoları. Google Fonts ve npm erişilebilir.
+- Test sonrası demo kirlenirse: `UPDATE wp_ec_listings SET source='demo' WHERE source<>'demo'`, ardından `wp emlak unseed && wp emlak seed`.
 
-## Kullanıcıyla çalışma şekli
+## 6. Kullanıcıyla çalışma şekli
 
-- Türkçe konuşulur.
-- Kullanıcı "bekle" derse hiçbir işlem yapılmaz.
-- Büyük işlerden önce plan ve sorular yazılır, onay beklenir.
-- Her teslimde zip paketleri **sürüm numaralı** gönderilir (`emlak-core-X.Y.Z.zip`, `emlak-tema-X.Y.Z.zip`, `ilan-aktarici-X.Y.Z.zip`; `scripts/paketle.sh` sürümü başlıklardan okur) ve kurulum sırası hatırlatılır. Bir parça değiştiyse onun sürümü artırılır.
+- Türkçe konuşulur. Kullanıcı "bekle" derse hiçbir işlem yapılmaz.
+- Büyük işlerden önce plan ve sorular yazılır. Kullanıcı "hepsini yap" derse makul varsayımlarla ilerlenir, varsayımlar söylenir.
+- Teslimlerde zip'ler **sürüm numaralı** gönderilir ve kurulum sırası hatırlatılır. Değişmeyen parça tekrar gönderilmez.
+- "Her şey tamam olana kadar sürüm verme" kuralı: değişiklikler dalda birikir ve bu notta "teslim bekleyen" olarak yazılır.
+- Kullanıcı Plesk erişimi ya da kendi bilgisayarına bağlanma önerdi; şimdiye kadar gerekmedi.
