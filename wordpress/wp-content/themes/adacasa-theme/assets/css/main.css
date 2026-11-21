@@ -843,7 +843,7 @@ input[type=checkbox],input[type=radio]{width:18px;height:18px;padding:0;margin:0
   .panel{padding-left:14px;padding-right:14px}
 }
 /* İlan detayı: galeri daha geniş, yan kutu 380 px */
-.dgrid{grid-template-columns:minmax(0,1fr) 380px;column-gap:28px}
+@media(min-width:901px){.dgrid{grid-template-columns:minmax(0,1fr) 380px;column-gap:28px}}
 .hcredit{position:absolute;right:10px;bottom:6px;z-index:3;margin:0;font-size:11px;opacity:.75}
 .hcredit a{color:#fff;text-decoration:none;text-shadow:0 1px 4px rgba(0,0,0,.7)}
 .pagehead .in,.qin,.fin{max-width:calc(var(--w) - 48px)}
@@ -942,3 +942,4 @@ details.promo summary::-webkit-details-marker{display:none}
 /* Ofis ekibi (1.1) */
 .teaminv{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}.teaminv input{flex:1 1 260px;width:auto}
 .teamnote{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px}.teamnote .row{display:flex;gap:6px}
+@media(max-width:480px){.kinds{grid-template-columns:1fr}}

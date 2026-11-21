@@ -11,3 +11,4 @@ Kurulum için `docs/devam-notu.md` → "Yerel test ortamı". Dış servisler bu 
 
 | `promo-test.php` | Vitrin kredileri, ana sayfa ve kategori vitrini, acil, yukarı taşı; havale siparişi; NestPay imza ve dönüş doğrulaması (banka taklit) | `wp eval-file tests/promo-test.php` (taze demo verisiyle) |
 | `team-test.php` | Ofis ekibi: davet, kabul, ret, çıkarma, ayrılma; paket ve vitrin kredisi paylaşımı; onaysız yayın; REST | `wp eval-file tests/team-test.php` (taze demo verisiyle) |
+| `mobile-audit.js` | 36 sayfayı 360/390 px, açık/koyu temada tarar: yatay taşma, ekrandan taşan öğe, dar metin, JS hatası | `node tests/mobile-audit.js <site> [kullanıcı] [şifre] [ekran-klasörü]` |
