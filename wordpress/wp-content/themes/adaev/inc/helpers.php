@@ -18,7 +18,8 @@ function ae_brand(): string
 /** Ziyaretçinin seçtiği para birimi (çerezde saklanır) */
 function ae_currency(): string
 {
-    $c = strtoupper((string) ($_COOKIE['ec_cur'] ?? ''));
+    // Sayfa önbelleği açıkken sayfa herkese aynı gider: para birimi tarayıcıda (main.js) uygulanır
+    $c = function_exists('ec_page_cache_on') && ec_page_cache_on() ? '' : strtoupper((string) ($_COOKIE['ec_cur'] ?? ''));
     if (in_array($c, EC_CURRENCIES, true)) {
         return $c;
     }
@@ -115,6 +116,9 @@ function ae_price_suffix(string $mode): string
 
 function ae_favs(): array
 {
+    if (function_exists('ec_page_cache_on') && ec_page_cache_on() && ec_page() !== 'favs') {
+        return []; // önbellekli sayfada kalpler tarayıcıda işaretlenir
+    }
     $raw = (string) ($_COOKIE['ec_favs'] ?? '');
     return array_values(array_filter(array_map('intval', explode(',', $raw))));
 }

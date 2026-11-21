@@ -514,4 +514,18 @@
         .catch(function (e) { alert(T.errSave + e.message); b.disabled = false; });
     });
   });
+
+  /* Sosyal medya ayarları ve "Paylaş" */
+  var SB = $('#socialbox');
+  if (SB) $('#sosave', SB).addEventListener('click', function () {
+    var m = $('.formmsg', SB);
+    api('PATCH', 'me/social', { auto: $('[name=auto]', SB).checked, lang: $('[name=lang]', SB).value, sign: $('[name=sign]', SB).value })
+      .then(function () { msg(m, T.saved + ' ✓', true); }).catch(function (e) { msg(m, T.errSave + e.message, false); });
+  });
+  $$('[data-share]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      b.disabled = true;
+      api('POST', 'listings/' + b.dataset.share + '/share').then(function (r) { alert(r.message); }).catch(function (e) { alert(e.message); b.disabled = false; });
+    });
+  });
 })();

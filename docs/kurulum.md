@@ -1,5 +1,7 @@
 # Kurulum (Plesk VPS)
 
+> **0.5 yenilikleri:** Paketler (Emlak → Paketler), Facebook ve Instagram paylaşımı ([sosyal-medya-kurulum.md](sosyal-medya-kurulum.md), çizimli rehber: [sosyal-medya-rehberi.html](sosyal-medya-rehberi.html)), hız ayarları ([hiz.md](hiz.md)). Güncelleme sırası aynı: önce eklenti, sonra tema.
+>
 > **0.3'ten 0.4'e güncelleme:** Önce eklentiyi (`emlak-core.zip`), sonra temayı (`adaev.zip`) **Eklentiler / Temalar → Yeni ekle → Yükle → Mevcut sürümü değiştir** ile yükleyin. Yeni tablolar ve adresler kendiliğinden kurulur. Sonra **Emlak → Canlıya çıkış** sayfasını açın, eksikleri sırayla tamamlayın. Plesk zamanlanmış görevini **5 dakikaya** düşürmeyi unutmayın.
 
 ## Gereksinimler

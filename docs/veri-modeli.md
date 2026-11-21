@@ -71,6 +71,23 @@ Sohbet başına açık taslak: `chat_id`, `agent_id`, `state` (`collecting` / `p
 ### `wp_ec_syndication` – diğer sitelere aktarım (0.4)
 `(listing_id, site)` benzersiz · `agent_id`, `site` (`101evler` / `hangiev`), `status` (`filled` / `published` / `failed` / `removed`), `remote_url`, `remote_id`, `note`. Paketlerde kota sayımı bu tablodan yapılacak.
 
+### `wp_ec_packages` – paket tanımları (0.5)
+`name`, `days`, `quota` (0 = sınırsız), `features` (`syndication,social,telegram`), `price` (bilgi amaçlı metin), `active`, `sort`.
+
+### `wp_ec_subscriptions` – üyeye verilen paketler (0.5)
+`agent_id`, `package_id`, `name`, `features`, `quota` (verilirken kopyalanır; tanım değişse de verilen paket değişmez), `starts_at`, `ends_at`, `status` (`active` / `expired` / `cancelled`), `note`, `warned` (3 gün kala uyarı gönderildi).
+
+### `wp_ec_usage` – kota kullanımı (0.5)
+`(subscription_id, listing_id)` benzersiz · `agent_id`, `feature`. Aynı ilan aynı pakette bir kez sayılır.
+
+### `wp_ec_social_accounts` – Facebook sayfaları ve bağlı Instagram (0.5)
+`page_id` benzersiz · `agent_id` (`NULL` = atanmadı, `0` = sitenin kendisi, diğerleri üye), `page_name`, `ig_user_id`, `ig_username`, `token_enc` (AES-256-GCM ile şifreli sayfa anahtarı), `fb_on`, `ig_on`, `status` (`ok` / `expired`), `last_error`.
+
+### `wp_ec_social_posts` – paylaşımlar (0.5)
+`(listing_id, account_id, network)` benzersiz · `network` (`facebook` / `instagram`), `status` (`queued` / `done` / `failed` / `skipped`), `attempts`, `remote_id`, `permalink`, `error`.
+
+Üyeler tablosuna 0.5'te eklenenler: `social_auto`, `social_lang` (`tr+en` varsayılan), `social_sign`.
+
 ## Geçiş gecesi (WordPress → Next.js + Supabase)
 
 Geçiş için ölçüt ilan sayısı değil. Şu işaretlerden biri görüldüğünde düşünülmeli:
@@ -84,7 +101,7 @@ Adımlar:
 
 1. Next.js sitesi önceden hazırlanır ve aynı link yapısını ve aynı `/api/v1` uçlarını sunar.
 2. Bakım modu açılır.
-3. On bir `wp_ec_*` tablosu dışa aktarılır (`wp db export --tables=...`) ve önek olmadan PostgreSQL'e yüklenir.
+3. On altı `wp_ec_*` tablosu dışa aktarılır (`wp db export --tables=...`) ve önek olmadan PostgreSQL'e yüklenir.
 4. `uploads/ilan-foto/` klasörü olduğu gibi Supabase Storage'a kopyalanır.
 5. DNS kaydı yeni sisteme çevrilir.
 

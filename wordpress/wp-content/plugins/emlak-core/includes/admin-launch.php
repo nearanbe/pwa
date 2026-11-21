@@ -58,6 +58,16 @@ function ec_launch_checks(): array
     $meta = (array) get_option('ec_rates_meta', []);
     $add(!empty($meta['updated_at']) && time() - strtotime($meta['updated_at'] . ' UTC') < 2 * DAY_IN_SECONDS ? 'ok' : 'warn', 'Resmi kurlar güncel', 'Son güncelleme: ' . (!empty($meta['updated_at']) ? get_date_from_gmt($meta['updated_at'], 'd.m.Y H:i') : '—'));
 
+    $sp = ec_speed_settings();
+    $add($sp['cache'] ? 'ok' : 'warn', 'Sayfa önbelleği (hız)', 'Emlak → Hız → “Ziyaretçi sayfaları önbelleğe alınabilsin”. Tarif: docs/hiz.md');
+    $add($sp['cf_token'] && $sp['cf_zone'] ? 'ok' : 'warn', 'Cloudflare önbellek temizleme anahtarı', 'Emlak → Hız. İlan eklenince sayfalar anında yenilenir.');
+    $add(function_exists('opcache_get_status') && @opcache_get_status(false)['opcache_enabled'] ? 'ok' : 'warn', 'PHP OPcache', 'Plesk → PHP ayarları → opcache.enable = on');
+    $siteAcc = array_filter(ec_social_accounts(0), fn($a) => $a['status'] === 'ok');
+    $add($siteAcc ? 'ok' : 'warn', 'Sitenin Facebook / Instagram hesabı bağlı', 'Emlak → Sosyal medya (docs/sosyal-medya-kurulum.md).');
+    $broken = array_filter(ec_social_accounts(), fn($a) => $a['status'] !== 'ok' && $a['agent_id'] !== null);
+    if ($broken) {
+        $add('fail', 'Kopan sosyal medya bağlantısı', count($broken) . ' sayfa: ' . esc_html(implode(', ', array_column($broken, 'page_name'))) . ' — Emlak → Sosyal medya → bağlantıyı yenile.');
+    }
     $pages = ['hakkimizda' => 'Hakkımızda', 'iletisim' => 'İletişim', 'gizlilik-politikasi' => 'Gizlilik Politikası', 'kullanim-sartlari' => 'Kullanım Şartları'];
     $missing = array_filter($pages, fn($slug) => !get_page_by_path($slug), ARRAY_FILTER_USE_KEY);
     $add($missing ? 'warn' : 'ok', 'Sabit sayfalar', $missing ? 'Eksik: ' . esc_html(implode(', ', $missing)) . ' (Sayfalar → Yeni ekle, kısa adlar kurulum belgesinde).' : '');

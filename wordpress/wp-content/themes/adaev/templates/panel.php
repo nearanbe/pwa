@@ -32,7 +32,8 @@ if ($canProjects) {
     $tabs += ['projeler' => 'p_projects', 'proje' => 'p_new_project'];
 }
 $unread = ec_leads_unread((int) $agent['id']);
-$tabs += ['talepler' => 'p_leads', 'profil' => 'p_profile', 'telegram' => 'p_telegram'];
+$canSocial = ec_member_can($agent, 'social');
+$tabs += ['talepler' => 'p_leads', 'paket' => 'p_package', 'sosyal' => 'p_social', 'profil' => 'p_profile', 'telegram' => 'p_telegram'];
 if (!isset($tabs[$tab])) {
     $tab = 'ozet';
 }
@@ -149,6 +150,7 @@ $statusLabel = fn(string $s) => '<span class="st st-' . esc_attr($s) . '">' . es
             <a class="ghost sm" href="<?php echo $url('ilan', ['id' => $a['id']]); ?>"><?php ae_e('act_edit'); ?></a>
             <a class="ghost sm" href="<?php echo esc_url($a['url']); ?>" target="_blank"><?php ae_e('act_view'); ?></a>
             <?php if ($a['status'] === 'published') : ?>
+              <?php if ($canSocial) : ?><button class="ghost sm" data-share="<?php echo (int) $a['id']; ?>">📣 <?php ae_e('act_share'); ?></button><?php endif; ?>
               <button class="ghost sm" data-status="sold"><?php ae_e('act_sold'); ?></button>
               <button class="ghost sm" data-status="passive"><?php ae_e('act_passive'); ?></button>
             <?php elseif (in_array($a['status'], ['draft', 'rejected', 'sold', 'passive'], true)) : ?>
@@ -201,6 +203,54 @@ $statusLabel = fn(string $s) => '<span class="st st-' . esc_attr($s) . '">' . es
 
   <?php if ($tab === 'proje') : ?>
     <?php if ($canProjects) : include __DIR__ . '/parts/project-form.php'; else : ?><p class="note"><?php ae_e('pf_only_company'); ?></p><?php endif; ?>
+  <?php endif; ?>
+
+  <?php if ($tab === 'paket') : $subs = ec_subscriptions_summary((int) $agent['id']); $fn = ['syndication' => ae_t('pk_f_syndication'), 'social' => ae_t('pk_f_social'), 'telegram' => ae_t('pk_f_telegram')]; ?>
+    <div class="panel">
+      <h2><?php ae_e('p_package'); ?></h2>
+      <?php foreach ($subs as $s) : ?>
+        <div class="pkcard">
+          <h3><?php echo esc_html($s['name']); ?></h3>
+          <p class="sub"><?php echo esc_html(implode(' · ', array_map(fn($f) => $fn[$f] ?? $f, $s['features']))); ?></p>
+          <?php if ($s['quota']) : ?>
+            <div class="pbar"><span style="width:<?php echo (int) min(100, $s['used'] / max(1, $s['quota']) * 100); ?>%"></span></div>
+            <p><?php ae_e('pk_used', $s['used'], $s['quota']); ?></p>
+          <?php else : ?><p><?php ae_e('pk_unlimited', $s['used']); ?></p><?php endif; ?>
+          <p class="sub"><?php ae_e('pk_ends', wp_date('d.m.Y', strtotime($s['ends_at'] . ' UTC')), $s['days_left']); ?></p>
+        </div>
+      <?php endforeach; ?>
+      <?php if (!$subs) : ?><p class="note"><?php ae_e('pk_none'); ?></p><?php endif; ?>
+      <h3><?php ae_e('pk_available'); ?></h3>
+      <ul class="pklist"><?php foreach (ec_packages(true) as $pk) : ?><li><b><?php echo esc_html($pk['name']); ?></b> <span class="sub">· <?php echo (int) $pk['days']; ?> <?php ae_e('pk_days'); ?><?php if ($pk['quota']) : ?> · <?php echo (int) $pk['quota']; ?> <?php ae_e('pk_listings'); ?><?php endif; ?></span><?php if ($pk['price']) : ?> <b class="price"><?php echo esc_html($pk['price']); ?></b><?php endif; ?></li><?php endforeach; ?></ul>
+      <?php $cw = preg_replace('/\D/', '', (string) (get_option('ec_contact')['whatsapp'] ?? '')); if ($cw) : ?><p><a class="wa" href="https://wa.me/<?php echo esc_attr($cw); ?>?text=<?php echo esc_attr(rawurlencode(ae_t('pk_wa', $agent['name']))); ?>" target="_blank" rel="noopener"><?php ae_e('pk_buy'); ?></a></p><?php endif; ?>
+    </div>
+  <?php endif; ?>
+
+  <?php if ($tab === 'sosyal') : $accs = ec_social_accounts((int) $agent['id']); $recent = ec_social_recent((int) $agent['id'], 20); ?>
+    <div class="panel form" id="socialbox">
+      <h2><?php ae_e('p_social'); ?></h2>
+      <?php if (!$canSocial) : ?>
+        <p class="note"><?php ae_e('so_locked'); ?> <a href="<?php echo $url('paket'); ?>"><?php ae_e('p_package'); ?> →</a></p>
+      <?php endif; ?>
+      <h3><?php ae_e('so_accounts'); ?></h3>
+      <?php if ($accs) : ?>
+        <ul class="soacc"><?php foreach ($accs as $ac) : ?><li><?php echo $ac['status'] === 'ok' ? '✅' : '⛔'; ?> <b>Facebook:</b> <?php echo esc_html($ac['page_name']); ?><?php if ($ac['ig_username']) : ?> · <b>Instagram:</b> @<?php echo esc_html($ac['ig_username']); ?><?php endif; ?><?php if ($ac['status'] !== 'ok') : ?> <span class="sub">— <?php ae_e('so_broken'); ?></span><?php endif; ?></li><?php endforeach; ?></ul>
+      <?php else : ?>
+        <p class="sub"><?php ae_e('so_none'); ?></p>
+        <ol class="tgsteps"><li><?php ae_e('so_step1'); ?></li><li><?php ae_e('so_step2'); ?></li><li><?php ae_e('so_step3'); ?></li></ol>
+      <?php endif; ?>
+      <h3><?php ae_e('so_settings'); ?></h3>
+      <label class="chk"><input type="checkbox" name="auto" <?php checked((int) $agent['social_auto'], 1); ?>> <?php ae_e('so_auto'); ?></label>
+      <label><?php ae_e('so_lang'); ?>
+        <select name="lang"><?php foreach (['tr' => 'Türkçe', 'en' => 'English', 'ru' => 'Русский', 'tr+en' => 'Türkçe + English', 'all' => 'TR + EN + RU'] as $k => $n) : ?><option value="<?php echo $k; ?>" <?php selected($agent['social_lang'], $k); ?>><?php echo esc_html($n); ?></option><?php endforeach; ?></select></label>
+      <label><?php ae_e('so_sign'); ?><input name="sign" maxlength="200" value="<?php echo esc_attr((string) $agent['social_sign']); ?>" placeholder="<?php echo esc_attr($agent['name'] . ($agent['phone'] ? ' · 📞 ' . $agent['phone'] : '')); ?>"></label>
+      <p class="formmsg" role="status"></p>
+      <button class="btn" type="button" id="sosave"><?php ae_e('pr_save'); ?></button>
+      <?php if ($recent) : ?>
+        <h3><?php ae_e('so_recent'); ?></h3>
+        <ul class="sorecent"><?php foreach ($recent as $r) : ?><li><span class="st st-<?php echo $r['status'] === 'done' ? 'published' : ($r['status'] === 'queued' ? 'pending' : 'rejected'); ?>"><?php echo esc_html(ae_t('so_st_' . $r['status'])); ?></span> #<?php echo (int) $r['listing_id']; ?> · <?php echo $r['network'] === 'instagram' ? 'Instagram' : 'Facebook'; ?> · <span class="sub"><?php echo esc_html(get_date_from_gmt($r['updated_at'], 'd.m H:i')); ?></span><?php if ($r['permalink']) : ?> · <a href="<?php echo esc_url($r['permalink']); ?>" target="_blank" rel="noopener"><?php ae_e('act_view'); ?> ↗</a><?php endif; ?><?php if ($r['error'] && $r['status'] !== 'done') : ?><div class="sub"><?php echo esc_html($r['error']); ?></div><?php endif; ?></li><?php endforeach; ?></ul>
+      <?php endif; ?>
+    </div>
   <?php endif; ?>
 
   <?php if ($tab === 'profil') :

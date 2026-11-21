@@ -199,6 +199,7 @@ function ec_project_update(int $id, array $in)
     }
     $d['updated_at'] = ec_now();
     $wpdb->update(ec_table('projects'), $d, ['id' => $id]);
+    do_action('ec_project_changed', $id);
     return true;
 }
 

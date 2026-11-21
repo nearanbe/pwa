@@ -240,6 +240,10 @@ function ec_tg_handle_update(array $u): void
             return;
     }
 
+    if (!ec_member_can($agent, 'telegram')) {
+        ec_tg_send($chat, '🔒 Telegram’dan ilan verme paketinizde yok ya da süresi doldu. Site yönetimiyle iletişime geçin.');
+        return;
+    }
     $d = ec_tg_draft_open($chat, (int) $agent['id']);
     if ($d['state'] === 'processing') {
         ec_tg_send($chat, '⏳ İlanınız hazırlanıyor, birkaç saniye içinde önizleme gelecek.');

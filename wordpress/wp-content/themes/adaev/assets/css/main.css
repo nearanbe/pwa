@@ -583,6 +583,10 @@ html{scroll-padding-top:130px}
 .tgsteps{padding-left:20px;line-height:1.6}
 .ptabs .count{font-size:11px;padding:1px 7px;margin-left:4px}
 .printonly{display:none}
+.pkcard{border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin:10px 0}.pkcard h3{margin:0 0 4px}.pkcard .pbar{margin:8px 0 4px}
+.pklist{list-style:none;padding:0}.pklist li{padding:8px 0;border-bottom:1px solid var(--line)}.pklist .price{float:right;font-size:20px}
+.soacc,.sorecent{list-style:none;padding:0}.soacc li,.sorecent li{padding:8px 0;border-bottom:1px solid var(--line)}
+#socialbox label{display:block;margin-top:10px}#socialbox .chk{display:flex}
 
 /* ===================== Yazdırma ===================== */
 @media print{
@@ -599,3 +603,4 @@ html{scroll-padding-top:130px}
   .money2{display:none}
 }
 .leads .myrow{grid-template-columns:1fr auto}.leads .myinfo{min-width:0}@media(max-width:600px){.leads .myrow{grid-template-columns:1fr}}
+#socialbox .btn{width:auto;margin-top:12px}

@@ -15,6 +15,34 @@ Bu dosya, projeyi yeni bir oturumda kaldığı yerden sürdürmek için yazıld�
 - **Paketleme:** `bash scripts/paketle.sh` komutu `dist/emlak-core.zip`, `dist/adaev.zip` ve `dist/ilan-aktarici.zip` dosyalarını üretir. Kullanıcı bunları yönetim panelinden "mevcut sürümü değiştir" seçeneğiyle yükler.
 - **Dal:** `claude/jolly-carson-l927uv`.
 
+## Sürüm durumu (0.5)
+
+0.5'te eklenenler:
+- **Paketler (`includes/packages.php`, yönetim: Emlak → Paketler):**
+  - Yönetici paket tanımlar ve istediği üyeye istediği süre ve kotayla verir; uzatır, iptal eder.
+  - Özellikler: `syndication` (Chrome eklentisi), `social`, `telegram`.
+  - Kota: farklı ilan sayısı; bir ilan bir pakette bir kez sayılır.
+  - Bitişe 3 gün kala üyeye ve yöneticiye uyarı gider.
+  - Panelim → Paketim sekmesi.
+  - Ödeme şimdilik site dışında (elle).
+- **Sosyal medya (`includes/social.php`, yönetim: Emlak → Sosyal medya):**
+  - Yöneticinin tek Meta uygulaması; müşteri kendi sayfasında yöneticiye "tam kontrol" erişimi verir.
+  - Bağlantı iki yoldan kurulur: "Facebook ile bağlan" ya da Graph API Gezgini'nden alınan anahtar. Sayfa anahtarlarının süresi dolmaz ve şifreli saklanır.
+  - Her sayfa listede siteye ya da bir üyeye atanır.
+  - İlan yayına girince (`ec_listing_published` olayı) gönderi sıraya alınır, zamanlanmış görev paylaşır.
+  - Facebook'ta çoklu fotoğraflı gönderi; Instagram'da kaydırmalı gönderi (fotoğraflar JPEG'e çevrilir, `-ig.jpg`).
+  - Metin şablonu 3 dilde. Üye gönderi dilini ve imzasını seçer (Panelim → Sosyal medya).
+  - Facebook grupları **bilerek yok**.
+  - Belgeler: `docs/sosyal-medya-kurulum.md` ve çizimli rehber `docs/sosyal-medya-rehberi.html` (Claude'da yayımlandı: https://claude.ai/artifact/FLKHamnsMnGtkd2GU1Svrr).
+- **Hız (`includes/speed.php`, yönetim: Emlak → Hız):**
+  - Ziyaretçi sayfalarına `s-maxage=600` ve `X-Accel-Expires`, kişisel sayfalara `no-store` başlığı.
+  - İlan değişince Cloudflare'de ilgili adresler temizlenir.
+  - Önbellek açıkken para birimi ve favoriler tarayıcıda uygulanır.
+  - Yazı tipleri temada (`assets/fonts`). Leaflet sadece harita görününce yüklenir.
+  - Mobil Lighthouse 82–85 → 96–97.
+  - Plesk, Cloudflare ve nginx tarifi: `docs/hiz.md` (nginx yapılandırması burada test edildi).
+- Testler: `tests/social-test.php` 28/28. Yerel nginx + php-fpm 8090 portunda (`/etc/nginx/sites-enabled/default`, `conf.d/ec-cache.conf`).
+
 ## Sürüm durumu (0.4)
 
 0.3'te bitmiş olanlar (3 dil, slider, arama, ilan/proje detayı, fiyat endeksi, blog, favoriler, ofis vitrini, üyelik ve onay, Panelim formları, tapu türü, TCMB kurları, döviz çevirici, temsili görsel, demo verisi) aynen duruyor. 0.4'te eklenenler:
@@ -66,9 +94,10 @@ Testler (bu oturumda geçti):
 
 ## Bekleyen işler
 
+0. **Sosyal medya canlı deneme:** kullanıcının Meta uygulaması ve bir test sayfasıyla. Bu oturumda Graph API taklitle test edildi. Oturuma bağlı Facebook bağlantısının süresi dolmuştu.
 1. **Eklenti seçicilerini kesinleştirmek:** 101evler ve hangiev'in gerçek "ilan ver" sayfalarının kaynak kodu (giriş yapılmış hâli) gelince `ec_ext_default_config()` güncellenecek. O zamana kadar etiket metnine göre arama yapılıyor.
 2. **Anahtarlar (kullanıcıda):** BotFather token, yönetici chat id, Claude API anahtarı, (isteğe bağlı) Twelve Data anahtarı, Turnstile anahtarları.
-3. **Paketler, kota ve ödeme (sürüm 3):** `wp_ec_syndication` tablosu kota sayımına hazır.
+3. **Online ödeme (sürüm 3):** Paketler ve kota hazır; ödeme alındıktan sonra paketin otomatik verilmesi kaldı.
 4. **Chrome Web Store'a yükleme:** Şimdilik "paketlenmemiş öğe yükle" ile kuruluyor.
 5. **Canlıya çıkış:** Emlak → Canlıya çıkış sayfasındaki maddeler; tarifler `docs/kurulum.md` dosyasında.
 

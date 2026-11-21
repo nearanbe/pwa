@@ -110,7 +110,6 @@ if (count($series) >= 2) {
 }
 $sections['iletisim'] = ae_t('sec_contact');
 $waLink = $wa ? 'https://wa.me/' . $wa . '?text=' . $waText : '';
-ae_enqueue_leaflet();
 get_header();
 $priceHtml = ae_price($a['price_gbp'], $a['mode']);
 echo ae_sticky_head(['logo' => $a['agent']['logo']['small'] ?? '', 'title' => $a['title'], 'price' => ae_money($a['price_gbp']) . esc_html(ae_price_suffix($a['mode'])), 'tel' => $tel, 'wa' => $waLink, 'sections' => $sections]);
@@ -143,7 +142,7 @@ echo ae_sticky_head(['logo' => $a['agent']['logo']['small'] ?? '', 'title' => $a
           <div class="gtrack">
             <?php foreach ($a['photos'] as $i => $p) : ?>
               <figure class="gslide<?php echo $i === 0 ? ' on' : ''; ?>" role="group" aria-roledescription="slide" aria-label="<?php echo esc_attr(ae_t('gallery', $i + 1, $n)); ?>">
-                <img src="<?php echo esc_url($p['large']); ?>" alt="<?php echo esc_attr($a['title'] . ' – ' . ($i + 1)); ?>" loading="<?php echo $i === 0 ? 'eager' : 'lazy'; ?>" decoding="async" <?php if ($p['width']) : ?>width="<?php echo (int) $p['width']; ?>" height="<?php echo (int) $p['height']; ?>"<?php endif; ?>>
+                <img src="<?php echo esc_url($p['large']); ?>" alt="<?php echo esc_attr($a['title'] . ' – ' . ($i + 1)); ?>" loading="<?php echo $i === 0 ? 'eager' : 'lazy'; ?>" <?php echo $i === 0 ? 'fetchpriority="high"' : ''; ?> decoding="async" <?php if ($p['width']) : ?>width="<?php echo (int) $p['width']; ?>" height="<?php echo (int) $p['height']; ?>"<?php endif; ?>>
               </figure>
             <?php endforeach; ?>
           </div>

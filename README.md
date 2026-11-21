@@ -10,7 +10,7 @@ Site WordPress üzerinde çalışır. Ancak ileride Next.js altyapısına **bir 
 | **Emlak Core** eklentisi | `wordpress/wp-content/plugins/emlak-core/` | Kendi veri tabloları, TR/EN/RU link yapısı, `/api/v1` REST API, yönetim ekranları |
 | **AdaEv** teması | `wordpress/wp-content/themes/adaev/` | Görünüm: slider'lı ana sayfa, arama, ilan detayı, projeler, ilan ver, favoriler |
 | Chrome eklentisi | `extension/` | 101evler ve hangiev formlarını emlakçının tarayıcısında doldurur |
-| Belgeler | `docs/` | [Kurulum](docs/kurulum.md) · [API sözleşmesi](docs/api.md) · [Veri modeli ve geçiş planı](docs/veri-modeli.md) |
+| Belgeler | `docs/` | [Kurulum](docs/kurulum.md) · [Hız](docs/hiz.md) · [Sosyal medya](docs/sosyal-medya-kurulum.md) · [API sözleşmesi](docs/api.md) · [Veri modeli ve geçiş planı](docs/veri-modeli.md) |
 
 ## Durum
 
@@ -19,7 +19,8 @@ Site WordPress üzerinde çalışır. Ancak ileride Next.js altyapısına **bir 
 - [x] 0.3. Üyelik (4 hesap türü, e-posta doğrulama, Turnstile), Panelim (adım adım ilan formu, proje formu, profil, sosyal hesaplar), onay paneli, ofis vitrinleri ve alt alan adları, KKTC Merkez Bankası kurları, zorunlu tapu türü, Cloudflare temsili görsel üretimi
 - [x] 0.4. Telegram botu ve yapay zekâ motoru (metinden alanları çıkarma, 3 dile çeviri, önizleme, Telegram'dan onay), 101evler'e göre eksikler (tam ekran galeri, harita, yakın yerler, fiyat trendi, mesaj formu, paylaş, hatalı ilan bildir, not, yazdır, proje sayfası, şehir kartları, firmalar dizini), gün içi kur, canlıya çıkış kontrolü
 - [x] 2. Chrome eklentisi: 101evler ve hangiev modülleri (`extension/`; seçiciler gerçek formla kesinleştirilecek)
-- [ ] 3. Paketler, kota takibi, ödeme
+- [x] 0.5. Paketler ve kota (yönetici kontrolünde), Facebook sayfası ve Instagram'da otomatik paylaşım (sitenin ve üyelerin hesapları), hız (sayfa önbelleği, Cloudflare temizleme, yerel yazı tipleri; mobil Lighthouse 96–97)
+- [ ] 3. Online ödeme (şimdilik paketler elle verilir)
 
 ## Hızlı başlangıç
 

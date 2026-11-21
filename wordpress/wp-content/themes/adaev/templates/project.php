@@ -61,7 +61,6 @@ if ($coords) {
     $sections['konum'] = ae_t('location');
 }
 $sections['iletisim'] = ae_t('sec_contact');
-ae_enqueue_leaflet();
 get_header();
 $priceShort = $priceFrom ? ae_t('price_from_x', ae_money($priceFrom)) : '';
 echo ae_sticky_head(['logo' => !empty($agentRow['logo_path']) ? ec_image_urls($agentRow['logo_path'])['small'] : '', 'title' => $p['name'], 'price' => $priceShort, 'tel' => $tel, 'wa' => $waLink, 'sections' => $sections]);

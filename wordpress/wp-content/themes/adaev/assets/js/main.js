@@ -23,8 +23,15 @@
     var h = $('#f-cur'); if (h) h.value = cur.value;
   });
 
+  /* ---- Önbellekli sayfa: seçilen para birimini uygula ---- */
+  var savedCur = getCookie('ec_cur');
+  if (cur && savedCur && cur.value !== savedCur && Array.prototype.some.call(cur.options, function (o) { return o.value === savedCur; })) {
+    cur.value = savedCur; cur.dispatchEvent(new Event('change'));
+  }
+
   /* ---- Favoriler (çerez: sunucu da okuyabilsin) ---- */
   function favs() { return getCookie('ec_favs').split(',').filter(Boolean).map(Number); }
+  favs().forEach(function (id) { $$('[data-fav="' + id + '"]').forEach(function (x) { x.classList.add('on'); x.setAttribute('aria-pressed', 'true'); }); });
   document.addEventListener('click', function (e) {
     var b = e.target.closest('[data-fav]');
     if (!b) return;

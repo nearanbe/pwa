@@ -37,7 +37,7 @@ get_header();
     </div>
     <?php foreach ($slides as $i => $a) : ?>
       <div class="slide" data-i="<?php echo $i + 1; ?>" role="group" aria-roledescription="slide" aria-label="<?php echo esc_attr(ae_t('slide', $i + 2)); ?>">
-        <img class="sbg" src="<?php echo esc_url($a['cover']['large']); ?>" alt="" loading="<?php echo $i === 0 ? 'eager' : 'lazy'; ?>" decoding="async">
+        <img class="sbg" src="<?php echo esc_url($a['cover']['large']); ?>" alt="" loading="<?php echo $i === 0 ? 'eager' : 'lazy'; ?>" <?php echo $i === 0 ? 'fetchpriority="high"' : ''; ?> decoding="async">
         <div class="scap">
           <span class="stag"><?php echo esc_html($a['subtype_name'] . ' · ' . trim(($a['district'] ? $a['district'] . ', ' : '') . $a['city_name'])); ?></span>
           <h2><?php echo esc_html($a['title']); ?></h2>

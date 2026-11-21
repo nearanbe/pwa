@@ -55,6 +55,9 @@ function ec_install_schema(): void
   whatsapp varchar(40) DEFAULT NULL,
   city varchar(40) DEFAULT NULL,
   telegram_chat_id varchar(40) DEFAULT NULL,
+  social_auto tinyint(1) NOT NULL DEFAULT 1,
+  social_lang varchar(10) NOT NULL DEFAULT 'tr+en',
+  social_sign varchar(255) DEFAULT NULL,
   api_key_hash char(64) DEFAULT NULL,
   status varchar(20) NOT NULL DEFAULT 'pending',
   created_at datetime NOT NULL,
@@ -274,6 +277,87 @@ function ec_install_schema(): void
   PRIMARY KEY  (id),
   UNIQUE KEY listing_site (listing_id,site),
   KEY agent_id (agent_id)
+) $c;");
+
+    // Paketler (0.5): tanımlar, üyeye verilen paketler, kullanım (kota)
+    $pk = ec_table('packages');
+    dbDelta("CREATE TABLE $pk (
+  id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  name varchar(120) NOT NULL,
+  days smallint(5) unsigned NOT NULL DEFAULT 30,
+  quota int(10) unsigned NOT NULL DEFAULT 0,
+  features varchar(255) NOT NULL DEFAULT '',
+  price varchar(40) DEFAULT NULL,
+  active tinyint(1) NOT NULL DEFAULT 1,
+  sort smallint(5) unsigned NOT NULL DEFAULT 0,
+  created_at datetime NOT NULL,
+  PRIMARY KEY  (id)
+) $c;");
+    $sub = ec_table('subscriptions');
+    dbDelta("CREATE TABLE $sub (
+  id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  agent_id bigint(20) unsigned NOT NULL,
+  package_id bigint(20) unsigned DEFAULT NULL,
+  name varchar(120) NOT NULL,
+  features varchar(255) NOT NULL DEFAULT '',
+  quota int(10) unsigned NOT NULL DEFAULT 0,
+  starts_at datetime NOT NULL,
+  ends_at datetime NOT NULL,
+  status varchar(12) NOT NULL DEFAULT 'active',
+  note varchar(255) DEFAULT NULL,
+  warned tinyint(1) NOT NULL DEFAULT 0,
+  created_at datetime NOT NULL,
+  PRIMARY KEY  (id),
+  KEY agent (agent_id,status,ends_at)
+) $c;");
+    $use = ec_table('usage');
+    dbDelta("CREATE TABLE $use (
+  id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  subscription_id bigint(20) unsigned NOT NULL,
+  agent_id bigint(20) unsigned NOT NULL,
+  listing_id bigint(20) unsigned NOT NULL,
+  feature varchar(20) NOT NULL,
+  created_at datetime NOT NULL,
+  PRIMARY KEY  (id),
+  UNIQUE KEY sub_listing (subscription_id,listing_id)
+) $c;");
+
+    // Sosyal medya hesapları (agent_id 0 = sitenin kendi hesabı) ve paylaşım kayıtları
+    $so = ec_table('social_accounts');
+    dbDelta("CREATE TABLE $so (
+  id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  agent_id bigint(20) DEFAULT NULL,
+  page_id varchar(40) NOT NULL,
+  page_name varchar(190) DEFAULT NULL,
+  ig_user_id varchar(40) DEFAULT NULL,
+  ig_username varchar(100) DEFAULT NULL,
+  token_enc text,
+  fb_on tinyint(1) NOT NULL DEFAULT 1,
+  ig_on tinyint(1) NOT NULL DEFAULT 1,
+  status varchar(12) NOT NULL DEFAULT 'ok',
+  last_error varchar(255) DEFAULT NULL,
+  created_at datetime NOT NULL,
+  updated_at datetime NOT NULL,
+  PRIMARY KEY  (id),
+  UNIQUE KEY page_id (page_id),
+  KEY agent_id (agent_id)
+) $c;");
+    $sp = ec_table('social_posts');
+    dbDelta("CREATE TABLE $sp (
+  id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  listing_id bigint(20) unsigned NOT NULL,
+  account_id bigint(20) unsigned NOT NULL,
+  network varchar(10) NOT NULL,
+  status varchar(12) NOT NULL DEFAULT 'queued',
+  attempts tinyint(3) unsigned NOT NULL DEFAULT 0,
+  remote_id varchar(80) DEFAULT NULL,
+  permalink varchar(255) DEFAULT NULL,
+  error varchar(255) DEFAULT NULL,
+  created_at datetime NOT NULL,
+  updated_at datetime NOT NULL,
+  PRIMARY KEY  (id),
+  UNIQUE KEY one_post (listing_id,account_id,network),
+  KEY status (status)
 ) $c;");
 
     // v1 → v3: eski hesap türlerini yeni adlara çevir

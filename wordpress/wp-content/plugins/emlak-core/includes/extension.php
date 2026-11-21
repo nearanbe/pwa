@@ -109,6 +109,14 @@ add_action('rest_api_init', function () {
         'callback' => function (WP_REST_Request $r) {
             global $wpdb;
             $id = (int) $r['id'];
+            // Paket ve kota: aynı ilan aynı pakette bir kez sayılır (101evler + hangiev = 1 ilan)
+            $owner = ec_agent((int) ec_listing_row($id)['agent_id']);
+            if (!current_user_can('manage_options') && $owner) {
+                $q = ec_quota_use($owner, $id, 'syndication');
+                if (is_wp_error($q)) {
+                    return $q;
+                }
+            }
             $it = ec_listings_present([ec_listing_row($id)], 'tr', true)[0];
             $it['i18n'] = [];
             foreach ($wpdb->get_results($wpdb->prepare('SELECT lang, title, description FROM ' . ec_table('listing_i18n') . ' WHERE listing_id = %d', $id), ARRAY_A) as $t) {

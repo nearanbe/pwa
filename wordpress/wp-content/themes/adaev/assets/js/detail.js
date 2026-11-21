@@ -102,9 +102,20 @@
   }
 
   /* ---------- Harita (görünür olunca yüklenir) ---------- */
-  var map = null, nbLayer = null;
+  var map = null, nbLayer = null, leafletP = null;
+  function loadLeaflet() {
+    if (window.L) return Promise.resolve();
+    if (leafletP) return leafletP;
+    leafletP = new Promise(function (res, rej) {
+      var c = document.createElement('link'); c.rel = 'stylesheet'; c.href = D.leaflet.css; document.head.appendChild(c);
+      var s = document.createElement('script'); s.src = D.leaflet.js; s.onload = res; s.onerror = rej; document.head.appendChild(s);
+    });
+    return leafletP;
+  }
   function initMap(box) {
-    if (!window.L || box.dataset.done) return; box.dataset.done = '1';
+    if (box.dataset.done) return;
+    if (!window.L) { loadLeaflet().then(function () { initMap(box); }); return; }
+    box.dataset.done = '1';
     var ll = [parseFloat(box.dataset.lat), parseFloat(box.dataset.lng)], approx = box.dataset.approx === '1';
     map = L.map(box, { scrollWheelZoom: false }).setView(ll, approx ? 12 : 15);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '© OpenStreetMap' }).addTo(map);

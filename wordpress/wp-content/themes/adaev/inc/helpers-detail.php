@@ -129,7 +129,7 @@ function ae_agent_card(?array $agentRow, array $opt = []): string
 /** Harita kutusu (Leaflet, kaydırınca yüklenir). $approx: tam konum yoksa şehir merkezi */
 function ae_map_box(float $lat, float $lng, bool $approx, string $label, bool $nearby = true): string
 {
-    ae_enqueue_leaflet();
+    // Leaflet (≈160 KB) burada yüklenmez: harita ekrana gelince detail.js yükler
     $gm = 'https://www.google.com/maps/search/?api=1&query=' . $lat . ',' . $lng;
     $osm = 'https://www.openstreetmap.org/?mlat=' . $lat . '&mlon=' . $lng . '#map=15/' . $lat . '/' . $lng;
     ob_start(); ?>

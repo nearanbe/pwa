@@ -166,6 +166,9 @@ function ec_listing_create(array $in, ?int $agent_id = null, string $source = 'p
     }
     $id = (int) $wpdb->insert_id;
     ec_listing_save_i18n($id, $i18n);
+    if ($d['status'] === 'published') {
+        do_action('ec_listing_published', $id);
+    }
     return $id;
 }
 
@@ -201,6 +204,11 @@ function ec_listing_update(int $id, array $in)
     $wpdb->update(ec_table('listings'), $d, ['id' => $id]);
     if ($i18n) {
         ec_listing_save_i18n($id, $i18n);
+    }
+    if (($d['status'] ?? null) === 'published' && $row['status'] !== 'published') {
+        do_action('ec_listing_published', $id);
+    } elseif ($row['status'] === 'published' || in_array($d['status'] ?? '', ['sold', 'passive'], true)) {
+        do_action('ec_listing_changed', $id);
     }
     return true;
 }

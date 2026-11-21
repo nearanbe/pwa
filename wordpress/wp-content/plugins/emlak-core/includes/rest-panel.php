@@ -49,8 +49,9 @@ function ec_review_listing(int $id, string $action, string $reason = ''): bool
     $title = ec_listings_present([$row], 'tr')[0]['title'];
     if ($action === 'approve') {
         $wpdb->update(ec_table('listings'), ['status' => 'published', 'reject_reason' => null, 'published_at' => $row['published_at'] ?: ec_now(), 'updated_at' => ec_now()], ['id' => $id]);
+        do_action('ec_listing_reviewed', $id, 'approve', '');
+        do_action('ec_listing_published', $id);
         if ($a) {
-            do_action('ec_listing_reviewed', $id, 'approve', '');
             ec_notify_member($a, 'İlanınız yayında', "#$id numaralı \"$title\" ilanınız onaylandı ve yayına alındı.\n\n" . ec_listings_present([ec_listing_row($id)], ec_member_lang((int) $a['wp_user_id']))[0]['url']);
         }
         return true;
@@ -82,7 +83,11 @@ function ec_review_agent(int $id, string $action): bool
         ec_notify_member($a, 'Hesabınız onaylandı', "Merhaba {$a['name']},\n\nHesabınız onaylandı. İlanlarınız artık doğrudan yayına alınır.\n\n" . ec_url_section('panel', ec_member_lang((int) $a['wp_user_id'])));
         // Onay beklerken girilmiş ilanları da yayına al (ofis / inşaat firması)
         if (empty(ec_member_kinds()[$a['kind']]['needs_review'])) {
+            $pend = $wpdb->get_col($wpdb->prepare('SELECT id FROM ' . ec_table('listings') . " WHERE agent_id = %d AND status = 'pending'", $id));
             $wpdb->query($wpdb->prepare('UPDATE ' . ec_table('listings') . " SET status = 'published', published_at = IFNULL(published_at, UTC_TIMESTAMP()) WHERE agent_id = %d AND status = 'pending'", $id));
+            foreach ($pend as $pid) {
+                do_action('ec_listing_published', (int) $pid);
+            }
             $wpdb->query($wpdb->prepare('UPDATE ' . ec_table('projects') . " SET status = 'published' WHERE agent_id = %d AND status = 'pending'", $id));
         }
     }

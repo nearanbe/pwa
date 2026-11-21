@@ -7,7 +7,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-define('AE_VER', '0.4.0');
+define('AE_VER', '0.5.0');
 
 if (!function_exists('ec_table')) {
     // Eklenti kapalıysa: hiçbir eklenti fonksiyonu TANIMLANMAZ (aksi halde eklenti etkinleştirilirken
@@ -32,7 +32,6 @@ add_action('after_setup_theme', function () {
 });
 
 add_action('wp_enqueue_scripts', function () {
-    wp_enqueue_style('ae-fonts', 'https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Inter:wght@400;600&display=swap', [], null);
     wp_enqueue_style('ae-main', get_theme_file_uri('assets/css/main.css'), [], AE_VER);
     wp_enqueue_script('ae-main', get_theme_file_uri('assets/js/main.js'), [], AE_VER, ['in_footer' => true, 'strategy' => 'defer']);
     wp_enqueue_script('ae-converter', get_theme_file_uri('assets/js/converter.js'), ['ae-main'], AE_VER, ['in_footer' => true, 'strategy' => 'defer']);
@@ -71,7 +70,7 @@ add_action('wp_enqueue_scripts', function () {
     ]);
     if (in_array(ec_page(), ['listing', 'projectd'], true)) {
         wp_enqueue_script('ae-detail', get_theme_file_uri('assets/js/detail.js'), ['ae-main'], AE_VER, ['in_footer' => true, 'strategy' => 'defer']);
-        wp_localize_script('ae-detail', 'AED', ['t' => [
+        wp_localize_script('ae-detail', 'AED', ['leaflet' => ['js' => get_theme_file_uri('assets/vendor/leaflet/leaflet.js'), 'css' => get_theme_file_uri('assets/vendor/leaflet/leaflet.css')], 't' => [
             'gallery' => ae_t('lb_gallery'), 'slideshow' => ae_t('lb_slideshow'), 'allPhotos' => ae_t('lb_grid'), 'close' => ae_t('close'),
             'nearbyNone' => ae_t('nearby_none'), 'nearbyFail' => ae_t('nearby_fail'), 'nearbySource' => ae_t('nearby_source', '%s'),
             'leadName' => ae_t('lead_err_name'), 'leadContact' => ae_t('lead_err_contact'), 'leadConsent' => ae_t('lead_err_consent'),
@@ -119,6 +118,16 @@ add_filter('template_include', function ($tpl) {
     $p = ec_page();
     return isset($map[$p]) ? get_theme_file_path('templates/' . $map[$p] . '.php') : $tpl;
 });
+
+/** En çok kullanılan iki yazı tipini önceden yükle (ilk görüntü daha hızlı) */
+add_action('wp_head', function () {
+    foreach (['inter-latin-400-normal.woff2', 'cormorant-garamond-latin-600-normal.woff2'] as $f) {
+        echo '<link rel="preload" href="' . esc_url(get_theme_file_uri('assets/fonts/' . $f)) . '" as="font" type="font/woff2" crossorigin>' . "\n";
+    }
+    // Yazı tipi tanımları sayfaya gömülü (ayrı CSS isteği yok)
+    $css = (string) @file_get_contents(get_theme_file_path('assets/fonts/fonts.css'));
+    echo '<style id="ae-fonts">' . str_replace('url(', 'url(' . esc_url(get_theme_file_uri('assets/fonts/')), preg_replace('~/\*.*?\*/~s', '', $css)) . '</style>' . "\n";
+}, 1);
 
 add_filter('language_attributes', function ($out) {
     return 'lang="' . esc_attr(ec_lang()) . '"';

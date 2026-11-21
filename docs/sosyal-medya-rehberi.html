@@ -1,0 +1,311 @@
+<title>Sosyal Medya Bağlantı Rehberi</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Düzen: tek sütun okuma akışı; her adımda solda talimat, sağda sade ekran çizimi (dar ekranda alt alta). */
+:root{
+  --bg:#f6f7f5; --panel:#ffffff; --ink:#18211f; --muted:#5d6b67; --line:#dfe4e1;
+  --accent:#0f6b5c; --accent-ink:#ffffff; --hl:#f2b630; --hl-ink:#2b2100; --soft:#e9efec;
+  --ok:#1f7a45; --warn:#9a6a00; --bad:#a3352a;
+  --scr:#fbfcfb; --scr-bar:#e8ecea; --scr-ink:#3f4a47;
+  --display:"Space Grotesk", "Segoe UI", system-ui, sans-serif;
+  --body:Inter, "Segoe UI", system-ui, -apple-system, sans-serif;
+  --mono:"JetBrains Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#111816; --panel:#18211f; --ink:#e7eeeb; --muted:#9aaaa5; --line:#2a3633;
+  --accent:#43b59c; --accent-ink:#06201a; --hl:#f2b630; --hl-ink:#2b2100; --soft:#1f2a27;
+  --ok:#5cc58a; --warn:#e0b14a; --bad:#e57a6c; --scr:#141c1a; --scr-bar:#22302c; --scr-ink:#c4d0cc; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#111816; --panel:#18211f; --ink:#e7eeeb; --muted:#9aaaa5; --line:#2a3633;
+  --accent:#43b59c; --accent-ink:#06201a; --hl:#f2b630; --hl-ink:#2b2100; --soft:#1f2a27;
+  --ok:#5cc58a; --warn:#e0b14a; --bad:#e57a6c; --scr:#141c1a; --scr-bar:#22302c; --scr-ink:#c4d0cc; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:16px/1.6 var(--body)}
+.wrap{max-width:1040px;margin:0 auto;padding-block:32px 64px;padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px))}
+h1,h2,h3{font-family:var(--display);line-height:1.15;text-wrap:balance;margin:0}
+h1{font-size:clamp(30px,5vw,44px);letter-spacing:-.01em}
+h2{font-size:clamp(22px,3.2vw,28px);margin-top:48px}
+h3{font-size:19px}
+p{margin:0}
+.lead{color:var(--muted);max-width:68ch;margin-top:10px}
+.tag{display:inline-block;font:600 12px/1 var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin-bottom:10px}
+.who{display:inline-flex;gap:6px;align-items:center;font:600 13px/1 var(--body);padding:5px 10px;border-radius:999px;background:var(--soft);color:var(--ink)}
+.who.you{background:var(--accent);color:var(--accent-ink)}
+.time{color:var(--muted);font-size:14px}
+code,.k{font-family:var(--mono);font-size:.88em;background:var(--soft);padding:1px 6px;border-radius:5px;word-break:break-word}
+/* Genel bakış akışı */
+.flow{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;gap:12px;align-items:center;margin-top:22px}
+.node{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px;min-width:0}
+.node b{display:block;font-family:var(--display);font-size:17px}
+.node span{color:var(--muted);font-size:14px}
+.arrow{color:var(--accent);font:700 22px/1 var(--display);text-align:center}
+.arrow small{display:block;font:500 12px/1.3 var(--body);color:var(--muted);max-width:110px}
+@media(max-width:760px){.flow{grid-template-columns:1fr}.arrow{transform:rotate(90deg);margin:-4px 0}.arrow small{transform:rotate(-90deg)}}
+/* Adımlar */
+.step{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);gap:24px;align-items:start;padding:22px 0;border-top:1px solid var(--line)}
+.step:first-of-type{border-top:0}
+@media(max-width:820px){.step{grid-template-columns:1fr}}
+.step-h{display:flex;gap:12px;align-items:baseline;flex-wrap:wrap;margin-bottom:8px}
+.num{font:700 15px/1 var(--display);color:var(--accent);min-width:2.2em}
+ol.do{margin:8px 0 0;padding-left:22px;display:grid;gap:6px}
+ol.do li::marker{color:var(--accent);font-weight:600}
+.btnname{font-weight:600;background:var(--hl);color:var(--hl-ink);padding:0 6px;border-radius:4px}
+.note{margin-top:12px;font-size:14px;color:var(--muted);border-left:3px solid var(--line);padding-left:10px}
+/* Ekran çizimleri */
+.screen{background:var(--scr);border:1px solid var(--line);border-radius:12px;overflow:hidden;font-size:13px;color:var(--scr-ink);min-width:0}
+.screen .bar{display:flex;gap:6px;align-items:center;background:var(--scr-bar);padding:8px 10px}
+.screen .bar i{width:9px;height:9px;border-radius:50%;background:var(--line);display:inline-block}
+.screen .url{flex:1;margin-left:6px;background:var(--scr);border-radius:6px;padding:3px 8px;font-family:var(--mono);font-size:11.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.screen .body{padding:14px;display:grid;gap:9px}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.lbl{color:var(--muted);font-size:12px;min-width:110px}
+.field{flex:1;min-width:120px;border:1px solid var(--line);border-radius:6px;padding:5px 8px;background:var(--panel);font-family:var(--mono);font-size:11.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fakebtn{display:inline-block;border:1px solid var(--line);border-radius:7px;padding:5px 10px;background:var(--panel);font-weight:500}
+.hl{position:relative;background:var(--hl)!important;color:var(--hl-ink)!important;border-color:var(--hl)!important;box-shadow:0 0 0 3px color-mix(in srgb,var(--hl) 35%,transparent)}
+.pin{position:absolute;top:-10px;right:-10px;width:20px;height:20px;border-radius:50%;background:var(--ink);color:var(--bg);font:700 11px/20px var(--display);text-align:center}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1px solid var(--line);border-radius:999px;padding:3px 9px;background:var(--panel);font-size:12px}
+.opt{display:flex;gap:8px;align-items:flex-start;border:1px solid var(--line);border-radius:8px;padding:8px;background:var(--panel)}
+.opt .box{width:14px;height:14px;border:1.5px solid var(--scr-ink);border-radius:3px;margin-top:3px;flex:0 0 auto}
+.opt.on .box{background:var(--accent);border-color:var(--accent)}
+.caption{font-size:12px;color:var(--muted);margin-top:6px;text-align:right}
+.phone{max-width:260px;margin:0 auto;border-radius:22px}
+/* Kopyalanacak mesaj */
+.msg{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;margin-top:14px;white-space:pre-wrap;font-size:15px}
+.copy{margin-top:10px;font:600 14px var(--body);border:0;border-radius:10px;padding:9px 14px;background:var(--accent);color:var(--accent-ink);cursor:pointer}
+.copy:focus-visible,a:focus-visible{outline:3px solid var(--hl);outline-offset:2px}
+/* Sorunlar tablosu */
+.tablewrap{overflow-x:auto;margin-top:14px;border:1px solid var(--line);border-radius:12px;background:var(--panel)}
+table{border-collapse:collapse;width:100%;min-width:640px;font-size:14.5px}
+th,td{text-align:left;padding:11px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font:600 12px/1.3 var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);background:var(--soft)}
+tr:last-child td{border-bottom:0}
+td:first-child{font-weight:600}
+.sev{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;vertical-align:1px}
+.sev.bad{background:var(--bad)}.sev.warn{background:var(--warn)}.sev.ok{background:var(--ok)}
+a{color:var(--accent)}
+.toc{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px}
+.toc a{text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:6px 12px;background:var(--panel);color:var(--ink);font-size:14px}
+@media (prefers-reduced-motion: reduce){*{scroll-behavior:auto!important}}
+</style>
+
+<div class="wrap">
+  <span class="tag">Site yöneticisi için · Facebook sayfası + Instagram</span>
+  <h1>Sosyal Medya Bağlantı Rehberi</h1>
+  <p class="lead">Emlakçının ilanlarının onun Facebook sayfasında ve Instagram'ında kendiliğinden paylaşılması için yapılacak her şey. Bir kerelik kurulum yaklaşık 15 dakika, her yeni müşteri 5 dakika. Ekran çizimleri temsilidir; Meta zaman zaman düğme adlarını değiştirir, sarı ile işaretli olanı arayın.</p>
+  <nav class="toc" aria-label="Bölümler">
+    <a href="#nasil">Nasıl çalışıyor?</a><a href="#kurulum">Bir kerelik kurulum</a><a href="#musteri">Her yeni müşteri</a><a href="#mesaj">Müşteriye gönderilecek mesaj</a><a href="#sorunlar">Sorunlar ve çözümler</a>
+  </nav>
+
+  <h2 id="nasil">Nasıl çalışıyor?</h2>
+  <div class="flow" role="img" aria-label="Müşterinin sayfası, senin Facebook hesabına erişim verir; site bu erişimle ilanları paylaşır">
+    <div class="node"><b>Müşterinin sayfası</b><span>Facebook sayfası + ona bağlı Instagram işletme hesabı</span></div>
+    <div class="arrow">→<small>sana "tam kontrol" erişimi verir</small></div>
+    <div class="node"><b>Senin Facebook hesabın</b><span>Sayfayı yönetebilir; şifre paylaşılmaz</span></div>
+    <div class="arrow">→<small>bir kez bağlarsın</small></div>
+    <div class="node"><b>Sitenin yönetim paneli</b><span>İlan yayına girince sayfaya ve Instagram'a gönderir</span></div>
+  </div>
+  <p class="note">Facebook gruplarına paylaşım yoktur: Meta bunu 2024'te kapattı, zorlamak hesap kapattırır. Paketi olmayan ya da süresi biten müşterinin sayfasına hiçbir şey gönderilmez. Sitenin kendi sayfası her zaman paylaşır.</p>
+
+  <h2 id="kurulum">Bir kerelik kurulum</h2>
+  <p class="lead">Sadece sen, sadece bir kez. Bilgisayardan yap.</p>
+
+  <section class="step">
+    <div>
+      <div class="step-h"><span class="num">A1</span><h3>Meta uygulamasını aç</h3><span class="who you">Sen</span><span class="time">5 dk</span></div>
+      <ol class="do">
+        <li><b>developers.facebook.com</b> adresine kendi Facebook hesabınla gir. İlk kezse <span class="btnname">Başlayın</span> deyip telefonunu doğrula.</li>
+        <li>Sağ üstte <span class="btnname">Uygulamalarım</span> → <span class="btnname">Uygulama oluştur</span>.</li>
+        <li>Ad: <code>Emlak392 Paylaşım</code>, e-posta: kendi e-postan → İleri.</li>
+        <li>Kullanım durumu ekranında iki seçeneği işaretle: <b>Sayfanızdaki her şeyi yönetin</b> ve <b>Instagram'da içerik yönetin</b> → İleri.</li>
+        <li>İşletme portföyü sorulursa <b>Şimdilik bağlama</b> → <span class="btnname">Uygulama oluştur</span>.</li>
+      </ol>
+    </div>
+    <figure class="screen" aria-label="Kullanım durumu seçme ekranı çizimi">
+      <div class="bar"><i></i><i></i><i></i><span class="url">developers.facebook.com/apps/creation</span></div>
+      <div class="body">
+        <b>Kullanım durumu ekleyin</b>
+        <div class="opt on"><span class="box"></span><div><b>Sayfanızdaki her şeyi yönetin</b><div class="lbl">Manage everything on your Page</div></div></div>
+        <div class="opt on"><span class="box"></span><div><b>Instagram'da mesajları ve içeriği yönetin</b><div class="lbl">Manage messaging &amp; content on Instagram</div></div></div>
+        <div class="opt"><span class="box"></span><div>Facebook Girişi ile kimlik doğrulama</div></div>
+        <div class="row" style="justify-content:flex-end"><span class="fakebtn">Geri</span><span class="fakebtn hl">İleri<span class="pin">4</span></span></div>
+      </div>
+    </figure>
+  </section>
+
+  <section class="step">
+    <div>
+      <div class="step-h"><span class="num">A2</span><h3>Numara ve gizli anahtarı siteye yapıştır</h3><span class="who you">Sen</span><span class="time">3 dk</span></div>
+      <ol class="do">
+        <li>Sol menü: <span class="btnname">Uygulama ayarları</span> → <span class="btnname">Temel</span>.</li>
+        <li><b>Uygulama No</b>'yu kopyala. <b>Gizli Anahtar</b>'da <span class="btnname">Göster</span>'e bas, şifreni yaz, kopyala.</li>
+        <li>Aynı sayfada doldur: <b>Gizlilik politikası URL'si</b> ve <b>Veri silme talimatları URL'si</b> → <code>https://SITEN/gizlilik-politikasi/</code>, <b>Kategori</b> → İş ve Sayfalar, <b>Simge</b> → site logosu. <span class="btnname">Değişiklikleri kaydet</span>.</li>
+        <li>Sitede: <b>Emlak → Sosyal medya → 1. Meta uygulaması</b> → ikisini yapıştır → <b>Kaydet</b>.</li>
+      </ol>
+    </div>
+    <figure class="screen" aria-label="Uygulama ayarları temel ekranı çizimi">
+      <div class="bar"><i></i><i></i><i></i><span class="url">developers.facebook.com/apps/…/settings/basic</span></div>
+      <div class="body">
+        <div class="row"><span class="lbl">Uygulama No</span><span class="field hl">1234567890123456<span class="pin">2</span></span></div>
+        <div class="row"><span class="lbl">Uygulama Gizli Anahtarı</span><span class="field">••••••••••••••</span><span class="fakebtn hl">Göster<span class="pin">2</span></span></div>
+        <div class="row"><span class="lbl">Gizlilik politikası URL'si</span><span class="field">https://SITEN/gizlilik-politikasi/</span></div>
+        <div class="row"><span class="lbl">Veri silme URL'si</span><span class="field">https://SITEN/gizlilik-politikasi/</span></div>
+        <div class="row" style="justify-content:flex-end"><span class="fakebtn hl">Değişiklikleri kaydet<span class="pin">3</span></span></div>
+      </div>
+    </figure>
+  </section>
+
+  <section class="step">
+    <div>
+      <div class="step-h"><span class="num">A3</span><h3>Uygulamayı "Yayında" moduna al</h3><span class="who you">Sen</span><span class="time">1 dk</span></div>
+      <ol class="do">
+        <li>Sayfanın üstündeki <b>Uygulama modu</b> anahtarını <span class="btnname">Geliştirme</span>'den <span class="btnname">Yayında</span>'ya çevir.</li>
+      </ol>
+      <p class="note">Geliştirme modunda yapılan paylaşımları bazen sadece sen görürsün. Uygulama incelemesi (App Review) gerekmez, çünkü uygulamayı sadece sen kullanıyorsun.</p>
+    </div>
+    <figure class="screen" aria-label="Uygulama modu anahtarı çizimi">
+      <div class="bar"><i></i><i></i><i></i><span class="url">developers.facebook.com/apps/…/dashboard</span></div>
+      <div class="body">
+        <div class="row"><b>Emlak392 Paylaşım</b><span style="flex:1"></span><span class="lbl" style="min-width:0">Uygulama modu:</span><span class="fakebtn">Geliştirme</span><span class="fakebtn hl">Yayında<span class="pin">1</span></span></div>
+        <div class="chips"><span class="chip">Pano</span><span class="chip">Kullanım durumları</span><span class="chip">Uygulama ayarları</span><span class="chip">Uygulama rolleri</span></div>
+      </div>
+    </figure>
+  </section>
+
+  <h2 id="musteri">Her yeni müşteri</h2>
+  <p class="lead">Müşteri 2 küçük iş yapar, sen bağlantıyı yenileyip sayfayı ona atarsın.</p>
+
+  <section class="step">
+    <div>
+      <div class="step-h"><span class="num">B1</span><h3>Müşteri: Instagram'ı işletme hesabına çevirir</h3><span class="who">Müşteri</span><span class="time">2 dk</span></div>
+      <ol class="do">
+        <li>Instagram → Profil → sağ üstte <span class="btnname">☰</span>.</li>
+        <li><span class="btnname">Hesap türü ve araçlar</span> → <span class="btnname">Profesyonel hesaba geç</span> → <b>İşletme</b>.</li>
+      </ol>
+      <p class="note">Kişisel Instagram hesabına otomatik paylaşım yapılamaz. İçerik üretici hesabı da olur.</p>
+    </div>
+    <figure class="screen phone" aria-label="Instagram ayarlar menüsü çizimi">
+      <div class="bar"><span class="url">Instagram · Ayarlar</span></div>
+      <div class="body">
+        <span class="fakebtn">Hesaplar Merkezi</span>
+        <span class="fakebtn">Bildirimler</span>
+        <span class="fakebtn hl">Hesap türü ve araçlar<span class="pin">2</span></span>
+        <span class="fakebtn">Gizlilik</span>
+      </div>
+    </figure>
+  </section>
+
+  <section class="step">
+    <div>
+      <div class="step-h"><span class="num">B2</span><h3>Müşteri: Instagram'ı sayfaya bağlar, sana erişim verir</h3><span class="who">Müşteri</span><span class="time">3 dk</span></div>
+      <ol class="do">
+        <li>Bilgisayardan <b>business.facebook.com</b> → sol altta <span class="btnname">Ayarlar</span>.</li>
+        <li><span class="btnname">Hesaplar</span> → <span class="btnname">Instagram hesapları</span> → <span class="btnname">Bağla</span>.</li>
+        <li><span class="btnname">Kişiler</span> (ya da <b>Sayfa erişimi</b>) → <span class="btnname">Kişi ekle</span> → senin adın/e-postan → <b>Tam kontrol</b> → <span class="btnname">Ver</span>.</li>
+        <li><b>Sen:</b> Facebook bildirimlerinde gelen sayfa erişim davetini <span class="btnname">Kabul et</span>.</li>
+      </ol>
+      <p class="note">Telefondan: Facebook → sayfasına geç → Ayarlar → Sayfa erişimi → Yeni ekle → seni arar → Tam kontrol.</p>
+    </div>
+    <figure class="screen" aria-label="Meta Business Suite kişi ekleme ekranı çizimi">
+      <div class="bar"><i></i><i></i><i></i><span class="url">business.facebook.com/settings</span></div>
+      <div class="body">
+        <b>Sayfaya kişi ekle</b>
+        <div class="row"><span class="lbl">Kişi</span><span class="field hl">Senin adın / e-postan<span class="pin">3</span></span></div>
+        <div class="opt on"><span class="box"></span><div><b>Tam kontrol</b><div class="lbl">Her şeyi yönetebilir, içerik paylaşabilir</div></div></div>
+        <div class="opt"><span class="box"></span><div>Kısmi erişim</div></div>
+        <div class="row" style="justify-content:flex-end"><span class="fakebtn hl">Ver<span class="pin">3</span></span></div>
+      </div>
+    </figure>
+  </section>
+
+  <section class="step">
+    <div>
+      <div class="step-h"><span class="num">B3</span><h3>Sen: bağlantıyı yenile</h3><span class="who you">Sen</span><span class="time">2 dk</span></div>
+      <p>En kolay ve her zaman çalışan yol, Graph API Gezgini:</p>
+      <ol class="do">
+        <li><b>developers.facebook.com/tools/explorer</b> adresini aç.</li>
+        <li>Sağda <b>Meta Uygulaması</b>: kendi uygulamanı seç. <b>Kullanıcı ya da Sayfa</b>: <b>Kullanıcı Erişim Anahtarı</b>.</li>
+        <li><b>İzinler</b> kutusuna şu 6 izni tek tek ekle: <code>pages_show_list</code> <code>pages_read_engagement</code> <code>pages_manage_posts</code> <code>instagram_basic</code> <code>instagram_content_publish</code> <code>business_management</code></li>
+        <li><span class="btnname">Generate Access Token</span> → açılan pencerede <b>tüm sayfaları</b> ve izinleri onayla.</li>
+        <li>EAA… ile başlayan anahtarı kopyala → sitede <b>Emlak → Sosyal medya → "Yedek yol: anahtarı elle yapıştır"</b> → <b>Ekle</b>.</li>
+      </ol>
+      <p class="note">Site bu anahtarı süresi dolmayan sayfa anahtarlarına kendisi çevirir. "Facebook ile bağlan" düğmesini kullanmak istersen kurulum belgesindeki A5 adımına bak.</p>
+    </div>
+    <figure class="screen" aria-label="Graph API Gezgini çizimi">
+      <div class="bar"><i></i><i></i><i></i><span class="url">developers.facebook.com/tools/explorer</span></div>
+      <div class="body">
+        <div class="row"><span class="lbl">Meta Uygulaması</span><span class="field">Emlak392 Paylaşım</span></div>
+        <div class="row"><span class="lbl">Kullanıcı ya da Sayfa</span><span class="field">Kullanıcı Erişim Anahtarı</span></div>
+        <div class="lbl">İzinler</div>
+        <div class="chips"><span class="chip">pages_show_list</span><span class="chip">pages_read_engagement</span><span class="chip">pages_manage_posts</span><span class="chip">instagram_basic</span><span class="chip">instagram_content_publish</span><span class="chip">business_management</span></div>
+        <div class="row"><span class="fakebtn hl">Generate Access Token<span class="pin">4</span></span></div>
+        <div class="row"><span class="lbl">Erişim anahtarı</span><span class="field hl">EAAG…<span class="pin">5</span></span></div>
+      </div>
+    </figure>
+  </section>
+
+  <section class="step">
+    <div>
+      <div class="step-h"><span class="num">B4</span><h3>Sen: sayfayı müşteriye ata, paketi ver</h3><span class="who you">Sen</span><span class="time">1 dk</span></div>
+      <ol class="do">
+        <li><b>Emlak → Sosyal medya → 3. Sayfalar</b>: müşterinin sayfasının yanında müşteriyi seç, <b>Facebook</b> ve <b>Instagram</b>'ı işaretle → <b>Kaydet</b>.</li>
+        <li><span class="btnname">Şimdi paylaş</span> ile bir ilanı dene. "paylaşıldı · aç ↗" yazmalı.</li>
+        <li><b>Emlak → Paketler → Üyeye paket ver</b>: müşteri, paket, süre → <b>Paketi ver</b>.</li>
+      </ol>
+      <p class="note">Müşteri kendi Panelim → Sosyal medya sekmesinden otomatik paylaşımı açıp kapatır, gönderi dilini (TR, EN, RU, TR+EN, üçü) ve imza satırını seçer.</p>
+    </div>
+    <figure class="screen" aria-label="Sitenin sosyal medya sayfası çizimi">
+      <div class="bar"><i></i><i></i><i></i><span class="url">SITEN/wp-admin › Emlak › Sosyal medya</span></div>
+      <div class="body">
+        <b>3. Sayfalar ve sahipleri</b>
+        <div class="row"><span class="lbl" style="min-width:0"><b style="color:var(--scr-ink)">Kuzey Yapı</b> · @kuzeyyapi</span><span style="flex:1"></span><span class="field hl" style="flex:0 1 150px">Kuzey Yapı (üye)<span class="pin">1</span></span></div>
+        <div class="row"><span class="chip">☑ Facebook</span><span class="chip">☑ Instagram</span><span style="flex:1"></span><span class="fakebtn">Kaydet</span><span class="fakebtn hl">Şimdi paylaş<span class="pin">2</span></span></div>
+        <div class="row"><span class="lbl" style="min-width:0"><b style="color:var(--scr-ink)">Emlak392</b> · @emlak392</span><span style="flex:1"></span><span class="field" style="flex:0 1 150px">★ Site</span></div>
+      </div>
+    </figure>
+  </section>
+
+  <h2 id="mesaj">Müşteriye gönderilecek mesaj</h2>
+  <p class="lead">Kopyalayıp WhatsApp'tan gönder. Adını kendi adınla değiştir.</p>
+  <div class="msg" id="msgtext">Merhaba, ilanlarınızın Facebook ve Instagram'da otomatik paylaşılması için 2 küçük adım:
+
+1) Instagram'ı işletme hesabına çevirin: Instagram → Profil → ☰ → Hesap türü ve araçlar → Profesyonel hesaba geç → İşletme.
+
+2) Bilgisayardan business.facebook.com → Ayarlar → Hesaplar → Instagram hesapları → Bağla. Sonra Kişiler → Kişi ekle → [ADIM / E-POSTAM] → Tam kontrol → Ver.
+
+Telefondan: Facebook → sayfanıza geçin → Ayarlar → Sayfa erişimi → Yeni ekle → [ADIM] → Tam kontrol.
+
+Şifrenizi paylaşmanız gerekmez. Erişimi istediğiniz zaman kaldırabilirsiniz. Bitince bana haber verin, bağlantıyı birkaç dakikada kurarım.</div>
+  <button class="copy" type="button" id="copybtn">Mesajı kopyala</button>
+
+  <h2 id="sorunlar">Sorunlar ve çözümler</h2>
+  <p class="lead">Sitedeki <b>Emlak → Sosyal medya → Son paylaşımlar</b> listesinde hatalar bu cümlelerle yazar. Kırmızı: paylaşım durur. Sarı: kendiliğinden düzelir ya da küçük bir ayar.</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Sitede görünen</th><th>Sebep</th><th>Çözüm</th></tr></thead>
+    <tbody>
+      <tr><td><span class="sev bad"></span>Müşterinin sayfası listede yok</td><td>Erişim verilmedi, davet kabul edilmedi ya da anahtar alınırken sayfa seçilmedi</td><td>Daveti kabul et. B3'ü tekrarla ve <b>tüm sayfalar</b>ı işaretle. Sonra <b>Sayfa listesini yenile</b>.</td></tr>
+      <tr><td><span class="sev bad"></span>Instagram "bağlı değil"</td><td>Hesap kişisel ya da sayfaya bağlı değil</td><td>Müşteri B1 ve B2'yi yapsın → <b>Sayfa listesini yenile</b>.</td></tr>
+      <tr><td><span class="sev bad"></span>İzin eksik (#10 / #200)</td><td>Anahtar alınırken izin eksik kaldı ya da erişim "tam kontrol" değil</td><td>B3'ü 6 iznin hepsiyle tekrarla. Müşteri erişimi "tam kontrol" versin.</td></tr>
+      <tr><td><span class="sev bad"></span>Bağlantının süresi doldu (#190)</td><td>Facebook şifreni değiştirdin ya da müşteri erişimini kaldırdı</td><td>B3'ü tekrarla. Sana otomatik e-posta ve Telegram uyarısı gelir.</td></tr>
+      <tr><td><span class="sev bad"></span>Instagram fotoğrafı indiremedi (#9004)</td><td>Meta sitenin fotoğraflarına ulaşamıyor</td><td>Site https ve herkese açık olmalı. Cloudflare'de <b>Bot Fight Mode kapalı</b> olmalı.</td></tr>
+      <tr><td><span class="sev warn"></span>Günlük paylaşım sınırı doldu</td><td>Instagram 24 saatte en çok 50 gönderi kabul eder</td><td>Bir şey yapma; ertesi gün kendiliğinden devam eder.</td></tr>
+      <tr><td><span class="sev warn"></span>Spam şüphesiyle engellendi (#368)</td><td>Çok sık ve birbirine çok benzeyen gönderiler</td><td>Paylaşım sıklığını azalt. Şablona ilana göre değişen alanlar ({aciklama}, {ozellikler}) ekle. Birkaç saat bekle.</td></tr>
+      <tr><td><span class="sev warn"></span>Fotoğraf oranı kabul edilmedi (#36003)</td><td>Çok dar ya da çok uzun fotoğraf</td><td>Site kendisi kırpar. Yine de olursa o fotoğrafı ilanda sona al.</td></tr>
+      <tr><td><span class="sev warn"></span>Gönderi "sırada" kalıyor</td><td>Zamanlanmış görev çalışmıyor</td><td>Plesk'teki 5 dakikalık görev açık mı? <b>Emlak → Canlıya çıkış</b>'a bak.</td></tr>
+      <tr><td><span class="sev warn"></span>Paylaşımı sadece ben görüyorum</td><td>Uygulama "Geliştirme" modunda</td><td>A3: uygulamayı <b>Yayında</b> yap.</td></tr>
+      <tr><td><span class="sev ok"></span>Müşterinin sayfasına gitmiyor ("atlandı")</td><td>Paket yok, süresi doldu, kota doldu ya da müşteri otomatik paylaşımı kapattı</td><td><b>Emlak → Paketler</b>'de kontrol et. Sebep "Son paylaşımlar"da yazar.</td></tr>
+      <tr><td><span class="sev ok"></span>Müşteri ödeme yapmadı</td><td>—</td><td><b>Paketler → İptal</b> ya da sayfayı "atanmadı" yap. Anında durur.</td></tr>
+    </tbody>
+  </table></div>
+</div>
+
+<script>
+document.getElementById('copybtn').addEventListener('click', function () {
+  var b = this, t = document.getElementById('msgtext');
+  var done = function () { b.textContent = 'Kopyalandı ✓'; setTimeout(function () { b.textContent = 'Mesajı kopyala'; }, 1800); };
+  var fallback = function () { var r = document.createRange(); r.selectNodeContents(t); var s = window.getSelection(); s.removeAllRanges(); s.addRange(r); b.textContent = 'Seçildi, Ctrl+C ile kopyalayın'; };
+  try { navigator.clipboard.writeText(t.textContent).then(done, fallback); } catch (e) { fallback(); }
+});
+</script>

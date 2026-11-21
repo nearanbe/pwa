@@ -126,8 +126,11 @@ $g = new WP_REST_Request('GET', '/emlak/v1/ext/sms-code'); $g->set_header('autho
 $res = rest_do_request($g)->get_data();
 t('SMS kodu eklentiye ulaştı', ($res['code'] ?? '') === '482913');
 t('kod bir kez okunur', rest_do_request($g)->get_data()['code'] === null);
-// eklenti ilan verisi ve kayıt
+// eklenti ilan verisi ve kayıt (0.5: paket gerekir)
 $g = new WP_REST_Request('GET', '/emlak/v1/ext/listing/' . $row['id']); $g->set_header('authorization', 'Bearer ' . $key);
+t('paketsiz eklenti isteği reddedildi (402)', rest_do_request($g)->get_status() === 402);
+ec_packages_seed_defaults();
+ec_subscription_grant((int) $a['id'], ['package_id' => (int) $wpdb->get_var('SELECT id FROM ' . ec_table('packages') . ' ORDER BY id LIMIT 1'), 'days' => 5]);
 $ex = rest_do_request($g)->get_data();
 t('eklenti ilan verisi (3 dil + fotoğraf)', count($ex['i18n']) === 3 && count($ex['photos']) === 2);
 $s = new WP_REST_Request('POST', '/emlak/v1/ext/syndication'); $s->set_header('authorization', 'Bearer ' . $key); $s->set_header('content-type', 'application/json');

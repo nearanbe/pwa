@@ -169,3 +169,16 @@ Anahtarın sahibi danışman, ilan sayıları ve tüm durumlardaki ilanları.
 
 ### Proje alanları (0.4)
 `project_type` (`konut`, `villa`, `karma`, `ticari`, `tatil`), `build_status` (`planned`, `ongoing`, `completed`; boşsa ilerlemeden hesaplanır), `land_m2`. Kat planı dosyasının başlığı daire tipi adıyla (ör. `2+1`) eşleşirse proje sayfasında o daire kartında gösterilir.
+
+## 0.5 uçları
+
+| Uç | Açıklama |
+|---|---|
+| `GET /me/packages` | Üyenin geçerli paketleri: `{"items":[{id,name,features[],quota,used,left,ends_at,days_left}],"can":{"syndication":true,"social":false,"telegram":true}}` |
+| `GET /me/social` · `PATCH /me/social` | Sosyal medya: bağlı hesaplar, son paylaşımlar; ayar: `{"auto":true,"lang":"tr"\|"en"\|"ru"\|"tr+en"\|"all","sign":"Ad · telefon"}` |
+| `POST /listings/{id}/share` | İlanı üyenin (yöneticiyse tüm) bağlı hesaplarında paylaşım sırasına alır. Paket yoksa `402`. |
+
+Paket ve kota kuralları:
+- `GET /ext/listing/{id}` (Chrome eklentisi) çağrısı kotadan **1 ilan** düşer. Aynı ilan aynı pakette bir kez sayılır; kota dolunca `402 ec_no_package` döner.
+- Telegram botu, Ayarlar'da "paket gereksin" açıksa paketsiz üyeye ilan hazırlamaz.
+- Sosyal medya paylaşımı her zaman paket ister. Sitenin kendi hesabına paylaşım ücretsizdir.
