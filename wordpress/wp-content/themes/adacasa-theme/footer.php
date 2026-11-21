@@ -70,6 +70,13 @@ $blog = ae_blog_url();
 </div></footer>
 
 
+<div class="pwabar" id="pwabar" hidden role="dialog" aria-live="polite" aria-label="<?php ae_e('pwa_install'); ?>">
+  <img src="<?php echo esc_url(get_theme_file_uri('assets/img/icon-192.png')); ?>" alt="">
+  <b><?php ae_e('pwa_q', ae_brand()); ?></b>
+  <p><?php ae_e('pwa_why'); ?></p>
+  <div class="ios" hidden data-safari="<?php echo esc_attr(ae_t('pwa_ios_steps')); ?>" data-other="<?php echo esc_attr(ae_t('pwa_ios_open_safari')); ?>"></div>
+  <div class="row"><button type="button" class="ghost sm" data-pwa="later"><?php ae_e('pwa_later'); ?></button><button type="button" class="btn sm" data-pwa="install"><?php ae_e('pwa_yes'); ?></button></div>
+</div>
 <?php wp_footer(); ?>
 </body>
 </html>

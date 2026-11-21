@@ -100,16 +100,37 @@
   if ('serviceWorker' in navigator && window.isSecureContext) {
     window.addEventListener('load', function () { navigator.serviceWorker.register('/?ec_pwa=sw', { scope: '/' }).catch(function () {}); });
   }
-  var pwaBtn = $('#pwa-install'), deferred = null;
+  var pwaBtn = $('#pwa-install'), bar = $('#pwabar'), deferred = null;
+  var ua = navigator.userAgent, isIOS = /iphone|ipad|ipod/i.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  var inApp = /FBAN|FBAV|Instagram|Line\/|WhatsApp|Twitter|TikTok|Snapchat/i.test(ua);
+  var iosSafari = isIOS && /Safari/i.test(ua) && !/CriOS|FxiOS|EdgiOS|OPiOS/i.test(ua) && !inApp;
   var standalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
-  if (pwaBtn && !standalone) {
-    window.addEventListener('beforeinstallprompt', function (e) { e.preventDefault(); deferred = e; pwaBtn.hidden = false; });
-    window.addEventListener('appinstalled', function () { pwaBtn.hidden = true; deferred = null; });
-    // iPhone/iPad Safari kurulum olayı vermez: talimat göster
-    if (/iphone|ipad|ipod/i.test(navigator.userAgent) && !window.MSStream) pwaBtn.hidden = false;
-    pwaBtn.addEventListener('click', function () {
-      if (deferred) { deferred.prompt(); deferred.userChoice.finally(function () { deferred = null; pwaBtn.hidden = true; }); }
-      else alert(pwaBtn.dataset.ios);
+  var LATER = 'ac_pwa_later';
+  var snoozed = function () { try { return Date.now() - (+localStorage.getItem(LATER) || 0) < 14 * 864e5; } catch (e) { return false; } };
+  var doInstall = function () {
+    if (deferred) { deferred.prompt(); deferred.userChoice.finally(function () { deferred = null; if (bar) bar.hidden = true; if (pwaBtn) pwaBtn.hidden = true; }); return true; }
+    return false;
+  };
+  var showIOS = function () {
+    if (!bar) return;
+    var t = $('.ios', bar); t.innerHTML = iosSafari ? t.dataset.safari : t.dataset.other; t.hidden = false;
+    $('[data-pwa="install"]', bar).hidden = true; bar.hidden = false;
+  };
+  if (!standalone) {
+    window.addEventListener('beforeinstallprompt', function (e) { e.preventDefault(); deferred = e; if (pwaBtn) pwaBtn.hidden = false; });
+    window.addEventListener('appinstalled', function () { deferred = null; if (pwaBtn) pwaBtn.hidden = true; if (bar) bar.hidden = true; });
+    if (isIOS && pwaBtn) pwaBtn.hidden = false;
+    if (pwaBtn) pwaBtn.addEventListener('click', function () { if (!doInstall()) showIOS(); });
+    // 15 sn sonra soru: Android/Chrome'da kurulum olayı geldiyse, iPhone'da (Safari ya da uygulama içi tarayıcı) talimatla
+    if (bar && !snoozed() && window.innerWidth < 1000) setTimeout(function () {
+      if (document.querySelector('.ov:not([hidden])') || standalone) return;
+      if (deferred) { bar.hidden = false; return; }
+      if (isIOS) { bar.hidden = false; if (!iosSafari) showIOS(); }
+    }, 15000);
+    if (bar) bar.addEventListener('click', function (e) {
+      var b = e.target.closest('[data-pwa]'); if (!b) return;
+      if (b.dataset.pwa === 'later') { try { localStorage.setItem(LATER, String(Date.now())); } catch (er) {} bar.hidden = true; return; }
+      if (!doInstall()) showIOS();
     });
   }
 

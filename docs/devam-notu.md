@@ -148,7 +148,7 @@ Dal: `claude/jolly-carson-l927uv`. Kod buradadır, her şey commit edilip gönde
 | Parça | Kullanıcıya verilen son sürüm | Daldaki sürüm (teslim bekliyor) |
 |---|---|---|
 | Eklenti (adacasa-core, eski emlak-core) | **1.1.2** | 1.1.2 |
-| Tema (adacasa-theme, eski emlak-tema) | **1.1.3** | 1.1.3 |
+| Tema (adacasa-theme, eski emlak-tema) | **1.1.4** | 1.1.4 |
 | Chrome eklentisi | **0.4.1** | 0.4.1 |
 
 Kullanıcının kuralı: "Her şey tamam olana kadar yeni sürüm verme." 0.7 içeriği marka değişikliğiyle birlikte **AdaCasa 1.0.1** olarak teslim edildi.
