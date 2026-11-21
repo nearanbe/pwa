@@ -910,3 +910,35 @@ input[type=checkbox],input[type=radio]{width:18px;height:18px;padding:0;margin:0
 /* Yönetici çubuğu (sadece giriş yapmış yöneticide) tam ekran pencerelerin üstünü kapatmasın */
 body.admin-bar .ov.lb,body.admin-bar .ov.gv{top:32px}
 @media screen and (max-width:782px){body.admin-bar .ov.lb,body.admin-bar .ov.gv{top:46px}}
+
+/* Vitrin (1.1) */
+.ubadge{position:absolute;right:12px;top:48px;background:#d6312b;color:#fff;font-size:11.5px;font-weight:700;letter-spacing:.4px;padding:4px 9px;border-radius:999px;box-shadow:0 2px 8px rgba(214,49,43,.35)}
+.grid.vitrin .card{outline:2px solid var(--gold2);outline-offset:-2px}
+.catvit{background:linear-gradient(180deg,color-mix(in srgb,var(--gold2) 18%,var(--card)),var(--card));border:1px solid color-mix(in srgb,var(--gold) 40%,var(--line));border-radius:18px;padding:12px;margin-bottom:16px}
+.catvit-h{font-weight:700;color:var(--gold);margin:2px 4px 10px;font-size:15px}
+.catvit .grid{grid-template-columns:repeat(auto-fill,minmax(230px,1fr))}
+
+/* Panel: vitrin ve satın alma (1.1) */
+.promobar{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center}
+.pcred{white-space:nowrap}
+details.promo{position:relative;display:inline-block}
+details.promo summary{list-style:none;cursor:pointer}
+details.promo summary::-webkit-details-marker{display:none}
+.promo-menu{position:absolute;right:0;top:calc(100% + 6px);z-index:20;background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:0 14px 34px rgba(12,26,49,.18);padding:8px;min-width:250px;display:grid;gap:4px}
+.promo-it{display:flex;justify-content:space-between;align-items:center;gap:10px;border:1px solid var(--line);background:var(--bg);color:var(--text);border-radius:10px;padding:8px 10px;font:inherit;font-size:14px;cursor:pointer;text-align:left}
+.promo-it:hover:not(:disabled){border-color:var(--gold)}
+.promo-it:disabled{opacity:.55;cursor:not-allowed}
+.promo-it small{color:var(--muted);white-space:nowrap}
+.promo-menu .sub{padding:4px 6px}
+.buygrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin:10px 0 16px}
+.buycard{border:1px solid var(--line);border-radius:14px;padding:14px;display:grid;gap:6px;background:var(--card)}
+.buycard .price{font-size:24px}
+.buycard .row{display:flex;gap:6px;flex-wrap:wrap}
+.bankbox .copy{font-size:17px;user-select:all}
+.ordtable{width:100%;border-collapse:collapse;font-size:14px}.ordtable td{padding:8px 6px;border-bottom:1px solid var(--line)}
+.btn.gold{background:var(--gold2);color:#0f1e36}
+.dside .row{flex-wrap:wrap}.dside .row>*{flex:1 1 auto}.dside .row .wa{white-space:normal;text-align:center}
+
+/* Ofis ekibi (1.1) */
+.teaminv{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}.teaminv input{flex:1 1 260px;width:auto}
+.teamnote{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px}.teamnote .row{display:flex;gap:6px}

@@ -89,6 +89,30 @@ Dal: `claude/jolly-carson-l927uv`. Kod buradadır, her şey commit edilip gönde
 - **Giriş görseli:** Girne limanı (A.Savin, FAL); atıf `assets/hero-credit.json` dosyasından okunup `.hcredit` olarak gösterilir.
 - **Bilinen:** proje sayfasının videosu hâlâ eski kodla (sadece YouTube) gösteriliyor; ilan galerisindeki yeni pencere de proje sayfasında yok.
 
+## 1f. Sürüm 1.1.0 (teslim edildi)
+
+- **Vitrin** (`includes/promos.php`)
+  - Türler ve veritabanı alanları: featured (`featured_until`), home (`home_until`), cat (`cat_until`), urgent (`urgent_until`), bump (`bumped_at`).
+  - Arama sıralaması: önce öne çıkanlar, sonra `GREATEST(bumped_at, published_at)`.
+  - Krediler `packages.promos` ("featured:5,home:2" biçiminde) ve `promo_days` alanlarında; paket verilince aboneliğe kopyalanır.
+  - Kullanım `ec_promo_usage` tablosunda. `ec_listing_showcase('home'|'cat')` vitrin ilanlarını günlük rastgele sırayla getirir.
+- **Siparişler ve ödeme** (`includes/orders.php`)
+  - Tablo: `ec_orders`. Yöntemler: bank (havale) ve card (NestPay 3D Pay Hosting, hash ver3: natcasesort sıralama, `\` ve `|` kaçışı, SHA-512, base64).
+  - Dekontlar `uploads/ec-ozel` klasöründe tutulur, yönetici `admin-post?action=ec_receipt` ile açar.
+  - Ödeme ayarları ve sipariş listesi Paketler sayfasında.
+  - Eski paketlerin "50 €" gibi fiyat yazısından sayısal tutar bir kez çıkarılır.
+- **Ofis ekibi** (`includes/team.php`)
+  - Alanlar: `agents.parent_id` (bağlı ofis), `team_invite` (bekleyen davet).
+  - `ec_subscriptions_active()` ofisin aboneliklerini de döner; önce danışmanın kendi paketi kullanılır.
+  - Ekipteki danışmanın ilanı onaysız yayına girer (`ec_listing_target_status`). Danışman kartında "X ekibi" yazar.
+- **Yönetici ofis profili:** `ec_admin_self_profile()`; Panelim'de form.
+- **Ölçüm** (`includes/tracking.php`): `ec_tracking` seçeneği; `window.ecTrack` ile view_item ve lead olayları.
+- **Proje:** galeri penceresi ve video; POST/DELETE `/projects/{id}/video`.
+- **Testler:** `tests/promo-test.php` (25) ve `tests/team-test.php` (20). Hepsi taze demo verisiyle: backend 29, sosyal 30, vitrin 25, ekip 20.
+  - Dikkat: yerelde yönetici ofis profili açıksa, ilk üyeyi seçen testler o hesabı alır ve bozulur. Testten önce o hesabı silin.
+- **EC_DB_VERSION:** 10.
+- **Ödeme araştırması:** `docs/odeme-kktc.md`. Sonuç: KKTC bankası NestPay/Cardplus sanal POS'u; iyzico ve PayTR Türkiye şirketi, Stripe güney Kıbrıs şirketi istiyor.
+
 ## 2. Proje özeti
 
 - **Amaç:** KKTC (Kuzey Kıbrıs) emlak ilan portalı. Rakipler: 101evler.com ve hangiev.com. İkisi de Cloudflare bot korumalı; bu ortamdan açılamaz.
@@ -113,8 +137,8 @@ Dal: `claude/jolly-carson-l927uv`. Kod buradadır, her şey commit edilip gönde
 
 | Parça | Kullanıcıya verilen son sürüm | Daldaki sürüm (teslim bekliyor) |
 |---|---|---|
-| Eklenti (adacasa-core, eski emlak-core) | **1.0.4** | 1.0.4 |
-| Tema (adacasa-theme, eski emlak-tema) | **1.0.5** | 1.0.5 |
+| Eklenti (adacasa-core, eski emlak-core) | **1.1.0** | 1.1.0 |
+| Tema (adacasa-theme, eski emlak-tema) | **1.1.0** | 1.1.0 |
 | Chrome eklentisi | **0.4.1** | 0.4.1 |
 
 Kullanıcının kuralı: "Her şey tamam olana kadar yeni sürüm verme." 0.7 içeriği marka değişikliğiyle birlikte **AdaCasa 1.0.1** olarak teslim edildi.

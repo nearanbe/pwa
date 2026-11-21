@@ -81,19 +81,29 @@ function ec_admin_packages(): void
     echo '</tbody></table>';
 
     // Paket tanımları
-    echo '<h2>Paket tanımları</h2><p class="description">Ad · gün · kota (0 = sınırsız) · özellikler · fiyat (bilgi amaçlı) · satışta mı. Son satır yeni paket ekler.</p>';
-    foreach (array_merge($pkgs, [['id' => 0, 'name' => '', 'days' => 30, 'quota' => 0, 'features' => 'syndication,social,telegram', 'price' => '', 'active' => 1]]) as $p) {
+    echo '<h2>Paket tanımları</h2><p class="description">Ad · gün · kota (0 = sınırsız) · otomasyon özellikleri · fiyat yazısı · satışta mı · vitrin kredileri · satış fiyatı. Son satır yeni paket ekler. Vitrin paketi için kotayı 0, özellikleri boş bırakıp sadece vitrin kredisi girin.</p>';
+    foreach (array_merge($pkgs, [['id' => 0, 'name' => '', 'days' => 30, 'quota' => 0, 'features' => 'syndication,social,telegram', 'price' => '', 'active' => 1, 'promos' => '', 'promo_days' => 7, 'amount' => '', 'currency' => 'EUR']]) as $p) {
         $fc = '';
         foreach ($feats as $k => $n) {
             $fc .= '<label style="margin-right:10px"><input type="checkbox" name="features[]" value="' . $k . '"' . checked(in_array($k, explode(',', $p['features']), true), true, false) . '> ' . esc_html(['syndication' => '101evler/hangiev', 'social' => 'Sosyal medya', 'telegram' => 'Telegram'][$k]) . '</label>';
         }
+        $pr = ec_promos_parse($p['promos'] ?? '');
+        $promoFields = '<br><span style="display:inline-block;margin-top:6px"><b>Vitrin kredileri:</b> ';
+        foreach (ec_promo_kinds() as $pk => $pd) {
+            $promoFields .= '<label style="margin-right:8px">' . esc_html($pd['icon'] . ' ' . $pd['name']['tr']) . ' <input type="number" name="promos[' . $pk . ']" value="' . (int) ($pr[$pk] ?? 0) . '" min="0" style="width:56px"></label>';
+        }
+        $promoFields .= ' · her vitrin <input type="number" name="promo_days" value="' . (int) ($p['promo_days'] ?? 7) . '" min="1" max="365" style="width:56px"> gün</span>'
+            . '<br><span style="display:inline-block;margin-top:6px"><b>Satış fiyatı:</b> <input type="number" step="0.01" min="0" name="amount" value="' . esc_attr((string) ($p['amount'] ?? '')) . '" style="width:90px"> '
+            . ec_admin_select('currency', ['EUR' => 'EUR', 'GBP' => 'GBP', 'USD' => 'USD', 'TRY' => 'TRY'], (string) ($p['currency'] ?? 'EUR')) . ' <span class="description">(online satın alma için; boşsa üye satın alamaz, sadece siz verirsiniz)</span></span>';
         echo '<div class="card" style="max-width:none;margin:6px 0;padding:8px 12px">' . ec_admin_form('ec_pkg_save', '<input type="hidden" name="id" value="' . (int) $p['id'] . '">'
             . '<input name="name" placeholder="Yeni paket adı" value="' . esc_attr($p['name']) . '" style="width:220px"> '
             . '<input type="number" name="days" value="' . (int) $p['days'] . '" min="1" style="width:70px" title="gün"> gün '
             . '<input type="number" name="quota" value="' . (int) $p['quota'] . '" min="0" style="width:70px" title="kota"> ilan &nbsp; ' . $fc
-            . '<input name="price" value="' . esc_attr((string) $p['price']) . '" placeholder="fiyat" style="width:80px"> '
-            . '<label><input type="checkbox" name="active" value="1"' . checked((int) $p['active'], 1, false) . '> satışta</label>', $p['id'] ? 'Kaydet' : 'Ekle', 'button') . '</div>';
+            . '<input name="price" value="' . esc_attr((string) $p['price']) . '" placeholder="fiyat yazısı" style="width:80px"> '
+            . '<label><input type="checkbox" name="active" value="1"' . checked((int) $p['active'], 1, false) . '> satışta</label>' . $promoFields, $p['id'] ? 'Kaydet' : 'Ekle', 'button') . '</div>';
     }
+
+    echo ec_admin_orders_html();
 
     $req = array_merge(['syndication' => 1, 'telegram' => 0], (array) get_option('ec_pkg_required', []));
     echo '<h2>Hangi özellikler paket gerektirsin?</h2>' . ec_admin_form('ec_pkg_required',
@@ -136,6 +146,9 @@ add_action('admin_post_ec_pkg_save', function () {
         'name' => mb_substr(sanitize_text_field($p['name'] ?? ''), 0, 120), 'days' => max(1, (int) $p['days']), 'quota' => max(0, (int) $p['quota']),
         'features' => implode(',', array_intersect((array) ($p['features'] ?? []), array_keys(ec_package_features()))),
         'price' => mb_substr(sanitize_text_field($p['price'] ?? ''), 0, 40), 'active' => !empty($p['active']) ? 1 : 0,
+        'promos' => ec_promos_format(array_map('intval', (array) ($p['promos'] ?? []))), 'promo_days' => max(1, min(365, (int) ($p['promo_days'] ?? 7))),
+        'amount' => ($p['amount'] ?? '') === '' ? null : round(max(0, (float) $p['amount']), 2),
+        'currency' => in_array($p['currency'] ?? '', ['EUR', 'GBP', 'USD', 'TRY'], true) ? $p['currency'] : 'EUR',
     ];
     if ($d['name'] === '') {
         ec_admin_back('ec-packages', 'Paket adı boş olamaz.');

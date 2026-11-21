@@ -28,6 +28,7 @@ add_filter('emlak_tema_strings_extra', function (array $s): array {
         'dt_lift' => ['Asansör', 'Lift', 'Лифт'],
         'dt_parking' => ['Otopark', 'Parking', 'Парковка'],
         'call' => ['Ara', 'Call', 'Позвонить'],
+        'team_of' => ['%s ekibi', '%s team', 'Команда %s'],
         'gv_back' => ['İlana geri dön', 'Back to listing', 'Назад к объявлению'],
         'gv_gallery' => ['Galeri görünümü', 'Gallery view', 'Галерея'],
         'gv_360' => ['360 Sanal Tur', '360 Virtual Tour', '360° тур'],

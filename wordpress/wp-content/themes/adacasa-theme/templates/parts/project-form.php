@@ -59,6 +59,12 @@ $P = $editProject ?? null;
       <div class="lpane" data-l="<?php echo $l; ?>" <?php echo $l === 'tr' ? '' : 'hidden'; ?>><textarea name="desc_<?php echo $l; ?>" rows="7"></textarea></div>
     <?php endforeach; ?>
     <label><?php ae_e('f_video'); ?><input name="video_url" type="url" placeholder="https://youtube.com/watch?v=…"></label>
+    <div class="vidup">
+      <label class="ghost sm filebtn">🎬 <?php ae_e('f_video_up'); ?><input type="file" id="pvidfile" accept="video/mp4,video/webm,video/quicktime,.mp4,.m4v,.webm,.mov" hidden></label>
+      <button type="button" class="ghost sm" id="pviddel" hidden><?php ae_e('f_video_del'); ?></button>
+      <span class="sub" id="pvidmsg"><?php ae_e('f_video_hint', size_format(wp_max_upload_size())); ?></span>
+      <progress id="pvidprog" max="100" value="0" hidden></progress>
+    </div>
     <p class="sub"><?php ae_e('f_map'); ?></p>
     <div id="map" class="map"></div>
     <input type="hidden" name="lat"><input type="hidden" name="lng">

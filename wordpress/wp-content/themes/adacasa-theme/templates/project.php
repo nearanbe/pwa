@@ -45,7 +45,7 @@ $planFor = function (string $type) use ($media) {
     }
     return null;
 };
-$yt = $p['video_url'] && preg_match('~(?:youtube\.com/(?:watch\?v=|shorts/|embed/)|youtu\.be/)([A-Za-z0-9_-]{11})~', $p['video_url'], $ym) ? $ym[1] : null;
+$video = function_exists('ec_video_info') ? ec_video_info($p['video_url']) : null;
 $priceFrom = $p['price_min_gbp'] ?: (array_filter(array_column($units, 'price_from_gbp')) ? min(array_filter(array_column($units, 'price_from_gbp'))) : null);
 $sections = ['ozet' => ae_t('sec_overview')];
 if ($units) {
@@ -94,7 +94,10 @@ echo ae_sticky_head(['logo' => !empty($agentRow['logo_path']) ? ec_image_urls($a
           </div>
           <?php if ($n > 1) : ?><button class="sarrow prev" type="button" aria-label="<?php ae_e('prev'); ?>">‹</button><button class="sarrow next" type="button" aria-label="<?php ae_e('next'); ?>">›</button><?php endif; ?>
           <span class="gcount"><span class="gi">1</span> / <?php echo $n; ?></span>
-          <button type="button" class="gfull" data-lightbox="0"><?php echo ae_icon('expand', 16); ?> <?php ae_e('all_photos', $n); ?></button>
+          <span class="gbtns">
+            <button type="button" class="gfull" data-gv="g"><?php echo ae_icon('expand', 16); ?> <?php ae_e('all_photos', $n); ?></button>
+            <?php if ($video) : ?><button type="button" class="gfull" data-gv="v">▶ <?php ae_e('video'); ?></button><?php endif; ?>
+          </span>
           <?php if ($p['cover_ai']) : ?><span class="aitag big"><?php ae_e('temsili'); ?></span><?php endif; ?>
         <?php else : ?>
           <div class="img noimg"><?php echo AE_ICON; ?></div>
@@ -180,11 +183,10 @@ echo ae_sticky_head(['logo' => !empty($agentRow['logo_path']) ? ec_image_urls($a
         </section>
       <?php endif; ?>
 
-      <?php if ($media['brochure'] || $yt || $p['video_url']) : ?>
-        <section class="panel"><h2><?php ae_e($media['brochure'] ? 'pj_docs' : 'video'); ?></h2>
+      <?php if ($media['brochure'] || $video) : ?>
+        <section class="panel" id="video"><h2><?php ae_e($media['brochure'] ? 'pj_docs' : 'video'); ?></h2>
           <?php foreach ($media['brochure'] as $b) : ?><p><a class="btn" href="<?php echo esc_url($b['url']); ?>" target="_blank" rel="noopener"><?php echo ae_icon('pdf', 18); ?> <?php echo esc_html($b['title'] ?: ae_t('pf_brochure')); ?> (PDF)</a></p><?php endforeach; ?>
-          <?php if ($yt) : ?><div class="video"><iframe src="https://www.youtube-nocookie.com/embed/<?php echo esc_attr($yt); ?>" title="<?php echo esc_attr($p['name']); ?>" loading="lazy" allowfullscreen></iframe></div>
-          <?php elseif ($p['video_url']) : ?><p><a class="ghost" href="<?php echo esc_url($p['video_url']); ?>" target="_blank" rel="noopener nofollow">▶ <?php ae_e('video'); ?></a></p><?php endif; ?>
+          <?php echo ae_video_html($video, $p['name']); ?>
         </section>
       <?php endif; ?>
 
@@ -217,4 +219,10 @@ echo ae_sticky_head(['logo' => !empty($agentRow['logo_path']) ? ec_image_urls($a
   <?php endif; ?>
 </main>
 <?php
+$pjChips = array_values(array_filter([$p['units'] ? ae_t('units', (int) $p['units']) : '', $p['delivery_date'] ? ae_month_label($p['delivery_date']) : '']));
+echo ae_gallery_view([
+    'photos' => $photos, 'panos' => [], 'tourEmbed' => null, 'video' => $video, 'coords' => $coords,
+    'title' => $p['name'], 'priceHtml' => $priceFrom ? ae_money($priceFrom) . ($p['price_max_gbp'] ? ' – ' . ae_money($p['price_max_gbp']) : '') : '', 'loc' => $loc, 'chips' => $pjChips,
+    'agentHtml' => ae_agent_card($agentRow, ['count' => null]), 'tel' => $tel, 'wa' => $waLink,
+]);
 get_footer();

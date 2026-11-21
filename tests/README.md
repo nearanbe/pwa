@@ -8,3 +8,6 @@ Kurulum için `docs/devam-notu.md` → "Yerel test ortamı". Dış servisler bu 
 | `interact.js` | İlan ve proje sayfasında galeri, sabit başlık, not, mesaj formu, hatalı ilan bildirimi, taksit hesabı, yazdırma | `node tests/interact.js <ilan-url> <proje-url>` |
 | `exttest.js` + `mock101.html` | Chrome eklentisini gerçek Chromium'a yükleyip sahte 101evler formunu doldurur | eklentinin bir kopyasına `http://localhost:8080/*` izni ekleyin, `mock101.html` dosyasını site köküne koyun, `ec_ext_config` içinde `new_url`'yi o adrese çevirin, sonra `node tests/exttest.js <eklenti-kopyası> <ilan-no> <api-anahtarı>` |
 | `shot.js` | Sayfaların ekran görüntüsü ve konsol hataları | `node tests/shot.js <klasör> '[["ad","url",genişlik]]'` |
+
+| `promo-test.php` | Vitrin kredileri, ana sayfa ve kategori vitrini, acil, yukarı taşı; havale siparişi; NestPay imza ve dönüş doğrulaması (banka taklit) | `wp eval-file tests/promo-test.php` (taze demo verisiyle) |
+| `team-test.php` | Ofis ekibi: davet, kabul, ret, çıkarma, ayrılma; paket ve vitrin kredisi paylaşımı; onaysız yayın; REST | `wp eval-file tests/team-test.php` (taze demo verisiyle) |

@@ -297,6 +297,9 @@ function ec_listings_present(array $rows, string $lang, bool $full = false): arr
             'views' => (int) $r['views'],
             'furnished' => $r['furnished'] === null ? null : (bool) $r['furnished'],
             'featured' => $r['featured_until'] && strtotime($r['featured_until'] . ' UTC') > time(),
+            'urgent' => !empty($r['urgent_until']) && strtotime($r['urgent_until'] . ' UTC') > time(),
+            'showcase_home' => !empty($r['home_until']) && strtotime($r['home_until'] . ' UTC') > time(),
+            'showcase_cat' => !empty($r['cat_until']) && strtotime($r['cat_until'] . ' UTC') > time(),
             'title' => $t['title'],
             'url' => ec_url_listing($id, $t['slug'], $lang),
             'cover' => $ph[0] ?? null,
@@ -427,7 +430,7 @@ function ec_listing_search(array $f, string $lang, int $page = 1, int $per = 24)
         'price_desc' => 'price_gbp DESC',
         'm2_asc' => '(area_m2 IS NULL OR area_m2 = 0), price_gbp / NULLIF(area_m2, 0) ASC',
         'area_desc' => 'area_m2 IS NULL, area_m2 DESC',
-        default => '(featured_until IS NOT NULL AND featured_until > UTC_TIMESTAMP()) DESC, published_at DESC, id DESC',
+        default => '(featured_until IS NOT NULL AND featured_until > UTC_TIMESTAMP()) DESC, COALESCE(GREATEST(bumped_at, published_at), published_at) DESC, id DESC',
     };
     $w = implode(' AND ', $where);
     $page = max(1, $page);
@@ -491,7 +494,9 @@ function ec_listing_target_status(?array $agent, string $requested): string
         return 'published';
     }
     $kind = ec_member_kinds()[$agent['kind']] ?? ['needs_review' => true];
-    if ($agent['status'] !== 'active' || !empty($kind['needs_review'])) {
+    // Onaylı bir ofisin ekibindeki danışman onay beklemez
+    $inTeam = function_exists('ec_team_parent') && ec_team_parent($agent);
+    if ($agent['status'] !== 'active' || (!empty($kind['needs_review']) && !$inTeam)) {
         return 'pending';
     }
     return 'published';

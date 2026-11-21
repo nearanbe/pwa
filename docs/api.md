@@ -218,3 +218,34 @@ Paket ve kota kuralları:
 | DELETE | `/api/v1/listings/{id}/video` | `video_url` boşaltılır; yüklenmiş dosya silinir |
 
 Bağlantı eklemek için ilanın `video_url` alanı PATCH ile güncellenir. YouTube ve Vimeo sayfada gömülü oynatılır, `.mp4`/`.webm`/`.mov` adresleri `<video>` ile oynatılır, diğer bağlantılar düğme olarak gösterilir.
+
+
+## Vitrin (1.1)
+
+| Yöntem | Adres | Açıklama |
+|---|---|---|
+| POST | `/api/v1/listings/{id}/promote` | `{kind}`: `featured`, `home`, `cat`, `urgent` ya da `bump`. Üye kendi ilanına uygular, 1 kredi düşer. Yönetici kredisiz uygular (`days` verilebilir). |
+| GET | `/api/v1/me/promos` | Kalan krediler ve tür adları |
+| GET | `/api/v1/listings?…` | Yanıttaki her ilanda `urgent`, `showcase_home` ve `showcase_cat` alanları var |
+
+## Paket satın alma (1.1)
+
+| Yöntem | Adres | Açıklama |
+|---|---|---|
+| GET | `/api/v1/me/orders` | Siparişler, kullanılabilir ödeme yöntemleri, banka bilgisi |
+| POST | `/api/v1/me/orders` | `{package_id, method: bank\|card}`. `card` ise yanıtta `pay.action` (banka adresi) ve `pay.fields` (imzalı form alanları) gelir; tarayıcı bu formu bankaya POST eder |
+| POST | `/api/v1/me/orders/{id}/receipt` | `receipt` alanında JPG, PNG ya da PDF dekont |
+| POST | `/api/v1/pay/nestpay` | Bankanın dönüş adresi. İmza (hash ver3, SHA-512), `mdStatus`, `ProcReturnCode=00` ve tutar doğrulanır; doğruysa paket tanımlanır |
+
+## Ofis ekibi (1.1)
+
+| Yöntem | Adres | Açıklama |
+|---|---|---|
+| GET | `/api/v1/me/team` | Ofis için ekip üyeleri ve bekleyen davetler; danışman için gelen davet ve bağlı olduğu ofis |
+| POST | `/api/v1/me/team/invite` | `{email}` (ofis) |
+| POST | `/api/v1/me/team/accept` · `decline` · `leave` | Danışman |
+| POST | `/api/v1/me/team/remove` · `cancel` | `{member}` (ofis) |
+
+## Proje videosu (1.1)
+
+`POST` ve `DELETE` `/api/v1/projects/{id}/video`: ilan videosuyla aynı kurallar.

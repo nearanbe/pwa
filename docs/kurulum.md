@@ -1,5 +1,20 @@
 # Kurulum (Plesk VPS)
 
+> **1.1.0:**
+> - **Vitrin:** öne çıkar, ana sayfa vitrini, kategori vitrini, acil ve yukarı taşı.
+>   - Krediler pakette tanımlanır (Emlak → Paketler). Örnek vitrin paketleri kendiliğinden eklenir; fiyatları değiştirin.
+>   - Üye krediyi Panelim → İlanlarım → "✦ Vitrin" menüsünden uygular. Yönetici İlanlar listesinden kredisiz uygular.
+> - **Paket satın alma:** Panelim → Paketim. İki yol var:
+>   - havale/EFT: dekont yüklenir, yönetici onaylar;
+>   - kartla ödeme: KKTC bankası sanal POS'u, NestPay/Cardplus 3D Pay Hosting.
+>   - Ayarlar: Emlak → Paketler → Ödeme ayarları. Rapor: [odeme-kktc.md](odeme-kktc.md).
+> - **Ofis ekibi:** ofis ve inşaat firması hesapları danışmanları e-postayla davet eder (Panelim → Ekibim).
+>   - Ekipteki danışman ofisin paketlerini ortak kullanır, ilanları onaysız yayına girer.
+>   - Ofis danışmanı ekipten çıkarabilir, danışman da ayrılabilir.
+> - **Yönetici ofis profili:** yönetici Panelim'e girince "Ofis profilimi oluştur" ile kendi ofis hesabını açar.
+> - **Proje sayfaları:** galeri penceresi ve video (bağlantı ya da dosya yükleme).
+> - **Ölçüm:** Emlak → Ayarlar → Ölçüm ve doğrulama: Google Analytics 4, Search Console, Meta Pixel ve Bing. İlan görüntüleme ve talep olayları gönderilir.
+>
 > **1.0.4:**
 > - **Galeri penceresi:** 101evler tarzı; Galeri görünümü (mozaik), Video, 360 Sanal Tur ve Konum sekmeleri. Fotoğrafa tıklanınca büyük görüntü açılır, sağda küçük resimler durur.
 > - **İlan videosu:** bağlantı (YouTube, Vimeo) ya da dosya yükleme (MP4, WebM, MOV). Panelim → İlan → Detaylar → "ya da video dosyası yükle".

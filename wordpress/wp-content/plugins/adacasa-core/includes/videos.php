@@ -119,3 +119,74 @@ add_action('rest_api_init', function () {
         ],
     ]);
 });
+
+/* ---------------- Proje videosu (1.1): aynı kurallar, klasör ilan-foto/proje-{id} ---------------- */
+
+function ec_project_video_local_path(int $id, ?string $url): ?string
+{
+    $base = ec_photo_base();
+    $prefix = rtrim($base['url'], '/') . '/proje-' . $id . '/video-';
+    if (!$url || !str_starts_with($url, $prefix)) {
+        return null;
+    }
+    $file = $base['dir'] . '/proje-' . $id . '/' . basename((string) parse_url($url, PHP_URL_PATH));
+    return is_file($file) ? $file : null;
+}
+
+function ec_project_video_set(int $id, ?string $url): void
+{
+    global $wpdb;
+    $wpdb->update(ec_table('projects'), ['video_url' => $url, 'updated_at' => ec_now()], ['id' => $id]);
+    do_action('ec_project_changed', $id);
+}
+
+add_action('rest_api_init', function () {
+    register_rest_route(EC_NS, '/projects/(?P<id>\d+)/video', [
+        [
+            'methods' => 'POST',
+            'permission_callback' => 'ec_rest_own_project',
+            'callback' => function (WP_REST_Request $r) {
+                $id = (int) $r['id'];
+                $row = ec_project_row($id);
+                $f = $r->get_file_params()['video'] ?? null;
+                if (!$row) {
+                    return new WP_Error('ec_not_found', 'Proje bulunamadı', ['status' => 404]);
+                }
+                if (!$f || is_array($f['tmp_name']) || $f['error'] !== UPLOAD_ERR_OK || !is_uploaded_file($f['tmp_name'])) {
+                    return new WP_Error('ec_no_file', 'Video yüklenemedi. Dosya çok büyük olabilir (sunucu sınırı: ' . size_format(wp_max_upload_size()) . ').', ['status' => 400]);
+                }
+                $ext = strtolower(pathinfo((string) $f['name'], PATHINFO_EXTENSION));
+                $real = function_exists('mime_content_type') ? (string) @mime_content_type($f['tmp_name']) : '';
+                if (!isset(EC_VIDEO_TYPES[$ext]) || ($real !== '' && !str_starts_with($real, 'video/') && $real !== 'application/octet-stream')) {
+                    return new WP_Error('ec_bad_type', 'Sadece MP4, WebM ya da MOV video yüklenebilir.', ['status' => 400]);
+                }
+                $dir = ec_photo_base()['dir'] . '/proje-' . $id;
+                wp_mkdir_p($dir);
+                $name = 'video-' . strtolower(wp_generate_password(10, false, false)) . '.' . ($ext === 'm4v' ? 'mp4' : $ext);
+                if (!@move_uploaded_file($f['tmp_name'], $dir . '/' . $name)) {
+                    return new WP_Error('ec_io', 'Video kaydedilemedi', ['status' => 500]);
+                }
+                $old = ec_project_video_local_path($id, $row['video_url']);
+                if ($old) {
+                    @unlink($old);
+                }
+                $url = rtrim(ec_photo_base()['url'], '/') . '/proje-' . $id . '/' . $name;
+                ec_project_video_set($id, $url);
+                return new WP_REST_Response(['url' => $url, 'info' => ec_video_info($url)], 201);
+            },
+        ],
+        [
+            'methods' => 'DELETE',
+            'permission_callback' => 'ec_rest_own_project',
+            'callback' => function (WP_REST_Request $r) {
+                $id = (int) $r['id'];
+                $row = ec_project_row($id);
+                if ($row && ($old = ec_project_video_local_path($id, $row['video_url']))) {
+                    @unlink($old);
+                }
+                ec_project_video_set($id, null);
+                return ['ok' => true];
+            },
+        ],
+    ]);
+});

@@ -90,6 +90,10 @@
     if (p) { var all = $$('[data-plan]').map(function (x) { return { l: x.dataset.plan, s: (x.querySelector('img') || {}).src }; }); var uniq = []; all.forEach(function (x) { if (!uniq.some(function (u) { return u.l === x.l; })) uniq.push(x); }); lbOpen(uniq, uniq.map(function (u) { return u.l; }).indexOf(p.dataset.plan)); }
   });
 
+  /* ---------- Ölçüm: ilan görüntüleme ---------- */
+  var mainL = $('[data-listing]');
+  if (mainL && window.ecTrack) window.ecTrack('view_item', { item_id: mainL.dataset.listing });
+
   /* ---------- Galeri penceresi (101evler tarzı): Galeri · Video · 360 · Harita ---------- */
   var gv = $('#gv'), gvViewer = null, gvLast = null;
   function gvLoadPn() {
@@ -237,7 +241,7 @@
       btn.disabled = true; m.className = 'formmsg'; m.textContent = '…';
       fetch(AE.api + f.dataset.lead + '/lead?lang=' + AE.lang, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(d) })
         .then(function (r) { return r.json().then(function (j) { if (!r.ok) throw j; return j; }); })
-        .then(function () { f.reset(); m.className = 'formmsg ok'; m.textContent = T.leadOk; btn.disabled = false; })
+        .then(function () { f.reset(); m.className = 'formmsg ok'; m.textContent = T.leadOk; btn.disabled = false; if (window.ecTrack) window.ecTrack('lead', { item_id: String((document.querySelector('[data-listing]') || {}).dataset ? document.querySelector('[data-listing]').dataset.listing || '' : '') }); })
         .catch(function (j) { m.className = 'formmsg err'; m.textContent = (j && j.message) ? j.message : T.leadErr; btn.disabled = false; if (window.turnstile) try { window.turnstile.reset(); } catch (x) {} });
     });
   });

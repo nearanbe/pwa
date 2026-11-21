@@ -307,6 +307,9 @@ function ec_project_delete(int $id): void
     foreach ($wpdb->get_col($wpdb->prepare('SELECT id FROM ' . ec_table('project_media') . ' WHERE project_id = %d', $id)) as $mid) {
         ec_project_media_delete($id, (int) $mid);
     }
+    foreach ((array) glob(ec_photo_base()['dir'] . '/proje-' . $id . '/video-*') as $vf) {
+        @unlink($vf);
+    }
     @rmdir(ec_photo_base()['dir'] . '/proje-' . $id);
     $wpdb->delete(ec_table('projects'), ['id' => $id]);
 }

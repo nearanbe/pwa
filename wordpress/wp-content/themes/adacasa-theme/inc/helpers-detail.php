@@ -119,6 +119,7 @@ function ae_agent_card(?array $agentRow, array $opt = []): string
   <div>
     <b><?php echo esc_html($ag['name']); ?></b><?php if ($ag['verified']) : ?> <span class="vbadge sm" title="<?php ae_e('of_verified'); ?>">✔</span><?php endif; ?>
     <div class="sub"><?php echo esc_html(ec_member_kinds()[$ag['kind']]['name'][ec_lang()] ?? ''); ?> <?php echo ae_member_year($agentRow['created_at'] ?? null); ?></div>
+    <?php if (!empty($ag['team_of'])) : ?><div class="sub">👥 <?php echo $ag['team_of']['url'] ? '<a class="link" href="' . esc_url($ag['team_of']['url']) . '">' . esc_html(ae_t('team_of', $ag['team_of']['name'])) . '</a>' : esc_html(ae_t('team_of', $ag['team_of']['name'])); ?></div><?php endif; ?>
     <?php if ($ag['url']) : ?><a class="sub link" href="<?php echo esc_url($ag['url']); ?>"><?php echo esc_html($count ? ae_t('agent_other', $count) : ae_t('agent_profile')); ?> →</a><?php endif; ?>
   </div>
 </div>

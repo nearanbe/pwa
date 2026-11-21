@@ -46,6 +46,7 @@ function ec_agent_public(array $a): array
         'logo' => !empty($a['logo_path']) ? ec_image_urls($a['logo_path']) : null,
         'socials' => !empty($a['socials']) ? (array) json_decode($a['socials'], true) : [],
         'url' => !empty($a['slug']) ? ec_url_office($a['slug']) : null,
+        'team_of' => !empty($a['parent_id']) && function_exists('ec_team_parent') && ($tp = ec_team_parent($a)) ? ['name' => $tp['name'], 'url' => !empty($tp['slug']) ? ec_url_office($tp['slug']) : null] : null,
     ];
 }
 

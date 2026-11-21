@@ -182,6 +182,16 @@ get_header();
       <p class="sub"><?php ae_e('sf_map_note', count($pts), count($res['items'])); ?></p>
     <?php endif; ?>
 
+    <?php
+    // Kategori vitrini: sadece ilk sayfada, aynı tür (satılık/kiralık/günlük) ve şehirde
+    $catVit = ($pg === 1 && $view !== 'harita' && function_exists('ec_listing_showcase')) ? ec_listing_showcase('cat', $lang, ['mode' => $mode, 'city' => $f['city'] ?? '', 'ptype' => $f['ptype'] ?? ''], 4) : [];
+    if ($catVit) : ?>
+      <div class="catvit"><div class="catvit-h">✦ <?php echo esc_html(ae_t('showcase_cat', $heading)); ?></div>
+        <div class="grid"><?php foreach ($catVit as $cv) {
+            echo ae_card($cv);
+        } ?></div>
+      </div>
+    <?php endif; ?>
     <div class="grid <?php echo $view === 'liste' ? 'list' : ''; ?> <?php echo $view === 'harita' ? 'compact' : ''; ?>">
       <?php foreach ($res['items'] as $i => $a) {
           echo ae_card($a);

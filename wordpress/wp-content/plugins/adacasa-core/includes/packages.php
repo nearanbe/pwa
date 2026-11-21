@@ -51,17 +51,54 @@ function ec_packages_seed_defaults(): void
         ['Tek ilan', 30, 1, $all, '2 €', 3],
         ['Sadece sosyal medya (aylık)', 30, 0, 'social', '', 4],
     ] as [$n, $d, $q, $f, $p, $s]) {
-        $wpdb->insert(ec_table('packages'), ['name' => $n, 'days' => $d, 'quota' => $q, 'features' => $f, 'price' => $p, 'active' => 1, 'sort' => $s, 'created_at' => ec_now()]);
+        $wpdb->insert(ec_table('packages'), ['name' => $n, 'days' => $d, 'quota' => $q, 'features' => $f, 'price' => $p, 'amount' => (float) preg_replace('/[^0-9.]/', '', $p) ?: null, 'currency' => 'EUR', 'active' => 1, 'sort' => $s, 'created_at' => ec_now()]);
+    }
+    ec_promo_packages_seed();
+}
+
+/** 1.1: örnek vitrin paketleri (yoksa eklenir) */
+function ec_promo_packages_seed(): void
+{
+    global $wpdb;
+    if (get_option('ec_promo_pkgs_seeded')) {
+        return;
+    }
+    update_option('ec_promo_pkgs_seeded', 1);
+    // Eski paketler: "50 €" gibi fiyat yazısından satış tutarını bir kez çıkar (online satın alma için)
+    foreach ($wpdb->get_results('SELECT id, price FROM ' . ec_table('packages') . ' WHERE amount IS NULL', ARRAY_A) as $old) {
+        if (preg_match('/(\d+(?:[.,]\d{1,2})?)/', (string) $old['price'], $m)) {
+            $cur = str_contains($old['price'], '£') ? 'GBP' : (str_contains($old['price'], '$') ? 'USD' : (str_contains($old['price'], '₺') || stripos($old['price'], 'TL') !== false ? 'TRY' : 'EUR'));
+            $wpdb->update(ec_table('packages'), ['amount' => (float) str_replace(',', '.', $m[1]), 'currency' => $cur], ['id' => $old['id']]);
+        }
+    }
+    foreach ([
+        ['Vitrin: Öne çıkar (7 gün)', 7, 'featured:1', 7, 5, 11],
+        ['Vitrin: Ana sayfa vitrini (7 gün)', 7, 'home:1', 7, 15, 12],
+        ['Vitrin: Kategori vitrini (7 gün)', 7, 'cat:1', 7, 8, 13],
+        ['Vitrin: Acil etiketi (7 gün)', 7, 'urgent:1', 7, 3, 14],
+        ['Vitrin: 5 × Yukarı taşı', 30, 'bump:5', 7, 4, 15],
+        ['Vitrin Paketi Pro (aylık)', 30, 'featured:10,home:3,cat:10,urgent:10,bump:30', 7, 60, 16],
+    ] as [$n, $d, $pr, $pd, $amt, $sort]) {
+        $wpdb->insert(ec_table('packages'), ['name' => $n, 'days' => $d, 'quota' => 0, 'features' => '', 'price' => $amt . ' €', 'amount' => $amt, 'currency' => 'EUR',
+            'promos' => $pr, 'promo_days' => $pd, 'active' => 1, 'sort' => $sort, 'created_at' => ec_now()]);
     }
 }
+add_action('admin_init', 'ec_promo_packages_seed', 20);
 add_action('admin_init', 'ec_packages_seed_defaults');
 
 /** Üyenin şu an geçerli paketleri (bitiş tarihi geçmemiş, iptal edilmemiş) */
 function ec_subscriptions_active(int $agent_id): array
 {
     global $wpdb;
+    // 1.1: ofis ekibindeki danışman, ofisin paketlerini de kullanır (önce kendi paketi, sonra ofisinki)
+    $ids = [$agent_id];
+    $parent = (int) $wpdb->get_var($wpdb->prepare('SELECT a.parent_id FROM ' . ec_table('agents') . ' a JOIN ' . ec_table('agents') . " p ON p.id = a.parent_id AND p.status = 'active' WHERE a.id = %d", $agent_id));
+    if ($parent) {
+        $ids[] = $parent;
+    }
+    $in = implode(',', array_map('intval', $ids));
     return $wpdb->get_results($wpdb->prepare(
-        'SELECT * FROM ' . ec_table('subscriptions') . " WHERE agent_id = %d AND status = 'active' AND starts_at <= UTC_TIMESTAMP() AND ends_at > UTC_TIMESTAMP() ORDER BY ends_at ASC",
+        'SELECT * FROM ' . ec_table('subscriptions') . " WHERE agent_id IN ($in) AND status = 'active' AND starts_at <= UTC_TIMESTAMP() AND ends_at > UTC_TIMESTAMP() ORDER BY (agent_id = %d) DESC, ends_at ASC",
         $agent_id
     ), ARRAY_A) ?: [];
 }
@@ -151,6 +188,8 @@ function ec_subscription_grant(int $agent_id, array $o)
         'name' => mb_substr(sanitize_text_field($o['name'] ?? ($pkg['name'] ?? 'Özel paket')), 0, 120),
         'features' => implode(',', array_filter($features)),
         'quota' => isset($o['quota']) && $o['quota'] !== '' ? max(0, (int) $o['quota']) : (int) ($pkg['quota'] ?? 0),
+        'promos' => isset($o['promos']) ? ec_promos_format((array) $o['promos']) : (string) ($pkg['promos'] ?? ''),
+        'promo_days' => (int) ($o['promo_days'] ?? ($pkg['promo_days'] ?? 7)) ?: 7,
         'starts_at' => gmdate('Y-m-d H:i:s', $start),
         'ends_at' => gmdate('Y-m-d H:i:s', $end),
         'status' => 'active',
@@ -184,6 +223,8 @@ function ec_subscriptions_summary(int $agent_id): array
             'id' => (int) $s['id'], 'name' => $s['name'], 'features' => array_filter(explode(',', $s['features'])),
             'quota' => (int) $s['quota'], 'used' => $used, 'left' => (int) $s['quota'] ? max(0, (int) $s['quota'] - $used) : null,
             'ends_at' => $s['ends_at'], 'days_left' => max(0, (int) ceil((strtotime($s['ends_at'] . ' UTC') - time()) / DAY_IN_SECONDS)),
+            'promos' => array_map(fn($k) => ['total' => ec_promos_parse($s['promos'] ?? '')[$k] ?? 0, 'left' => ec_promo_left($s, $k)], array_combine(array_keys(ec_promo_kinds()), array_keys(ec_promo_kinds()))),
+            'promo_days' => (int) ($s['promo_days'] ?? 7),
         ];
     }, ec_subscriptions_active($agent_id));
 }

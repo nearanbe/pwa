@@ -410,3 +410,43 @@ add_action('template_redirect', function () {
     wp_safe_redirect($dest);
     exit;
 });
+
+
+/**
+ * Yöneticinin kendi ofis profili (1.1): site sahibi de ilan verip vitrin/profil kullanabilsin.
+ * Onaylı, e-postası doğrulanmış "Emlak Ofisi" hesabı açar ve yönetici kullanıcısına bağlar.
+ * @return int|WP_Error danışman no
+ */
+function ec_admin_self_profile(int $uid, array $in)
+{
+    global $wpdb;
+    if (!user_can($uid, 'manage_options')) {
+        return new WP_Error('ec_forbidden', 'Sadece yönetici', ['status' => 403]);
+    }
+    if (ec_agent_by_user($uid)) {
+        return (int) ec_agent_by_user($uid)['id'];
+    }
+    $u = get_userdata($uid);
+    $name = mb_substr(sanitize_text_field($in['name'] ?? '') ?: get_bloginfo('name'), 0, 190);
+    $phone = preg_replace('/[^0-9+]/', '', (string) ($in['phone'] ?? ''));
+    $city = sanitize_key($in['city'] ?? '');
+    $wpdb->insert(ec_table('agents'), [
+        'wp_user_id' => $uid, 'kind' => 'ofis', 'company_type' => ec_member_kinds()['ofis']['name']['tr'],
+        'name' => $name, 'office' => $name, 'email' => sanitize_email($in['email'] ?? '') ?: $u->user_email,
+        'phone' => $phone ?: null, 'whatsapp' => $phone ? ltrim($phone, '+') : null,
+        'city' => isset(ec_cities()[$city]) ? $city : null, 'slug' => ec_agent_unique_slug($name),
+        'status' => 'active', 'verified' => 1, 'email_verified' => 1, 'consent_at' => ec_now(),
+        'created_at' => ec_now(), 'updated_at' => ec_now(),
+    ]);
+    return (int) $wpdb->insert_id ?: new WP_Error('ec_db', 'Profil oluşturulamadı');
+}
+
+add_action('admin_post_ec_self_profile', function () {
+    if (!current_user_can('manage_options') || !check_admin_referer('ec_self_profile')) {
+        wp_die('Yetkisiz');
+    }
+    $r = ec_admin_self_profile(get_current_user_id(), wp_unslash($_POST));
+    $to = add_query_arg('bolum', 'profil', ec_url_section('panel'));
+    wp_safe_redirect(is_wp_error($r) ? add_query_arg('hata', rawurlencode($r->get_error_message()), $to) : $to);
+    exit;
+});

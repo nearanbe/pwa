@@ -75,6 +75,13 @@ function ec_admin_listings(): void
             $links[] = $act('passive', 'Pasife al');
         }
         $links[] = $featured ? $act('unfeature', 'Öne çıkarmayı kaldır') : $act('feature', 'Öne çıkar (30 gün)');
+        if ($r['status'] === 'published') {
+            $st = ec_promo_state($r);
+            $links[] = isset($st['home']) ? $act('unpromo_home', 'Ana sayfa vitrininden çıkar') : $act('promo_home', 'Ana sayfa vitrini (7 gün)');
+            $links[] = isset($st['cat']) ? $act('unpromo_cat', 'Kategori vitrininden çıkar') : $act('promo_cat', 'Kategori vitrini (7 gün)');
+            $links[] = isset($st['urgent']) ? $act('unpromo_urgent', 'Acil kaldır') : $act('promo_urgent', 'Acil (7 gün)');
+            $links[] = $act('promo_bump', 'Yukarı taşı');
+        }
         $links[] = '<a href="' . esc_url(admin_url('admin.php?page=ec-media&id=' . $r['id'])) . '">Fotoğraflar / 360°</a>';
         $view = ec_listings_present([$r], 'tr')[0]['url'];
         echo '<tr><td>#' . (int) $r['id'] . '</td><td><a href="' . esc_url($view) . '" target="_blank">' . esc_html($r['title']) . '</a>' . ($featured ? ' <span class="dashicons dashicons-star-filled" title="Öne çıkan"></span>' : '') . '</td>'
@@ -109,6 +116,20 @@ add_action('admin_post_ec_listing', function () {
             break;
         case 'unfeature':
             $wpdb->update(ec_table('listings'), ['featured_until' => null], ['id' => $id]);
+            break;
+        case 'promo_home':
+        case 'promo_cat':
+        case 'promo_urgent':
+        case 'promo_bump':
+            $r = ec_promo_apply($id, substr($_GET['do'], 6), null, 7);
+            if (is_wp_error($r)) {
+                ec_admin_back('ec-listings', esc_html($r->get_error_message()));
+            }
+            break;
+        case 'unpromo_home':
+        case 'unpromo_cat':
+        case 'unpromo_urgent':
+            ec_promo_remove($id, substr($_GET['do'], 8));
             break;
     }
     ec_admin_back('ec-listings', 'İlan #' . $id . ' güncellendi.');
@@ -308,6 +329,12 @@ function ec_admin_settings(): void
         echo '<tr><th>' . esc_html($n) . '</th><td><input name="ads_' . $k . '" class="regular-text" value="' . esc_attr($ads[$k] ?? '') . '"></td></tr>';
     }
     echo '</table><p class="description">Boş bırakılırsa sitede sadece "Reklam alanı" yer tutucusu görünür.</p>';
+    $tr = array_merge(['ga4' => '', 'gsc' => '', 'pixel' => '', 'bing' => ''], (array) get_option('ec_tracking', []));
+    echo '<h2>Ölçüm ve doğrulama</h2><p class="description">Doldurulanlar sitenin her sayfasına eklenir; giriş yapmış yöneticiler sayılmaz.</p><table class="form-table">'
+        . '<tr><th>Google Analytics 4 ölçüm kimliği</th><td><input name="tr_ga4" class="regular-text" placeholder="G-XXXXXXXXXX" value="' . esc_attr($tr['ga4']) . '"></td></tr>'
+        . '<tr><th>Google Search Console doğrulama kodu</th><td><input name="tr_gsc" class="regular-text" placeholder="google-site-verification içeriği" value="' . esc_attr($tr['gsc']) . '"><p class="description">Search Console → Mülk ekle → URL ön eki → HTML etiketi: <code>content="…"</code> içindeki değer.</p></td></tr>'
+        . '<tr><th>Meta (Facebook) Pixel kimliği</th><td><input name="tr_pixel" class="regular-text" placeholder="123456789012345" value="' . esc_attr($tr['pixel']) . '"></td></tr>'
+        . '<tr><th>Bing Webmaster doğrulama kodu</th><td><input name="tr_bing" class="regular-text" value="' . esc_attr($tr['bing']) . '"></td></tr></table>';
     echo '<h2>İletişim</h2><table class="form-table">';
     foreach (['whatsapp' => 'Site WhatsApp numarası (90533...)', 'email' => 'Site e-postası'] as $k => $n) {
         echo '<tr><th>' . esc_html($n) . '</th><td><input name="contact_' . $k . '" class="regular-text" value="' . esc_attr($contact[$k] ?? '') . '"></td></tr>';
@@ -471,6 +498,12 @@ add_action('admin_post_ec_settings', function () {
         $ads[$k] = preg_replace('/[^a-zA-Z0-9-]/', '', (string) ($p['ads_' . $k] ?? ''));
     }
     update_option('ec_ads', $ads);
+    update_option('ec_tracking', [
+        'ga4' => preg_replace('/[^A-Z0-9-]/', '', strtoupper((string) ($p['tr_ga4'] ?? ''))),
+        'gsc' => preg_replace('/[^A-Za-z0-9_-]/', '', (string) ($p['tr_gsc'] ?? '')),
+        'pixel' => preg_replace('/\D/', '', (string) ($p['tr_pixel'] ?? '')),
+        'bing' => preg_replace('/[^A-Za-z0-9]/', '', (string) ($p['tr_bing'] ?? '')),
+    ]);
     $bot = preg_replace('/[^a-zA-Z0-9_]/', '', (string) ($p['tg_bot'] ?? ''));
     update_option('ec_contact', [
         'whatsapp' => preg_replace('/\D/', '', (string) ($p['contact_whatsapp'] ?? '')),

@@ -15,7 +15,24 @@ add_action('wp_head', fn() => print('<meta name="robots" content="noindex">' . "
 if (!$agent) {
     // Yönetici ya da üye kaydı olmayan kullanıcı
     get_header();
-    echo '<main id="main" class="main auth"><div class="panel authbox"><p>' . (current_user_can('manage_options') ? '<a class="btn wide" href="' . esc_url(ec_url_section('review')) . '">' . esc_html(ae_t('rv_title')) . '</a>' : esc_html(ae_t('not_found'))) . '</p></div></main>';
+    if (current_user_can('manage_options')) {
+        $cu = wp_get_current_user();
+        $cityOpts = '';
+        foreach (ec_cities() as $ck => $c) {
+            $cityOpts .= '<option value="' . esc_attr($ck) . '">' . esc_html($c['name'][$lang]) . '</option>';
+        }
+        echo '<main id="main" class="main auth"><div class="panel authbox"><h1>' . esc_html(ae_t('self_title')) . '</h1><p class="sub">' . esc_html(ae_t('self_sub')) . '</p>'
+            . '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '" class="fg two">' . wp_nonce_field('ec_self_profile', '_wpnonce', true, false)
+            . '<input type="hidden" name="action" value="ec_self_profile">'
+            . '<label class="wide">' . esc_html(ae_t('company_name')) . '<input name="name" required value="' . esc_attr(get_bloginfo('name')) . '"></label>'
+            . '<label>' . esc_html(ae_t('email')) . '<input name="email" type="email" value="' . esc_attr($cu->user_email) . '"></label>'
+            . '<label>' . esc_html(ae_t('reg_phone')) . '<input name="phone" inputmode="tel" placeholder="+90 533 …"></label>'
+            . '<label class="wide">' . esc_html(ae_t('city')) . '<select name="city"><option value="">—</option>' . $cityOpts . '</select></label>'
+            . '<button class="btn wide" type="submit">' . esc_html(ae_t('self_btn')) . '</button></form>'
+            . '<p class="center"><a class="ghost" href="' . esc_url(ec_url_section('review')) . '">' . esc_html(ae_t('rv_title')) . ' →</a></p></div></main>';
+    } else {
+        echo '<main id="main" class="main auth"><div class="panel authbox"><p>' . esc_html(ae_t('not_found')) . '</p></div></main>';
+    }
     get_footer();
     return;
 }
@@ -34,6 +51,9 @@ if ($canProjects) {
 $unread = ec_leads_unread((int) $agent['id']);
 $canSocial = ec_member_can($agent, 'social');
 $tabs += ['talepler' => 'p_leads', 'paket' => 'p_package', 'sosyal' => 'p_social', 'profil' => 'p_profile', 'telegram' => 'p_telegram'];
+if (function_exists('ec_team_can_lead') && ec_team_can_lead($agent)) {
+    $tabs = array_slice($tabs, 0, array_search('paket', array_keys($tabs), true), true) + ['ekip' => 'team_tab'] + array_slice($tabs, array_search('paket', array_keys($tabs), true), null, true);
+}
 if (!isset($tabs[$tab])) {
     $tab = 'ozet';
 }
@@ -85,7 +105,7 @@ $data = [
     'project' => $editProject,
     't' => [
         'required' => ae_t('f_required'), 'deedRequired' => ae_t('f_deed_required'), 'saved' => ae_t('f_saved'), 'errSave' => ae_t('f_err_save'),
-        'pendingAfter' => ae_t('f_status_pending_after'), 'liveAfter' => ae_t('f_status_live_after'), 'uploading' => ae_t('f_uploading'), 'videoDone' => ae_t('f_video_done'), 'videoBig' => ae_t('f_video_big', size_format(wp_max_upload_size())), 'videoMax' => wp_max_upload_size(),
+        'pendingAfter' => ae_t('f_status_pending_after'), 'liveAfter' => ae_t('f_status_live_after'), 'uploading' => ae_t('f_uploading'), 'teamInvited' => ae_t('team_invited_ok', '%s'), 'prDone' => ae_t('pr_done'), 'payRef' => ae_t('pay_ref'), 'payAmount' => ae_t('pay_amount'), 'payIban' => ae_t('pay_iban'), 'payHolder' => ae_t('pay_holder'), 'payBankHint' => ae_t('pay_bank_hint'), 'payRedirect' => ae_t('pay_redirect'), 'payReceiptOk' => ae_t('pay_receipt_ok'), 'videoDone' => ae_t('f_video_done'), 'videoBig' => ae_t('f_video_big', size_format(wp_max_upload_size())), 'videoMax' => wp_max_upload_size(),
         'below' => ae_t('idx_compare_below', '%c', '%p'), 'above' => ae_t('idx_compare_above', '%c', '%p'), 'equal' => ae_t('idx_compare_equal', '%c'),
         'perMonth' => ae_t('per_month'), 'perNight' => ae_t('per_night'), 'confirm' => ae_t('act_delete_confirm'),
         'calc' => ae_t('pf_calc', '%1', '%2', '%3'), 'saveFirst' => ae_t('pf_save_first'), 'tgSoon' => ae_t('tg_bot_soon'), 'tgHint' => ae_t('tg_code_hint'),
@@ -117,6 +137,17 @@ $statusLabel = fn(string $s) => '<span class="st st-' . esc_attr($s) . '">' . es
     <?php endforeach; ?>
   </nav>
 
+  <?php if (function_exists('ec_team_parent')) :
+      $tInv = !empty($agent['team_invite']) ? ec_agent((int) $agent['team_invite']) : null;
+      $tPar = ec_team_parent($agent);
+      if ($tInv) : ?>
+        <div class="note teamnote">👥 <?php ae_e('team_invited', $tInv['name']); ?>
+          <span class="row"><button type="button" class="btn sm" data-team="accept"><?php ae_e('team_accept'); ?></button><button type="button" class="ghost sm" data-team="decline"><?php ae_e('team_decline'); ?></button></span></div>
+      <?php elseif ($tPar && $tab === 'ozet') : ?>
+        <div class="note teamnote">👥 <?php ae_e('team_member_of', $tPar['name']); ?> <button type="button" class="linkbtn" data-team="leave" data-confirm="<?php echo esc_attr(ae_t('team_leave_q')); ?>"><?php ae_e('team_leave'); ?></button></div>
+      <?php endif;
+  endif; ?>
+
   <?php if ($tab === 'ozet') : ?>
     <div class="stats">
       <div class="stat"><b><?php echo $cnt('published'); ?></b><span><?php ae_e('p_stat_published'); ?></span></div>
@@ -135,7 +166,16 @@ $statusLabel = fn(string $s) => '<span class="st st-' . esc_attr($s) . '">' . es
   <?php if ($tab === 'ilanlar') :
       $rows = $wpdb->get_results($wpdb->prepare('SELECT * FROM ' . ec_table('listings') . ' WHERE agent_id = %d ORDER BY FIELD(status,"rejected","pending","draft","published","sold","passive"), id DESC LIMIT 500', $agent['id']), ARRAY_A);
       $items = ec_listings_present($rows, $lang, true);
-      $dupOf = array_column($rows, 'dup_of', 'id'); ?>
+      $dupOf = array_column($rows, 'dup_of', 'id');
+      $rowById = array_column($rows, null, 'id');
+      $credits = function_exists('ec_promo_credits') ? ec_promo_credits((int) $agent['id']) : [];
+      $kinds = function_exists('ec_promo_kinds') ? ec_promo_kinds() : []; ?>
+    <?php if ($kinds) : ?>
+      <div class="note promobar"><b><?php ae_e('pr_credits'); ?>:</b>
+        <?php foreach ($kinds as $k => $d) : ?><span class="pcred" data-k="<?php echo esc_attr($k); ?>"><?php echo esc_html($d['icon'] . ' ' . $d['name'][$lang]); ?> <b><?php echo (int) ($credits[$k] ?? 0); ?></b></span><?php endforeach; ?>
+        <a href="<?php echo $url('paket'); ?>"><?php ae_e('pr_buy'); ?> →</a>
+      </div>
+    <?php endif; ?>
     <div class="mylist">
       <?php foreach ($items as $a) : ?>
         <article class="myrow" data-id="<?php echo (int) $a['id']; ?>">
@@ -153,6 +193,20 @@ $statusLabel = fn(string $s) => '<span class="st st-' . esc_attr($s) . '">' . es
             <a class="ghost sm" href="<?php echo esc_url($a['url']); ?>" target="_blank"><?php ae_e('act_view'); ?></a>
             <?php if ($a['status'] === 'published') : ?>
               <?php if ($canSocial) : ?><button class="ghost sm" data-share="<?php echo (int) $a['id']; ?>">📣 <?php ae_e('act_share'); ?></button><?php endif; ?>
+              <?php if ($kinds) : $st = ec_promo_state($rowById[$a['id']] ?? []); ?>
+                <details class="promo">
+                  <summary class="btn sm gold">✦ <?php ae_e('pr_showcase'); ?><?php if ($st) : ?> <span class="count"><?php echo count($st); ?></span><?php endif; ?></summary>
+                  <div class="promo-menu">
+                    <?php foreach ($kinds as $k => $d) : $on = $st[$k] ?? null; ?>
+                      <button type="button" class="promo-it" data-promo="<?php echo esc_attr($k); ?>" data-id="<?php echo (int) $a['id']; ?>" <?php disabled(empty($credits[$k])); ?>>
+                        <span><?php echo esc_html($d['icon'] . ' ' . $d['name'][$lang]); ?></span>
+                        <small><?php echo $on ? esc_html(ae_t('pr_until', wp_date('d.m.Y', strtotime($on . ' UTC')))) : esc_html(ae_t('pr_left', (int) ($credits[$k] ?? 0))); ?></small>
+                      </button>
+                    <?php endforeach; ?>
+                    <a class="sub" href="<?php echo $url('paket'); ?>"><?php ae_e('pr_buy'); ?> →</a>
+                  </div>
+                </details>
+              <?php endif; ?>
               <button class="ghost sm" data-status="sold"><?php ae_e('act_sold'); ?></button>
               <button class="ghost sm" data-status="passive"><?php ae_e('act_passive'); ?></button>
             <?php elseif (in_array($a['status'], ['draft', 'rejected', 'sold', 'passive'], true)) : ?>
@@ -207,6 +261,32 @@ $statusLabel = fn(string $s) => '<span class="st st-' . esc_attr($s) . '">' . es
     <?php if ($canProjects) : include __DIR__ . '/parts/project-form.php'; else : ?><p class="note"><?php ae_e('pf_only_company'); ?></p><?php endif; ?>
   <?php endif; ?>
 
+  <?php if ($tab === 'ekip' && function_exists('ec_team_can_lead') && ec_team_can_lead($agent)) : $tm = ec_team_members((int) $agent['id']); $tp = ec_team_pending((int) $agent['id']); ?>
+    <div class="panel">
+      <h2><?php ae_e('team_tab'); ?></h2>
+      <p class="sub"><?php ae_e('team_sub'); ?></p>
+      <form class="teaminv" id="teaminv">
+        <label class="vh" for="tm-email"><?php ae_e('email'); ?></label>
+        <input id="tm-email" type="email" required placeholder="<?php ae_e('team_email_ph'); ?>">
+        <button class="btn" type="submit"><?php ae_e('team_invite'); ?></button>
+      </form>
+      <p class="formmsg" id="teammsg" role="status"></p>
+      <?php if ($tm) : ?>
+        <table class="ordtable"><tbody>
+          <?php foreach ($tm as $m) : ?>
+            <tr><td><b><?php echo esc_html($m['name']); ?></b><br><span class="sub"><?php echo esc_html($m['email']); ?></span></td><td><?php ae_e('team_live', (int) $m['live']); ?></td>
+              <td><button type="button" class="ghost sm" data-team="remove" data-member="<?php echo (int) $m['id']; ?>" data-confirm="<?php echo esc_attr(ae_t('team_remove_q', $m['name'])); ?>"><?php ae_e('team_remove'); ?></button></td></tr>
+          <?php endforeach; ?>
+        </tbody></table>
+      <?php else : ?><p class="note"><?php ae_e('team_empty'); ?></p><?php endif; ?>
+      <?php if ($tp) : ?>
+        <h3><?php ae_e('team_pending'); ?></h3>
+        <ul class="pklist"><?php foreach ($tp as $m) : ?><li><?php echo esc_html($m['name'] . ' · ' . $m['email']); ?> <button type="button" class="linkbtn" data-team="cancel" data-member="<?php echo (int) $m['id']; ?>"><?php ae_e('team_cancel'); ?></button></li><?php endforeach; ?></ul>
+      <?php endif; ?>
+      <p class="sub"><?php ae_e('team_note'); ?></p>
+    </div>
+  <?php endif; ?>
+
   <?php if ($tab === 'paket') : $subs = ec_subscriptions_summary((int) $agent['id']); $fn = ['syndication' => ae_t('pk_f_syndication'), 'social' => ae_t('pk_f_social'), 'telegram' => ae_t('pk_f_telegram')]; ?>
     <div class="panel">
       <h2><?php ae_e('p_package'); ?></h2>
@@ -218,13 +298,47 @@ $statusLabel = fn(string $s) => '<span class="st st-' . esc_attr($s) . '">' . es
             <div class="pbar"><span style="width:<?php echo (int) min(100, $s['used'] / max(1, $s['quota']) * 100); ?>%"></span></div>
             <p><?php ae_e('pk_used', $s['used'], $s['quota']); ?></p>
           <?php else : ?><p><?php ae_e('pk_unlimited', $s['used']); ?></p><?php endif; ?>
+          <?php $pl = array_filter($s['promos'] ?? [], fn($x) => $x['total'] > 0); if ($pl) : ?>
+            <p class="sub">✦ <?php ae_e('pr_showcase'); ?> (<?php ae_e('pr_days', (int) $s['promo_days']); ?>): <?php echo esc_html(implode(' · ', array_map(fn($k, $x) => ec_promo_name($k, $lang) . ' ' . $x['left'] . '/' . $x['total'], array_keys($pl), $pl))); ?></p>
+          <?php endif; ?>
           <p class="sub"><?php ae_e('pk_ends', wp_date('d.m.Y', strtotime($s['ends_at'] . ' UTC')), $s['days_left']); ?></p>
         </div>
       <?php endforeach; ?>
       <?php if (!$subs) : ?><p class="note"><?php ae_e('pk_none'); ?></p><?php endif; ?>
+      <?php if (isset($_GET['odeme'])) : ?><p class="note <?php echo $_GET['odeme'] === 'ok' ? 'ok' : 'warn'; ?>"><?php echo $_GET['odeme'] === 'ok' ? esc_html(ae_t('pay_ok', sanitize_text_field($_GET['sip'] ?? ''))) : esc_html(ae_t('pay_fail') . (isset($_GET['mesaj']) ? ' (' . sanitize_text_field(wp_unslash($_GET['mesaj'])) . ')' : '')); ?></p><?php endif; ?>
+      <?php $methods = function_exists('ec_payment_methods') ? ec_payment_methods() : []; $buyable = array_filter(ec_packages(true), fn($pk) => (float) ($pk['amount'] ?? 0) > 0); ?>
+      <?php if ($methods && $buyable) : ?>
+        <h3><?php ae_e('pay_title'); ?></h3>
+        <div class="buygrid" id="buygrid" data-methods="<?php echo esc_attr(implode(',', $methods)); ?>">
+          <?php foreach ($buyable as $pk) : $pr = ec_promos_parse($pk['promos'] ?? ''); ?>
+            <div class="buycard">
+              <b><?php echo esc_html($pk['name']); ?></b>
+              <span class="sub"><?php echo (int) $pk['days']; ?> <?php ae_e('pk_days'); ?><?php if ($pk['quota']) : ?> · <?php echo (int) $pk['quota']; ?> <?php ae_e('pk_listings'); ?><?php endif; ?></span>
+              <?php if ($pr) : ?><span class="sub">✦ <?php echo esc_html(implode(' · ', array_map(fn($k, $n) => $n . '× ' . ec_promo_name($k, $lang), array_keys($pr), $pr))); ?></span><?php endif; ?>
+              <span class="price"><?php echo esc_html(number_format((float) $pk['amount'], 2, ',', '.') . ' ' . $pk['currency']); ?></span>
+              <div class="row">
+                <?php if (in_array('card', $methods, true)) : ?><button type="button" class="btn sm" data-buy="<?php echo (int) $pk['id']; ?>" data-method="card">💳 <?php ae_e('pay_card'); ?></button><?php endif; ?>
+                <?php if (in_array('bank', $methods, true)) : ?><button type="button" class="ghost sm" data-buy="<?php echo (int) $pk['id']; ?>" data-method="bank">🏦 <?php ae_e('pay_bank'); ?></button><?php endif; ?>
+              </div>
+            </div>
+          <?php endforeach; ?>
+        </div>
+        <div class="bankbox panel" id="bankbox" hidden></div>
+        <?php $orders = ec_orders_for((int) $agent['id']); if ($orders) : ?>
+          <h3><?php ae_e('pay_orders'); ?></h3>
+          <table class="ordtable"><tbody>
+            <?php foreach ($orders as $o) : ?>
+              <tr><td><code><?php echo esc_html($o['ref']); ?></code></td><td><?php echo esc_html((string) $o['package']); ?></td><td><?php echo esc_html(number_format($o['amount'], 2, ',', '.') . ' ' . $o['currency']); ?></td><td><?php ae_e('pay_st_' . $o['status']); ?></td>
+                <td><?php if ($o['method'] === 'bank' && in_array($o['status'], ['pending', 'review'], true)) : ?><label class="ghost sm filebtn">📎 <?php ae_e($o['receipt'] ? 'pay_receipt_again' : 'pay_receipt'); ?><input type="file" accept="image/*,application/pdf" data-receipt="<?php echo (int) $o['id']; ?>" hidden></label><?php endif; ?></td></tr>
+            <?php endforeach; ?>
+          </tbody></table>
+        <?php endif; ?>
+      <?php endif; ?>
+      <?php if (!($methods && $buyable)) : ?>
       <h3><?php ae_e('pk_available'); ?></h3>
       <ul class="pklist"><?php foreach (ec_packages(true) as $pk) : ?><li><b><?php echo esc_html($pk['name']); ?></b> <span class="sub">· <?php echo (int) $pk['days']; ?> <?php ae_e('pk_days'); ?><?php if ($pk['quota']) : ?> · <?php echo (int) $pk['quota']; ?> <?php ae_e('pk_listings'); ?><?php endif; ?></span><?php if ($pk['price']) : ?> <b class="price"><?php echo esc_html($pk['price']); ?></b><?php endif; ?></li><?php endforeach; ?></ul>
       <?php $cw = preg_replace('/\D/', '', (string) (get_option('ec_contact')['whatsapp'] ?? '')); if ($cw) : ?><p><a class="wa" href="https://wa.me/<?php echo esc_attr($cw); ?>?text=<?php echo esc_attr(rawurlencode(ae_t('pk_wa', $agent['name']))); ?>" target="_blank" rel="noopener"><?php ae_e('pk_buy'); ?></a></p><?php endif; ?>
+      <?php endif; ?>
     </div>
   <?php endif; ?>
 

@@ -618,4 +618,87 @@
       api('POST', 'listings/' + b.dataset.share + '/share').then(function (r) { alert(r.message); }).catch(function (e) { alert(e.message); b.disabled = false; });
     });
   });
+
+  /* ---------- Vitrin (İlanlarım) ve paket satın alma (Paketim) ---------- */
+  document.addEventListener('click', function (e) {
+    var pb = e.target.closest('[data-promo]');
+    if (pb) {
+      pb.disabled = true;
+      api('POST', 'listings/' + pb.dataset.id + '/promote', { kind: pb.dataset.promo })
+        .then(function () { alert(T.prDone); location.reload(); })
+        .catch(function (er) { alert(er.message); pb.disabled = false; });
+      return;
+    }
+    var bb = e.target.closest('[data-buy]');
+    if (bb) {
+      bb.disabled = true;
+      api('POST', 'me/orders', { package_id: +bb.dataset.buy, method: bb.dataset.method }).then(function (r) {
+        if (r.pay) {
+          var f = document.createElement('form'); f.method = 'post'; f.action = r.pay.action;
+          Object.keys(r.pay.fields).forEach(function (k) { var i = document.createElement('input'); i.type = 'hidden'; i.name = k; i.value = r.pay.fields[k]; f.appendChild(i); });
+          document.body.appendChild(f); bb.textContent = T.payRedirect; f.submit(); return;
+        }
+        var box = document.getElementById('bankbox'), b = r.bank || {};
+        var row = function (l, v) { return '<p><span class="sub">' + l + '</span><br><b class="copy">' + String(v || '—').replace(/</g, '&lt;') + '</b></p>'; };
+        box.innerHTML = '<h3>🏦 ' + (b.bank || '') + '</h3>' + row(T.payHolder, b.holder) + row(T.payIban, b.iban) + row(T.payAmount, r.amount.toFixed(2) + ' ' + r.currency) + row(T.payRef, r.ref) + (b.note ? '<p class="sub">' + b.note.replace(/</g, '&lt;') + '</p>' : '') + '<p class="note">' + T.payBankHint + '</p>';
+        box.hidden = false; box.scrollIntoView({ behavior: 'smooth' });
+        setTimeout(function () { location.reload(); }, 15000);
+      }).catch(function (er) { alert(er.message); bb.disabled = false; });
+    }
+  });
+  document.addEventListener('change', function (e) {
+    var fi = e.target.closest('[data-receipt]');
+    if (!fi || !fi.files[0]) return;
+    var fd = new FormData(); fd.append('receipt', fi.files[0]);
+    api('POST', 'me/orders/' + fi.dataset.receipt + '/receipt', fd, true).then(function () { alert(T.payReceiptOk); location.reload(); }).catch(function (er) { alert(er.message); });
+  });
+
+  /* ---------- Proje videosu: dosya yükleme (önce proje kaydedilmiş olmalı) ---------- */
+  (function () {
+    var PF = $('#pform'), vf = $('#pvidfile'), vdel = $('#pviddel'), vmsg = $('#pvidmsg'), vprog = $('#pvidprog');
+    if (!PF || !vf) return;
+    var pid = function () { return parseInt(PF.dataset.id, 10) || 0; };
+    var isLocal = function (u) { return /\/ilan-foto\/proje-\d+\/video-[a-z0-9]+\.(mp4|webm|mov)$/i.test(u || ''); };
+    vdel.hidden = !isLocal(PF.video_url.value);
+    vf.addEventListener('change', function () {
+      var file = vf.files[0]; vf.value = '';
+      if (!file) return;
+      if (!pid()) { msg(vmsg, T.saveFirst, false); return; }
+      if (T.videoMax && file.size > T.videoMax) { msg(vmsg, T.videoBig, false); return; }
+      var fd = new FormData(); fd.append('video', file);
+      var x = new XMLHttpRequest();
+      x.open('POST', D.api + 'projects/' + pid() + '/video?lang=' + D.lang);
+      x.setRequestHeader('X-WP-Nonce', D.nonce);
+      vprog.hidden = false; vprog.value = 0; msg(vmsg, T.uploading, true);
+      x.upload.onprogress = function (e) { if (e.lengthComputable) vprog.value = Math.round(e.loaded / e.total * 100); };
+      x.onload = function () {
+        vprog.hidden = true; var j = {}; try { j = JSON.parse(x.responseText); } catch (er) {}
+        if (x.status >= 200 && x.status < 300 && j.url) { PF.video_url.value = j.url; vdel.hidden = false; msg(vmsg, T.videoDone, true); }
+        else msg(vmsg, j.message || ('HTTP ' + x.status), false);
+      };
+      x.onerror = function () { vprog.hidden = true; msg(vmsg, T.errSave, false); };
+      x.send(fd);
+    });
+    vdel.addEventListener('click', function () {
+      if (!pid()) { PF.video_url.value = ''; vdel.hidden = true; return; }
+      api('DELETE', 'projects/' + pid() + '/video').then(function () { PF.video_url.value = ''; vdel.hidden = true; msg(vmsg, T.saved + ' ✓', true); });
+    });
+  })();
+
+  /* ---------- Ofis ekibi ---------- */
+  var tinv = $('#teaminv');
+  if (tinv) tinv.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var em = $('#tm-email'), tm = $('#teammsg');
+    api('POST', 'me/team/invite', { email: em.value.trim() }).then(function (r) { msg(tm, (T.teamInvited || '✓ %s').replace('%s', r.name), true); setTimeout(function () { location.reload(); }, 1200); })
+      .catch(function (er) { msg(tm, er.message, false); });
+  });
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest('[data-team]');
+    if (!b) return;
+    if (b.dataset.confirm && !confirm(b.dataset.confirm)) return;
+    b.disabled = true;
+    api('POST', 'me/team/' + b.dataset.team, b.dataset.member ? { member: +b.dataset.member } : {}).then(function () { location.reload(); })
+      .catch(function (er) { alert(er.message); b.disabled = false; });
+  });
 })();
