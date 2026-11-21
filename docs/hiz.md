@@ -88,7 +88,7 @@ define('DISABLE_WP_CRON', true);
 - **When incoming requests match… → Edit expression** ve yapıştır (alan adını kendi adınla değiştir):
 
 ```
-(http.host eq "emlak392.com" or http.host eq "www.emlak392.com")
+(http.host eq "adacasa.com" or http.host eq "www.adacasa.com")
 and not starts_with(http.request.uri.path, "/wp-admin")
 and not starts_with(http.request.uri.path, "/wp-login.php")
 and not starts_with(http.request.uri.path, "/wp-json")
@@ -104,7 +104,7 @@ and not http.cookie contains "wp-postpass"
 - **Deploy.**
 
 Site kişisel sayfaları (panel, giriş, favoriler) zaten "önbelleğe alma" başlığıyla gönderir. Kural onları önbelleğe almaz.
-Ofis alt alan adları (`ofis.emlak392.com`) da hızlansın istersen ilk satırı şöyle yap: `(http.host eq "emlak392.com" or ends_with(http.host, ".emlak392.com"))`.
+Ofis alt alan adları (`ofis.adacasa.com`) da hızlansın istersen ilk satırı şöyle yap: `(http.host eq "adacasa.com" or ends_with(http.host, ".adacasa.com"))`.
 
 ### 3.4 Güvenlik (hız ve botlar)
 - **Security → Bots → Bot Fight Mode: ✘ KAPALI.** Açıkken Telegram'ın webhook'unu ve Instagram'ın fotoğraf indirmesini engelleyebilir; ücretsiz planda bunun için istisna tanımlanamaz.
@@ -172,7 +172,7 @@ add_header X-Cache $upstream_cache_status;
 Kontrol (SSH):
 
 ```bash
-curl -sI https://emlak392.com/tr/ | grep -iE "x-cache|cache-control"
+curl -sI https://adacasa.com/tr/ | grep -iE "x-cache|cache-control"
 ```
 
 İkinci çalıştırmada `X-Cache: HIT` görünmeli.

@@ -5,59 +5,23 @@ Dal: `claude/jolly-carson-l927uv`. Kod buradadır, her şey commit edilip gönde
 
 ---
 
-## 1. Yeni oturumda ilk iş: marka değişikliği (henüz yapılmadı)
+## 1. Marka değişikliği: AdaCasa 1.0.1 (yapıldı, kullanıcıya teslim edildi)
 
-Kullanıcının kararı:
-
-- **Marka:** **AdaCasa**. Logodaki alt yazı: "GAYRİMENKUL & YATIRIM".
-- **Alan adı:** **adacasa.com**.
-- **Logo:** `docs/marka/adacasa-logo.png`, aynısının `.webp` hali de var (1024×572, beyaz zemin).
-  - Sol tarafta sembol: ev çatısı, mavi dalgalar, altın kıvrım.
-  - Sağ tarafta yazı: "adacasa"; "ca" altın, gerisi lacivert.
-- **Logo renkleri (yaklaşık):**
-  - Lacivert `#14284B`
-  - Mavi `#4A8FC7` / `#7DB3DF`
-  - Altın `#B8893F`
-
-  Sitenin şimdiki paleti koyu turkuaz (`--acc:#16343b`) ve altın (`--gold:#b48a45`). Yeni oturumda paletin logoya uyumu kullanıcıya sorulmalı.
-- **Paket adları:** kullanıcı yeni sohbette paketleri şu adlarla isteyecek:
-  - `adacasa-them1.01` → büyük olasılıkla **tema**: `adacasa-theme-1.0.1.zip`
-  - `adacasa-core1.0.1` → **eklenti**: `adacasa-core-1.0.1.zip`
-
-  "them" kelimesini ve 1.01 / 1.0.1 farkını kullanıcıya bir kez sor; önerin tema `adacasa-theme`, eklenti `adacasa-core`, ikisi de **1.0.1**.
-
-Yapılacaklar listesi (öneri; büyük iş olduğu için önce kullanıcıya planı göster):
-
-1. **Klasör ve ad değişikliği.**
-   - `plugins/emlak-core` → `plugins/adacasa-core` (ana dosya `adacasa-core.php`, Plugin Name: "AdaCasa Core").
-   - `themes/emlak-tema` → `themes/adacasa-theme` (Theme Name: "AdaCasa").
-   - `scripts/paketle.sh` yeni adlara göre güncellenecek.
-2. **Geçişte dikkat edilecekler.**
-   - WordPress eklentiyi klasör/dosya adından tanır. Klasör adı değişirse eski eklenti devre dışı kalır, yenisi ayrı eklenti olarak kurulur.
-   - Veri tabloları (`wp_ec_*`) ve ayarlar (`ec_*` seçenekleri) aynı kalır, kayıp olmaz. Yeni eklenti etkinleştirilince şema kontrolü kendiliğinden çalışır.
-   - Sıra: yeni eklentiyi yükle → eski "Emlak Core"u devre dışı bırak → yeniyi etkinleştir → eskiyi sil.
-   - Aynı anda ikisi etkin olursa fonksiyon adları çakışır (fatal error). Yeni eklentiye "eski eklenti etkinse etkinleşme, uyarı göster" koruması eklenmeli.
-   - Tema: `after_switch_theme` içindeki ayar taşıma, `theme_mods_emlak-tema` (ve eski `theme_mods_adaev`) → yeni temaya kopyalayacak şekilde genişletilecek.
-   - İç fonksiyon önekleri (`ec_`, `ae_`), tablo adları (`wp_ec_*`) ve REST yolu (`/api/v1`, `emlak/v1`) **değişmesin**. Bot, Chrome eklentisi ve gelecekteki Next.js geçişi bunlara bağlı.
-3. **Logo.** Temada `ae_logo()` şu an SVG sembol ve site adını gösteriyor.
-   - AdaCasa logosu SVG'ye çevrilebilirse en iyisi. Çevrilemezse PNG/WebP ile `assets/img/` altına konulur, şeffaf zemin gerekebilir.
-   - Favicon, `apple-touch-icon`, `og-default.jpg` ve `site.webmanifest` adları/renkleri güncellenecek.
-4. **Marka metinleri.**
-   - Fallback "AdaEv" geçen yerler: `ae_brand()`, demo e-postaları, rehber, SSS.
-   - Site adı WordPress'in "Site başlığı" ayarından gelir; canlıda "AdaCasa" yazılacak.
-5. **Belgeler.**
-   - `docs/neden-biz.html` ve `.pdf` rehberi AdaCasa adı, logosu ve renkleriyle yeniden üretilecek. PDF, Playwright ile `page.pdf` kullanılarak üretilir. Yayımlanmış hali: https://claude.ai/artifact/YL2sUFCN2h12Nt6Te49o2d; aynı dosya yolundan yeniden yayımlanırsa adres aynı kalır.
-   - Kurulum belgelerinde `emlak392.com` örnekleri → `adacasa.com`.
-6. **Chrome eklentisi.** Adı "İlan Aktarıcı" kalabilir ya da "AdaCasa İlan Aktarıcı" olur; manifest sürümü artırılır.
-7. **Teslim.** `emlak-core` 0.7 içeriği yeni adlarla **1.0.1** olarak verilecek (bkz. 3. bölüm).
-   - Kurulum sırası kullanıcıya hatırlatılacak:
-     1. Yeni eklentiyi yükle → eskisini devre dışı bırak → yeniyi etkinleştir → eskisini sil.
-     2. Yeni temayı yükle ve etkinleştir → eski temayı sil.
-     3. Ayarlar → Site başlığı = "AdaCasa".
-     4. Emlak → Ayarlar → Araçlar → "Benzer ilanları şimdi tara".
-     5. Emlak → Hız → Cloudflare önbelleğini temizle.
-
----
+- **Marka:** AdaCasa ("GAYRİMENKUL & YATIRIM"), alan adı **adacasa.com**. Orijinal logo: `docs/marka/adacasa-logo.png` / `.webp`.
+- **SVG sembol:** `docs/marka/adacasa-mark.svg` (orijinalden elle yeniden çizildi, birebir değil). Temada `ae_logo_mark()` + `ae_logo_word()`; site başlığı tam "AdaCasa" ise "ada**ca**sa" yazısı ve dile göre alt yazı çıkar.
+  - Lacivert kısımlar CSS değişkeni `--lgn` ile boyanır; koyu temada ve alt bilgide açık renk olur.
+- **Palet (logoya uyduruldu):** `--acc` lacivert `#14284b`, `--gold` `#b8893f`, `--blue` `#4a8fc7`, `--blue2` `#7db3df`, zemin `#f8f9fb`. Koyu tema lacivert tonlarında.
+- **Klasörler:** `plugins/adacasa-core/adacasa-core.php` ("AdaCasa Core"), `themes/adacasa-theme` ("AdaCasa").
+  - İç önekler (`ec_`, `ae_`), tablolar (`wp_ec_*`) ve REST yolları değişmedi.
+- **Geçiş koruması:**
+  - Eski `emlak-core` etkinken AdaCasa Core etkinleştirilirse eskiyi sessizce devre dışı bırakır ve bir kez başarı uyarısı gösterir.
+  - İkisi aynı anda etkin kalırsa yenisi hiçbir şey yüklemez, sadece uyarı gösterir; çökme olmaz.
+- **Tema ayarları:** `after_switch_theme` ile `theme_mods_emlak-tema`, yoksa `theme_mods_adaev`, yeni temaya kopyalanır.
+- **Görseller ve diğer parçalar:**
+  - Favicon, PNG ikonlar, apple-touch-icon, og-default.jpg (orijinal PNG logo ve lacivert bant) ve manifest yenilendi.
+  - Chrome eklentisi "AdaCasa İlan Aktarıcı" adını aldı, sürümü 0.4.1; ikonları ve renkleri yenilendi.
+- **Rehber:** `docs/neden-biz.html` ve `.pdf` AdaCasa adı, logosu ve paletiyle yeniden üretildi; aynı adresten yeniden yayımlandı.
+- **Testler:** `tests/social-test.php` artık `/tmp/x/pano1.jpg` dosyasını yoksa kendisi üretiyor. Eski 0.7'den 1.0.1'e geçiş yerelde denendi (wp-cli).
 
 ## 2. Proje özeti
 
@@ -72,22 +36,22 @@ Yapılacaklar listesi (öneri; büyük iş olduğu için önce kullanıcıya pla
   - Kendi tablolar, sabit linkler ve `/api/v1` API'si sayesinde ileride Next.js + Supabase'e "bir gecelik bakım" ile geçilebilir. Ölçütler `docs/veri-modeli.md` dosyasında; KKTC ölçeğinde uzun süre gerek yok.
 - **Dil:** TR / EN / RU (`/tr/…`, `/en/…`, `/ru/…`).
 - **Kod:**
-  - `wordpress/wp-content/plugins/emlak-core/`: iş mantığı, tablolar, REST, yönetim.
-  - `wordpress/wp-content/themes/emlak-tema/`: görünüm.
+  - `wordpress/wp-content/plugins/adacasa-core/`: iş mantığı, tablolar, REST, yönetim.
+  - `wordpress/wp-content/themes/adacasa-theme/`: görünüm.
   - `extension/`: Chrome eklentisi.
   - `tests/`: testler.
   - `docs/`: belgeler.
-- **Paketleme:** `bash scripts/paketle.sh`. Sürüm numaraları başlıklardan okunur. Çıktılar: `dist/emlak-core-X.zip`, `dist/emlak-tema-X.zip`, `dist/ilan-aktarici-X.zip`.
+- **Paketleme:** `bash scripts/paketle.sh`. Sürüm numaraları başlıklardan okunur. Çıktılar: `dist/adacasa-core-X.zip`, `dist/adacasa-theme-X.zip`, `dist/ilan-aktarici-X.zip`.
 
 ## 3. Sürüm durumu
 
 | Parça | Kullanıcıya verilen son sürüm | Daldaki sürüm (teslim bekliyor) |
 |---|---|---|
-| Eklenti (emlak-core) | 0.6.0 | **0.7.0** |
-| Tema (emlak-tema) | 0.6.1 | **0.7.0** |
-| Chrome eklentisi | 0.4.0 | 0.4.0 |
+| Eklenti (adacasa-core, eski emlak-core) | **1.0.1** | 1.0.1 |
+| Tema (adacasa-theme, eski emlak-tema) | **1.0.1** | 1.0.1 |
+| Chrome eklentisi | **0.4.1** | 0.4.1 |
 
-Kullanıcının kuralı: "Her şey tamam olana kadar yeni sürüm verme." 0.7 değişiklikleri teslim edilmedi. Marka değişikliğiyle birlikte **AdaCasa 1.0.1** olarak verilecek.
+Kullanıcının kuralı: "Her şey tamam olana kadar yeni sürüm verme." 0.7 içeriği marka değişikliğiyle birlikte **AdaCasa 1.0.1** olarak teslim edildi.
 
 ### Bitmiş özellikler (0.1 – 0.7)
 
@@ -150,7 +114,7 @@ Kullanıcının kuralı: "Her şey tamam olana kadar yeni sürüm verme." 0.7 de
 
 ## 4. Bekleyen işler ve kullanıcıdan beklenenler
 
-1. **Marka değişikliği ve 1.0.1 teslimi** (1. bölüm).
+1. Kullanıcının 1.0.1 kurulumunu yapıp geri bildirim vermesi (logo SVG çizimi beğenilmezse PNG kullanılabilir).
 2. **Anahtarlar (kullanıcıda):**
    - BotFather token ve yönetici chat id
    - Claude API anahtarı
@@ -183,15 +147,17 @@ mkdir -p /tmp/wpdev && cd /tmp/wpdev && composer require -q johnpbloch/wordpress
 ```
 
 ```bash
-curl -sSL -o /usr/local/bin/wp https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar && chmod +x /usr/local/bin/wp
+cd /tmp/wpdev && composer require -q wp-cli/wp-cli-bundle
 ```
+
+wp-cli: `/tmp/wpdev/vendor/bin/wp --allow-root --path=/tmp/wpdev/site`. Sistem klasörüne phar indirmek ve `0.0.0.0` üzerinde sunucu açmak otomatik izin denetimine takıldı; sunucu `php -S 127.0.0.1:8080 -t site` ile arka plan görevi olarak çalıştırılır.
 
 Sonra:
 
 1. Veritabanı ve kullanıcı: `adaev` / `adaev`.
 2. `wp core install` (admin/admin). Kalıcı bağlantılar: `/%postname%/`.
 3. Eklenti ve temayı depodan sembolik link olarak bağla, ikisini de etkinleştir.
-4. `php -S 0.0.0.0:8080 -t site` (yönlendirici betik verme).
+4. `php -S 127.0.0.1:8080 -t site` (yönlendirici betik verme).
 5. `wp emlak seed`.
 
 Notlar:

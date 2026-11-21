@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Emlak İlan Aktarıcı",
+  "name": "AdaCasa İlan Aktarıcı",
   "short_name": "İlan Aktarıcı",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "Sitenizdeki ilanları 101evler ve hangiev formlarına sizin tarayıcınızda doldurur. Son 'Yayınla' tıkı her zaman sizde kalır.",
   "permissions": ["storage", "tabs"],
   "host_permissions": [

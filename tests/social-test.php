@@ -76,6 +76,12 @@ $q = ec_social_queue($lid);
 t('paketli: üyenin FB + IG hesabı da sıraya alındı', $q === 2);
 t('aynı ilan tekrar sıraya alınmaz', ec_social_queue($lid) === 0);
 
+if (!file_exists('/tmp/x/pano1.jpg')) { // 2:1 deneme panoraması (yoksa üret)
+    wp_mkdir_p('/tmp/x');
+    $im = imagecreatetruecolor(2000, 1000);
+    for ($x = 0; $x < 2000; $x += 50) { imagefilledrectangle($im, $x, 0, $x + 49, 999, imagecolorallocate($im, $x % 255, 120, 200 - $x % 200)); }
+    imagejpeg($im, '/tmp/x/pano1.jpg', 85);
+}
 ec_pano_add($lid, '/tmp/x/pano1.jpg', 'Salon'); // 0.6: 360° fotoğraf
 $GLOBALS['graph'] = [];
 $res = ec_social_run(10);

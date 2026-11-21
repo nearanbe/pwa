@@ -1,4 +1,4 @@
-# AdaEv – Kıbrıs Emlak İlan Portalı
+# AdaCasa – Kıbrıs Emlak İlan Portalı (adacasa.com)
 
 Türkçe, İngilizce ve Rusça yayın yapan emlak ilan sitesi. İlanlar emlakçılar için ücretsiz.
 Gelir, Telegram botu ve tarayıcı otomasyonuyla 101evler ve hangiev'e ilan girme paketlerinden gelecek.
@@ -7,8 +7,8 @@ Site WordPress üzerinde çalışır. Ancak ileride Next.js altyapısına **bir 
 
 | Parça | Klasör | Görevi |
 |---|---|---|
-| **Emlak Core** eklentisi | `wordpress/wp-content/plugins/emlak-core/` | Kendi veri tabloları, TR/EN/RU link yapısı, `/api/v1` REST API, yönetim ekranları |
-| **Emlak Tema** (`emlak-tema`) | `wordpress/wp-content/themes/emlak-tema/` | Görünüm: slider'lı ana sayfa, arama, ilan detayı, projeler, ilan ver, favoriler |
+| **AdaCasa Core** eklentisi (`adacasa-core`, eski adı Emlak Core) | `wordpress/wp-content/plugins/adacasa-core/` | Kendi veri tabloları, TR/EN/RU link yapısı, `/api/v1` REST API, yönetim ekranları |
+| **AdaCasa** teması (`adacasa-theme`, eski adı Emlak Tema) | `wordpress/wp-content/themes/adacasa-theme/` | Görünüm: slider'lı ana sayfa, arama, ilan detayı, projeler, ilan ver, favoriler |
 | Chrome eklentisi | `extension/` | 101evler ve hangiev formlarını emlakçının tarayıcısında doldurur |
 | Belgeler | `docs/` | [Kurulum](docs/kurulum.md) · [Hız](docs/hiz.md) · [Sosyal medya](docs/sosyal-medya-kurulum.md) · [API sözleşmesi](docs/api.md) · [Veri modeli ve geçiş planı](docs/veri-modeli.md) |
 
@@ -32,4 +32,4 @@ Plesk sunucusuna kurulum için [docs/kurulum.md](docs/kurulum.md) dosyasına bak
 bash scripts/paketle.sh
 ```
 
-Bu komut `dist/emlak-core-SÜRÜM.zip`, `dist/emlak-tema-SÜRÜM.zip` ve `dist/ilan-aktarici-SÜRÜM.zip` (Chrome eklentisi) dosyalarını üretir. WordPress yönetiminden önce eklentiyi, sonra temayı yükleyip etkinleştirin.
+Bu komut `dist/adacasa-core-SÜRÜM.zip`, `dist/adacasa-theme-SÜRÜM.zip` ve `dist/ilan-aktarici-SÜRÜM.zip` (Chrome eklentisi) dosyalarını üretir. WordPress yönetiminden önce eklentiyi, sonra temayı yükleyip etkinleştirin.

@@ -19,7 +19,7 @@ Müşterinin şifresini hiç bilmezsin. Müşteri ödemeyi keserse paketini biti
 1. Bilgisayardan **developers.facebook.com** adresine git. Kendi Facebook hesabınla giriş yap.
 2. İlk kez giriyorsan **"Başlayın / Get Started"**. Telefon ve e-posta doğrulamasını yap.
 3. Sağ üstte **"Uygulamalarım / My Apps"** → **"Uygulama oluştur / Create App"**.
-4. Uygulama adı: `Emlak392 Paylaşım` (istediğin bir ad). İletişim e-postası: kendi e-postan. **İleri**.
+4. Uygulama adı: `AdaCasa Paylaşım` (istediğin bir ad). İletişim e-postası: kendi e-postan. **İleri**.
 5. **Kullanım durumu (Use case)** ekranında şu ikisini seç:
    - **"Sayfanızdaki her şeyi yönetin" / "Manage everything on your Page"**
    - **"Instagram'da mesajları ve içeriği yönetin" / "Manage messaging & content on Instagram"**

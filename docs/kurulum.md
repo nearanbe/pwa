@@ -1,11 +1,14 @@
 # Kurulum (Plesk VPS)
 
-> **Tema adı değişti (0.6.1): AdaEv → Emlak Tema.** WordPress temayı klasör adından tanıdığı için `emlak-tema-0.6.1.zip` yeni bir tema olarak kurulur:
-> 1. **Görünüm → Temalar → Yeni ekle → Tema yükle** → `emlak-tema-0.6.1.zip` → **Şimdi kur** → **Etkinleştir**. Logo ve Özelleştir ayarları eski temadan kendiliğinden taşınır.
-> 2. Siteyi kontrol et, sonra **Görünüm → Temalar → AdaEv → Sil**.
-> 3. **Emlak → Hız → Cloudflare önbelleğini şimdi tamamen temizle.**
+> **Marka değişti (1.0.1): AdaCasa.** Eklenti `emlak-core` → `adacasa-core`, tema `emlak-tema` → `adacasa-theme` oldu. WordPress eklentiyi ve temayı klasör adından tanıdığı için ikisi de **yeni** olarak kurulur. Veri tabloları (`wp_ec_*`) ve ayarlar aynen kalır, hiçbir şey kaybolmaz.
+> 1. **Eklentiler → Yeni ekle → Eklenti yükle** → `adacasa-core-1.0.1.zip` → **Şimdi kur** → **Etkinleştir**. Eski "Emlak Core" bu sırada kendiliğinden devre dışı bırakılır; ikisi aynı anda çalışmaz. (Elle yapmak isterseniz: önce Emlak Core'u devre dışı bırakın, sonra AdaCasa Core'u etkinleştirin.)
+> 2. **Eklentiler** → **Emlak Core → Sil**. ("Verileri sil" gibi bir soru çıkmaz; tablolar silinmez.)
+> 3. **Görünüm → Temalar → Yeni ekle → Tema yükle** → `adacasa-theme-1.0.1.zip` → **Etkinleştir**. Logo, menü ve Özelleştir ayarları eski temadan kendiliğinden taşınır. Sonra **Emlak Tema → Sil**.
+> 4. **Ayarlar → Genel → Site başlığı** = `AdaCasa`. Bu ad tam olarak "AdaCasa" ise logoda "ada**ca**sa" yazısı ve "GAYRİMENKUL & YATIRIM" alt yazısı çıkar.
+> 5. **Emlak → Ayarlar → Araçlar → Benzer ilanları şimdi tara.**
+> 6. **Emlak → Hız → Cloudflare önbelleğini şimdi tamamen temizle.**
 >
-> Bundan sonraki tema güncellemeleri yine **Mevcut sürümü değiştir** ile yapılır. Zip adları sürüm numarası taşır (ör. `emlak-core-0.6.0.zip`). Zip içindeki klasör adı sabittir, bu yüzden WordPress güncellemeyi doğru tanır.
+> Bundan sonraki güncellemeler yine **Mevcut sürümü değiştir** ile yapılır. Zip adları sürüm numarası taşır (ör. `adacasa-core-1.0.1.zip`). Zip içindeki klasör adı sabittir, bu yüzden WordPress güncellemeyi doğru tanır.
 >
 > **0.5 yenilikleri:** Paketler (Emlak → Paketler), Facebook ve Instagram paylaşımı ([sosyal-medya-kurulum.md](sosyal-medya-kurulum.md), çizimli rehber: [sosyal-medya-rehberi.html](sosyal-medya-rehberi.html)), hız ayarları ([hiz.md](hiz.md)). Güncelleme sırası aynı: önce eklenti, sonra tema.
 >
@@ -32,20 +35,20 @@
 bash scripts/paketle.sh
 ```
 
-1. **Eklentiler → Yeni ekle → Eklenti yükle** → `dist/emlak-core-SÜRÜM.zip` → Etkinleştir.
+1. **Eklentiler → Yeni ekle → Eklenti yükle** → `dist/adacasa-core-SÜRÜM.zip` → Etkinleştir.
    Etkinleştirme sırasında veri tabloları (`wp_ec_*`) otomatik oluşturulur.
-2. **Görünüm → Temalar → Yeni ekle → Tema yükle** → `dist/emlak-tema-SÜRÜM.zip` → Etkinleştir.
+2. **Görünüm → Temalar → Yeni ekle → Tema yükle** → `dist/adacasa-theme-SÜRÜM.zip` → Etkinleştir.
 3. **Ayarlar → Genel → Site başlığı** alanına sitenin adını yazın. Bu ad logoda görünür.
 4. **Emlak → Ayarlar** bölümünden döviz kurlarını, WhatsApp numarasını ve (varsa) AdSense kodlarını girin.
 
 SSH ile güncelleme yapmak isterseniz iki klasörü sunucudaki `wp-content/plugins/` ve `wp-content/themes/` altına kopyalamak yeterlidir:
 
 ```bash
-rsync -av --delete wordpress/wp-content/plugins/emlak-core/ KULLANICI@SUNUCU:httpdocs/wp-content/plugins/emlak-core/
+rsync -av --delete wordpress/wp-content/plugins/adacasa-core/ KULLANICI@SUNUCU:httpdocs/wp-content/plugins/adacasa-core/
 ```
 
 ```bash
-rsync -av --delete wordpress/wp-content/themes/emlak-tema/ KULLANICI@SUNUCU:httpdocs/wp-content/themes/emlak-tema/
+rsync -av --delete wordpress/wp-content/themes/adacasa-theme/ KULLANICI@SUNUCU:httpdocs/wp-content/themes/adacasa-theme/
 ```
 
 ## 3. Demo veriler (isteğe bağlı)
@@ -168,7 +171,7 @@ Kendi logonuzu kullanmak isterseniz **Görünüm → Özelleştir → Site kimli
 ## Cloudflare Turnstile (kayıt ve giriş captcha'sı)
 
 1. [dash.cloudflare.com](https://dash.cloudflare.com) → sol menüden **Turnstile** → **Add widget**.
-2. **Widget name:** site adı. **Hostname:** alan adın, örneğin `emlak392.com`. Ofis alt alan adları da kullanılacaksa onları da ekleyebilirsin.
+2. **Widget name:** site adı. **Hostname:** alan adın, örneğin `adacasa.com`. Ofis alt alan adları da kullanılacaksa onları da ekleyebilirsin.
 3. **Widget mode:** **Managed**. Ziyaretçilerin çoğu hiçbir şey çözmeden geçer.
 4. **Create** → çıkan **Site Key** ve **Secret Key** değerlerini kopyala.
 5. WordPress → **Emlak → Ayarlar → Cloudflare Turnstile** bölümüne iki anahtarı yapıştır ve kaydet.
@@ -196,7 +199,7 @@ Kutu işaretli değilken vitrinler `/tr/ofis/ofis-adi/` adresinde açılır. Bu 
 
 Tek merkezi bot vardır. Üyeler hesaplarını bota bağlar, fotoğraf ve metin gönderir, yapay zekâ ilanı hazırlar.
 
-1. Telegram'da **@BotFather** → `/newbot`. Bota bir ad ve `...Bot` ile biten bir kullanıcı adı ver (ör. `Emlak392Bot`). Gelen **token**'ı kopyala.
+1. Telegram'da **@BotFather** → `/newbot`. Bota bir ad ve `...Bot` ile biten bir kullanıcı adı ver (ör. `AdaCasaBot`). Gelen **token**'ı kopyala.
 2. Kendi botuna bir mesaj gönder. Sonra **@userinfobot**'a yazarak kendi sohbet numaranı (chat id) öğren.
 3. **Emlak → Ayarlar → Telegram:** bot kullanıcı adı, token ve sohbet numaranı gir, kaydet.
 4. **Emlak → Ayarlar → Araçlar → Telegram webhook'unu kur.** "Webhook kuruldu" yazmalı. (Site HTTPS olmalı; Telegram http adrese mesaj göndermez.)
@@ -225,7 +228,7 @@ Bir ilan genellikle birkaç sentlik maliyet tutar. Maliyeti azaltmak isterseniz 
 
 1. Zip'i bir klasöre aç.
 2. Chrome → adres çubuğuna `chrome://extensions` → sağ üstte **Geliştirici modu**'nu aç → **Paketlenmemiş öğe yükle** → açılan klasörü seç.
-3. Eklenti simgesi → ⚙ **Ayarlar:** site adresi (`https://emlak392.com`) ve API anahtarı (**Emlak → Danışmanlar → API anahtarı üret**). **Kaydet ve dene** → "Bağlandı" yazmalı.
+3. Eklenti simgesi → ⚙ **Ayarlar:** site adresi (`https://adacasa.com`) ve API anahtarı (**Emlak → Danışmanlar → API anahtarı üret**). **Kaydet ve dene** → "Bağlandı" yazmalı.
 4. 101evler ve hangiev'de kendi hesabınla giriş yap.
 
 Kullanım: eklenti simgesi → ilanı bul → **101evler'e aktar**. Yeni sekmede ilan formu açılır, eklenti alanları ve fotoğrafları doldurur, sağ altta ne yaptığını yazar.

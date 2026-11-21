@@ -1,25 +1,25 @@
-<title>Emlakçı Rehberi</title>
+<title>AdaCasa Emlakçı Rehberi</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap">
 <style>
-/* Düzen: broşür / kılavuz. Kapak bandı, ardından numaralı bölümler (gerçek bir sıra oldukları için numaralı),
+/* AdaCasa logosu: lacivert (#14284B), mavi (#4A8FC7/#7DB3DF), altın (#B8893F). Düzen: broşür / kılavuz. Kapak bandı, ardından numaralı bölümler (gerçek bir sıra oldukları için numaralı),
    yazdırmada (PDF) her ana bölüm yeni sayfada başlar. Renkler sitenin kendi paletinden. */
 :root{
-  --bg:#f6f4ee; --paper:#ffffff; --ink:#15262a; --muted:#5f6d6f; --line:#e3ddd0;
-  --teal:#16343b; --teal-2:#1f4a4f; --gold:#b48a45; --gold-2:#e2c48b; --soft:#efebe1; --ok:#1f7a45;
-  --on-teal:#f4efe4; --on-teal-muted:#c5d2cf;
+  --bg:#f6f8fb; --paper:#ffffff; --ink:#142036; --muted:#5a677d; --line:#e1e7f0;
+  --teal:#14284b; --teal-2:#24477a; --gold:#b8893f; --gold-2:#e2c48b; --soft:#edf2f8; --ok:#1f7a45;
+  --blue:#4a8fc7; --on-teal:#f4f1ea; --on-teal-muted:#c4d0e2;
   --display:"Cormorant Garamond", Georgia, "Times New Roman", serif;
   --body:Inter, "Segoe UI", system-ui, -apple-system, sans-serif;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
-  --bg:#0f1a1c; --paper:#16252a; --ink:#ecf0ee; --muted:#9fb0ae; --line:#26383c;
-  --teal:#0c1d21; --teal-2:#173a40; --gold:#d9bd83; --gold-2:#e8d3a2; --soft:#1c2d31; --ok:#5cc58a;
-  --on-teal:#f4efe4; --on-teal-muted:#a9bbb8; color-scheme:dark}}
+  --bg:#0b1526; --paper:#111f36; --ink:#eef2f7; --muted:#9aaac0; --line:#22324d;
+  --teal:#0a1a33; --teal-2:#1a3560; --gold:#d9bd83; --gold-2:#e8d3a2; --soft:#172843; --ok:#5cc58a;
+  --on-teal:#f4efe4; --on-teal-muted:#aebbd0; color-scheme:dark}}
 :root[data-theme="dark"]{
-  --bg:#0f1a1c; --paper:#16252a; --ink:#ecf0ee; --muted:#9fb0ae; --line:#26383c;
-  --teal:#0c1d21; --teal-2:#173a40; --gold:#d9bd83; --gold-2:#e8d3a2; --soft:#1c2d31; --ok:#5cc58a;
-  --on-teal:#f4efe4; --on-teal-muted:#a9bbb8; color-scheme:dark}
+  --bg:#0b1526; --paper:#111f36; --ink:#eef2f7; --muted:#9aaac0; --line:#22324d;
+  --teal:#0a1a33; --teal-2:#1a3560; --gold:#d9bd83; --gold-2:#e8d3a2; --soft:#172843; --ok:#5cc58a;
+  --on-teal:#f4efe4; --on-teal-muted:#aebbd0; color-scheme:dark}
 *{box-sizing:border-box}
 body{background:var(--bg);color:var(--ink);font:16px/1.65 var(--body)}
 .w{max-width:980px;margin:0 auto;padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px))}
@@ -31,8 +31,11 @@ p{margin:0}
 .eyebrow{font:600 12px/1 var(--body);letter-spacing:.14em;text-transform:uppercase;color:var(--gold)}
 
 /* Kapak */
-.cover{background:radial-gradient(900px 380px at 90% -10%, rgba(180,138,69,.35), transparent 60%), linear-gradient(160deg,var(--teal),var(--teal-2));color:var(--on-teal);margin-top:calc(-1 * env(safe-area-inset-top, 0px));padding-top:calc(env(safe-area-inset-top, 0px) + 56px);padding-bottom:64px}
+.cover{background:radial-gradient(900px 380px at 90% -10%, rgba(74,143,199,.35), transparent 60%), linear-gradient(160deg,var(--teal),var(--teal-2));color:var(--on-teal);margin-top:calc(-1 * env(safe-area-inset-top, 0px));padding-top:calc(env(safe-area-inset-top, 0px) + 56px);padding-bottom:64px}
 .cover .w{display:grid;gap:22px}
+.brand{display:flex;align-items:center;gap:12px}
+.brand b{display:block;font:600 44px/1 var(--display);letter-spacing:.01em;color:#fff}.brand b em{font-style:normal;color:var(--gold-2)}
+.brand small{display:block;font:600 10px/1 var(--body);letter-spacing:.22em;color:var(--on-teal-muted);margin-top:5px}
 .cover .eyebrow{color:var(--gold-2)}
 .cover h1{font-size:clamp(44px,8vw,84px);letter-spacing:-.01em}
 .cover h1 em{font-style:italic;color:var(--gold-2)}
@@ -133,20 +136,23 @@ td.yes{color:var(--ok);font-weight:600}
 
 <header class="cover">
   <div class="w">
+    <div class="brand"><svg viewBox="0 0 330 200" width="96" height="58" aria-hidden="true"><defs><linearGradient id="swa" x1="0" x2="1"><stop offset="0" stop-color="#7db3df"/><stop offset=".55" stop-color="#4a8fc7"/><stop offset="1" stop-color="#ffffff"/></linearGradient><linearGradient id="aua" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#d9b77a"/><stop offset=".5" stop-color="#b8893f"/><stop offset="1" stop-color="#8f6427"/></linearGradient></defs>
+<g ><path d="M128 122 180 14l44 78" fill="none" stroke="#ffffff" stroke-width="14"/><path d="M218 86 262 30l60 66" fill="none" stroke="#ffffff" stroke-width="11"/><path d="M284 30h10v34h-10zM289 62h9v88h-9z" fill="#ffffff"/><path d="M262 46 232 82" stroke="url(#aua)" stroke-width="4" stroke-linecap="round"/><path d="M212 94c42 6 52 40 30 70 8-32-4-54-30-70z" fill="url(#aua)"/><path d="M50 106c50-36 110-6 162-22l28-32 10 8-22 34c-60 24-120-4-178 12z" fill="url(#swa)"/><path d="M4 152c56-40 146-36 196-16 46 18 96 14 126-32-20 56-82 68-136 52C130 138 64 134 4 152z" fill="#7db3df"/><path d="M4 152c36-20 72-26 106-24-40 4-70 14-106 24z" fill="#4a8fc7"/><path d="M22 168c54-32 134-26 182-10 46 16 96 8 122-42-14 62-80 74-130 60-60-18-116-22-174-8z" fill="#ffffff"/><path d="M56 178c54-18 114-8 158 4 40 10 76 4 98-18-20 30-62 36-102 26-50-12-102-20-154-12z" fill="url(#aua)"/></g>
+</svg><span><b>ada<em>ca</em>sa</b><small>GAYRİMENKUL &amp; YATIRIM</small></span></div>
     <span class="eyebrow">Emlak ofisleri, inşaat firmaları ve danışmanlar için rehber</span>
     <h1>İlanı bir kez girin.<br><em>Her yerde</em> yayında olsun.</h1>
-    <p class="lead">AdaEv, Kuzey Kıbrıs için kurulan, Türkçe, İngilizce ve Rusça yayın yapan bir emlak ilan sitesidir. İlan vermek ücretsizdir. Bu rehber neden bizimle çalışmanız gerektiğini ve sistemi adım adım nasıl kullanacağınızı anlatır.</p>
+    <p class="lead">AdaCasa, Kuzey Kıbrıs için kurulan, Türkçe, İngilizce ve Rusça yayın yapan bir emlak ilan sitesidir. İlan vermek ücretsizdir. Bu rehber neden bizimle çalışmanız gerektiğini ve sistemi adım adım nasıl kullanacağınızı anlatır.</p>
     <div class="chain" aria-label="Bir ilanın gittiği yerler">
-      <span><b>Telegram</b> ya da panel</span><i>→</i><span>AdaEv (TR · EN · RU)</span><i>→</i><span>101evler</span><span>hangiev</span><i>→</i><span>Facebook</span><span>Instagram</span>
+      <span><b>Telegram</b> ya da panel</span><i>→</i><span>AdaCasa (TR · EN · RU)</span><i>→</i><span>101evler</span><span>hangiev</span><i>→</i><span>Facebook</span><span>Instagram</span>
     </div>
-    <p class="meta">Sürüm: Kasım 2026 · “AdaEv” sitenin çalışma adıdır.</p>
+    <p class="meta">Sürüm: Kasım 2026 · adacasa.com</p>
   </div>
 </header>
 
 <main class="w">
 
   <section class="sec" id="neden">
-    <div class="sh"><span class="n">01</span><div><h2>Neden AdaEv? Bir bakışta</h2><p>Emlakçının en çok vaktini alan iş, aynı ilanı birçok yere tek tek girmek ve gelen soruları kaçırmamaktır. AdaEv bu işleri sizin yerinize yapmak için kuruldu.</p></div></div>
+    <div class="sh"><span class="n">01</span><div><h2>Neden AdaCasa? Bir bakışta</h2><p>Emlakçının en çok vaktini alan iş, aynı ilanı birçok yere tek tek girmek ve gelen soruları kaçırmamaktır. AdaCasa bu işleri sizin yerinize yapmak için kuruldu.</p></div></div>
     <div class="reasons">
       <article class="reason"><span class="tag">Ücretsiz</span><h3>İlan vermek ücretsiz</h3><p>İlan sayısı sınırı ve ilan ücreti yok. Ücretli olan sadece isteğe bağlı otomasyon paketleridir.</p></article>
       <article class="reason"><span class="tag">3 dil</span><h3>Türkçe, İngilizce, Rusça</h3><p>Kıbrıs’ta alıcıların büyük kısmı yabancı. İlanınız üç dilde, her dilin kendi adresiyle yayınlanır.</p></article>
@@ -172,7 +178,7 @@ td.yes{color:var(--ok);font-weight:600}
         <text class="sub" x="290" y="152" text-anchor="middle">TR · EN · RU metin</text>
         <path class="arrow" d="M370 125 H415" marker-end="url(#ah)"/>
         <rect class="hl" x="420" y="85" width="150" height="80" rx="14"/>
-        <text class="hlt" x="495" y="118" text-anchor="middle" font-size="15" font-weight="600">AdaEv’de yayın</text>
+        <text class="hlt" x="495" y="118" text-anchor="middle" font-size="15" font-weight="600">AdaCasa’da yayın</text>
         <text class="hlt" x="495" y="140" text-anchor="middle" font-size="12">3 dil · ofis vitrini</text>
         <path class="arrow" d="M570 110 C 610 110, 610 40, 650 40" marker-end="url(#ah)"/>
         <path class="arrow" d="M570 125 H645" marker-end="url(#ah)"/>
@@ -263,7 +269,7 @@ td.yes{color:var(--ok);font-weight:600}
   <section class="sec" id="karsilastirma">
     <div class="sh"><span class="n">05</span><div><h2>Elle mi, paketle mi?</h2><p>Aynı ilanı üç sitede yayınlamanın iki yolu.</p></div></div>
     <div class="tw"><table>
-      <thead><tr><th>İş</th><th>Elle</th><th>AdaEv paketiyle</th></tr></thead>
+      <thead><tr><th>İş</th><th>Elle</th><th>AdaCasa paketiyle</th></tr></thead>
       <tbody>
         <tr><td>İlan metni</td><td>Her sitede tekrar yazılır</td><td class="yes">Bir kez; üç dile otomatik</td></tr>
         <tr><td>Fotoğraflar</td><td>Her sitede tekrar yüklenir</td><td class="yes">Bir kez; eklenti ekler</td></tr>
