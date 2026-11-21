@@ -30,6 +30,12 @@ function ec_project_present(array $p, string $lang, bool $full = false): array
         'price_max_gbp' => $p['price_max_gbp'] !== null ? (float) $p['price_max_gbp'] : null,
         'payment_plan' => $p['payment_plan'],
         'progress' => $p['progress'] !== null ? (int) $p['progress'] : null,
+        'project_type' => $p['project_type'] ?? null,
+        'project_type_name' => !empty($p['project_type']) ? (ec_project_types()[$p['project_type']][$lang] ?? $p['project_type']) : null,
+        'build_status' => ec_project_build_status($p),
+        'build_status_name' => ec_build_statuses()[ec_project_build_status($p)][$lang] ?? '',
+        'land_m2' => !empty($p['land_m2']) ? (int) $p['land_m2'] : null,
+        'created_at' => $p['created_at'],
         'description' => (string) $desc,
         'cover' => $p['cover_path'] ? ec_image_urls($p['cover_path']) : null,
         'cover_ai' => !empty($p['cover_ai']),
@@ -95,10 +101,18 @@ function ec_project_clean(array $in, bool $partial = false): array
     }
     foreach (['developer' => 190, 'district' => 80, 'payment_plan' => 190] as $k => $max) {
         if (array_key_exists($k, $in)) {
-            $out[$k] = mb_substr(sanitize_text_field((string) $in[$k]), 0, $max) ?: null;
+            $out[$k] = mb_substr(ec_clean_text((string) $in[$k]), 0, $max) ?: null;
         }
     }
-    foreach (['units' => 100000, 'progress' => 100, 'down_payment_pct' => 100, 'installments' => 360] as $k => $max) {
+    if (array_key_exists('project_type', $in)) {
+        $v = (string) $in['project_type'];
+        $out['project_type'] = isset(ec_project_types()[$v]) ? $v : null;
+    }
+    if (array_key_exists('build_status', $in)) {
+        $v = (string) $in['build_status'];
+        $out['build_status'] = isset(ec_build_statuses()[$v]) ? $v : null;
+    }
+    foreach (['units' => 100000, 'land_m2' => 10000000, 'progress' => 100, 'down_payment_pct' => 100, 'installments' => 360] as $k => $max) {
         if (array_key_exists($k, $in)) {
             $v = ($in[$k] === '' || $in[$k] === null) ? null : (int) $in[$k];
             $out[$k] = ($v !== null && ($v < 0 || $v > $max)) ? null : $v;
@@ -118,7 +132,7 @@ function ec_project_clean(array $in, bool $partial = false): array
     }
     foreach (['tr', 'en', 'ru'] as $l) {
         if (array_key_exists('desc_' . $l, $in)) {
-            $out['desc_' . $l] = sanitize_textarea_field((string) $in['desc_' . $l]);
+            $out['desc_' . $l] = ec_clean_textarea((string) $in['desc_' . $l]);
         }
     }
     if (array_key_exists('amenities', $in)) {
@@ -294,6 +308,24 @@ function ec_project_delete(int $id): void
     }
     @rmdir(ec_photo_base()['dir'] . '/proje-' . $id);
     $wpdb->delete(ec_table('projects'), ['id' => $id]);
+}
+
+/** İnşaat durumu: girilmediyse ilerleme ve teslim tarihinden tahmin edilir */
+function ec_project_build_status(array $p): string
+{
+    if (!empty($p['build_status']) && isset(ec_build_statuses()[$p['build_status']])) {
+        return $p['build_status'];
+    }
+    if ((int) ($p['progress'] ?? 0) >= 100 || (!empty($p['delivery_date']) && strtotime($p['delivery_date']) < time() - 90 * DAY_IN_SECONDS && (int) ($p['progress'] ?? 0) >= 90)) {
+        return 'completed';
+    }
+    return (int) ($p['progress'] ?? 0) > 0 ? 'ongoing' : 'planned';
+}
+
+/** Aynı firmanın diğer projeleri */
+function ec_projects_by_agent(int $agent_id, int $exclude, string $lang, int $limit = 4): array
+{
+    return array_values(array_filter(ec_projects($lang, $limit + 1, $agent_id), fn($x) => $x['id'] !== $exclude));
 }
 
 /** Aylık taksit: (fiyat − peşinat) / taksit sayısı */

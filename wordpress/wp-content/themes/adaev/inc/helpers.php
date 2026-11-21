@@ -145,6 +145,9 @@ function ae_card(array $a): string
     <h3 class="ttl"><?php echo esc_html($a['title']); ?></h3>
     <div class="sub"><?php echo esc_html(trim(($a['district'] ? $a['district'] . ', ' : '') . $a['city_name'])); ?></div>
     <?php if ($meta) : ?><div class="sub"><?php echo esc_html(implode(' · ', $meta)); ?></div><?php endif; ?>
+    <?php if (!empty($a['agent'])) : $ag = $a['agent']; ?>
+      <div class="cagent"><?php echo $ag['logo'] ? '<img src="' . esc_url($ag['logo']['small']) . '" alt="" loading="lazy" width="28" height="28">' : '<span class="av xs">' . esc_html(mb_substr($ag['name'], 0, 1)) . '</span>'; ?><span><?php echo esc_html($ag['name']); ?></span><?php if ($ag['verified']) : ?> <span class="vbadge sm" title="<?php ae_e('of_verified'); ?>">✔</span><?php endif; ?></div>
+    <?php endif; ?>
   </div>
 </article>
 <?php
@@ -243,7 +246,10 @@ function ae_search_box(array $s = []): void
     <input id="f-min" name="min" inputmode="numeric" placeholder="<?php ae_e('min_price'); ?>" value="<?php echo esc_attr($s['min'] ?? ''); ?>">
     <label class="vh" for="f-max"><?php ae_e('max_price'); ?></label>
     <input id="f-max" name="max" inputmode="numeric" placeholder="<?php ae_e('max_price'); ?>" value="<?php echo esc_attr($s['max'] ?? ''); ?>">
-    <input type="hidden" name="currency" id="f-cur" value="<?php echo esc_attr(ae_currency()); ?>">
+    <label class="vh" for="f-cur"><?php ae_e('currency'); ?></label>
+    <select id="f-cur" name="currency" class="fcur" title="<?php ae_e('currency'); ?>">
+      <?php foreach (EC_CURRENCIES as $c) : ?><option value="<?php echo esc_attr($c); ?>" <?php selected($s['currency'] ?? ae_currency(), $c); ?>><?php echo esc_html(AE_SYM[$c] . ' ' . $c); ?></option><?php endforeach; ?>
+    </select>
     <button class="btn" type="submit"><?php ae_e('search'); ?></button>
   </div>
   <div class="recent" id="recent" data-label="<?php ae_e('recent_search'); ?>"></div>
@@ -337,6 +343,7 @@ function ae_nav_items(): array
         [ec_url_section('daily'), ae_t('daily'), $page === 'search' && $mode === 'daily'],
         [ec_url_section('project'), ae_t('projects'), in_array($page, ['project', 'projectd'], true)],
         [ec_url_section('index'), ae_t('price_index'), $page === 'index'],
+        [ec_url_section('offices'), ae_t('firms'), in_array($page, ['offices', 'office'], true)],
         [ae_blog_url(), ae_t('blog'), $isBlog && !$page],
     ];
 }
@@ -474,6 +481,9 @@ function ae_rate_line(): string
     $i = ec_rates_info();
     if (!$i['date']) {
         return '';
+    }
+    if (!empty($i['live'])) {
+        return ae_t('conv_live', $i['live']['time']);
     }
     $src = ['tcmb' => 'TCMB', 'kktcmb' => 'KKTC Merkez Bankası', 'frankfurter' => 'ECB', 'er-api' => 'open.er-api.com'][$i['source_key']] ?? $i['source'];
     return ae_t('conv_rates_line', $src, wp_date('d.m.Y', strtotime($i['date'] . ' 12:00')));

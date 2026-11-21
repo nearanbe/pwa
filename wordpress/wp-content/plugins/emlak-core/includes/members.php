@@ -309,12 +309,12 @@ function ec_member_telegram_code(int $id): string
  * Yöneticiye bildirim: e-posta ve (ayarlıysa) Telegram.
  * Telegram için Ayarlar'da bot anahtarı ve yöneticinin sohbet numarası (chat id) girilmelidir.
  */
-function ec_notify_admin(string $text, string $url = ''): void
+function ec_notify_admin(string $text, string $url = '', bool $telegram = true): void
 {
     $msg = $text . ($url ? "\n\n" . $url : '');
     wp_mail(get_option('admin_email'), get_bloginfo('name') . ': ' . strtok($text, "\n"), $msg);
     $tg = (array) get_option('ec_telegram', []);
-    if (!empty($tg['token']) && !empty($tg['admin_chat'])) {
+    if ($telegram && !empty($tg['token']) && !empty($tg['admin_chat'])) {
         wp_remote_post('https://api.telegram.org/bot' . $tg['token'] . '/sendMessage', [
             'timeout' => 8,
             'blocking' => false,

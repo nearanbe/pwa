@@ -1,0 +1,13 @@
+#eia-panel{position:fixed;right:16px;bottom:16px;z-index:2147483647;width:340px;max-width:calc(100vw - 32px);background:#fff;color:#16282c;border-radius:16px;box-shadow:0 10px 40px rgba(0,0,0,.25);font:14px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;border:1px solid #e5dfd2}
+#eia-panel .eia-h{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#16343b;color:#fff;border-radius:16px 16px 0 0}
+#eia-panel .eia-h button{background:none;border:0;color:#fff;font-size:18px;cursor:pointer}
+#eia-panel .eia-body{padding:10px 14px 12px}
+#eia-panel.eia-small .eia-body{display:none}
+#eia-panel .eia-t{margin:0 0 6px;font-weight:600}
+#eia-panel .eia-log{margin:0;padding-left:18px;max-height:180px;overflow:auto;font-size:13px}
+#eia-panel .eia-log .ok{color:#1f6b3d}#eia-panel .eia-log .warn{color:#8a5a00}#eia-panel .eia-log .muted{color:#6f7c7e}
+#eia-panel .eia-act{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+#eia-panel .eia-act button{flex:1 1 auto;border:1px solid #16343b;background:#fff;color:#16343b;border-radius:10px;padding:7px 10px;cursor:pointer;font:inherit;font-size:13px}
+#eia-panel .eia-act .eia-done{background:#2f9e5b;border-color:#2f9e5b;color:#fff}
+#eia-panel .eia-note{margin:10px 0 0;font-size:12.5px;color:#6f7c7e}
+.eia-filled{outline:2px solid #b48a45!important;outline-offset:1px}

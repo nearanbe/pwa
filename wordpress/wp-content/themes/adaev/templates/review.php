@@ -65,6 +65,20 @@ get_header();
       </article>
     <?php endforeach; ?>
   <?php endif; ?>
+
+  <?php $reports = ec_reports_open(); if ($reports) : $rr = ec_report_reasons(); ?>
+    <h2 class="rvh"><?php ae_e('rv_reports'); ?> <span class="count"><?php echo count($reports); ?></span></h2>
+    <?php foreach ($reports as $r) : $lr = ec_listing_row((int) $r['listing_id']); $li = $lr ? ec_listings_present([$lr], $lang)[0] : null; ?>
+      <article class="rvcard" data-type="report" data-id="<?php echo (int) $r['id']; ?>">
+        <div class="rvbody">
+          <h3><?php if ($li) : ?><a href="<?php echo esc_url($li['url']); ?>" target="_blank">#<?php echo (int) $r['listing_id']; ?> <?php echo esc_html($li['title']); ?></a><?php else : ?>#<?php echo (int) $r['listing_id']; ?><?php endif; ?></h3>
+          <div class="sub">⚠️ <b><?php echo esc_html($rr[$r['reason']]['tr'] ?? $r['reason']); ?></b><?php if ((int) $r['n'] > 1) : ?> · <?php echo (int) $r['n']; ?> <?php ae_e('rv_reports_n'); ?><?php endif; ?> · <?php echo esc_html(get_date_from_gmt($r['created_at'], 'd.m.Y H:i')); ?><?php if ($r['email']) : ?> · <?php echo esc_html($r['email']); ?><?php endif; ?></div>
+          <?php if ($r['note']) : ?><p class="rvdesc"><?php echo esc_html($r['note']); ?></p><?php endif; ?>
+        </div>
+        <div class="rvact"><button class="ghost" data-act="close">✓ <?php ae_e('rv_close_report'); ?></button><?php if ($lr && $lr['status'] === 'published') : ?><button class="ghost" data-act="passive">⏸ <?php ae_e('act_passive'); ?></button><?php endif; ?></div>
+      </article>
+    <?php endforeach; ?>
+  <?php endif; ?>
 </main>
 <script>
 (function () {
@@ -75,11 +89,18 @@ get_header();
     if (act === 'reject') { reason = prompt(<?php echo wp_json_encode(ae_t('rv_reason_prompt')); ?>); if (reason === null) return; }
     if (act === 'suspend' && !confirm(<?php echo wp_json_encode(ae_t('act_delete_confirm')); ?>)) return;
     card.querySelectorAll('button').forEach(function (x) { x.disabled = true; });
-    fetch(main.dataset.api + 'review/' + card.dataset.type + '/' + card.dataset.id, {
-      method: 'POST', credentials: 'same-origin',
+    var isRep = card.dataset.type === 'report';
+    var lid = isRep ? (card.querySelector('h3').textContent.match(/#(\d+)/) || [])[1] : null;
+    var url = isRep ? (act === 'passive' ? 'listings/' + lid : 'reports/' + card.dataset.id) : 'review/' + card.dataset.type + '/' + card.dataset.id;
+    var body = isRep ? (act === 'passive' ? { status: 'passive' } : { status: 'closed' }) : { action: act, reason: reason };
+    fetch(main.dataset.api + url, {
+      method: isRep ? 'PATCH' : 'POST', credentials: 'same-origin',
       headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': main.dataset.nonce },
-      body: JSON.stringify({ action: act, reason: reason })
-    }).then(function (r) { if (!r.ok) throw new Error(r.status); card.classList.add('done'); card.querySelector('.rvact').textContent = <?php echo wp_json_encode('✓ ' . ae_t('rv_done')); ?>; })
+      body: JSON.stringify(body)
+    }).then(function (r) {
+      if (!r.ok) throw new Error(r.status);
+      if (isRep && act === 'passive') fetch(main.dataset.api + 'reports/' + card.dataset.id, { method: 'PATCH', credentials: 'same-origin', headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': main.dataset.nonce }, body: '{"status":"closed"}' });
+      card.classList.add('done'); card.querySelector('.rvact').textContent = <?php echo wp_json_encode('✓ ' . ae_t('rv_done')); ?>; })
       .catch(function (err) { alert('Hata: ' + err.message); card.querySelectorAll('button').forEach(function (x) { x.disabled = false; }); });
   });
 })();

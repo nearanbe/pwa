@@ -1,5 +1,7 @@
 # Kurulum (Plesk VPS)
 
+> **0.3'ten 0.4'e güncelleme:** Önce eklentiyi (`emlak-core.zip`), sonra temayı (`adaev.zip`) **Eklentiler / Temalar → Yeni ekle → Yükle → Mevcut sürümü değiştir** ile yükleyin. Yeni tablolar ve adresler kendiliğinden kurulur. Sonra **Emlak → Canlıya çıkış** sayfasını açın, eksikleri sırayla tamamlayın. Plesk zamanlanmış görevini **5 dakikaya** düşürmeyi unutmayın.
+
 ## Gereksinimler
 
 - PHP 8.1 veya üstü, **GD eklentisi WebP desteğiyle** (Plesk'te varsayılan olarak açık)
@@ -65,11 +67,45 @@ Blog yazıları genel bilgilendirme amaçlı taslaklardır. Yayında tutacaksan�
 - **Kurlar** saatte bir kontrol edilir. Kaynak sırası: **TCMB** (`tcmb.gov.tr/kurlar/today.xml`, her iş günü 15:30'da yayımlanır) → KKTC Merkez Bankası → Avrupa Merkez Bankası (api.frankfurter.dev) → open.er-api.com. **Kur türü** Ayarlar'dan seçilir: ortalama (varsayılan), döviz alış ya da döviz satış. Efektif (nakit) kurları kullanılmaz. Ayarlar ekranında kaynak, **kur tarihi** ve son kontrol zamanı görünür. TL bazlı bir kaynak okunamazsa cevabın başı gösterilir; o metni geliştiriciye gönderin. Makul aralık dışındaki değerler kaydedilmez.
 - **Döviz çevirici:** Fiyatın yanındaki parantezli tutara (ör. ₺119.038,39), ilan detayındaki "⇄ Döviz çevirici" düğmesine ya da alt bilgideki linke tıklanınca açılır. Kurlar sitedeki kurların aynısıdır; kaynak ve kur tarihi pencerede yazar.
 - **Fiyat endeksi** (`/tr/fiyat-endeksi/`) her gün yayındaki konut ilanlarından hesaplanır: şehir bazında m² başına istenen fiyatın medyanı, en az 3 ilan. Her ayın satırı ay bitince sabit kalır, böylece geçmiş zamanla birikir.
-- Bu iki görev WordPress'in zamanlayıcısı (WP-Cron) ile çalışır. WP-Cron sitenin ziyaret edilmesiyle tetiklendiği için, trafik azken Plesk'te **Zamanlanmış Görevler** bölümüne şu görevi eklemek daha güvenilirdir (her 15 dakikada bir):
+- Bu görevler WordPress'in zamanlayıcısı (WP-Cron) ile çalışır. WP-Cron sitenin ziyaret edilmesiyle tetiklendiği için Plesk'te **zamanlanmış görev şarttır** (gün içi kur ve Telegram'ın "otomatik hazırla" özelliği buna bağlı):
+  1. Plesk → Web Siteleri ve Alan Adları → alan adı → **Zamanlanmış Görevler** → **Görev Ekle**.
+  2. Görev türü: **URL getir**. URL: `https://SITE/wp-cron.php?doing_wp_cron`
+  3. Çalıştır: **Cron tarzı** → `*/5 * * * *` (her 5 dakikada bir). Bildirim: "Bildirim gönderme".
+  4. **Emlak → Canlıya çıkış** sayfası görevin çalıştığını 20 dakika içinde yeşil gösterir.
 
-  ```bash
-  wget -q -O - https://SITE/wp-cron.php?doing_wp_cron >/dev/null 2>&1
-  ```
+## Gün içi (piyasa) kuru
+
+Türkiye'de kur gün içinde hızlı değiştiği için TL fiyatları TCMB'nin günlük kuru yerine piyasa kuruyla hesaplanabilir.
+
+1. (İsteğe bağlı, önerilir) [twelvedata.com](https://twelvedata.com) → **Sign up** (ücretsiz) → **API Keys** → anahtarı kopyala.
+2. **Emlak → Ayarlar → Gün içi (piyasa) kuru:** kutuyu işaretle, anahtarı yapıştır, sıklık **5 dakika**, en çok sapma **%5**. Kaydet.
+3. **Araçlar → Gün içi kuru şimdi çek** ile dene. Anahtar yoksa ya da Twelve Data hata verirse Yahoo Finance kullanılır.
+
+Nasıl çalışır:
+- Sadece TL kuru gün içinde güncellenir (Twelve Data'da her çekim 1 istek; günde 288 istek, ücretsiz sınır 800). EUR ve USD resmi kurdan gelir.
+- Her değer TCMB kuruyla karşılaştırılır. %5'ten fazla sapan değer veri hatası sayılır ve kullanılmaz.
+- Değer 30 dakikadan eskiyse (ör. zamanlanmış görev durduysa) site kendiliğinden resmi TCMB kuruna döner.
+- Sitede fiyatın yanında **"Piyasa kuru · 14:35"** yazar. Döviz çeviricide ayrıca **TCMB resmi kuru** görünür.
+
+## Ana sayfa şehir kartları
+
+**Emlak → Ayarlar → Ana sayfa şehir kartları:** her şehir için Medya kütüphanesindeki bir görselin numarasını ya da adresini girin. Kartlarda satılık ve kiralık ilan sayıları kendiliğinden yazar. Fotoğraf girilmeyen şehirde renkli arka plan görünür.
+
+## Canlıya çıkış kontrolü
+
+**Emlak → Canlıya çıkış** sayfası şunları otomatik kontrol eder ve eksikleri nasıl düzelteceğini yazar:
+- HTTPS ve kalıcı bağlantılar
+- Demo verisi ve Turnstile anahtarları
+- Zamanlanmış görev
+- SPF, DKIM, DMARC ve yıldızlı DNS kaydı
+- Telegram, webhook ve Claude anahtarı
+- Sabit sayfalar ve şehir fotoğrafları
+
+Aynı kontrol SSH'den de çalışır:
+
+```bash
+wp emlak check
+```
 
 ## Logo ve site ikonu
 
@@ -117,13 +153,48 @@ DNS Cloudflare'de olduğu için önerilen yol şu:
 
 Kutu işaretli değilken vitrinler `/tr/ofis/ofis-adi/` adresinde açılır. Bu adres her durumda yedek olarak çalışır.
 
-## Telegram bildirimleri
+## Telegram botu (ilan alma ve onay)
 
-1. Telegram'da **@BotFather** → `/newbot` komutunu gönder. Bota bir ad ve `...Bot` ile biten bir kullanıcı adı ver. Gelen **token**'ı kopyala.
+Tek merkezi bot vardır. Üyeler hesaplarını bota bağlar, fotoğraf ve metin gönderir, yapay zekâ ilanı hazırlar.
+
+1. Telegram'da **@BotFather** → `/newbot`. Bota bir ad ve `...Bot` ile biten bir kullanıcı adı ver (ör. `Emlak392Bot`). Gelen **token**'ı kopyala.
 2. Kendi botuna bir mesaj gönder. Sonra **@userinfobot**'a yazarak kendi sohbet numaranı (chat id) öğren.
-3. **Emlak → Ayarlar → Telegram:** bot kullanıcı adı, token ve sohbet numaranı gir.
+3. **Emlak → Ayarlar → Telegram:** bot kullanıcı adı, token ve sohbet numaranı gir, kaydet.
+4. **Emlak → Ayarlar → Araçlar → Telegram webhook'unu kur.** "Webhook kuruldu" yazmalı. (Site HTTPS olmalı; Telegram http adrese mesaj göndermez.)
+5. Bota `/start` yaz: karşılama mesajı gelirse bot çalışıyor.
 
-Telegram'dan ilan ekleme (yapay zekâ ile metinden ilan hazırlama ve "Onayla" düğmeleri) sürüm 0.4'te eklenecek. Üyelerin Panelim'deki "Telegram'ı bağla" düğmesi bot ayarlanınca görünür.
+Üye tarafı: **Panelim → Telegram → Telegram'ı bağla.** Açılan sohbette **Başlat**'a basınca hesap bağlanır (kod 10 dakika geçerli).
+
+Akış:
+- Üye fotoğrafları ve metni arka arkaya gönderir. Bot tek bir durum mesajını günceller: "4 fotoğraf, 1 metin alındı · **İlanı hazırla**".
+- **İlanı hazırla** (ya da 45 sn sessizlik): yapay zekâ alanları çıkarır, TR/EN/RU başlık ve açıklama yazar, sitede taslak ilan açılır, fotoğraflar eklenir, önizleme gelir: **✅ Yayınla · ✏️ Düzelt · 🗑 İptal · Panelde aç**.
+- **Düzelt:** üye doğal dille yazar ("fiyat 165.000 sterlin, tapu eşdeğer"), yeni önizleme gelir. Fotoğraf göndermek fotoğraf ekler.
+- **Yayınla:** ofis ve inşaat firması → anında yayında. Bireysel danışman / mülk sahibi → onaya düşer, yöneticiye Telegram'dan **Onayla / Reddet** düğmeli kart gelir. Reddet'e basınca bot sebebi sorar ve üyeye iletir.
+- Komutlar: `/yeni`, `/iptal`, `/ilanlarim`, `/yardim`. Yönetici: `/bekleyen`.
+
+## Yapay zekâ (Claude API)
+
+1. [console.anthropic.com](https://console.anthropic.com) → hesap aç → **Billing**'den kredi yükle → **API Keys → Create Key**.
+2. **Emlak → Ayarlar → Yapay zekâ:** anahtarı yapıştır. Model `claude-opus-5-5`, çaba **Orta** (önerilen).
+3. **Araçlar → Yapay zekâyı dene:** örnek metinden çıkarılan başlık ve fiyat görünmelidir.
+
+Bir ilan genellikle birkaç sentlik maliyet tutar. Maliyeti azaltmak isterseniz çabayı **Düşük** yapabilirsiniz.
+
+## Chrome eklentisi (101evler ve hangiev)
+
+`dist/ilan-aktarici.zip` dosyası emlakçıya verilir. Kurulum (Chrome Web Store'a yüklenene kadar):
+
+1. Zip'i bir klasöre aç.
+2. Chrome → adres çubuğuna `chrome://extensions` → sağ üstte **Geliştirici modu**'nu aç → **Paketlenmemiş öğe yükle** → açılan klasörü seç.
+3. Eklenti simgesi → ⚙ **Ayarlar:** site adresi (`https://emlak392.com`) ve API anahtarı (**Emlak → Danışmanlar → API anahtarı üret**). **Kaydet ve dene** → "Bağlandı" yazmalı.
+4. 101evler ve hangiev'de kendi hesabınla giriş yap.
+
+Kullanım: eklenti simgesi → ilanı bul → **101evler'e aktar**. Yeni sekmede ilan formu açılır, eklenti alanları ve fotoğrafları doldurur, sağ altta ne yaptığını yazar.
+- **"Yayınla" düğmesine her zaman emlakçı basar.** Captcha çıkarsa emlakçı çözer.
+- SMS doğrulama kodu istenirse panelde **SMS kodunu Telegram'dan iste** düğmesi çıkar. Bot kodu sorar, emlakçı bota yazar, eklenti kodu kutuya yazar.
+- Yayınladıktan sonra panelde **Yayınladım ✓**'e basılır. İlan Panelim → İlanlarım'da "101evler ✓" rozetiyle görünür.
+
+Siteler formlarını değiştirirse eklentiyi yeniden kurmak gerekmez. **Emlak → Ayarlar → Chrome eklentisi** kutusundaki JSON (alan seçicileri ve etiketleri) güncellenir. Eklentinin varsayılan ayarları gerçek 101evler / hangiev formları görülmeden yazıldı. İlk gerçek denemede bulunamayan alanlar paneldeki listede görünür; o sayfaların kaynak kodu gönderilirse seçiciler kesinleştirilir.
 
 ## Cloudflare görsel üretimi (temsili görseller)
 
@@ -142,7 +213,7 @@ Gerekirse bir SMTP eklentisiyle (örneğin WP Mail SMTP) Brevo veya Mailgun gibi
 ## 4. Sabit sayfalar
 
 Alt bilgideki linkler, aşağıdaki kısa adlara (slug) sahip WordPress sayfalarına bağlanır.
-**Sayfalar → Yeni ekle** ile oluşturun:
+**Emlak → Ayarlar → Araçlar → Sabit sayfaları taslak olarak oluştur** dört sayfayı taslak olarak açar. Düzenleyip yayınlayın; gizlilik ve kullanım şartlarını bir avukata kontrol ettirin.
 
 | Sayfa | Kısa ad |
 |---|---|
@@ -177,6 +248,7 @@ Alt bilgideki linkler, aşağıdaki kısa adlara (slug) sahip WordPress sayfalar
 | Panelim | `/tr/panelim/` | `/en/my-account/` | `/ru/kabinet/` |
 | Onay paneli | `/tr/onay/` | `/en/review/` | `/ru/moderatsiya/` |
 | Ofis vitrini | `/tr/ofis/{kisa-ad}/` | `/en/agent/{kisa-ad}/` | `/ru/agent/{kisa-ad}/` |
+| Firmalar dizini | `/tr/firmalar/` | `/en/agencies/` | `/ru/agentstva/` |
 | Favoriler | `/tr/favoriler/` | `/en/favourites/` | `/ru/izbrannoe/` |
 
 Kök adres (`/`) ziyaretçinin tarayıcı diline göre `/tr/`, `/en/` veya `/ru/` adresine yönlenir.

@@ -7,7 +7,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-define('AE_VER', '0.3.0');
+define('AE_VER', '0.4.0');
 
 if (!function_exists('ec_table')) {
     // Eklenti kapalıysa: hiçbir eklenti fonksiyonu TANIMLANMAZ (aksi halde eklenti etkinleştirilirken
@@ -22,6 +22,8 @@ if (!function_exists('ec_table')) {
 require_once __DIR__ . '/inc/i18n-panel.php';
 require_once __DIR__ . '/inc/i18n.php';
 require_once __DIR__ . '/inc/helpers.php';
+require_once __DIR__ . '/inc/helpers-detail.php';
+require_once __DIR__ . '/inc/i18n-detail.php';
 
 add_action('after_setup_theme', function () {
     add_theme_support('title-tag');
@@ -43,10 +45,18 @@ add_action('wp_enqueue_scripts', function () {
         'rateInfo' => function_exists('ec_rates_info') ? (function () {
             $i = ec_rates_info();
             $src = ['tcmb' => 'TCMB', 'kktcmb' => 'KKTC Merkez Bankası', 'frankfurter' => 'ECB', 'er-api' => 'open.er-api.com'][$i['source_key']] ?? $i['source'];
-            return [
+            $o = [
                 'source' => $src ? ae_t('conv_source', $src) : '',
                 'date' => $i['date'] ? ae_t('conv_date', wp_date('d.m.Y', strtotime($i['date'] . ' 12:00'))) : '',
             ];
+            if (!empty($i['live'])) {
+                // Gün içi kur kullanılıyor: çevirici ayrıca resmi TCMB kurunu gösterir
+                $o['live'] = ae_t('conv_live', $i['live']['time']);
+                $o['liveSource'] = $i['live']['source'];
+                $o['official'] = $i['official'];
+                $o['officialLabel'] = ae_t('conv_official', $src, $o['date'] ? wp_date('d.m.Y', strtotime($i['date'] . ' 12:00')) : '');
+            }
+            return $o;
         })() : [],
         'msg' => [
             'notFoundNo' => ae_t('not_found_no'),
@@ -59,6 +69,15 @@ add_action('wp_enqueue_scripts', function () {
             'close' => ae_t('close'),
         ],
     ]);
+    if (in_array(ec_page(), ['listing', 'projectd'], true)) {
+        wp_enqueue_script('ae-detail', get_theme_file_uri('assets/js/detail.js'), ['ae-main'], AE_VER, ['in_footer' => true, 'strategy' => 'defer']);
+        wp_localize_script('ae-detail', 'AED', ['t' => [
+            'gallery' => ae_t('lb_gallery'), 'slideshow' => ae_t('lb_slideshow'), 'allPhotos' => ae_t('lb_grid'), 'close' => ae_t('close'),
+            'nearbyNone' => ae_t('nearby_none'), 'nearbyFail' => ae_t('nearby_fail'), 'nearbySource' => ae_t('nearby_source', '%s'),
+            'leadName' => ae_t('lead_err_name'), 'leadContact' => ae_t('lead_err_contact'), 'leadConsent' => ae_t('lead_err_consent'),
+            'leadOk' => ae_t('lead_ok'), 'leadErr' => ae_t('lead_err'), 'reportReason' => ae_t('report_err_reason'), 'reportOk' => ae_t('report_ok'),
+        ]]);
+    }
     $ads = get_option('ec_ads', []);
     if (!empty($ads['client'])) {
         wp_enqueue_script('adsense', 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=' . rawurlencode($ads['client']), [], null, ['strategy' => 'async']);
@@ -95,6 +114,7 @@ add_filter('template_include', function ($tpl) {
         'panel' => 'panel',
         'review' => 'review',
         'office' => 'office',
+        'offices' => 'offices',
     ];
     $p = ec_page();
     return isset($map[$p]) ? get_theme_file_path('templates/' . $map[$p] . '.php') : $tpl;

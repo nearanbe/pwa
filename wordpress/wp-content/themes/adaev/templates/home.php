@@ -61,6 +61,23 @@ get_header();
 <main id="main" class="main home">
   <?php ae_search_box(['mode' => 'sale']); ?>
 
+  <?php $cc = ae_city_counts(); ?>
+  <h2 class="sec"><?php ae_e('cities_title'); ?></h2>
+  <div class="citygrid">
+    <?php foreach (ec_cities() as $ck => $c) : $img = ae_city_photo($ck); $n = $cc[$ck] ?? []; ?>
+      <a class="citycard<?php echo $img ? '' : ' noimg c-' . esc_attr($ck); ?>" href="<?php echo esc_url(ec_url_section('sale', $lang, $ck)); ?>">
+        <?php if ($img) : ?><img src="<?php echo esc_url($img); ?>" alt="" loading="lazy" decoding="async"><?php endif; ?>
+        <span class="cc-in">
+          <b><?php echo esc_html($c['name'][$lang]); ?></b>
+          <span class="cc-n">
+            <span data-href="<?php echo esc_url(ec_url_section('sale', $lang, $ck)); ?>"><?php ae_e('city_sale_n', ae_plus((int) ($n['sale'] ?? 0))); ?></span>
+            <span data-href="<?php echo esc_url(ec_url_section('rent', $lang, $ck)); ?>"><?php ae_e('city_rent_n', ae_plus((int) ($n['rent'] ?? 0))); ?></span>
+          </span>
+        </span>
+      </a>
+    <?php endforeach; ?>
+  </div>
+
   <?php if ($featured) : ?>
     <h2 class="sec"><?php ae_e('featured'); ?></h2>
     <div class="feat"><?php foreach ($featured as $a) {
@@ -104,11 +121,11 @@ get_header();
   <?php echo ae_ad('mid'); ?>
 
   <?php if ($agents) : ?>
-    <h2 class="sec"><?php ae_e('agents'); ?></h2>
+    <div class="sechead"><h2 class="sec"><?php ae_e('agents'); ?></h2><a href="<?php echo esc_url(ec_url_section('offices')); ?>"><?php ae_e('firms_all'); ?> →</a></div>
     <div class="adv">
       <?php foreach ($agents as $ag) : ?>
-        <a class="ag" href="<?php echo esc_url(ec_url_section('sale', $lang, null, ['agent' => $ag['id']])); ?>">
-          <div class="av"><?php echo esc_html(mb_substr($ag['name'], 0, 1)); ?></div>
+        <a class="ag" href="<?php echo esc_url($ag['url'] ?: ec_url_section('sale', $lang, null, ['agent' => $ag['id']])); ?>">
+          <?php echo $ag['logo'] ? '<img class="aglogo" src="' . esc_url($ag['logo']['small']) . '" alt="" loading="lazy">' : '<div class="av">' . esc_html(mb_substr($ag['name'], 0, 1)) . '</div>'; ?>
           <b><?php echo esc_html($ag['name']); ?></b>
           <div class="sub"><?php echo esc_html((string) $ag['office']); ?></div>
           <div class="sub"><?php ae_e('agent_listings', $ag['listing_count']); ?></div>

@@ -50,12 +50,26 @@ Dosyalar `wp-content/uploads/ilan-foto/{path}-l.webp` ve `-s.webp` olarak durur.
 ### `wp_ec_projects` – projeler
 `status`, `name`, `slug`, `developer`, `city`, `district`, `units`, `delivery_date`, `price_min_gbp`, `price_max_gbp`, `payment_plan`, `down_payment_pct`, `installments`, `progress`, `amenities` (JSON), `unit_types` (JSON), `video_url`, `lat`, `lng`, `desc_tr` / `desc_en` / `desc_ru`, `cover_path` (`proje-{no}/...`), `cover_ai` (temsili görsel), `reject_reason`, `source`.
 
+Ek alanlar (0.4): `project_type`, `build_status` (`planned` / `ongoing` / `completed`), `land_m2` (proje alanı).
+
 ### `wp_ec_project_media` – proje galerisi, kat planları, broşür
 `project_id`, `kind` (`photo` / `plan` / `brochure`), `path`, `title`, `width`, `height`, `sort`.
 
 ### `wp_ec_price_index` – fiyat endeksi
 `(period, city, mode, ptype)` birincil anahtar · `median_m2_gbp`, `avg_price_gbp`, `n` (ilan sayısı), `is_demo`.
 `period` = `2026-11`, `city` = şehir anahtarı veya `all`. Her gün bu ayın satırı yeniden hesaplanır; geçmiş aylar sabit kalır.
+
+### `wp_ec_leads` – talepler (0.4)
+`agent_id`, `listing_id` veya `project_id`, `name`, `email`, `phone`, `message`, `lang`, `status` (`new` / `read` / `done` / `spam`), `ip_hash`, `created_at`.
+
+### `wp_ec_reports` – hatalı ilan bildirimleri (0.4)
+`listing_id`, `reason`, `note`, `email`, `status` (`open` / `closed`), `ip_hash`, `created_at`.
+
+### `wp_ec_tg_drafts` – Telegram taslakları (0.4)
+Sohbet başına açık taslak: `chat_id`, `agent_id`, `state` (`collecting` / `processing` / `preview` / `editing` / `done` / `cancelled`), `texts` (JSON), `photos` (JSON: Telegram file_id), `data` (JSON: yapay zekâ çıktısı), `listing_id`, `preview_msg_id`, `error`.
+
+### `wp_ec_syndication` – diğer sitelere aktarım (0.4)
+`(listing_id, site)` benzersiz · `agent_id`, `site` (`101evler` / `hangiev`), `status` (`filled` / `published` / `failed` / `removed`), `remote_url`, `remote_id`, `note`. Paketlerde kota sayımı bu tablodan yapılacak.
 
 ## Geçiş gecesi (WordPress → Next.js + Supabase)
 
@@ -70,7 +84,7 @@ Adımlar:
 
 1. Next.js sitesi önceden hazırlanır ve aynı link yapısını ve aynı `/api/v1` uçlarını sunar.
 2. Bakım modu açılır.
-3. Yedi `wp_ec_*` tablosu dışa aktarılır (`wp db export --tables=...`) ve önek olmadan PostgreSQL'e yüklenir.
+3. On bir `wp_ec_*` tablosu dışa aktarılır (`wp db export --tables=...`) ve önek olmadan PostgreSQL'e yüklenir.
 4. `uploads/ilan-foto/` klasörü olduğu gibi Supabase Storage'a kopyalanır.
 5. DNS kaydı yeni sisteme çevrilir.
 

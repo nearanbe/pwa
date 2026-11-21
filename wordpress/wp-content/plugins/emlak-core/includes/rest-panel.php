@@ -29,8 +29,12 @@ function ec_notify_pending_listing(int $id): void
     $kind = $a ? (ec_member_kinds()[$a['kind']]['name']['tr'] ?? $a['kind']) : '-';
     ec_notify_admin(
         sprintf("🕓 Onay bekleyen ilan #%d\n%s\n%s · %s · £%s\nİlan sahibi: %s (%s) %s", $id, $item['title'], $item['subtype_name'], $item['city_name'], number_format($item['price_gbp'], 0, ',', '.'), $a['name'] ?? '-', $kind, $a['phone'] ?? ''),
-        ec_url_section('review', 'tr')
+        ec_url_section('review', 'tr'),
+        !function_exists('ec_tg_admin_listing_card') // Telegram'a düğmeli kart ayrıca gider
     );
+    if (function_exists('ec_tg_admin_listing_card') && ec_tg_ready()) {
+        ec_tg_admin_listing_card($id);
+    }
 }
 
 /** Onay / red işlemleri (REST ve yönetim paneli ortak kullanır) */
@@ -46,12 +50,14 @@ function ec_review_listing(int $id, string $action, string $reason = ''): bool
     if ($action === 'approve') {
         $wpdb->update(ec_table('listings'), ['status' => 'published', 'reject_reason' => null, 'published_at' => $row['published_at'] ?: ec_now(), 'updated_at' => ec_now()], ['id' => $id]);
         if ($a) {
+            do_action('ec_listing_reviewed', $id, 'approve', '');
             ec_notify_member($a, 'İlanınız yayında', "#$id numaralı \"$title\" ilanınız onaylandı ve yayına alındı.\n\n" . ec_listings_present([ec_listing_row($id)], ec_member_lang((int) $a['wp_user_id']))[0]['url']);
         }
         return true;
     }
     if ($action === 'reject') {
         $wpdb->update(ec_table('listings'), ['status' => 'rejected', 'reject_reason' => mb_substr(sanitize_text_field($reason), 0, 255) ?: null, 'updated_at' => ec_now()], ['id' => $id]);
+        do_action('ec_listing_reviewed', $id, 'reject', (string) $reason);
         if ($a) {
             ec_notify_member($a, 'İlanınız yayına alınamadı', "#$id numaralı \"$title\" ilanınız yayına alınamadı." . ($reason ? "\nSebep: $reason" : '') . "\n\nİlanı düzeltip tekrar gönderebilirsiniz:\n" . ec_url_section('panel', ec_member_lang((int) $a['wp_user_id'])));
         }

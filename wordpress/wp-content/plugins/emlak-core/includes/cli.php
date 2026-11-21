@@ -56,4 +56,14 @@ class EC_CLI
     }
 }
 
+WP_CLI::add_command('emlak check', function () {
+    $icons = ['ok' => 'TAMAM ', 'warn' => 'ÖNERİ ', 'fail' => 'EKSİK '];
+    foreach (ec_launch_checks() as [$st, $t, $d]) {
+        WP_CLI::line($icons[$st] . $t . ($st !== 'ok' ? ' — ' . wp_strip_all_tags($d) : ''));
+    }
+});
+WP_CLI::add_command('emlak live-rates', function () {
+    $r = ec_rates_live_update();
+    is_wp_error($r) ? WP_CLI::warning($r->get_error_message()) : WP_CLI::success('1 GBP = ' . $r['rates']['TRY'] . ' TRY (' . $r['source'] . ', sapma %' . $r['deviation'] . ')');
+});
 WP_CLI::add_command('emlak', 'EC_CLI');

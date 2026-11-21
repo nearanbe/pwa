@@ -15,6 +15,9 @@ $P = $editProject ?? null;
       <label><?php ae_e('district'); ?><input name="district" list="pdistlist" autocomplete="off"><datalist id="pdistlist"></datalist></label>
       <label><?php ae_e('delivery_label'); ?><input name="delivery_date" type="month"></label>
       <label><?php ae_e('units_label'); ?><input name="units" inputmode="numeric"></label>
+      <label><?php ae_e('pj_type'); ?><select name="project_type"><option value=""></option><?php foreach (ec_project_types() as $k => $n) : ?><option value="<?php echo esc_attr($k); ?>"><?php echo esc_html($n[ec_lang()]); ?></option><?php endforeach; ?></select></label>
+      <label><?php ae_e('pj_status'); ?><select name="build_status"><option value=""><?php ae_e('pj_status_auto'); ?></option><?php foreach (ec_build_statuses() as $k => $n) : ?><option value="<?php echo esc_attr($k); ?>"><?php echo esc_html($n[ec_lang()]); ?></option><?php endforeach; ?></select></label>
+      <label><?php ae_e('pj_land'); ?> (m²)<input name="land_m2" inputmode="numeric" placeholder="12000"></label>
       <label><?php ae_e('price_range'); ?> (£) – min<input name="price_min_gbp" inputmode="numeric"></label>
       <label><?php ae_e('price_range'); ?> (£) – max<input name="price_max_gbp" inputmode="numeric"></label>
     </div>
@@ -69,7 +72,7 @@ $P = $editProject ?? null;
         <div><h3><?php ae_e('pf_cover'); ?></h3><div class="logoprev wide" id="coverprev"></div><label class="ghost filebtn sm">＋<input type="file" data-kind="cover" accept="image/jpeg,image/png,image/webp" hidden></label></div>
       </div>
       <h3><?php ae_e('pf_gallery'); ?></h3><ul class="photos" data-list="photo"></ul><label class="ghost filebtn sm">＋ <?php ae_e('f_choose_photos'); ?><input type="file" data-kind="photo" accept="image/jpeg,image/png,image/webp" multiple hidden></label>
-      <h3><?php ae_e('pf_plans'); ?></h3><ul class="photos" data-list="plan"></ul><label class="ghost filebtn sm">＋<input type="file" data-kind="plan" accept="image/jpeg,image/png,image/webp" multiple hidden></label>
+      <h3><?php ae_e('pf_plans'); ?></h3><p class="sub"><?php ae_e('pf_plan_hint'); ?></p><ul class="photos" data-list="plan"></ul><label class="ghost filebtn sm">＋<input type="file" data-kind="plan" accept="image/jpeg,image/png,image/webp" multiple hidden></label>
       <h3><?php ae_e('pf_brochure'); ?></h3><ul class="files" data-list="brochure"></ul><label class="ghost filebtn sm">＋ PDF<input type="file" data-kind="brochure" accept="application/pdf" hidden></label>
     </div>
   </section>

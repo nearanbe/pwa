@@ -32,6 +32,7 @@ function ec_sections(): array
         'panel'   => ['tr' => 'panelim', 'en' => 'my-account', 'ru' => 'kabinet'],
         'review'  => ['tr' => 'onay', 'en' => 'review', 'ru' => 'moderatsiya'],
         'office'  => ['tr' => 'ofis', 'en' => 'agent', 'ru' => 'agent'],
+        'offices' => ['tr' => 'firmalar', 'en' => 'agencies', 'ru' => 'agentstva'],
     ];
 }
 
@@ -214,6 +215,57 @@ function ec_features(): array
     ];
 }
 
+/** İlan özelliklerinin grupları (ilan detayında dış / iç / konum diye gösterilir) */
+function ec_feature_groups(): array
+{
+    return [
+        'outdoor' => [
+            'name' => ['tr' => 'Dış özellikler', 'en' => 'Exterior', 'ru' => 'Снаружи'],
+            'keys' => ['ozel_havuz', 'ortak_havuz', 'bahce', 'teras', 'balkon', 'otopark', 'kapali_otopark', 'gunes_paneli', 'su_deposu', 'jenerator'],
+        ],
+        'indoor' => [
+            'name' => ['tr' => 'İç özellikler', 'en' => 'Interior', 'ru' => 'Внутри'],
+            'keys' => ['klima', 'merkezi_isitma', 'somine', 'beyaz_esya', 'akilli_ev', 'asansor', 'engelli_erisimi'],
+        ],
+        'location' => [
+            'name' => ['tr' => 'Konum ve çevre', 'en' => 'Location & surroundings', 'ru' => 'Расположение'],
+            'keys' => ['deniz_manzarasi', 'dag_manzarasi', 'denize_sifir', 'site_icinde', 'guvenlik', 'spor_salonu'],
+        ],
+        'usage' => [
+            'name' => ['tr' => 'Kullanım', 'en' => 'Suitability', 'ru' => 'Условия'],
+            'keys' => ['evcil_hayvan', 'ogrenciye_uygun'],
+        ],
+    ];
+}
+
+/** Proje tipleri */
+function ec_project_types(): array
+{
+    return [
+        'konut'  => ['tr' => 'Konut projesi', 'en' => 'Residential', 'ru' => 'Жилой комплекс'],
+        'villa'  => ['tr' => 'Villa projesi', 'en' => 'Villa development', 'ru' => 'Виллы'],
+        'karma'  => ['tr' => 'Karma (konut + ticari)', 'en' => 'Mixed-use', 'ru' => 'Многофункциональный'],
+        'ticari' => ['tr' => 'Ticari', 'en' => 'Commercial', 'ru' => 'Коммерческий'],
+        'tatil'  => ['tr' => 'Tatil köyü / rezidans', 'en' => 'Resort / residence', 'ru' => 'Курортный комплекс'],
+    ];
+}
+
+/** İnşaat durumu */
+function ec_build_statuses(): array
+{
+    return [
+        'planned'   => ['tr' => 'Projeden (başlamadı)', 'en' => 'Off-plan', 'ru' => 'Котлован / проект'],
+        'ongoing'   => ['tr' => 'İnşaat devam ediyor', 'en' => 'Under construction', 'ru' => 'Строится'],
+        'completed' => ['tr' => 'Tamamlandı', 'en' => 'Completed', 'ru' => 'Сдан'],
+    ];
+}
+
+/** Şehir merkezleri (harita ve yakın yerler için yaklaşık konum) */
+function ec_city_coords(): array
+{
+    return ['lefkosa' => [35.185, 33.38], 'girne' => [35.335, 33.32], 'gazimagusa' => [35.125, 33.94], 'iskele' => [35.29, 33.89], 'guzelyurt' => [35.20, 32.99], 'lefke' => [35.11, 32.85]];
+}
+
 /** Proje sosyal alanları */
 function ec_amenities(): array
 {
@@ -281,13 +333,23 @@ function ec_clean_socials(array $in): array
     return $out;
 }
 
-/** Kurlar: 1 GBP karşılığı. Yönetim ekranından güncellenir. */
-function ec_rates(): array
+/** Resmi kurlar (TCMB → KKTC MB → ECB): 1 GBP karşılığı. Yönetim ekranından da güncellenir. */
+function ec_rates_official(): array
 {
     // Yedek değerler (Kasım 2026); ilk otomatik güncellemeden sonra kullanılmaz.
     $default = ['GBP' => 1, 'EUR' => 1.19, 'USD' => 1.31, 'TRY' => 66.3];
     $saved = get_option('ec_rates');
     return is_array($saved) ? array_merge($default, $saved) : $default;
+}
+
+/** Sitede kullanılan kurlar: gün içi (piyasa) kuru açık ve tazeyse onunla, değilse resmi kur */
+function ec_rates(): array
+{
+    $r = ec_rates_official();
+    if (function_exists('ec_rates_live_current') && ($live = ec_rates_live_current())) {
+        $r = array_merge($r, $live['rates']);
+    }
+    return $r;
 }
 
 function ec_to_gbp(float $amount, string $currency): float
@@ -312,4 +374,18 @@ function ec_slugify(string $text): string
     $text = preg_replace('/[^a-z0-9]+/', '-', $text);
     $text = trim($text, '-');
     return mb_substr($text, 0, 80) ?: 'ilan';
+}
+
+/**
+ * sanitize_text_field, "%40" gibi dizileri URL kodu sanıp siler ("%40 peşin" → " peşin").
+ * Yüzde işareti geçen metinler (ödeme planı, açıklama) için önce korunur.
+ */
+function ec_clean_text(string $v): string
+{
+    return str_replace('{{pct}}', '%', sanitize_text_field(str_replace('%', '{{pct}}', $v)));
+}
+
+function ec_clean_textarea(string $v): string
+{
+    return str_replace('{{pct}}', '%', sanitize_textarea_field(str_replace('%', '{{pct}}', $v)));
 }

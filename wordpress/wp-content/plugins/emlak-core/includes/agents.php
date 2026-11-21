@@ -103,6 +103,47 @@ function ec_agents_active(int $limit = 12): array
     return array_map(fn($a) => ec_agent_public($a) + ['listing_count' => (int) $a['listing_count']], $rows);
 }
 
+/**
+ * Firmalar dizini: aktif üyeler (mülk sahipleri hariç), ada / bölgeye göre aranabilir.
+ * @return array{items: array, total: int, pages: int}
+ */
+function ec_agents_directory(string $q = '', string $kind = '', string $city = '', int $page = 1, int $per = 24): array
+{
+    global $wpdb;
+    $t = ec_table('agents');
+    $l = ec_table('listings');
+    $p = ec_table('projects');
+    $where = ["a.status = 'active'", "a.kind <> 'sahibi'"];
+    $args = [];
+    if ($q !== '') {
+        $where[] = '(a.name LIKE %s OR a.office LIKE %s OR a.address LIKE %s)';
+        $like = '%' . $wpdb->esc_like($q) . '%';
+        array_push($args, $like, $like, $like);
+    }
+    if ($kind !== '' && isset(ec_member_kinds()[$kind])) {
+        $where[] = 'a.kind = %s';
+        $args[] = $kind;
+    }
+    if ($city !== '' && isset(ec_cities()[$city])) {
+        $where[] = 'a.city = %s';
+        $args[] = $city;
+    }
+    $w = implode(' AND ', $where);
+    $page = max(1, $page);
+    $off = ($page - 1) * $per;
+    $sqlCount = "SELECT COUNT(*) FROM $t a WHERE $w";
+    $sql = "SELECT a.*, (SELECT COUNT(*) FROM $l x WHERE x.agent_id = a.id AND x.status = 'published') AS listing_count,
+            (SELECT COUNT(*) FROM $p y WHERE y.agent_id = a.id AND y.status = 'published') AS project_count
+            FROM $t a WHERE $w ORDER BY a.verified DESC, listing_count DESC, a.name ASC LIMIT $per OFFSET $off";
+    $total = (int) ($args ? $wpdb->get_var($wpdb->prepare($sqlCount, $args)) : $wpdb->get_var($sqlCount));
+    $rows = $args ? $wpdb->get_results($wpdb->prepare($sql, $args), ARRAY_A) : $wpdb->get_results($sql, ARRAY_A);
+    return [
+        'items' => array_map(fn($a) => ec_agent_public($a) + ['listing_count' => (int) $a['listing_count'], 'project_count' => (int) $a['project_count'], 'created_at' => $a['created_at'], 'address' => $a['address']], $rows),
+        'total' => $total,
+        'pages' => (int) ceil($total / $per),
+    ];
+}
+
 /** Yeni API anahtarı üretir (eskisini geçersiz kılar) ve anahtarı bir kez döndürür. */
 function ec_agent_issue_key(int $id): string
 {

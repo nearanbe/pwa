@@ -4,7 +4,8 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 mkdir -p dist
-rm -f dist/emlak-core.zip dist/adaev.zip
+rm -f dist/emlak-core.zip dist/adaev.zip dist/ilan-aktarici.zip
 (cd wordpress/wp-content/plugins && zip -qr ../../../dist/emlak-core.zip emlak-core -x '*.DS_Store')
 (cd wordpress/wp-content/themes && zip -qr ../../../dist/adaev.zip adaev -x '*.DS_Store')
+(cd extension && zip -qr ../dist/ilan-aktarici.zip . -x '*.DS_Store')
 ls -lh dist/*.zip

@@ -1,0 +1,23 @@
+<!doctype html><html><head><meta charset="utf-8"><title>İlan Ver</title></head><body>
+<h1>Yeni ilan</h1>
+<form id="f" onsubmit="return false">
+ <div class="row"><label for="tp">İlan Tipi</label><select id="tp" name="type"><option value="">Seçiniz</option><option value="1">Satılık</option><option value="2">Kiralık</option><option value="3">Günlük Kiralık</option></select></div>
+ <div class="row"><span class="form-label">Emlak Tipi *</span><div><select name="category"><option value="">Seçiniz</option><option value="10">Daire</option><option value="11">Villa</option><option value="12">Penthouse</option></select></div></div>
+ <div class="row"><label>İlan Başlığı <input name="title"></label></div>
+ <div class="row"><label>Açıklama</label><textarea name="description"></textarea></div>
+ <div class="row"><label>Fiyat</label><input name="price" inputmode="numeric"> <select name="currency"><option>TL</option><option>STG</option><option>EUR</option><option>USD</option></select></div>
+ <div class="row"><label>Şehir</label><select name="city" id="city"><option value="">Seçiniz</option><option value="1">Lefkoşa</option><option value="2">Girne</option><option value="3">Mağusa</option><option value="4">İskele</option></select></div>
+ <div class="row"><label>Bölge</label><select name="district" id="dist"><option value="">Önce şehir seçin</option></select></div>
+ <div class="row"><label>Oda Sayısı</label><select name="rooms"><option value="">-</option><option>1+0</option><option>1+1</option><option>2+1</option><option>3+1</option></select></div>
+ <div class="row"><label>Banyo Sayısı</label><select name="bathrooms"><option value="">-</option><option>1</option><option>2</option><option>3</option></select></div>
+ <div class="row"><label>Brüt m²</label><input name="area"></div>
+ <div class="row"><label>Tapu Tipi</label><select name="title_deed"><option value="">-</option><option value="a">Türk Malı</option><option value="b">Eşdeğer</option><option value="c">Tahsis</option><option value="d">Proje / Sözleşme</option></select></div>
+ <fieldset><legend>Özellikler</legend><label><input type="checkbox" name="f1"> Özel Havuz</label><label><input type="checkbox" name="f2"> Ortak havuz</label><label><input type="checkbox" name="f3"> Deniz manzarası</label><label><input type="checkbox" name="f4"> Asansör</label><label><input type="checkbox" name="f5"> Kapalı otopark</label><label><input type="checkbox" name="f6"> Klima</label></fieldset>
+ <div class="row"><label>Fotoğraflar</label><input type="file" name="photos[]" accept="image/*" multiple></div>
+ <button id="pub">Yayınla</button>
+</form>
+<script>
+var D={'2':['Merkez','Alsancak','Lapta'],'4':['Long Beach','Boğaz','Bafra'],'1':['Gönyeli'],'3':['Sakarya']};
+document.getElementById('city').addEventListener('change',function(){var d=document.getElementById('dist');setTimeout(function(){d.innerHTML='<option value="">Seçiniz</option>'+(D[this.value]||[]).map(function(x,i){return '<option value="'+(i+1)+'">'+x+'</option>'}).join('')}.bind(this),400)});
+window.published=false;document.getElementById('pub').addEventListener('click',function(){window.published=true});
+</script></body></html>

@@ -160,12 +160,16 @@ function ec_install_schema(): void
   video_url varchar(255) DEFAULT NULL,
   lat decimal(9,6) DEFAULT NULL,
   lng decimal(9,6) DEFAULT NULL,
+  project_type varchar(20) DEFAULT NULL,
+  build_status varchar(20) DEFAULT NULL,
+  land_m2 int(10) unsigned DEFAULT NULL,
   reject_reason varchar(255) DEFAULT NULL,
   source varchar(20) NOT NULL DEFAULT 'panel',
   created_at datetime NOT NULL,
   updated_at datetime NOT NULL,
   PRIMARY KEY  (id),
-  KEY city (city)
+  KEY city (city),
+  KEY agent_id (agent_id)
 ) $c;");
 
     // Fiyat endeksi: her ay, şehir, ilan türü ve emlak tipi için m² medyanı (ilan fiyatlarından)
@@ -197,6 +201,79 @@ function ec_install_schema(): void
   created_at datetime NOT NULL,
   PRIMARY KEY  (id),
   KEY project_id (project_id,kind,sort)
+) $c;");
+
+    // Talepler: ilan / proje sayfasındaki "Mesaj gönder" formu
+    $leads = ec_table('leads');
+    dbDelta("CREATE TABLE $leads (
+  id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  agent_id bigint(20) unsigned DEFAULT NULL,
+  listing_id bigint(20) unsigned DEFAULT NULL,
+  project_id bigint(20) unsigned DEFAULT NULL,
+  name varchar(120) NOT NULL,
+  email varchar(190) DEFAULT NULL,
+  phone varchar(40) DEFAULT NULL,
+  message text,
+  lang char(2) NOT NULL DEFAULT 'tr',
+  status varchar(12) NOT NULL DEFAULT 'new',
+  ip_hash char(40) DEFAULT NULL,
+  created_at datetime NOT NULL,
+  PRIMARY KEY  (id),
+  KEY agent_id (agent_id,status),
+  KEY listing_id (listing_id)
+) $c;");
+
+    // Hatalı ilan bildirimleri
+    $reports = ec_table('reports');
+    dbDelta("CREATE TABLE $reports (
+  id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  listing_id bigint(20) unsigned NOT NULL,
+  reason varchar(30) NOT NULL,
+  note text,
+  email varchar(190) DEFAULT NULL,
+  status varchar(12) NOT NULL DEFAULT 'open',
+  ip_hash char(40) DEFAULT NULL,
+  created_at datetime NOT NULL,
+  PRIMARY KEY  (id),
+  KEY listing_id (listing_id),
+  KEY status (status)
+) $c;");
+
+    // Telegram botu: sohbet başına açık taslak (gelen fotoğraf ve metinler tek ilanda toplanır)
+    $tg = ec_table('tg_drafts');
+    dbDelta("CREATE TABLE $tg (
+  id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  chat_id varchar(40) NOT NULL,
+  agent_id bigint(20) unsigned DEFAULT NULL,
+  state varchar(16) NOT NULL DEFAULT 'collecting',
+  texts mediumtext,
+  photos text,
+  data mediumtext,
+  listing_id bigint(20) unsigned DEFAULT NULL,
+  preview_msg_id bigint(20) DEFAULT NULL,
+  error varchar(255) DEFAULT NULL,
+  created_at datetime NOT NULL,
+  updated_at datetime NOT NULL,
+  PRIMARY KEY  (id),
+  KEY chat_state (chat_id,state)
+) $c;");
+
+    // Diğer sitelere (101evler, hangiev) girilen ilanlar: Chrome eklentisi kaydeder
+    $syn = ec_table('syndication');
+    dbDelta("CREATE TABLE $syn (
+  id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  listing_id bigint(20) unsigned NOT NULL,
+  agent_id bigint(20) unsigned DEFAULT NULL,
+  site varchar(20) NOT NULL,
+  status varchar(16) NOT NULL DEFAULT 'filled',
+  remote_url varchar(255) DEFAULT NULL,
+  remote_id varchar(60) DEFAULT NULL,
+  note varchar(255) DEFAULT NULL,
+  created_at datetime NOT NULL,
+  updated_at datetime NOT NULL,
+  PRIMARY KEY  (id),
+  UNIQUE KEY listing_site (listing_id,site),
+  KEY agent_id (agent_id)
 ) $c;");
 
     // v1 → v3: eski hesap türlerini yeni adlara çevir

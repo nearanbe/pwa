@@ -139,6 +139,11 @@ function ec_demo_seed()
             'transformer_paid' => $x[0] === 'sale' ? mt_rand(0, 1) : null,
             'sea_distance_m' => mt_rand(1, 40) * 100,
             'year_built' => $x[1] === 'konut' ? mt_rand(2008, 2026) : null,
+            'floor' => in_array($x[2], ['daire', 'penthouse'], true) ? (string) mt_rand(1, 6) : null,
+            'total_floors' => in_array($x[2], ['daire', 'penthouse'], true) ? 7 : null,
+            // Demo konum: şehir merkezi çevresinde (yaklaşık 2-4 km)
+            'lat' => ec_city_coords()[$x[3]][0] + mt_rand(-250, 250) / 10000,
+            'lng' => ec_city_coords()[$x[3]][1] + mt_rand(-300, 300) / 10000,
         ], $agentFor($x[3]), 'demo');
         if (is_wp_error($id)) {
             continue;
@@ -178,7 +183,12 @@ function ec_demo_seed()
             'agent_id' => $agentFor($p[2]), 'name' => $p[0], 'developer' => $p[1], 'city' => $p[2], 'district' => $p[3],
             'units' => $p[4], 'delivery_date' => $p[5], 'price_min_gbp' => $p[6], 'price_max_gbp' => $p[7], 'payment_plan' => $p[8],
             'desc_tr' => $p[9][0], 'desc_en' => $p[9][1], 'desc_ru' => $p[9][2],
-            'progress' => [35, 70, 15, 55, 80, 10][$k],
+            'progress' => [35, 70, 15, 55, 100, 10][$k],
+            'project_type' => ['konut', 'konut', 'tatil', 'villa', 'villa', 'tatil'][$k],
+            'build_status' => [null, null, null, null, 'completed', 'planned'][$k],
+            'land_m2' => [8500, 4200, 21000, 9600, 14000, 18500][$k],
+            'lat' => ec_city_coords()[$p[2]][0] + 0.01 * ($k - 2),
+            'lng' => ec_city_coords()[$p[2]][1] - 0.012 * ($k - 2),
             'down_payment_pct' => (int) ltrim($p[8], '%'), 'installments' => (int) preg_replace('/.*?(\d+) ay.*/', '$1', $p[8]),
             'amenities' => array_slice(array_keys(ec_amenities()), $k, 6),
             'unit_types' => [
@@ -192,6 +202,21 @@ function ec_demo_seed()
             ec_demo_image($f, 100 + $k, 'proje');
             ec_project_set_cover($pid, $f);
             @unlink($f);
+            // İlk iki projeye galeri ve kat planı (daire tipi adıyla)
+            if ($k < 2) {
+                for ($g = 0; $g < 3; $g++) {
+                    $f = $tmp . 'ec-demo-pg-' . $pid . '-' . $g . '.jpg';
+                    ec_demo_image($f, 110 + $k * 5 + $g, 'konut');
+                    ec_project_media_add($pid, $f, 'photo');
+                    @unlink($f);
+                }
+                foreach (['1+1', '2+1'] as $g => $type) {
+                    $f = $tmp . 'ec-demo-pp-' . $pid . '-' . $g . '.jpg';
+                    ec_demo_image($f, 130 + $g, 'arsa');
+                    ec_project_media_add($pid, $f, 'plan', $type);
+                    @unlink($f);
+                }
+            }
         }
     }
 
@@ -283,6 +308,11 @@ function ec_demo_unseed(): string
             $deleted++;
         }
     }
+    // Silinen ilan / projelere bağlı talep, bildirim ve aktarım kayıtlarını temizle
+    foreach (['leads', 'reports', 'syndication'] as $tb) {
+        $wpdb->query('DELETE x FROM ' . ec_table($tb) . ' x LEFT JOIN ' . ec_table('listings') . ' l ON l.id = x.listing_id WHERE x.listing_id IS NOT NULL AND l.id IS NULL');
+    }
+    $wpdb->query('DELETE x FROM ' . ec_table('leads') . ' x LEFT JOIN ' . ec_table('projects') . ' p ON p.id = x.project_id WHERE x.project_id IS NOT NULL AND p.id IS NULL');
     return sprintf('%d demo ilan ve %d demo blog yazısı silindi.', count($ids), $deleted);
 }
 

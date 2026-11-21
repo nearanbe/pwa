@@ -133,3 +133,39 @@ Anahtarın sahibi danışman, ilan sayıları ve tüm durumlardaki ilanları.
 | `POST /projects/{id}/media` | `multipart`: `file`, `kind` = `photo` / `plan` / `brochure` (PDF), `title` |
 | `DELETE /projects/{id}/media/{mid}` | Dosyayı siler |
 | `POST /review/{listing|agent|project}/{id}` | Yönetici: `{"action": "approve" | "reject" | "suspend" | "verify", "reason": "..."}` |
+
+## 0.4 uçları
+
+### Talepler ve bildirimler (herkese açık, hız sınırlı)
+| Uç | Gövde | Açıklama |
+|---|---|---|
+| `POST /listings/{id}/lead` | `name`, `phone` veya `email`, `message`, `consent: 1` (+ Turnstile açıksa `cf-turnstile-response`) | İlan sahibine e-posta (bağlıysa Telegram), yöneticiye kopya. IP başına saatte 6. |
+| `POST /projects/{id}/lead` | aynı | Proje sahibine |
+| `POST /listings/{id}/report` | `reason` (`sold`, `price`, `photos`, `location`, `duplicate`, `fraud`, `other`), `note`, `email` | Yöneticiye bildirim, onay panelinde listelenir |
+| `GET /nearby?lat=&lng=&lang=` | | Yakındaki yerler (OpenStreetMap Overpass, 2 km, 30 gün önbellek): `{"radius":2000,"categories":[{"key":"health","name":"Sağlık","icon":"✚","items":[{"name":"…","dist":"350 m","m":350,"lat":..,"lng":..}]}]}` |
+
+### Üye (anahtar ya da oturum)
+| Uç | Açıklama |
+|---|---|
+| `GET /me/leads` | `{"items":[{id,name,email,phone,message,lang,status,created_at,about:{type,id,title,url}}],"unread":2}` |
+| `PATCH /me/leads/{id}` | `{"status":"read"\|"done"\|"spam"}` |
+
+### Yönetici
+| Uç | Açıklama |
+|---|---|
+| `GET /reports` · `PATCH /reports/{id}` | Açık hatalı ilan bildirimleri · `{"status":"closed"}` |
+
+### Telegram
+`POST /telegram/webhook` — yalnızca Telegram çağırır; `X-Telegram-Bot-Api-Secret-Token` başlığı Ayarlar'daki gizli değerle eşleşmeli. Webhook **Emlak → Ayarlar → Araçlar → Telegram webhook'unu kur** ile kaydedilir.
+
+### Chrome eklentisi (üye API anahtarıyla)
+| Uç | Açıklama |
+|---|---|
+| `GET /ext/config` | Site modülleri: `sites.{101evler,hangiev}.{name,new_url,fields{alan:{selectors[],labels[],map{},after,wait}},sms,success}` |
+| `GET /ext/listing/{id}` | Tam ilan + `i18n` (3 dil) + `feature_labels` + `syndication` |
+| `GET /ext/syndication` · `POST /ext/syndication` | `{"listing_id","site":"101evler"\|"hangiev","status":"filled"\|"published"\|"failed"\|"removed","remote_url","remote_id"}` |
+| `POST /ext/sms-request` | `{"site":"101evler"}` → bot üyeye kodu sorar (Telegram bağlı olmalı; değilse 409) |
+| `GET /ext/sms-code` | `{"code":"482913","site":"101evler"}` bir kez döner; yoksa `{"code":null,"waiting":true}` |
+
+### Proje alanları (0.4)
+`project_type` (`konut`, `villa`, `karma`, `ticari`, `tatil`), `build_status` (`planned`, `ongoing`, `completed`; boşsa ilerlemeden hesaplanır), `land_m2`. Kat planı dosyasının başlığı daire tipi adıyla (ör. `2+1`) eşleşirse proje sayfasında o daire kartında gösterilir.

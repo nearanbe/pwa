@@ -14,7 +14,7 @@ function adaev_strings(): array
     if ($all !== null) {
         return $all;
     }
-    return $all = array_merge(adaev_strings_panel(), [
+    return $all = apply_filters('adaev_strings_extra', array_merge(adaev_strings_panel(), [
         'tagline' => ['Kıbrıs Emlak İlanları', 'North Cyprus Property Listings', 'Недвижимость Северного Кипра'],
         'hero_title' => ['Adanın en seçkin evleri', 'The finest homes on the island', 'Лучшие дома острова'],
         'hero_sub' => ['Girne’den Gazimağusa’ya satılık, kiralık ve günlük kiralık ilanlar', 'Homes for sale, long-term and holiday rental from Kyrenia to Famagusta', 'Продажа, аренда и посуточная аренда от Кирении до Фамагусты'],
@@ -170,7 +170,7 @@ function adaev_strings(): array
         'all_posts' => ['Tüm yazılar', 'All articles', 'Все статьи'],
         'menu' => ['Menü', 'Menu', 'Меню'],
         'no_photo' => ['Fotoğraf yok', 'No photo', 'Нет фото'],
-    ]);
+    ]));
 }
 
 /** Metni geçerli dilde döndürür; %s yer tutucuları için ek argüman alır. */

@@ -245,7 +245,7 @@ add_action('admin_post_ec_agent', function () {
 
 function ec_admin_settings(): void
 {
-    $rates = ec_rates();
+    $rates = ec_rates_official();
     $ads = get_option('ec_ads', ['client' => '', 'top' => '', 'feed' => '', 'mid' => '', 'detail' => '']);
     $contact = get_option('ec_contact', ['whatsapp' => '', 'email' => '', 'telegram_bot' => '']);
     echo '<div class="wrap"><h1>Emlak ayarları</h1>';
@@ -274,6 +274,32 @@ function ec_admin_settings(): void
     $side = get_option('ec_rates_side', 'mid');
     echo '<tr><th>Kur türü (TCMB / KKTC MB)</th><td><select name="rates_side"><option value="mid"' . selected($side, 'mid', false) . '>Ortalama (döviz alış + satış) / 2</option><option value="buy"' . selected($side, 'buy', false) . '>Döviz alış</option><option value="sell"' . selected($side, 'sell', false) . '>Döviz satış</option></select><p class="description">Kaynak sırası: TCMB → KKTC Merkez Bankası → Avrupa Merkez Bankası → open.er-api.com. TCMB her iş günü 15:30’da yayımlar.</p></td></tr>';
     echo '</table><p class="description">İlanlar kendi para birimiyle saklanır; arama ve sıralama için GBP karşılığı bu kurlarla hesaplanır. Otomatik güncelleme açıkken elle girilen değerlerin üzerine her gün yazılır.</p>';
+    $secret_early = fn(string $name, string $val) => '<input name="' . esc_attr($name) . '" type="password" class="regular-text" autocomplete="new-password" placeholder="' . ($val ? '•••••••• (kayıtlı, değiştirmek için yazın)' : '') . '">';
+    $lv = ec_rates_live_settings();
+    $ld = (array) get_option('ec_rates_live_data', []);
+    echo '<h2>Gün içi (piyasa) kuru</h2><p class="description">Açıkken TL kurları birkaç dakikada bir piyasadan çekilir; EUR ve USD resmi kurdan gelir. Her değer TCMB kuruyla karşılaştırılır, belirlenen yüzdeden fazla sapan değer reddedilir. Değer ' . (int) $lv['max_age'] . ' dakikadan eskiyse site kendiliğinden resmi kura döner. Zamanlanmış görev (Plesk) her 5 dakikada bir çalışmalıdır — bkz. kurulum belgesi.</p><table class="form-table">';
+    echo '<tr><th>Gün içi kur</th><td><label><input type="checkbox" name="live_enabled" value="1"' . checked((int) $lv['enabled'], 1, false) . '> Açık</label></td></tr>';
+    echo '<tr><th>Kaynak</th><td><select name="live_provider">';
+    foreach (['auto' => 'Otomatik (Twelve Data, yoksa Yahoo Finance)', 'twelvedata' => 'Sadece Twelve Data', 'yahoo' => 'Sadece Yahoo Finance'] as $k => $n) {
+        echo '<option value="' . $k . '"' . selected($lv['provider'], $k, false) . '>' . esc_html($n) . '</option>';
+    }
+    echo '</select></td></tr>';
+    echo '<tr><th>Twelve Data API anahtarı</th><td>' . $secret_early('live_key', (string) $lv['key']) . '<p class="description">Ücretsiz: twelvedata.com → Sign up → API Keys. Günde 800 istek; 5 dakikada bir çekim günde 288 istek harcar.</p></td></tr>';
+    echo '<tr><th>Sıklık</th><td><select name="live_interval">';
+    foreach ([5, 10, 15, 30] as $m) {
+        echo '<option value="' . $m . '"' . selected((int) $lv['interval'], $m, false) . '>' . $m . ' dakikada bir</option>';
+    }
+    echo '</select></td></tr>';
+    echo '<tr><th>En çok sapma (TCMB’ye göre)</th><td><input name="live_max_dev" type="number" step="0.5" min="1" max="20" value="' . esc_attr($lv['max_dev']) . '"> %</td></tr>';
+    if (!empty($ld['fetched_at'])) {
+        $cur = ec_rates_live_current();
+        echo '<tr><th>Durum</th><td>' . ($cur ? '✅ Kullanılıyor: ' : '⏸ Kullanılmıyor (kapalı ya da eski): ') . '1 GBP = <b>' . esc_html(number_format((float) ($ld['rates']['TRY'] ?? 0), 4, ',', '.')) . ' ₺</b> · ' . esc_html(($ld['source'] ?? '') === 'twelvedata' ? 'Twelve Data' : 'Yahoo Finance') . ' · piyasa saati ' . esc_html(wp_date('d.m.Y H:i', (int) ($ld['market_time'] ?? 0))) . ' · TCMB’ye göre fark %' . esc_html((string) ($ld['deviation'] ?? '')) . '</td></tr>';
+    }
+    if (!empty($ld['error'])) {
+        echo '<tr><th></th><td><p class="description" style="color:#b32d2e">Son uyarı: ' . esc_html($ld['error']) . '</p></td></tr>';
+    }
+    echo '</table>';
+
     echo '<h2>Reklam (Google AdSense)</h2><table class="form-table">';
     foreach (['client' => 'Yayıncı kimliği (ca-pub-...)', 'top' => 'Üst alan slot', 'feed' => 'İlan arası slot', 'mid' => 'Orta alan slot', 'detail' => 'İlan detay slot'] as $k => $n) {
         echo '<tr><th>' . esc_html($n) . '</th><td><input name="ads_' . $k . '" class="regular-text" value="' . esc_attr($ads[$k] ?? '') . '"></td></tr>';
@@ -302,7 +328,33 @@ function ec_admin_settings(): void
     echo '<h2>Telegram</h2><p class="description">Bot anahtarını Telegram’da @BotFather’dan alın. Sohbet numaranızı öğrenmek için bota bir mesaj yazıp @userinfobot’a sorabilirsiniz. Yeni üye ve onay bekleyen ilan bildirimleri bu sohbete gelir.</p><table class="form-table">';
     echo '<tr><th>Bot kullanıcı adı (@ olmadan)</th><td><input name="tg_bot" class="regular-text" value="' . esc_attr($tg['bot'] ?? ($contact['telegram_bot'] ?? '')) . '"></td></tr>';
     echo '<tr><th>Bot anahtarı (token)</th><td>' . $secret('tg_token', (string) ($tg['token'] ?? '')) . '</td></tr>';
-    echo '<tr><th>Yönetici sohbet numarası (chat id)</th><td><input name="tg_admin_chat" class="regular-text" value="' . esc_attr($tg['admin_chat'] ?? '') . '"></td></tr></table>';
+    echo '<tr><th>Yönetici sohbet numarası (chat id)</th><td><input name="tg_admin_chat" class="regular-text" value="' . esc_attr($tg['admin_chat'] ?? '') . '"></td></tr>';
+    $whInfo = !empty($tg['webhook_ok']) ? '✅ Webhook kurulu: <code>' . esc_html(home_url('/api/v1/telegram/webhook')) . '</code> (' . esc_html((string) $tg['webhook_ok']) . ')' : 'Bot anahtarını kaydettikten sonra aşağıdaki <b>Telegram webhook’unu kur</b> düğmesine basın.';
+    echo '<tr><th>Bot (ilan alma)</th><td><p class="description">' . $whInfo . '</p></td></tr></table>';
+
+    $ai = ec_ai_settings();
+    echo '<h2>Yapay zekâ (Claude API)</h2><p class="description">Telegram’dan gelen ilan metninden alanları çıkarır ve Türkçe, İngilizce, Rusça başlık/açıklama yazar. Anahtarı <b>console.anthropic.com → API Keys</b> ekranından alın.</p><table class="form-table">';
+    echo '<tr><th>API anahtarı</th><td>' . $secret_early('ai_key', (string) $ai['key']) . '</td></tr>';
+    echo '<tr><th>Model</th><td><input name="ai_model" class="regular-text" value="' . esc_attr($ai['model']) . '"><p class="description">Varsayılan: <code>claude-opus-5-5</code>.</p></td></tr>';
+    echo '<tr><th>Çaba (effort)</th><td><select name="ai_effort">';
+    foreach (['low' => 'Düşük (hızlı, ucuz)', 'medium' => 'Orta (önerilen)', 'high' => 'Yüksek'] as $k => $n) {
+        echo '<option value="' . $k . '"' . selected($ai['effort'], $k, false) . '>' . esc_html($n) . '</option>';
+    }
+    echo '</select></td></tr></table>';
+
+    echo '<h2>Talepler (Mesaj gönder formu)</h2><table class="form-table"><tr><th>Yöneticiye kopya</th><td><label><input type="checkbox" name="lead_admin_copy" value="1"' . checked((int) get_option('ec_lead_admin_copy', 1), 1, false) . '> İlan sahibine giden her mesajın kopyası bana da gelsin</label></td></tr></table>';
+
+    $cp = (array) get_option('ec_city_photos', []);
+    echo '<h2>Ana sayfa şehir kartları</h2><p class="description">Her şehir için bir fotoğraf seçin (Medya kütüphanesindeki görselin numarası ya da adresi). Boş bırakılan şehirde renkli arka plan görünür.</p><table class="form-table">';
+    foreach (ec_cities() as $ck => $c) {
+        echo '<tr><th>' . esc_html($c['name']['tr']) . '</th><td><input name="city_photo[' . esc_attr($ck) . ']" class="regular-text" placeholder="https://… ya da medya no" value="' . esc_attr((string) ($cp[$ck] ?? '')) . '"></td></tr>';
+    }
+    echo '</table>';
+
+    $extRaw = get_option('ec_ext_config');
+    echo '<h2>Chrome eklentisi (101evler / hangiev)</h2><p class="description">Eklenti form alanlarını bu ayarlarla bulur. Siteler formlarını değiştirirse sadece bu JSON güncellenir; eklentiyi yeniden kurmak gerekmez. Boş bırakılırsa varsayılan kullanılır.</p>';
+    echo '<textarea name="ext_config" rows="8" class="large-text code" placeholder="(varsayılan ayarlar kullanılıyor)">' . esc_textarea(is_string($extRaw) ? $extRaw : '') . '</textarea>';
+    echo '<p><details><summary>Varsayılan ayarları göster</summary><textarea readonly rows="12" class="large-text code">' . esc_textarea(wp_json_encode(ec_ext_default_config(), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)) . '</textarea></details></p>';
 
     $host = preg_replace('/^www\./', '', (string) wp_parse_url(home_url('/'), PHP_URL_HOST));
     echo '<h2>Ofis alt alan adları</h2><table class="form-table"><tr><th>Alt alan adları</th><td><label><input type="checkbox" name="subdomains" value="1"' . checked((int) get_option('ec_subdomains'), 1, false) . '> Ofis vitrinleri <code>ofisadi.' . esc_html($host) . '</code> adresinde açılsın</label><p class="description">Açmadan önce DNS’te <code>*</code> kaydı ve sunucuda yıldızlı (wildcard) alt alan adı + SSL kurulmuş olmalı (bkz. kurulum belgesi). Kapalıyken vitrinler <code>/tr/ofis/ofisadi/</code> adresinde açılır.</p></td></tr></table>';
@@ -318,7 +370,7 @@ function ec_admin_settings(): void
         $u = wp_nonce_url(admin_url('admin-post.php?action=ec_tool&do=' . $do), 'ec_tool_' . $do);
         return '<a class="' . $cls . '" href="' . esc_url($u) . '"' . ($confirm ? ' onclick="return confirm(\'' . esc_js($confirm) . '\')"' : '') . '>' . esc_html($label) . '</a> ';
     };
-    echo '<hr><h2>Araçlar</h2><p>' . $tool('rates', 'Kurları şimdi güncelle') . $tool('index', 'Fiyat endeksini şimdi hesapla') . '</p>';
+    echo '<hr><h2>Araçlar</h2><p>' . $tool('rates', 'Kurları şimdi güncelle') . $tool('live', 'Gün içi kuru şimdi çek') . $tool('index', 'Fiyat endeksini şimdi hesapla') . $tool('webhook', 'Telegram webhook’unu kur') . $tool('aitest', 'Yapay zekâyı dene') . $tool('pages', 'Sabit sayfaları taslak olarak oluştur') . '</p>';
     echo '<p class="description">Fiyat endeksi her gün otomatik hesaplanır: yayındaki konut ilanlarının m² başına istenen fiyatlarının medyanı (şehir bazında, en az ' . EC_INDEX_MIN_N . ' ilan).</p>';
     echo '<h2>Demo verisi</h2>';
     if (ec_demo_active()) {
@@ -341,6 +393,40 @@ add_action('admin_post_ec_tool', function () {
             break;
         case 'index':
             $msg = ec_index_compute() . ' endeks satırı hesaplandı.';
+            break;
+        case 'live':
+            $r = ec_rates_live_update();
+            $msg = is_wp_error($r) ? 'Gün içi kur alınamadı: ' . esc_html($r->get_error_message()) : 'Gün içi kur: 1 GBP = ' . esc_html((string) $r['rates']['TRY']) . ' TRY (' . esc_html($r['source']) . ', TCMB’ye göre fark %' . esc_html((string) $r['deviation']) . ')' . (ec_rates_live_settings()['enabled'] ? '' : ' — sitede kullanılması için “Gün içi kur” kutusunu işaretleyin.');
+            break;
+        case 'webhook':
+            $r = ec_tg_set_webhook();
+            if (!is_wp_error($r)) {
+                $tg = ec_tg_settings();
+                $tg['webhook_ok'] = wp_date('d.m.Y H:i');
+                update_option('ec_telegram', $tg);
+            }
+            $msg = is_wp_error($r) ? 'Webhook kurulamadı: ' . esc_html($r->get_error_message()) : 'Telegram webhook kuruldu. Bota bir mesaj yazarak deneyin.';
+            break;
+        case 'pages':
+            $made = [];
+            $brand = get_bloginfo('name');
+            $pages = [
+                'hakkimizda' => ['Hakkımızda', "$brand, Kuzey Kıbrıs’taki satılık, kiralık ve günlük kiralık konutları, projeleri ve emlak ofislerini tek yerde toplayan bir ilan sitesidir.\n\n[Şirket bilgilerinizi buraya yazın.]"],
+                'iletisim' => ['İletişim', "Bize ulaşın:\n\nE-posta: " . get_option('admin_email') . "\nWhatsApp: " . ((get_option('ec_contact')['whatsapp'] ?? '') ?: '[numara]') . "\nAdres: [adres]"],
+                'gizlilik-politikasi' => ['Gizlilik Politikası', "[TASLAK — yayınlamadan önce bir avukata kontrol ettirin.]\n\nHangi bilgileri topluyoruz: üyelik bilgileri (ad, e-posta, telefon), ilan bilgileri, “Mesaj gönder” formuna yazılan iletişim bilgileri.\nNe için kullanıyoruz: ilan yayınlamak, alıcıyı ilan sahibine ulaştırmak, hesabınızı güvende tutmak.\nKimlerle paylaşıyoruz: mesaj gönderdiğiniz ilan sahibiyle. Satmıyoruz.\nÇerezler: dil, para birimi ve favoriler için.\nHaklarınız: bilgilerinizin silinmesini " . get_option('admin_email') . " adresinden isteyebilirsiniz."],
+                'kullanim-sartlari' => ['Kullanım Şartları', "[TASLAK — yayınlamadan önce bir avukata kontrol ettirin.]\n\nİlanların doğruluğundan ilan sahibi sorumludur. Satın almadan önce tapu ve belgeleri bir avukata kontrol ettirin.\nYanıltıcı ilanlar uyarı yapılmadan kaldırılabilir.\nÜcretli otomasyon paketlerinin koşulları ayrıca bildirilir."],
+            ];
+            foreach ($pages as $slug => [$title, $body]) {
+                if (!get_page_by_path($slug)) {
+                    wp_insert_post(['post_type' => 'page', 'post_status' => 'draft', 'post_name' => $slug, 'post_title' => $title, 'post_content' => wpautop($body)]);
+                    $made[] = $title;
+                }
+            }
+            $msg = $made ? esc_html(implode(', ', $made)) . ' taslak olarak oluşturuldu. Sayfalar menüsünden düzenleyip yayınlayın.' : 'Dört sayfa da zaten var.';
+            break;
+        case 'aitest':
+            $r = ec_ai_extract("Girne Alsancak'ta satılık 2+1 daire, 95 m2, deniz manzaralı, ortak havuz. Fiyat 145.000 stg. Türk koçanı, KDV ödendi.");
+            $msg = is_wp_error($r) ? 'Yapay zekâ hatası: ' . esc_html($r->get_error_message()) : 'Yapay zekâ çalışıyor ✓ — “' . esc_html($r['i18n']['tr']['title'] ?? '') . '” / “' . esc_html($r['i18n']['en']['title'] ?? '') . '” · ' . esc_html(($r['city'] ?? '') . ', ' . ($r['district'] ?? '') . ', ' . ($r['price'] ?? '') . ' ' . ($r['currency'] ?? ''));
             break;
         case 'seed':
             $r = ec_demo_seed();
@@ -387,11 +473,46 @@ add_action('admin_post_ec_settings', function () {
     $ts = ec_turnstile_keys();
     update_option('ec_turnstile', ['site' => sanitize_text_field($p['ts_site'] ?? ''), 'secret' => $keep($ts, 'secret', sanitize_text_field($p['ts_secret'] ?? ''))]);
     $tg = (array) get_option('ec_telegram', []);
+    $newToken = $keep($tg, 'token', preg_replace('/[^0-9A-Za-z:_-]/', '', (string) ($p['tg_token'] ?? '')));
     update_option('ec_telegram', [
         'bot' => $bot,
-        'token' => $keep($tg, 'token', preg_replace('/[^0-9A-Za-z:_-]/', '', (string) ($p['tg_token'] ?? ''))),
+        'token' => $newToken,
         'admin_chat' => preg_replace('/[^0-9-]/', '', (string) ($p['tg_admin_chat'] ?? '')),
+        'secret' => ($tg['secret'] ?? '') ?: wp_generate_password(32, false, false),
+        'webhook_ok' => $newToken === ($tg['token'] ?? '') ? ($tg['webhook_ok'] ?? '') : '',
     ]);
+    $lv = ec_rates_live_settings();
+    update_option('ec_rates_live', [
+        'enabled' => !empty($p['live_enabled']) ? 1 : 0,
+        'provider' => in_array($p['live_provider'] ?? '', ['auto', 'twelvedata', 'yahoo'], true) ? $p['live_provider'] : 'auto',
+        'key' => $keep($lv, 'key', preg_replace('/[^A-Za-z0-9]/', '', (string) ($p['live_key'] ?? ''))),
+        'interval' => in_array((int) ($p['live_interval'] ?? 5), [5, 10, 15, 30], true) ? (int) $p['live_interval'] : 5,
+        'max_dev' => max(1, min(20, (float) ($p['live_max_dev'] ?? 5))),
+        'max_age' => 30,
+    ]);
+    $ai = ec_ai_settings();
+    update_option('ec_ai', [
+        'key' => $keep($ai, 'key', trim(sanitize_text_field($p['ai_key'] ?? ''))),
+        'model' => preg_replace('/[^a-z0-9.-]/', '', strtolower((string) ($p['ai_model'] ?? ''))) ?: 'claude-opus-5-5',
+        'effort' => in_array($p['ai_effort'] ?? '', ['low', 'medium', 'high'], true) ? $p['ai_effort'] : 'medium',
+    ]);
+    update_option('ec_lead_admin_copy', !empty($p['lead_admin_copy']) ? 1 : 0);
+    $cp = [];
+    foreach ((array) ($p['city_photo'] ?? []) as $ck => $v) {
+        $v = trim((string) $v);
+        if (isset(ec_cities()[$ck]) && $v !== '') {
+            $cp[$ck] = ctype_digit($v) ? (int) $v : esc_url_raw($v);
+        }
+    }
+    update_option('ec_city_photos', $cp);
+    $ext = trim((string) ($p['ext_config'] ?? ''));
+    if ($ext === '') {
+        delete_option('ec_ext_config');
+    } elseif (is_array($j = json_decode($ext, true)) && !empty($j['sites'])) {
+        update_option('ec_ext_config', wp_json_encode($j, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
+    } else {
+        ec_admin_back('ec-settings', 'Chrome eklentisi ayarı geçerli bir JSON değil; diğer ayarlar kaydedildi.');
+    }
     update_option('ec_subdomains', !empty($p['subdomains']) ? 1 : 0);
     $cf = (array) get_option('ec_cloudflare', []);
     update_option('ec_cloudflare', [

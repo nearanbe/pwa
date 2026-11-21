@@ -100,7 +100,7 @@ function ec_listing_clean(array $in, bool $partial = false): array
         $out['floor'] = $in['floor'] === '' || $in['floor'] === null ? null : mb_substr(sanitize_text_field((string) $in['floor']), 0, 10);
     }
     if (array_key_exists('payment_plan', $in)) {
-        $out['payment_plan'] = mb_substr(sanitize_text_field((string) $in['payment_plan']), 0, 190) ?: null;
+        $out['payment_plan'] = mb_substr(ec_clean_text((string) $in['payment_plan']), 0, 190) ?: null;
     }
     foreach (['video_url', 'tour_url'] as $k) {
         if (array_key_exists($k, $in)) {
@@ -119,13 +119,13 @@ function ec_listing_clean(array $in, bool $partial = false): array
             if (!in_array($lang, EC_LANGS, true) || !is_array($t)) {
                 continue;
             }
-            $title = sanitize_text_field((string) ($t['title'] ?? ''));
+            $title = ec_clean_text((string) ($t['title'] ?? ''));
             if ($title === '') {
                 continue;
             }
             $out['i18n'][$lang] = [
                 'title' => mb_substr($title, 0, 200),
-                'description' => sanitize_textarea_field((string) ($t['description'] ?? '')),
+                'description' => ec_clean_textarea((string) ($t['description'] ?? '')),
             ];
         }
         if (!$partial && empty($out['i18n'])) {

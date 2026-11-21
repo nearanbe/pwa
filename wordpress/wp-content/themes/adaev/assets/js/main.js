@@ -168,6 +168,12 @@
     });
   });
 
+  /* ---- Şehir kartı: "kiralık" sayısına tıklayınca kiralık listesine git ---- */
+  document.addEventListener('click', function (e) {
+    var s = e.target.closest('.citycard [data-href]');
+    if (s) { e.preventDefault(); location.href = s.dataset.href; }
+  });
+
   /* ---- AdSense alanları ---- */
   if (window.adsbygoogle || document.querySelector('ins.adsbygoogle')) {
     $$('ins.adsbygoogle').forEach(function () { try { (window.adsbygoogle = window.adsbygoogle || []).push({}); } catch (e) {} });

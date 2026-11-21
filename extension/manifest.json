@@ -1,0 +1,23 @@
+{
+  "manifest_version": 3,
+  "name": "Emlak İlan Aktarıcı",
+  "short_name": "İlan Aktarıcı",
+  "version": "0.4.0",
+  "description": "Sitenizdeki ilanları 101evler ve hangiev formlarına sizin tarayıcınızda doldurur. Son 'Yayınla' tıkı her zaman sizde kalır.",
+  "permissions": ["storage", "tabs"],
+  "host_permissions": [
+    "https://www.101evler.com/*", "https://101evler.com/*",
+    "https://www.hangiev.com/*", "https://hangiev.com/*"
+  ],
+  "optional_host_permissions": ["https://*/*", "http://localhost/*"],
+  "background": { "service_worker": "background.js" },
+  "action": { "default_popup": "popup.html", "default_icon": { "32": "icons/icon-32.png", "128": "icons/icon-128.png" } },
+  "options_page": "options.html",
+  "icons": { "32": "icons/icon-32.png", "128": "icons/icon-128.png" },
+  "content_scripts": [{
+    "matches": ["https://www.101evler.com/*", "https://101evler.com/*", "https://www.hangiev.com/*", "https://hangiev.com/*"],
+    "js": ["filler.js", "content.js"],
+    "css": ["content.css"],
+    "run_at": "document_idle"
+  }]
+}

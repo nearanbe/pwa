@@ -258,5 +258,12 @@ function ec_rates_info(): array
         'source_key' => (string) ($meta['source_key'] ?? ''),
         'date' => (string) ($meta['rate_date'] ?? (!empty($meta['updated_at']) ? substr($meta['updated_at'], 0, 10) : '')),
         'checked' => !empty($meta['updated_at']) ? get_date_from_gmt($meta['updated_at'], 'Y-m-d H:i') : '',
+        'official' => ec_rates_official(),
+        'live' => ($l = ec_rates_live_current()) ? [
+            'source' => $l['source'] === 'twelvedata' ? 'Twelve Data' : 'Yahoo Finance',
+            'time' => wp_date('H:i', (int) $l['market_time']),
+            'date' => wp_date('d.m.Y', (int) $l['market_time']),
+            'fetched' => wp_date('H:i', (int) $l['fetched_at']),
+        ] : null,
     ];
 }

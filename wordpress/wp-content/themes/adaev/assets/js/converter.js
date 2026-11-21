@@ -51,7 +51,14 @@
     var r = AE.rates;
     pop.querySelector('.convrate').textContent = '1 £ = ' + fmt(r.EUR, 4) + ' € · ' + fmt(r.USD, 4) + ' $ · ' + fmt(r.TRY, 4) + ' ₺';
     var info = AE.rateInfo || {};
-    pop.querySelector('.convnote').textContent = [info.source, info.date, AE.msg.convNote].filter(Boolean).join(' · ');
+    if (info.live && info.official) {
+      // Gün içi (piyasa) kuru kullanılıyor; resmi TCMB kuru ayrıca gösterilir
+      var o = info.official;
+      pop.querySelector('.convrate').textContent = info.live + ' (' + info.liveSource + '): ' + pop.querySelector('.convrate').textContent;
+      pop.querySelector('.convnote').textContent = info.officialLabel + ': 1 £ = ' + fmt(o.TRY, 4) + ' ₺ · ' + AE.msg.convNote;
+    } else {
+      pop.querySelector('.convnote').textContent = [info.source, info.date, AE.msg.convNote].filter(Boolean).join(' · ');
+    }
   }
 
   function place() {

@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="tr"><head><meta charset="utf-8"><title>İlan Aktarıcı – Ayarlar</title><link rel="stylesheet" href="popup.css">
+<style>body{width:auto;max-width:560px;margin:30px auto}label{display:block;margin:12px 14px}input,select{box-sizing:border-box;width:100%;padding:9px 10px;border:1px solid #ebe5d8;border-radius:10px;font:inherit;margin-top:4px}button{margin:6px 14px;padding:9px 16px;border:0;border-radius:10px;background:#16343b;color:#fff;font:inherit;cursor:pointer}ol{margin:0 14px 0 32px}</style></head>
+<body>
+  <header><b>İlan Aktarıcı – Ayarlar</b></header>
+  <ol class="sub">
+    <li>Sitenizde <b>Panelim</b>’e girin; API anahtarınızı site yöneticisinden alın (Emlak → Danışmanlar → API anahtarı üret).</li>
+    <li>Site adresini ve anahtarı aşağıya yazıp kaydedin.</li>
+    <li>101evler / hangiev hesabınıza bu tarayıcıda giriş yapmış olun.</li>
+  </ol>
+  <label>Site adresi<input id="site" placeholder="https://emlak392.com"></label>
+  <label>API anahtarı<input id="key" type="password" placeholder="ec_…"></label>
+  <label>İlan metni dili<select id="lang"><option value="tr">Türkçe</option><option value="en">English</option><option value="ru">Русский</option></select></label>
+  <button id="save">Kaydet ve dene</button>
+  <p id="out" class="sub" style="padding:0 14px"></p>
+  <script src="options.js"></script>
+</body></html>

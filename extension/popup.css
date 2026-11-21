@@ -1,0 +1,11 @@
+body{width:380px;margin:0;font:14px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:#16282c;background:#faf8f3}
+header{display:flex;justify-content:space-between;align-items:center;background:#16343b;color:#fff;padding:10px 14px}header a{color:#fff;text-decoration:none;font-size:18px}
+#who,#msg,footer{padding:6px 14px}.sub{color:#6f7c7e;font-size:12.5px}
+#q{box-sizing:border-box;width:calc(100% - 28px);margin:4px 14px 6px;padding:8px 10px;border:1px solid #ebe5d8;border-radius:10px;font:inherit}
+#list{list-style:none;margin:0;padding:0 14px;max-height:420px;overflow:auto}
+#list li{background:#fff;border-radius:12px;padding:9px 10px;margin-bottom:8px;box-shadow:0 1px 6px rgba(0,0,0,.06);display:grid;grid-template-columns:52px 1fr;gap:8px}
+#list img,.noimg{width:52px;height:40px;object-fit:cover;border-radius:8px;background:#e9e3d6}
+#list .t{font-weight:600;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.btns{grid-column:1/-1;display:flex;gap:6px}.btns button{flex:1;border:1px solid #16343b;background:#fff;color:#16343b;border-radius:9px;padding:6px;cursor:pointer;font:inherit;font-size:12.5px}
+.btns button.done{background:#e5f4ea;border-color:#2f9e5b;color:#1f6b3d}.btns button:disabled{opacity:.5}
+.st{font-size:11px;border-radius:999px;padding:1px 7px;background:#f3efe4}

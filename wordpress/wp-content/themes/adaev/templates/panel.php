@@ -31,7 +31,8 @@ $tabs = ['ozet' => 'p_overview', 'ilanlar' => 'p_listings', 'ilan' => 'p_new_lis
 if ($canProjects) {
     $tabs += ['projeler' => 'p_projects', 'proje' => 'p_new_project'];
 }
-$tabs += ['profil' => 'p_profile', 'telegram' => 'p_telegram'];
+$unread = ec_leads_unread((int) $agent['id']);
+$tabs += ['talepler' => 'p_leads', 'profil' => 'p_profile', 'telegram' => 'p_telegram'];
 if (!isset($tabs[$tab])) {
     $tab = 'ozet';
 }
@@ -111,7 +112,7 @@ $statusLabel = fn(string $s) => '<span class="st st-' . esc_attr($s) . '">' . es
 
   <nav class="ptabs" aria-label="<?php ae_e('my_panel'); ?>">
     <?php foreach ($tabs as $t => $label) : ?>
-      <a href="<?php echo $url($t); ?>" class="<?php echo $t === $tab ? 'on' : ''; ?>"><?php ae_e($t === 'ilan' && $editListing ? 'p_edit_listing' : ($t === 'proje' && $editProject ? 'p_edit_project' : $label)); ?></a>
+      <a href="<?php echo $url($t); ?>" class="<?php echo $t === $tab ? 'on' : ''; ?>"><?php ae_e($t === 'ilan' && $editListing ? 'p_edit_listing' : ($t === 'proje' && $editProject ? 'p_edit_project' : $label)); ?><?php if ($t === 'talepler' && $unread) : ?> <span class="count"><?php echo (int) $unread; ?></span><?php endif; ?></a>
     <?php endforeach; ?>
   </nav>
 
@@ -142,6 +143,7 @@ $statusLabel = fn(string $s) => '<span class="st st-' . esc_attr($s) . '">' . es
             <h3><?php echo esc_html($a['title']); ?></h3>
             <div class="sub"><?php echo esc_html($a['subtype_name'] . ' · ' . trim(($a['district'] ? $a['district'] . ', ' : '') . $a['city_name'])); ?> · <b><?php echo ae_price($a['price_gbp'], $a['mode'], false); ?></b></div>
             <?php if ($a['status'] === 'rejected' && $a['reject_reason']) : ?><p class="ferr"><?php ae_e('reject_reason'); ?>: <?php echo esc_html($a['reject_reason']); ?></p><?php endif; ?>
+            <?php $syn = ec_syndication_for((int) $a['id']); if ($syn) : ?><div class="synd"><?php foreach ($syn as $site => $sy) : ?><a class="st st-<?php echo $sy['status'] === 'published' ? 'published' : 'draft'; ?>" <?php echo $sy['remote_url'] ? 'href="' . esc_url($sy['remote_url']) . '" target="_blank" rel="noopener"' : ''; ?>><?php echo esc_html($site); ?> <?php echo $sy['status'] === 'published' ? '✓' : '…'; ?></a><?php endforeach; ?></div><?php endif; ?>
           </div>
           <div class="myact">
             <a class="ghost sm" href="<?php echo $url('ilan', ['id' => $a['id']]); ?>"><?php ae_e('act_edit'); ?></a>
@@ -160,6 +162,28 @@ $statusLabel = fn(string $s) => '<span class="st st-' . esc_attr($s) . '">' . es
   <?php endif; ?>
 
   <?php if ($tab === 'ilan') : include __DIR__ . '/parts/listing-form.php'; endif; ?>
+
+  <?php if ($tab === 'talepler') : $leads = ec_leads_for_agent((int) $agent['id']); ?>
+    <div class="mylist leads">
+      <?php foreach ($leads as $ld) : ?>
+        <article class="myrow lead st-<?php echo esc_attr($ld['status']); ?>" data-lead="<?php echo (int) $ld['id']; ?>">
+          <div class="myinfo">
+            <div><?php echo $ld['status'] === 'new' ? '<span class="st st-pending">' . esc_html(ae_t('lead_new')) . '</span>' : ''; ?> <span class="sub"><?php echo esc_html(get_date_from_gmt($ld['created_at'], 'd.m.Y H:i')); ?> · <?php echo esc_html(strtoupper($ld['lang'])); ?></span></div>
+            <h3><?php echo esc_html($ld['name']); ?></h3>
+            <div class="sub"><?php if ($ld['phone']) : ?><a href="tel:<?php echo esc_attr($ld['phone']); ?>">📞 <?php echo esc_html($ld['phone']); ?></a> · <a href="https://wa.me/<?php echo esc_attr(preg_replace('/\D/', '', $ld['phone'])); ?>" target="_blank" rel="noopener">WhatsApp</a><?php endif; ?><?php if ($ld['email']) : ?> · <a href="mailto:<?php echo esc_attr($ld['email']); ?>">✉ <?php echo esc_html($ld['email']); ?></a><?php endif; ?></div>
+            <?php if ($ld['about']) : ?><div class="sub"><a href="<?php echo esc_url($ld['about']['url']); ?>" target="_blank"><?php echo esc_html(($ld['about']['type'] === 'listing' ? '#' . $ld['about']['id'] . ' ' : '') . $ld['about']['title']); ?></a></div><?php endif; ?>
+            <p class="rvdesc"><?php echo nl2br(esc_html((string) $ld['message'])); ?></p>
+          </div>
+          <div class="myact">
+            <?php if ($ld['status'] === 'new') : ?><button class="ghost sm" data-lead-st="read"><?php ae_e('lead_mark_read'); ?></button><?php endif; ?>
+            <?php if ($ld['status'] !== 'done') : ?><button class="ghost sm" data-lead-st="done">✓ <?php ae_e('lead_done'); ?></button><?php endif; ?>
+            <button class="ghost sm" data-lead-st="spam"><?php ae_e('lead_spam'); ?></button>
+          </div>
+        </article>
+      <?php endforeach; ?>
+      <?php if (!$leads) : ?><p class="empty"><?php ae_e('lead_empty'); ?></p><?php endif; ?>
+    </div>
+  <?php endif; ?>
 
   <?php if ($tab === 'projeler' && $canProjects) :
       $prows = $wpdb->get_results($wpdb->prepare('SELECT * FROM ' . ec_table('projects') . ' WHERE agent_id = %d ORDER BY id DESC', $agent['id']), ARRAY_A); ?>
@@ -223,6 +247,8 @@ $statusLabel = fn(string $s) => '<span class="st st-' . esc_attr($s) . '">' . es
       <div id="tgmore" <?php echo $agent['telegram_opt_in'] ? '' : 'hidden'; ?>>
         <?php if ($agent['telegram_chat_id']) : ?>
           <p class="okmsg"><?php ae_e('tg_connected', $agent['telegram_username'] ? '@' . $agent['telegram_username'] : '✔'); ?></p>
+          <ol class="tgsteps"><li><?php ae_e('tg_step1'); ?></li><li><?php ae_e('tg_step2'); ?></li><li><?php ae_e('tg_step3'); ?></li></ol>
+          <?php if ($bot) : ?><p><a class="btn" href="https://t.me/<?php echo esc_attr($bot); ?>" target="_blank" rel="noopener">✈ @<?php echo esc_html($bot); ?></a> <button class="ghost" type="button" id="tgrelink"><?php ae_e('tg_relink'); ?></button></p><p class="sub" id="tgout"></p><?php endif; ?>
         <?php elseif ($bot) : ?>
           <button class="btn" type="button" id="tgconnect">✈ <?php ae_e('tg_connect'); ?></button>
           <p class="sub" id="tgout"></p>

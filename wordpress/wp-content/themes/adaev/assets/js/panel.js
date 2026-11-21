@@ -348,7 +348,7 @@
     fillDistricts($('#pdistlist'), P.city.value);
     P.city.addEventListener('change', function () { fillDistricts($('#pdistlist'), P.city.value); if (mapCtl) mapCtl.center(P.city.value); });
     var set = function (n, v) { if (P[n] && v !== undefined && v !== null) P[n].value = v; };
-    ['name', 'developer', 'district', 'units', 'price_min_gbp', 'price_max_gbp', 'payment_plan', 'down_payment_pct', 'installments', 'progress', 'video_url', 'lat', 'lng'].forEach(function (k) { set(k, P0[k]); });
+    ['name', 'developer', 'district', 'units', 'project_type', 'build_status', 'land_m2', 'price_min_gbp', 'price_max_gbp', 'payment_plan', 'down_payment_pct', 'installments', 'progress', 'video_url', 'lat', 'lng'].forEach(function (k) { set(k, P0[k]); });
     if (P0.delivery_date) set('delivery_date', P0.delivery_date.slice(0, 7));
     ['tr', 'en', 'ru'].forEach(function (l) { set('desc_' + l, (P0.desc || {})[l] || ''); });
     $$('input[name=amenities]', P).forEach(function (c) { c.checked = (P0.amenities || []).indexOf(c.value) > -1; });
@@ -389,7 +389,7 @@
     function collect() {
       var d = {
         name: P.name.value.trim(), developer: P.developer.value.trim(), city: P.city.value, district: P.district.value.trim(),
-        delivery_date: P.delivery_date.value, units: num(P.units.value), price_min_gbp: num(P.price_min_gbp.value), price_max_gbp: num(P.price_max_gbp.value),
+        delivery_date: P.delivery_date.value, units: num(P.units.value), project_type: P.project_type.value, build_status: P.build_status.value, land_m2: num(P.land_m2.value), price_min_gbp: num(P.price_min_gbp.value), price_max_gbp: num(P.price_max_gbp.value),
         payment_plan: P.payment_plan.value.trim(), down_payment_pct: num(P.down_payment_pct.value), installments: num(P.installments.value),
         progress: num(P.progress.value), video_url: P.video_url.value.trim(), lat: num(P.lat.value), lng: num(P.lng.value),
         amenities: $$('input[name=amenities]:checked', P).map(function (c) { return c.value; }), unit_types: units()
@@ -495,7 +495,7 @@
           .catch(function (er) { msg($('.formmsg', TG), T.errSave + er.message, false); });
       });
     });
-    var c = $('#tgconnect');
+    var c = $('#tgconnect') || $('#tgrelink');
     if (c) c.addEventListener('click', function () {
       api('POST', 'me/telegram-code').then(function (r) {
         var out = $('#tgout');
@@ -504,4 +504,14 @@
       });
     });
   }
+
+  /* Talepler: durum değiştir */
+  $$('[data-lead-st]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var row = b.closest('[data-lead]'); b.disabled = true;
+      api('PATCH', 'me/leads/' + row.dataset.lead, { status: b.dataset.leadSt })
+        .then(function () { if (b.dataset.leadSt === 'spam') row.remove(); else location.reload(); })
+        .catch(function (e) { alert(T.errSave + e.message); b.disabled = false; });
+    });
+  });
 })();
