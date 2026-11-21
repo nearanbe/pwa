@@ -72,7 +72,7 @@ $nFirm = (int) $wpdb->get_var("SELECT COUNT(*) FROM " . ec_table('agents') . " W
           }
       }
   }
-  if ($credits) : ?><p class="credits"><?php ae_e('photo_credits'); ?> <?php echo implode(' · ', $credits); // phpcs:ignore -- kaçışlı ?> (Wikimedia Commons)</p><?php endif; ?>
+  if ($credits) : ?><details class="credits"><summary>ⓘ <?php ae_e('photo_sources'); ?></summary><p><?php echo implode(' · ', $credits); // phpcs:ignore -- kaçışlı ?> (Wikimedia Commons)</p></details><?php endif; ?>
 
   <?php $vitrin = ec_listing_showcase('home', $lang, [], 12); if ($vitrin) : ?>
     <div class="sechead"><h2 class="sec">✦ <?php ae_e('showcase'); ?></h2></div>

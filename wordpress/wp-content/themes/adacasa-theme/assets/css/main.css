@@ -948,3 +948,8 @@ details.promo summary::-webkit-details-marker{display:none}
 .teamshare .tlims label{display:flex;align-items:center;gap:6px;font-size:13px}.teamshare .tlims input{width:70px;padding:6px 8px}
 .teamshare button{justify-self:start}
 @media(max-width:720px){.ordtable tr{display:grid;gap:6px;padding:8px 0;border-bottom:1px solid var(--line)}.ordtable td{border:0;padding:2px 0}}
+details.credits{margin:8px 2px 0;font-size:12px;color:var(--muted)}
+details.credits summary{cursor:pointer;list-style:none;display:inline-block;opacity:.8}
+details.credits summary::-webkit-details-marker{display:none}
+details.credits p{margin:6px 0 0;line-height:1.5}
+.hcredit{font-size:10px;opacity:.55}

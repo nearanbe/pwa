@@ -37,6 +37,7 @@ function emlak_tema_strings(): array
         'min_price' => ['En az fiyat', 'Min price', 'Цена от'],
         'max_price' => ['En çok fiyat', 'Max price', 'Цена до'],
         'search' => ['Ara', 'Search', 'Найти'],
+        'photo_sources' => ['Fotoğraf kaynakları', 'Photo credits', 'Источники фото'],
         'photo_credits' => ['Fotoğraflar:', 'Photos:', 'Фото:'],
         'pwa_install' => ['Uygulamayı yükle', 'Install the app', 'Установить приложение'],
         'pwa_ios' => ['iPhone’da: alttaki Paylaş düğmesine dokunun, sonra “Ana Ekrana Ekle”yi seçin.', 'On iPhone: tap the Share button, then “Add to Home Screen”.', 'На iPhone: нажмите «Поделиться», затем «На экран „Домой“».'],
