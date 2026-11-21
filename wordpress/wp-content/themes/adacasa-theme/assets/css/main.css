@@ -831,3 +831,78 @@ input[type=checkbox],input[type=radio]{width:18px;height:18px;padding:0;margin:0
 @media(min-width:721px){.pwa-btn{display:none!important}}
 .bar>.tools .pwa-btn{grid-column:1/-1}
 .pwa-btn[hidden]{display:none!important}
+
+/* 1.0.4: daha geniş sayfa (masaüstü 1320 px, telefonda 12 px kenar) */
+:root{--w:1320px}
+.main,.bar,.navin,.sh-in,.secnav,.hero-in{padding-left:24px;padding-right:24px}
+.pagehead{padding-left:24px;padding-right:24px}
+.site-footer{padding-left:24px;padding-right:24px}
+@media(max-width:720px){
+  .main,.bar,.navin,.sh-in,.secnav,.hero-in,.pagehead,.site-footer{padding-left:12px;padding-right:12px}
+  .navin{padding-left:8px;padding-right:8px}
+  .panel{padding-left:14px;padding-right:14px}
+}
+/* İlan detayı: galeri daha geniş, yan kutu 380 px */
+.dgrid{grid-template-columns:minmax(0,1fr) 380px;column-gap:28px}
+.hcredit{position:absolute;right:10px;bottom:6px;z-index:3;margin:0;font-size:11px;opacity:.75}
+.hcredit a{color:#fff;text-decoration:none;text-shadow:0 1px 4px rgba(0,0,0,.7)}
+.pagehead .in,.qin,.fin{max-width:calc(var(--w) - 48px)}
+@media(max-width:720px){.pagehead .in,.qin,.fin{max-width:none}}
+.vidup{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:10px}
+.vidup .filebtn{cursor:pointer}
+.vidup progress{width:180px;height:8px}
+
+/* Galeri düğmeleri: Tüm fotoğraflar · Video · 360° (sol altta yan yana) */
+.gbtns{position:absolute;left:12px;bottom:12px;z-index:3;display:flex;flex-wrap:wrap;gap:6px;max-width:calc(100% - 90px)}
+.gbtns .gfull{position:static;cursor:pointer;font:inherit;font-size:13px}
+.gbtns .gfull:hover{background:rgba(12,26,49,.9)}
+
+/* Galeri penceresi (101evler tarzı) */
+.ov.gv{position:fixed;inset:0;z-index:48;background:var(--bg);display:flex;flex-direction:column;padding:0;align-items:stretch;justify-content:flex-start}
+.ov.gv[hidden]{display:none}
+.gv-top{display:flex;align-items:center;gap:12px;padding:10px 20px;padding-top:calc(10px + env(safe-area-inset-top,0px));background:var(--card);border-bottom:1px solid var(--line)}
+.gv-back{border:0;background:none;color:var(--acc);font:inherit;font-weight:600;font-size:15px;cursor:pointer;white-space:nowrap;padding:8px 4px}
+.gv-tabs{flex:1;display:flex;justify-content:center;gap:8px;overflow-x:auto;scrollbar-width:none}
+.gv-tabs::-webkit-scrollbar{display:none}
+.gv-tabs button,.gv-tabs a{display:inline-flex;align-items:center;gap:8px;white-space:nowrap;border:1px solid var(--line);background:var(--card);color:var(--text);border-radius:999px;padding:8px 16px;font:inherit;font-weight:600;font-size:14.5px;text-decoration:none;cursor:pointer}
+.gv-tabs button.on{background:var(--acc);color:var(--acc-t);border-color:var(--acc)}
+.gv-x{border:0;background:none;color:var(--text);font-size:26px;line-height:1;cursor:pointer;padding:4px 8px}
+.gv-body{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:22px;padding:16px 20px;max-width:1600px;width:100%;margin:0 auto}
+.gv-main{overflow:auto;min-height:0;padding-right:4px}
+.gv-side{overflow:auto;min-height:0;background:var(--card);border-radius:16px;box-shadow:var(--shadow);padding:18px;align-self:start;max-height:100%}
+.gv-side .price{margin-bottom:4px}
+.gv-title{font-size:20px;margin:4px 0 10px;font-family:Inter,system-ui,sans-serif;font-weight:700;line-height:1.3}
+.gv-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+.gv-chips span{background:var(--acc);color:var(--acc-t);border-radius:6px;padding:4px 10px;font-size:13px;font-weight:600}
+.gv-acts{display:grid;gap:8px;margin-top:14px}
+.gv-acts>*{justify-content:center;text-align:center}
+.gv-acts .wa{display:flex;align-items:center;justify-content:center;font-weight:600;padding:11px;border-radius:12px}
+.gv-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px}
+.gv-ph{grid-column:span 2;aspect-ratio:4/3;padding:0;border:0;border-radius:10px;overflow:hidden;cursor:zoom-in;background:var(--soft)}
+.gv-ph:nth-child(5n+4),.gv-ph:nth-child(5n+5){grid-column:span 3;aspect-ratio:16/10}
+.gv-ph img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .35s ease}
+.gv-ph:hover img{transform:scale(1.04)}
+.gv-video .video{max-width:1100px;margin:0 auto}
+.gv-pano{height:calc(100vh - 190px);min-height:320px;border-radius:14px;overflow:hidden;background:#0b1526}
+.gv-load{color:#fff;text-align:center;padding-top:30%}
+.gv-rooms{margin-top:10px}
+.gv-pane .tourframe iframe{width:100%;height:calc(100vh - 170px);border:0;border-radius:14px}
+@media(max-width:1000px){
+  .gv-body{grid-template-columns:1fr;padding:10px 12px}
+  .gv-side{display:none}
+}
+@media(max-width:720px){
+  .gv-top{gap:6px;padding:8px 10px}
+  .gv-back span{display:none}
+  .gv-tabs{justify-content:flex-start}
+  .gv-tabs button,.gv-tabs a{padding:7px 12px;font-size:13.5px}
+  .gv-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+  .gv-ph,.gv-ph:nth-child(5n+4),.gv-ph:nth-child(5n+5){grid-column:span 1;aspect-ratio:4/3}
+  .gv-ph:nth-child(3n+1){grid-column:span 2;aspect-ratio:16/10}
+  .gv-pano{height:calc(100vh - 150px)}
+}
+/* Video bölümü (sayfada) */
+.video{background:#000}.video video{position:absolute;inset:0;width:100%;height:100%;background:#000}
+@media print{.gv,.gbtns{display:none!important}}
+#gvpano{height:calc(100vh - 200px)!important;min-height:320px}
+@media(max-width:720px){#gvpano{height:calc(100vh - 170px)!important}}

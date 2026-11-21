@@ -20,9 +20,9 @@
     if (o) { var ov = document.getElementById(o.dataset.open); if (ov) { e.preventDefault(); openOv(ov); } return; }
     var c = e.target.closest('[data-close]');
     if (c) { closeOv(c.closest('.ov')); return; }
-    if (e.target.classList && e.target.classList.contains('ov') && !e.target.classList.contains('lb')) closeOv(e.target);
+    if (e.target.classList && e.target.classList.contains('ov') && !e.target.classList.contains('lb') && !e.target.classList.contains('gv')) closeOv(e.target);
   });
-  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') { var ov = $('.ov:not([hidden]):not(.lb)'); if (ov) closeOv(ov); } });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') { if ($('.ov.lb:not([hidden])')) return; var ov = $('.ov:not([hidden]):not(.lb):not(.gv)'); if (ov) closeOv(ov); } });
 
   /* ---------- Tam ekran galeri ---------- */
   var lbData = (function () { var n = $('#lb-data'); try { return n ? JSON.parse(n.textContent) : []; } catch (e) { return []; } })();
@@ -89,6 +89,66 @@
     var p = e.target.closest('[data-plan]');
     if (p) { var all = $$('[data-plan]').map(function (x) { return { l: x.dataset.plan, s: (x.querySelector('img') || {}).src }; }); var uniq = []; all.forEach(function (x) { if (!uniq.some(function (u) { return u.l === x.l; })) uniq.push(x); }); lbOpen(uniq, uniq.map(function (u) { return u.l; }).indexOf(p.dataset.plan)); }
   });
+
+  /* ---------- Galeri penceresi (101evler tarzı): Galeri · Video · 360 · Harita ---------- */
+  var gv = $('#gv'), gvViewer = null, gvLast = null;
+  function gvLoadPn() {
+    if (window.pannellum) return Promise.resolve();
+    return new Promise(function (res, rej) {
+      var c = document.createElement('link'); c.rel = 'stylesheet'; c.href = D.pannellum.css; document.head.appendChild(c);
+      var s = document.createElement('script'); s.src = D.pannellum.js; s.onload = res; s.onerror = rej; document.head.appendChild(s);
+    });
+  }
+  function gvStopMedia() {
+    $$('.gv-video iframe', gv).forEach(function (f) { var u = f.getAttribute('src'); if (u) { f.dataset.src = u; f.setAttribute('src', 'about:blank'); } });
+    $$('.gv-video video', gv).forEach(function (v) { try { v.pause(); } catch (e) {} });
+  }
+  function gvTab(t) {
+    if (!$('[data-pane="' + t + '"]', gv)) t = ($('.gv-pane', gv) || { dataset: {} }).dataset.pane;
+    $$('[data-gv-tab]', gv).forEach(function (b) { var on = b.dataset.gvTab === t; b.classList.toggle('on', on); b.setAttribute('aria-selected', on ? 'true' : 'false'); });
+    $$('.gv-pane', gv).forEach(function (p) { p.hidden = p.dataset.pane !== t; });
+    if (t !== 'v') gvStopMedia();
+    if (t === 'v') {
+      $$('.gv-video iframe[data-src]', gv).forEach(function (f) { var u = f.getAttribute('src'); if (!u || u === 'about:blank') f.setAttribute('src', f.dataset.src); });
+      $$('.gv-video video[data-src]', gv).forEach(function (v) { if (!v.getAttribute('src')) { v.setAttribute('src', v.dataset.src); v.preload = 'metadata'; } });
+    }
+    if (t === 'p') {
+      $$('[data-pane="p"] iframe[data-src]', gv).forEach(function (f) { if (!f.getAttribute('src')) f.setAttribute('src', f.dataset.src); });
+      var box = $('#gvpano', gv);
+      if (box && !gvViewer) {
+        var list = JSON.parse(box.dataset.panos || '[]');
+        box.innerHTML = '<p class="gv-load">' + esc(T.panoLoading || '…') + '</p>';
+        gvLoadPn().then(function () {
+          var scenes = {};
+          list.forEach(function (p, i) { scenes['s' + i] = { type: 'equirectangular', panorama: p.u, title: p.t, hfov: 100, autoLoad: true }; });
+          box.innerHTML = '';
+          gvViewer = window.pannellum.viewer(box, { default: { firstScene: 's0', sceneFadeDuration: 600, autoLoad: true, autoRotate: reduce ? 0 : -2, autoRotateInactivityDelay: 4000, compass: false, showZoomCtrl: true, showFullscreenCtrl: true }, scenes: scenes });
+        }).catch(function () { box.innerHTML = '<p class="gv-load">' + esc(T.panoFail || 'Error') + '</p>'; });
+      }
+    }
+  }
+  function gvOpen(t) {
+    if (!gv) return;
+    gvLast = document.activeElement; gv.hidden = false; document.body.classList.add('noscroll');
+    gvTab(t || 'g'); var x = $('.gv-x', gv); if (x) x.focus();
+  }
+  function gvClose(keepScroll) {
+    if (!gv || gv.hidden) return;
+    gvStopMedia(); gv.hidden = true; document.body.classList.remove('noscroll');
+    if (!keepScroll && gvLast) gvLast.focus();
+  }
+  if (gv) {
+    gv.addEventListener('click', function (e) {
+      var tb = e.target.closest('[data-gv-tab]'); if (tb) { gvTab(tb.dataset.gvTab); return; }
+      var ph = e.target.closest('.gv-ph'); if (ph) { lbOpen(lbData, +ph.dataset.i); return; }
+      var rm = e.target.closest('.gv-rooms button');
+      if (rm) { $$('.gv-rooms button', gv).forEach(function (b) { b.classList.toggle('on', b === rm); }); if (gvViewer) gvViewer.loadScene('s' + rm.dataset.i); return; }
+      var c = e.target.closest('[data-gv-close]');
+      if (c) { var href = c.getAttribute('href'); gvClose(!!href); if (href) { e.preventDefault(); var t = document.querySelector(href); if (t) t.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth' }); } }
+    });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !gv.hidden && !$('.ov.lb:not([hidden])')) gvClose(); });
+  }
+  document.addEventListener('click', function (e) { var b = e.target.closest('[data-gv]'); if (b && gv) { e.preventDefault(); gvOpen(b.dataset.gv); } });
 
   /* ---------- Sabit başlık ve bölüm menüsü ---------- */
   var sh = $('#stickhead'), head = $('#dhead');

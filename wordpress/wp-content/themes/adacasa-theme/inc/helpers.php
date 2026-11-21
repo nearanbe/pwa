@@ -190,14 +190,18 @@ function ae_hero_photo(): array
             $src = (string) wp_get_attachment_image_url((int) $v, 'full');
             $set = (string) wp_get_attachment_image_srcset((int) $v, 'full');
             if ($src) {
-                return ['src' => $src, 'srcset' => $set, 'mobile' => ''];
+                $cap = (string) wp_get_attachment_caption((int) $v);
+                return ['src' => $src, 'srcset' => $set, 'mobile' => '', 'credit' => str_starts_with($cap, 'Foto:') ? esc_html($cap) : ''];
             }
         } else {
-            return ['src' => $v, 'srcset' => '', 'mobile' => ''];
+            return ['src' => $v, 'srcset' => '', 'mobile' => '', 'credit' => ''];
         }
     }
     $u = fn($f) => get_theme_file_uri('assets/img/' . $f);
-    return ['src' => $u('hero-1920.webp'), 'srcset' => $u('hero-1280.webp') . ' 1280w, ' . $u('hero-1920.webp') . ' 1920w', 'mobile' => $u('hero-m.webp')];
+    // Temanın Girne limanı fotoğrafı (Wikimedia Commons, özgür lisans: atıf zorunlu)
+    $c = json_decode((string) @file_get_contents(get_theme_file_path('assets/hero-credit.json')), true) ?: [];
+    $credit = $c ? '<a href="' . esc_url($c['page']) . '" rel="noopener" target="_blank">' . esc_html('Foto: ' . $c['artist'] . ' · ' . $c['lic'] . ' · Wikimedia Commons') . '</a>' : '';
+    return ['src' => $u('hero-1920.webp'), 'srcset' => $u('hero-1280.webp') . ' 1280w, ' . $u('hero-1920.webp') . ' 1920w', 'mobile' => $u('hero-m.webp'), 'credit' => $credit];
 }
 
 /** Tarih, sayfanın diline göre: 17 Kasım 2026 / 17 November 2026 / 17 ноября 2026 */

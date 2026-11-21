@@ -213,3 +213,85 @@ function ae_plus(int $n): string
 {
     return $n >= 20 ? (floor($n / 10) * 10) . '+' : (string) $n;
 }
+
+
+/**
+ * Video oynatıcı (1.0.4): YouTube/Vimeo → iframe, yüklenen dosya → <video>, diğer bağlantılar → düğme.
+ * $defer: iframe/video kaynağı data-src'de tutulur, galeri penceresinde sekme açılınca yüklenir.
+ */
+function ae_video_html(?array $v, string $title, bool $defer = false): string
+{
+    if (!$v) {
+        return '';
+    }
+    $src = $defer ? 'data-src' : 'src';
+    if (in_array($v['type'], ['youtube', 'vimeo'], true)) {
+        return '<div class="video"><iframe ' . $src . '="' . esc_url($v['src']) . '" title="' . esc_attr($title) . '"' . ($defer ? '' : ' loading="lazy"')
+            . ' allow="accelerometer; encrypted-media; gyroscope; picture-in-picture; fullscreen" allowfullscreen></iframe></div>';
+    }
+    if ($v['type'] === 'file') {
+        return '<div class="video"><video controls playsinline preload="' . ($defer ? 'none' : 'metadata') . '" ' . $src . '="' . esc_url($v['src']) . '"></video></div>';
+    }
+    return '<p><a class="ghost" href="' . esc_url($v['url']) . '" target="_blank" rel="noopener nofollow">▶ ' . esc_html(ae_t('video')) . '</a></p>';
+}
+
+/**
+ * 101evler tarzı galeri penceresi: Galeri görünümü (mozaik) · Video · 360 Sanal Tur · Harita, sağda fiyat ve iletişim.
+ * $o: photos, panos, tourEmbed, video, coords, title, priceHtml, loc, chips[], agentHtml, tel, wa
+ */
+function ae_gallery_view(array $o): string
+{
+    $hasG = !empty($o['photos']);
+    $hasV = !empty($o['video']);
+    $hasP = !empty($o['panos']) || !empty($o['tourEmbed']);
+    if (!$hasG && !$hasV && !$hasP) {
+        return '';
+    }
+    ob_start(); ?>
+<div class="ov gv" id="gv" hidden role="dialog" aria-modal="true" aria-label="<?php echo esc_attr($o['title']); ?>">
+  <div class="gv-top">
+    <button type="button" class="gv-back" data-gv-close>‹ <span><?php ae_e('gv_back'); ?></span></button>
+    <nav class="gv-tabs" role="tablist">
+      <?php if ($hasG) : ?><button type="button" role="tab" data-gv-tab="g"><?php ae_e('gv_gallery'); ?> <span aria-hidden="true">▦</span></button><?php endif; ?>
+      <?php if ($hasV) : ?><button type="button" role="tab" data-gv-tab="v"><?php ae_e('video'); ?> <span aria-hidden="true">▶</span></button><?php endif; ?>
+      <?php if ($hasP) : ?><button type="button" role="tab" data-gv-tab="p"><?php ae_e('gv_360'); ?> <span aria-hidden="true">⟳</span></button><?php endif; ?>
+      <?php if (!empty($o['coords'])) : ?><a href="#konum" data-gv-close><?php ae_e('location'); ?> <span aria-hidden="true">⌖</span></a><?php endif; ?>
+    </nav>
+    <button type="button" class="gv-x" data-gv-close aria-label="<?php ae_e('close'); ?>">✕</button>
+  </div>
+  <div class="gv-body">
+    <div class="gv-main">
+      <?php if ($hasG) : ?>
+        <div class="gv-pane" data-pane="g"><div class="gv-grid">
+          <?php foreach ($o['photos'] as $i => $p) : ?><button type="button" class="gv-ph" data-i="<?php echo (int) $i; ?>" aria-label="<?php echo esc_attr(ae_t('gallery', $i + 1, count($o['photos']))); ?>"><img src="<?php echo esc_url($p['large']); ?>" alt="" loading="lazy" decoding="async"></button><?php endforeach; ?>
+        </div></div>
+      <?php endif; ?>
+      <?php if ($hasV) : ?><div class="gv-pane gv-video" data-pane="v" hidden><?php echo ae_video_html($o['video'], $o['title'], true); ?></div><?php endif; ?>
+      <?php if ($hasP) : ?>
+        <div class="gv-pane" data-pane="p" hidden>
+          <?php if (!empty($o['panos'])) : ?>
+            <div class="gv-pano" id="gvpano" data-panos="<?php echo esc_attr(wp_json_encode(array_map(fn($p) => ['u' => $p['url'], 't' => $p['title'] ?: ae_t('pano_room', 1), 'th' => $p['thumb']], $o['panos']))); ?>"></div>
+            <?php if (count($o['panos']) > 1) : ?><div class="panorooms gv-rooms"><?php foreach ($o['panos'] as $i => $p) : ?><button type="button" data-i="<?php echo (int) $i; ?>" class="<?php echo $i ? '' : 'on'; ?>"><img src="<?php echo esc_url($p['thumb']); ?>" alt=""><span><?php echo esc_html($p['title'] ?: ae_t('pano_room', $i + 1)); ?></span></button><?php endforeach; ?></div><?php endif; ?>
+          <?php else : ?>
+            <div class="tourframe"><iframe data-src="<?php echo esc_url($o['tourEmbed']); ?>" title="<?php ae_e('tour'); ?>" allow="fullscreen; xr-spatial-tracking; gyroscope; accelerometer" allowfullscreen></iframe></div>
+          <?php endif; ?>
+        </div>
+      <?php endif; ?>
+    </div>
+    <aside class="gv-side">
+      <div class="price big"><?php echo $o['priceHtml']; // phpcs:ignore -- ae_price çıktısı ?></div>
+      <h2 class="gv-title"><?php echo esc_html($o['title']); ?></h2>
+      <?php if (!empty($o['chips'])) : ?><div class="gv-chips"><?php foreach ($o['chips'] as $c) : ?><span><?php echo esc_html($c); ?></span><?php endforeach; ?></div><?php endif; ?>
+      <p class="sub"><?php echo ae_icon('pin', 16); ?> <?php echo esc_html($o['loc']); ?></p>
+      <?php echo $o['agentHtml']; // phpcs:ignore -- ae_agent_card çıktısı ?>
+      <div class="gv-acts">
+        <a class="ghost" href="#iletisim" data-gv-close>✉ <?php ae_e('lead_title'); ?></a>
+        <?php if (!empty($o['tel'])) : ?><a class="btn" href="tel:<?php echo esc_attr(preg_replace('/[^0-9+]/', '', $o['tel'])); ?>"><?php echo ae_icon('phone', 16); ?> <?php ae_e('call'); ?></a><?php endif; ?>
+        <?php if (!empty($o['wa'])) : ?><a class="wa" href="<?php echo esc_url($o['wa']); ?>" target="_blank" rel="noopener">WhatsApp</a><?php endif; ?>
+      </div>
+    </aside>
+  </div>
+</div>
+<?php
+    return (string) ob_get_clean();
+}

@@ -208,3 +208,13 @@ Paket ve kota kuralları:
 - `q` (başlık/açıklama/bölge/ilan no), `sort=m2_asc|area_desc`
 
 İlan nesnesine eklenenler: `photo_count`, `lat`, `lng` (liste cevabında da).
+
+
+## İlan videosu (1.0.4)
+
+| Yöntem | Adres | Açıklama |
+|---|---|---|
+| POST | `/api/v1/listings/{id}/video` | `video` alanında MP4/WebM/MOV dosyası. İlanın klasörüne kaydedilir, `video_url` bu dosyanın adresi olur. Yanıt: `{url, info}` |
+| DELETE | `/api/v1/listings/{id}/video` | `video_url` boşaltılır; yüklenmiş dosya silinir |
+
+Bağlantı eklemek için ilanın `video_url` alanı PATCH ile güncellenir. YouTube ve Vimeo sayfada gömülü oynatılır, `.mp4`/`.webm`/`.mov` adresleri `<video>` ile oynatılır, diğer bağlantılar düğme olarak gösterilir.

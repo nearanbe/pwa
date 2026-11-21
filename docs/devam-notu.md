@@ -73,6 +73,22 @@ Dal: `claude/jolly-carson-l927uv`. Kod buradadır, her şey commit edilip gönde
   - Telegram'a bağlanmak (api.telegram.org kapalı); Telegram testini kullanıcı telefonundan yapar.
 - **Yerel test:** uygulama parolası HTTP üzerinde sadece `WP_ENVIRONMENT_TYPE=local` iken çalışır.
 
+## 1e. Sürüm 1.0.4
+
+- **Galeri penceresi:** `ae_gallery_view()` (helpers-detail.php), `#gv`, detail.js "Galeri penceresi" bölümü.
+  - Mozaik düzeni: bir satırda 3, bir satırda 2 fotoğraf; telefonda 2 sütun.
+  - Fotoğrafa tıklanınca mevcut büyük görüntü penceresi (`lbOpen`) açılır.
+  - 360° görüntüleyici pencere içinde ayrı açılır (`#gvpano`).
+  - Video, sekmesi açılınca yüklenir ve pencere kapanınca durur.
+- **Video:** `includes/videos.php`.
+  - `ec_video_info()` bağlantıyı tanır: youtube, vimeo, dosya ya da düz bağlantı.
+  - Uçlar: POST/DELETE `/listings/{id}/video`.
+  - Dosya `ilan-foto/{id}/video-*.ext` olarak kaydedilir; demo silinirken `ec_video_cleanup()` ile temizlenir.
+  - Panel formu: `#vidfile`; yükleme ilerlemesi XHR ile gösterilir.
+- **Genişlik:** `--w:1320px`, kenar boşluğu 24 px; telefonda 12 px. İlan yan kutusu 380 px.
+- **Giriş görseli:** Girne limanı (A.Savin, FAL); atıf `assets/hero-credit.json` dosyasından okunup `.hcredit` olarak gösterilir.
+- **Bilinen:** proje sayfasının videosu hâlâ eski kodla (sadece YouTube) gösteriliyor; ilan galerisindeki yeni pencere de proje sayfasında yok.
+
 ## 2. Proje özeti
 
 - **Amaç:** KKTC (Kuzey Kıbrıs) emlak ilan portalı. Rakipler: 101evler.com ve hangiev.com. İkisi de Cloudflare bot korumalı; bu ortamdan açılamaz.
@@ -97,8 +113,8 @@ Dal: `claude/jolly-carson-l927uv`. Kod buradadır, her şey commit edilip gönde
 
 | Parça | Kullanıcıya verilen son sürüm | Daldaki sürüm (teslim bekliyor) |
 |---|---|---|
-| Eklenti (adacasa-core, eski emlak-core) | **1.0.3** | 1.0.3 |
-| Tema (adacasa-theme, eski emlak-tema) | **1.0.3** | 1.0.3 |
+| Eklenti (adacasa-core, eski emlak-core) | **1.0.4** | 1.0.4 |
+| Tema (adacasa-theme, eski emlak-tema) | **1.0.4** | 1.0.4 |
 | Chrome eklentisi | **0.4.1** | 0.4.1 |
 
 Kullanıcının kuralı: "Her şey tamam olana kadar yeni sürüm verme." 0.7 içeriği marka değişikliğiyle birlikte **AdaCasa 1.0.1** olarak teslim edildi.

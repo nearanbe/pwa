@@ -99,6 +99,7 @@ $details = [
     ],
 ];
 $panos = $a['panos'];
+$video = function_exists('ec_video_info') ? ec_video_info($a['video_url']) : null;
 $tourEmbed = function_exists('ec_tour_embed') ? ec_tour_embed($a['tour_url']) : null;
 $sections = ['ozet' => ae_t('sec_overview')];
 if ($panos || $tourEmbed) {
@@ -107,6 +108,9 @@ if ($panos || $tourEmbed) {
 $sections['detaylar'] = ae_t('sec_details');
 if ($groups) {
     $sections['ozellikler'] = ae_t('f_features');
+}
+if ($video) {
+    $sections['video'] = ae_t('video');
 }
 if ($coords) {
     $sections['konum'] = ae_t('location');
@@ -157,8 +161,11 @@ echo ae_sticky_head(['logo' => $a['agent']['logo']['small'] ?? '', 'title' => $a
             <button class="sarrow next" type="button" aria-label="<?php ae_e('next'); ?>">›</button>
           <?php endif; ?>
           <span class="gcount"><span class="gi">1</span> / <?php echo $n; ?></span>
-          <button type="button" class="gfull" data-lightbox="0"><?php echo ae_icon('expand', 16); ?> <?php ae_e('all_photos', $n); ?></button>
-          <?php if ($panos) : ?><a class="gfull g360" href="#tur">🌐 <?php ae_e('pano_tour_n', count($panos)); ?></a><?php endif; ?>
+          <span class="gbtns">
+            <button type="button" class="gfull" data-gv="g"><?php echo ae_icon('expand', 16); ?> <?php ae_e('all_photos', $n); ?></button>
+            <?php if ($video) : ?><button type="button" class="gfull" data-gv="v">▶ <?php ae_e('video'); ?></button><?php endif; ?>
+            <?php if ($panos || $tourEmbed) : ?><button type="button" class="gfull" data-gv="p">🌐 <?php echo $panos ? esc_html(ae_t('pano_tour_n', count($panos))) : esc_html(ae_t('tour')); ?></button><?php endif; ?>
+          </span>
           <?php if ($a['status'] === 'sold') : ?><span class="sbadge big"><?php ae_e('sold'); ?></span><?php endif; ?>
         <?php else : ?>
           <div class="img noimg"><?php echo AE_ICON; ?><span><?php ae_e('no_photo'); ?></span></div>
@@ -239,12 +246,9 @@ echo ae_sticky_head(['logo' => $a['agent']['logo']['small'] ?? '', 'title' => $a
         </section>
       <?php endif; ?>
 
-      <?php
-      $yt = $a['video_url'] && preg_match('~(?:youtube\.com/(?:watch\?v=|shorts/|embed/)|youtu\.be/)([A-Za-z0-9_-]{11})~', $a['video_url'], $ym) ? $ym[1] : null;
-      if ($yt || $a['video_url'] || ($a['tour_url'] && !$tourEmbed)) : ?>
-        <section class="panel"><h2><?php ae_e('video'); ?></h2>
-          <?php if ($yt) : ?><div class="video"><iframe src="https://www.youtube-nocookie.com/embed/<?php echo esc_attr($yt); ?>" title="<?php echo esc_attr($a['title']); ?>" loading="lazy" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
-          <?php elseif ($a['video_url']) : ?><p><a class="ghost" href="<?php echo esc_url($a['video_url']); ?>" target="_blank" rel="noopener nofollow">▶ <?php ae_e('video'); ?></a></p><?php endif; ?>
+      <?php if ($video || ($a['tour_url'] && !$tourEmbed)) : ?>
+        <section class="panel" id="video"><h2><?php ae_e('video'); ?></h2>
+          <?php echo ae_video_html($video, $a['title']); ?>
           <?php if ($a['tour_url'] && !$tourEmbed) : ?><p><a class="btn" href="<?php echo esc_url($a['tour_url']); ?>" target="_blank" rel="noopener nofollow">⟳ <?php ae_e('tour'); ?></a></p><?php endif; ?>
         </section>
       <?php endif; ?>
@@ -310,6 +314,14 @@ echo ae_sticky_head(['logo' => $a['agent']['logo']['small'] ?? '', 'title' => $a
   <div class="printonly printfoot"><?php echo esc_html($a['url']); ?> · <?php echo esc_html(ae_brand()); ?><?php if ($ag) : ?> · <?php echo esc_html($ag['name'] . ' ' . $tel); ?><?php endif; ?></div>
 </main>
 
+<?php
+$gvChips = array_values(array_filter([$a['area_m2'] ? $a['area_m2'] . ' m²' : '', $a['rooms'] ?: '', $a['subtype_name'] ?? '']));
+echo ae_gallery_view([
+    'photos' => $a['photos'], 'panos' => $panos, 'tourEmbed' => $tourEmbed, 'video' => $video, 'coords' => $coords,
+    'title' => $a['title'], 'priceHtml' => $priceHtml, 'loc' => $loc, 'chips' => $gvChips,
+    'agentHtml' => ae_agent_card($agentRow, ['count' => $agentCount > 1 ? $agentCount : null]), 'tel' => $tel, 'wa' => $waLink,
+]);
+?>
 <div class="ov" id="reportov" hidden role="dialog" aria-modal="true" aria-labelledby="report-h">
   <div class="sheet">
     <button class="ovx" type="button" data-close aria-label="<?php ae_e('close'); ?>">✕</button>

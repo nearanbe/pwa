@@ -1,5 +1,12 @@
 # Kurulum (Plesk VPS)
 
+> **1.0.4:**
+> - **Galeri penceresi:** 101evler tarzı; Galeri görünümü (mozaik), Video, 360 Sanal Tur ve Konum sekmeleri. Fotoğrafa tıklanınca büyük görüntü açılır, sağda küçük resimler durur.
+> - **İlan videosu:** bağlantı (YouTube, Vimeo) ya da dosya yükleme (MP4, WebM, MOV). Panelim → İlan → Detaylar → "ya da video dosyası yükle".
+>   - En büyük dosya boyutu sunucunun yükleme sınırıdır. Plesk → PHP ayarları → `upload_max_filesize` ve `post_max_size`; video için 128M önerilir.
+> - **Sayfa genişliği:** 1320 px; telefonda kenar boşluğu 12 px.
+> - **Giriş görseli:** Girne limanı (Wikimedia Commons, atıflı).
+>
 > **1.0.3 (PWA):** site telefona ve bilgisayara uygulama olarak yüklenebilir (Android/Chrome'da "Uygulamayı yükle", iPhone'da Paylaş → Ana Ekrana Ekle). Açılan sayfalar internet yokken de görüntülenir. Service worker `/?ec_pwa=sw`, manifest `/?ec_pwa=manifest&lang=tr` adresinden sunulur; sunucuda ek ayar gerekmez. Şehir fotoğrafları ve giriş görseli ayarları REST'e açıldı (`/wp-json/wp/v2/settings` → `ec_city_photos`, `ec_hero_photo`).
 >
 > **1.0.2 (görünüm):** fotoğraflı ana sayfa girişi ve üzerinde arama kutusu (Ara düğmesi sabit), telefonda ☰ menü, ilan sayfasında telefonda alt iletişim çubuğu, "AdaCasa" logo yazısı, AdSense kodu girilmediyse ziyaretçiye boş reklam kutusu gösterilmez. Giriş fotoğrafı **Emlak → Ayarlar → Ana sayfa giriş görseli** bölümünden değiştirilebilir; şehir kartları için gerçek fotoğraflar **Ana sayfa şehir kartları** bölümüne girilir. Güncelleme: eklenti ve tema zip'leri **Mevcut sürümü değiştir** ile yüklenir, ardından Cloudflare önbelleği temizlenir.

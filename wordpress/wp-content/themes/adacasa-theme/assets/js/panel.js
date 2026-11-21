@@ -221,6 +221,36 @@
       });
     }
 
+    /* Video: bağlantı ya da dosya. Dosya ilanın klasörüne yüklenir, adresi video_url alanına yazılır. */
+    var vf = $('#vidfile'), vdel = $('#viddel'), vmsg = $('#vidmsg'), vprog = $('#vidprog');
+    var isLocalVid = function (u) { return /\/ilan-foto\/\d+\/video-[a-z0-9]+\.(mp4|webm|mov)$/i.test(u || ''); };
+    if (vdel) vdel.hidden = !isLocalVid(F.video_url.value);
+    if (vf) vf.addEventListener('change', function () {
+      var file = vf.files[0]; vf.value = '';
+      if (!file) return;
+      if (T.videoMax && file.size > T.videoMax) { msg(vmsg, T.videoBig, false); return; }
+      (id ? Promise.resolve() : save('draft')).then(function () {
+        var fd = new FormData(); fd.append('video', file);
+        var x = new XMLHttpRequest();
+        x.open('POST', D.api + 'listings/' + id + '/video?lang=' + D.lang);
+        x.setRequestHeader('X-WP-Nonce', D.nonce);
+        vprog.hidden = false; vprog.value = 0; msg(vmsg, T.uploading, true);
+        x.upload.onprogress = function (e) { if (e.lengthComputable) vprog.value = Math.round(e.loaded / e.total * 100); };
+        x.onload = function () {
+          vprog.hidden = true;
+          var j = {}; try { j = JSON.parse(x.responseText); } catch (er) {}
+          if (x.status >= 200 && x.status < 300 && j.url) { F.video_url.value = j.url; vdel.hidden = false; msg(vmsg, T.videoDone, true); }
+          else msg(vmsg, (j.message || ('HTTP ' + x.status)), false);
+        };
+        x.onerror = function () { vprog.hidden = true; msg(vmsg, T.errSave, false); };
+        x.send(fd);
+      });
+    });
+    if (vdel) vdel.addEventListener('click', function () {
+      if (!id) { F.video_url.value = ''; vdel.hidden = true; return; }
+      api('DELETE', 'listings/' + id + '/video').then(function () { F.video_url.value = ''; vdel.hidden = true; msg(vmsg, T.saved + ' ✓', true); });
+    });
+
     function show(i) {
       cur = Math.max(0, Math.min(steps.length - 1, i));
       $$('.wstep', F).forEach(function (s, k) { s.classList.toggle('on', k === cur); });

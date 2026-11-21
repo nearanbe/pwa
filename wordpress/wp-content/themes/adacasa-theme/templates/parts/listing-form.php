@@ -72,6 +72,12 @@ $steps = ['basics' => 'f_step_basics', 'location' => 'f_step_location', 'details
       <label><?php ae_e('f_video'); ?><input name="video_url" type="url" placeholder="https://youtube.com/watch?v=…"></label>
       <label><?php ae_e('f_tour'); ?><input name="tour_url" type="url" placeholder="https://"></label>
     </div>
+    <div class="vidup">
+      <label class="ghost sm filebtn">🎬 <?php ae_e('f_video_up'); ?><input type="file" id="vidfile" accept="video/mp4,video/webm,video/quicktime,.mp4,.m4v,.webm,.mov" hidden></label>
+      <button type="button" class="ghost sm" id="viddel" hidden><?php ae_e('f_video_del'); ?></button>
+      <span class="sub" id="vidmsg"><?php ae_e('f_video_hint', size_format(wp_max_upload_size())); ?></span>
+      <progress id="vidprog" max="100" value="0" hidden></progress>
+    </div>
   </section>
 
   <section class="wstep panel" data-step="text">

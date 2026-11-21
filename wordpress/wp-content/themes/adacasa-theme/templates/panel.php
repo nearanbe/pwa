@@ -85,7 +85,7 @@ $data = [
     'project' => $editProject,
     't' => [
         'required' => ae_t('f_required'), 'deedRequired' => ae_t('f_deed_required'), 'saved' => ae_t('f_saved'), 'errSave' => ae_t('f_err_save'),
-        'pendingAfter' => ae_t('f_status_pending_after'), 'liveAfter' => ae_t('f_status_live_after'), 'uploading' => ae_t('f_uploading'),
+        'pendingAfter' => ae_t('f_status_pending_after'), 'liveAfter' => ae_t('f_status_live_after'), 'uploading' => ae_t('f_uploading'), 'videoDone' => ae_t('f_video_done'), 'videoBig' => ae_t('f_video_big', size_format(wp_max_upload_size())), 'videoMax' => wp_max_upload_size(),
         'below' => ae_t('idx_compare_below', '%c', '%p'), 'above' => ae_t('idx_compare_above', '%c', '%p'), 'equal' => ae_t('idx_compare_equal', '%c'),
         'perMonth' => ae_t('per_month'), 'perNight' => ae_t('per_night'), 'confirm' => ae_t('act_delete_confirm'),
         'calc' => ae_t('pf_calc', '%1', '%2', '%3'), 'saveFirst' => ae_t('pf_save_first'), 'tgSoon' => ae_t('tg_bot_soon'), 'tgHint' => ae_t('tg_code_hint'),
