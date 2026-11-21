@@ -7,7 +7,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-define('AE_VER', '0.1.0');
+define('AE_VER', '0.2.0');
 
 if (!function_exists('ec_lang')) {
     // Eklenti kapalıysa site çökmesin, yöneticiye uyarı gösterilsin.
@@ -75,6 +75,8 @@ add_filter('template_include', function ($tpl) {
         'search' => 'search',
         'listing' => 'listing',
         'project' => 'projects',
+        'projectd' => 'project',
+        'index' => 'price-index',
         'add' => 'add',
         'favs' => 'favs',
     ];
@@ -85,3 +87,13 @@ add_filter('template_include', function ($tpl) {
 add_filter('language_attributes', function ($out) {
     return 'lang="' . esc_attr(ec_lang()) . '"';
 });
+
+/** Tema etkinleştirilince blog sayfasını hazırla */
+add_action('after_switch_theme', function () {
+    if (function_exists('ec_ensure_blog_page')) {
+        ec_ensure_blog_page();
+    }
+});
+
+add_filter('excerpt_length', fn() => 26);
+add_filter('excerpt_more', fn() => '…');

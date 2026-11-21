@@ -39,7 +39,11 @@ Dosyalar `wp-content/uploads/ilan-foto/{path}-l.webp` ve `-s.webp` olarak durur.
 `telegram_chat_id` (bot için), `api_key_hash` (anahtarın SHA-256 özeti), `status` (`pending` / `active` / `suspended`).
 
 ### `wp_ec_projects` – projeler
-`name`, `developer`, `city`, `district`, `units`, `delivery_date`, `price_min_gbp`, `price_max_gbp`, `payment_plan`.
+`name`, `slug`, `developer`, `city`, `district`, `units`, `delivery_date`, `price_min_gbp`, `price_max_gbp`, `payment_plan`, `desc_tr` / `desc_en` / `desc_ru`, `cover_path` (`proje-{no}/...`), `source`.
+
+### `wp_ec_price_index` – fiyat endeksi
+`(period, city, mode, ptype)` birincil anahtar · `median_m2_gbp`, `avg_price_gbp`, `n` (ilan sayısı), `is_demo`.
+`period` = `2026-11`, `city` = şehir anahtarı veya `all`. Her gün bu ayın satırı yeniden hesaplanır; geçmiş aylar sabit kalır.
 
 ## Geçiş gecesi (WordPress → Next.js + Supabase)
 
@@ -54,7 +58,7 @@ Adımlar:
 
 1. Next.js sitesi önceden hazırlanır ve aynı link yapısını ve aynı `/api/v1` uçlarını sunar.
 2. Bakım modu açılır.
-3. Beş `wp_ec_*` tablosu dışa aktarılır (`wp db export --tables=...`) ve önek olmadan PostgreSQL'e yüklenir.
+3. Altı `wp_ec_*` tablosu dışa aktarılır (`wp db export --tables=...`) ve önek olmadan PostgreSQL'e yüklenir.
 4. `uploads/ilan-foto/` klasörü olduğu gibi Supabase Storage'a kopyalanır.
 5. DNS kaydı yeni sisteme çevrilir.
 

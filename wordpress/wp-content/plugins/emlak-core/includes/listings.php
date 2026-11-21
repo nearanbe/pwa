@@ -355,10 +355,3 @@ function ec_listing_add_view(int $id): void
     global $wpdb;
     $wpdb->query($wpdb->prepare('UPDATE ' . ec_table('listings') . ' SET views = views + 1 WHERE id = %d', $id));
 }
-
-function ec_projects(string $lang, int $limit = 24): array
-{
-    global $wpdb;
-    $rows = $wpdb->get_results('SELECT * FROM ' . ec_table('projects') . " WHERE status = 'published' ORDER BY delivery_date ASC LIMIT " . (int) $limit, ARRAY_A);
-    return array_map(fn($p) => $p + ['city_name' => ec_city_name($p['city'], $lang)], $rows);
-}

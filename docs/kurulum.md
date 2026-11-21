@@ -39,17 +39,41 @@ rsync -av --delete wordpress/wp-content/themes/adaev/ KULLANICI@SUNUCU:httpdocs/
 
 ## 3. Demo veriler (isteğe bağlı)
 
-WP-CLI varsa (Plesk'te **WordPress → WP-CLI** veya SSH ile):
+**Emlak → Ayarlar → Demo verisi ekle** düğmesiyle eklenir. Şunları içerir:
+
+- 62 kurgusal ilan
+- 6 danışman
+- 6 proje
+- 3 blog yazısı
+- 12 aylık örnek fiyat endeksi geçmişi
+
+Canlıya çıkmadan önce aynı ekrandaki **Demo verisini sil** düğmesiyle silin. Düzenlediğiniz demo blog yazıları silinmez.
+WP-CLI ile de yapılabilir:
 
 ```bash
 wp emlak seed
 ```
 
-Bu komut 14 kurgusal ilan, 4 danışman, 4 proje ve örnek görseller ekler. Canlıya çıkmadan önce silin:
-
 ```bash
 wp emlak unseed
 ```
+
+Blog yazıları genel bilgilendirme amaçlı taslaklardır. Yayında tutacaksanız içeriği bir avukata kontrol ettirin.
+
+## Otomatik kur ve fiyat endeksi
+
+- **Kurlar** her gün otomatik güncellenir. Önce Avrupa Merkez Bankası referans kurları (api.frankfurter.app) denenir, ulaşılamazsa open.er-api.com kullanılır. **Emlak → Ayarlar** ekranında son güncelleme zamanı görünür, ayrıca **Kurları şimdi güncelle** düğmesi vardır. Makul aralık dışındaki değerler kaydedilmez.
+- **Fiyat endeksi** (`/tr/fiyat-endeksi/`) her gün yayındaki konut ilanlarından hesaplanır: şehir bazında m² başına istenen fiyatın medyanı, en az 3 ilan. Her ayın satırı ay bitince sabit kalır, böylece geçmiş zamanla birikir.
+- Bu iki görev WordPress'in zamanlayıcısı (WP-Cron) ile çalışır. WP-Cron sitenin ziyaret edilmesiyle tetiklendiği için, trafik azken Plesk'te **Zamanlanmış Görevler** bölümüne şu görevi eklemek daha güvenilirdir (her 15 dakikada bir):
+
+  ```bash
+  wget -q -O - https://SITE/wp-cron.php?doing_wp_cron >/dev/null 2>&1
+  ```
+
+## Logo ve site ikonu
+
+Tema kendi logosu ve ikonlarıyla gelir: sekme ikonu, telefon ana ekran ikonu ve paylaşım görseli.
+Kendi logonuzu kullanmak isterseniz **Görünüm → Özelleştir → Site kimliği** bölümünden logo ve site simgesi yükleyin; tema otomatik olarak onları kullanır.
 
 ## 4. Sabit sayfalar
 
@@ -80,6 +104,9 @@ Alt bilgideki linkler, aşağıdaki kısa adlara (slug) sahip WordPress sayfalar
 | Şehir | `/tr/satilik/girne/` | `/en/for-sale/girne/` | `/ru/prodazha/girne/` |
 | İlan | `/tr/ilan/{slug}-{no}/` | `/en/property/{slug}-{no}/` | `/ru/property/{slug}-{no}/` |
 | Projeler | `/tr/projeler/` | `/en/projects/` | `/ru/proekty/` |
+| Proje | `/tr/proje/{slug}-{no}/` | `/en/project/{slug}-{no}/` | `/ru/proekt/{slug}-{no}/` |
+| Fiyat endeksi | `/tr/fiyat-endeksi/` | `/en/price-index/` | `/ru/indeks-tsen/` |
+| Blog | `/blog/` | | |
 | İlan ver | `/tr/ilan-ver/` | `/en/list-property/` | `/ru/razmestit/` |
 | Favoriler | `/tr/favoriler/` | `/en/favourites/` | `/ru/izbrannoe/` |
 

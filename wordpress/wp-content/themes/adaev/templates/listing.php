@@ -122,6 +122,14 @@ get_header();
           <button class="ghost heart-btn<?php echo in_array($a['id'], ae_favs(), true) ? ' on' : ''; ?>" type="button" data-fav="<?php echo (int) $a['id']; ?>">♥ <?php ae_e('favourites'); ?></button>
           <button class="ghost" type="button" id="sharebtn" data-url="<?php echo esc_url($a['url']); ?>" data-title="<?php echo esc_attr($a['title']); ?>"><?php ae_e('share'); ?></button>
         </div>
+        <?php $cmp = ec_index_compare($a); if ($cmp) :
+            $pct = number_format(abs($cmp['diff']), 0) . '%';
+            $key = abs($cmp['diff']) < 3 ? 'idx_compare_equal' : ($cmp['diff'] < 0 ? 'idx_compare_below' : 'idx_compare_above'); ?>
+          <a class="cmp <?php echo $cmp['diff'] < -3 ? 'below' : ($cmp['diff'] > 3 ? 'above' : ''); ?>" href="<?php echo esc_url(add_query_arg(array_filter(['sehir' => $a['city'], 'tur' => $a['mode'] === 'rent' ? 'rent' : '']), ec_url_section('index'))); ?>">
+            <b><?php echo esc_html(ae_t($key, $a['city_name'], $pct)); ?></b>
+            <span class="sub"><?php echo ae_money($cmp['m2']); ?> <?php ae_e('per_m2'); ?> · <?php ae_e('price_index'); ?>: <?php echo ae_money($cmp['median']); ?> <?php ae_e('per_m2'); ?></span>
+          </a>
+        <?php endif; ?>
         <?php if ($a['mode'] === 'sale') : ?><p class="note"><?php ae_e('deed_warning'); ?></p><?php endif; ?>
       </div>
     </aside>

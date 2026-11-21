@@ -41,45 +41,18 @@ function ec_photo_add(int $listing_id, string $file)
     if ($count >= EC_PHOTO_MAX) {
         return new WP_Error('ec_photo_limit', 'Bir ilana en çok ' . EC_PHOTO_MAX . ' fotoğraf eklenebilir', ['status' => 400]);
     }
-    $info = @getimagesize($file);
-    if (!$info || !in_array($info[2], [IMAGETYPE_JPEG, IMAGETYPE_PNG, IMAGETYPE_WEBP], true)) {
-        return new WP_Error('ec_photo_type', 'Sadece JPG, PNG veya WebP yüklenebilir', ['status' => 400]);
-    }
-
-    $base = ec_photo_base();
-    $dir = $base['dir'] . '/' . $listing_id;
-    if (!wp_mkdir_p($dir)) {
-        return new WP_Error('ec_photo_dir', 'Klasör oluşturulamadı', ['status' => 500]);
-    }
-    $name = wp_generate_password(10, false, false);
-    $rel = $listing_id . '/' . strtolower($name);
-
-    $size = null;
-    foreach (['l' => 1600, 's' => 640] as $suffix => $max) {
-        $ed = wp_get_image_editor($file);
-        if (is_wp_error($ed)) {
-            return $ed;
-        }
-        $ed->set_quality($suffix === 'l' ? 82 : 75);
-        $s = $ed->get_size();
-        if ($s['width'] > $max || $s['height'] > $max) {
-            $ed->resize($max, $max, false);
-        }
-        $saved = $ed->save($base['dir'] . '/' . $rel . '-' . $suffix . '.webp', 'image/webp');
-        if (is_wp_error($saved)) {
-            return $saved;
-        }
-        if ($suffix === 'l') {
-            $size = [$saved['width'], $saved['height']];
-        }
+    $rel = $listing_id . '/' . strtolower(wp_generate_password(10, false, false));
+    $size = ec_image_variants($file, $rel);
+    if (is_wp_error($size)) {
+        return $size;
     }
 
     $wpdb->insert($t, [
         'listing_id' => $listing_id,
         'sort' => $count,
         'path' => $rel,
-        'width' => $size[0],
-        'height' => $size[1],
+        'width' => $size['width'],
+        'height' => $size['height'],
         'created_at' => ec_now(),
     ]);
     $row = $wpdb->get_row($wpdb->prepare("SELECT * FROM $t WHERE id = %d", $wpdb->insert_id), ARRAY_A);
@@ -108,5 +81,55 @@ function ec_photo_reorder(int $listing_id, array $order): void
     global $wpdb;
     foreach (array_values($order) as $i => $pid) {
         $wpdb->update(ec_table('photos'), ['sort' => $i], ['id' => (int) $pid, 'listing_id' => $listing_id]);
+    }
+}
+
+/**
+ * Görselden iki WebP boyutu üretir: {rel}-l.webp (en çok 1600px) ve {rel}-s.webp (640px).
+ * @return array{width:int,height:int}|WP_Error büyük boyutun ölçüleri
+ */
+function ec_image_variants(string $file, string $rel)
+{
+    $info = @getimagesize($file);
+    if (!$info || !in_array($info[2], [IMAGETYPE_JPEG, IMAGETYPE_PNG, IMAGETYPE_WEBP], true)) {
+        return new WP_Error('ec_photo_type', 'Sadece JPG, PNG veya WebP yüklenebilir', ['status' => 400]);
+    }
+    $base = ec_photo_base()['dir'];
+    if (!wp_mkdir_p(dirname($base . '/' . $rel))) {
+        return new WP_Error('ec_photo_dir', 'Klasör oluşturulamadı', ['status' => 500]);
+    }
+    $size = null;
+    foreach (['l' => 1600, 's' => 640] as $suffix => $max) {
+        $ed = wp_get_image_editor($file);
+        if (is_wp_error($ed)) {
+            return $ed;
+        }
+        $ed->set_quality($suffix === 'l' ? 82 : 75);
+        $s = $ed->get_size();
+        if ($s['width'] > $max || $s['height'] > $max) {
+            $ed->resize($max, $max, false);
+        }
+        $saved = $ed->save($base . '/' . $rel . '-' . $suffix . '.webp', 'image/webp');
+        if (is_wp_error($saved)) {
+            return $saved;
+        }
+        if ($suffix === 'l') {
+            $size = ['width' => (int) $saved['width'], 'height' => (int) $saved['height']];
+        }
+    }
+    return $size;
+}
+
+function ec_image_urls(string $rel): array
+{
+    $b = ec_photo_base()['url'] . '/' . $rel;
+    return ['large' => $b . '-l.webp', 'small' => $b . '-s.webp'];
+}
+
+function ec_image_delete(string $rel): void
+{
+    $dir = ec_photo_base()['dir'];
+    foreach (['l', 's'] as $s) {
+        @unlink($dir . '/' . $rel . '-' . $s . '.webp');
     }
 }

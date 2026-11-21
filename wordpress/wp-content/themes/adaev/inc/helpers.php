@@ -207,9 +207,7 @@ add_action('wp_head', function () {
     if (!empty($s['canonical'])) {
         echo '<meta property="og:url" content="' . esc_url($s['canonical']) . "\">\n";
     }
-    if (!empty($s['image'])) {
-        echo '<meta property="og:image" content="' . esc_url($s['image']) . "\">\n";
-    }
+    echo '<meta property="og:image" content="' . esc_url(!empty($s['image']) ? $s['image'] : get_theme_file_uri('assets/img/og-default.jpg')) . "\">\n";
     echo '<meta property="og:type" content="website"><meta name="twitter:card" content="summary_large_image">' . "\n";
     if (!empty($s['jsonld'])) {
         echo '<script type="application/ld+json">' . wp_json_encode($s['jsonld'], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . "</script>\n";
@@ -225,4 +223,156 @@ function ae_lang_links(): array
         $out[$l] = $s[$l] ?? ec_url_home($l);
     }
     return $out;
+}
+
+/** Logo: Özelleştir → Site kimliği'nden logo yüklendiyse o, yoksa temanın logosu + site adı */
+function ae_logo(): void
+{
+    $home = ec_url_home();
+    if (has_custom_logo()) {
+        $id = (int) get_theme_mod('custom_logo');
+        echo '<a class="logo custom" href="' . esc_url($home) . '">' . wp_get_attachment_image($id, 'medium', false, ['alt' => ae_brand(), 'class' => 'logo-img']) . '</a>';
+        return;
+    }
+    echo '<a class="logo" href="' . esc_url($home) . '" aria-label="' . esc_attr(ae_brand()) . '">'
+        . '<svg width="34" height="34" viewBox="0 0 48 48" fill="none" aria-hidden="true"><path d="M9 42V22a15 15 0 0 1 30 0v20" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><path d="M14 35q5-4.5 10 0t10 0" stroke="#b48a45" stroke-width="3" stroke-linecap="round"/><circle cx="24" cy="21" r="3.2" fill="#b48a45"/></svg>'
+        . esc_html(ae_brand()) . '</a>';
+}
+
+function ae_blog_url(): string
+{
+    $id = (int) get_option('page_for_posts');
+    return $id ? get_permalink($id) : home_url('/blog/');
+}
+
+/** Üst menü: [adres, etiket, seçili mi] */
+function ae_nav_items(): array
+{
+    $page = ec_page();
+    $mode = get_query_var('ec_mode');
+    $isBlog = is_home() || is_singular('post') || is_category() || is_tag();
+    return [
+        [ec_url_section('sale'), ae_t('sale'), $page === 'search' && $mode === 'sale'],
+        [ec_url_section('rent'), ae_t('rent'), $page === 'search' && $mode === 'rent'],
+        [ec_url_section('daily'), ae_t('daily'), $page === 'search' && $mode === 'daily'],
+        [ec_url_section('project'), ae_t('projects'), in_array($page, ['project', 'projectd'], true)],
+        [ec_url_section('index'), ae_t('price_index'), $page === 'index'],
+        [ae_blog_url(), ae_t('blog'), $isBlog && !$page],
+    ];
+}
+
+/** Site ikonu: WordPress'te Site Simgesi seçilmediyse temanın ikonları kullanılır */
+add_action('wp_head', function () {
+    if (!has_site_icon()) {
+        $u = fn($f) => esc_url(get_theme_file_uri('assets/img/' . $f));
+        echo '<link rel="icon" href="' . $u('favicon.svg') . '" type="image/svg+xml">' . "\n";
+        echo '<link rel="icon" href="' . $u('icon-32.png') . '" sizes="32x32" type="image/png">' . "\n";
+        echo '<link rel="apple-touch-icon" href="' . $u('apple-touch-icon.png') . '">' . "\n";
+    }
+    echo '<link rel="manifest" href="' . esc_url(get_theme_file_uri('assets/site.webmanifest')) . '">' . "\n";
+}, 2);
+
+/** Proje kartı */
+function ae_project_card(array $p): string
+{
+    $img = $p['cover']
+        ? '<img src="' . esc_url($p['cover']['small']) . '" alt="' . esc_attr($p['name']) . '" loading="lazy" decoding="async" width="640" height="400">'
+        : AE_ICON;
+    ob_start(); ?>
+<article class="card proj">
+  <a class="cardlink" href="<?php echo esc_url($p['url']); ?>" aria-label="<?php echo esc_attr($p['name']); ?>"></a>
+  <div class="img"><?php echo $img; ?><span class="tag"><?php echo esc_html($p['city_name'] . ($p['district'] ? ' · ' . $p['district'] : '')); ?></span></div>
+  <div class="body">
+    <h3 class="ttl"><?php echo esc_html($p['name']); ?></h3>
+    <div class="sub"><?php echo esc_html((string) $p['developer']); ?></div>
+    <div class="pills">
+      <?php if ($p['units']) : ?><span><?php ae_e('units', $p['units']); ?></span><?php endif; ?>
+      <?php if ($p['delivery_date']) : ?><span><?php ae_e('delivery', ae_month_label($p['delivery_date'])); ?></span><?php endif; ?>
+      <?php if ($p['price_min_gbp']) : ?><span><?php echo ae_money($p['price_min_gbp']); ?> – <?php echo ae_money((float) $p['price_max_gbp']); ?></span><?php endif; ?>
+    </div>
+  </div>
+</article>
+<?php
+    return ob_get_clean();
+}
+
+/** "2027-12-01" ya da "2027-12" → "Ara 2027" (dile göre) */
+function ae_month_label(string $date, bool $short = false): string
+{
+    $months = [
+        'tr' => ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'],
+        'en' => ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+        'ru' => ['январь', 'февраль', 'март', 'апрель', 'май', 'июнь', 'июль', 'август', 'сентябрь', 'октябрь', 'ноябрь', 'декабрь'],
+    ];
+    $ts = strtotime(strlen($date) === 7 ? $date . '-01' : $date);
+    if (!$ts) {
+        return $date;
+    }
+    $m = $months[ec_lang()][(int) gmdate('n', $ts) - 1];
+    if ($short) {
+        $m = mb_substr($m, 0, 3);
+        return $m . ' ' . gmdate('y', $ts);
+    }
+    return $m . ' ' . gmdate('Y', $ts);
+}
+
+function ae_pct(?float $v): string
+{
+    if ($v === null) {
+        return '—';
+    }
+    $cls = $v > 0.05 ? 'up' : ($v < -0.05 ? 'down' : 'flat');
+    $sign = $v > 0 ? '+' : '';
+    return '<span class="chg ' . $cls . '">' . esc_html($sign . number_format($v, 1, ',', '.') . '%') . '</span>';
+}
+
+/**
+ * Basit çizgi grafik (SVG). $s = [['period' => '2026-01', 'm2' => 1500.0], ...]
+ * Değerler GBP; etiketler seçili para biriminde çizilir.
+ */
+function ae_chart(array $s, string $label): string
+{
+    if (count($s) < 2) {
+        return '';
+    }
+    $W = 640;
+    $H = 220;
+    $pl = 8;
+    $pr = 8;
+    $pt = 16;
+    $pb = 6;
+    $vals = array_column($s, 'm2');
+    $min = min($vals);
+    $max = max($vals);
+    $pad = ($max - $min) * 0.15 ?: $max * 0.05;
+    $min -= $pad;
+    $max += $pad;
+    $n = count($s);
+    $x = fn($i) => $pl + $i * ($W - $pl - $pr) / ($n - 1);
+    $y = fn($v) => $pt + ($H - $pt - $pb) * (1 - ($v - $min) / ($max - $min));
+    $pts = [];
+    foreach ($s as $i => $p) {
+        $pts[] = round($x($i), 1) . ',' . round($y($p['m2']), 1);
+    }
+    $area = 'M' . $pl . ',' . ($H - $pb) . ' L' . implode(' L', $pts) . ' L' . ($W - $pr) . ',' . ($H - $pb) . ' Z';
+    $last = end($s);
+    $lx = round($x($n - 1), 1);
+    $ly = round($y($last['m2']), 1);
+    $xl = '';
+    foreach ([0, intdiv($n - 1, 2), $n - 1] as $i) {
+        $xl .= '<span>' . esc_html(ae_month_label($s[$i]['period'], true)) . '</span>';
+    }
+    $grid = '';
+    foreach ([0.25, 0.5, 0.75] as $g) {
+        $gy = round($pt + ($H - $pt - $pb) * $g, 1);
+        $grid .= '<line x1="' . $pl . '" x2="' . ($W - $pr) . '" y1="' . $gy . '" y2="' . $gy . '"/>';
+    }
+    return '<figure class="chart"><svg viewBox="0 0 ' . $W . ' ' . $H . '" role="img" aria-label="' . esc_attr($label) . '" preserveAspectRatio="none">'
+        . '<g class="cg">' . $grid . '</g>'
+        . '<path class="ca" d="' . $area . '"/>'
+        . '<polyline class="cl" points="' . implode(' ', $pts) . '"/>'
+        . '<circle class="cd" cx="' . $lx . '" cy="' . $ly . '" r="4.5"/>'
+        . '</svg>'
+        . '<div class="cxl">' . $xl . '</div>'
+        . '<figcaption><span>' . ae_money($min + $pad) . '</span><span>' . ae_money($max - $pad) . '</span></figcaption></figure>';
 }

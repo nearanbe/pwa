@@ -24,6 +24,8 @@ function ec_sections(): array
         'project' => ['tr' => 'projeler', 'en' => 'projects', 'ru' => 'proekty'],
         'add'     => ['tr' => 'ilan-ver', 'en' => 'list-property', 'ru' => 'razmestit'],
         'favs'    => ['tr' => 'favoriler', 'en' => 'favourites', 'ru' => 'izbrannoe'],
+        'projectd' => ['tr' => 'proje', 'en' => 'project', 'ru' => 'proekt'],
+        'index'   => ['tr' => 'fiyat-endeksi', 'en' => 'price-index', 'ru' => 'indeks-tsen'],
     ];
 }
 

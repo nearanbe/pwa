@@ -4,7 +4,7 @@
  *   /tr/                                   ana sayfa (en, ru aynı)
  *   /tr/satilik/  /tr/satilik/girne/       arama (kiralik, gunluk-kiralik)
  *   /tr/ilan/{slug}-{no}/                  ilan detayı  (en/ru: /property/)
- *   /tr/projeler/  /tr/ilan-ver/  /tr/favoriler/
+ *   /tr/projeler/  /tr/proje/{slug}-{no}/  /tr/fiyat-endeksi/  /tr/ilan-ver/  /tr/favoriler/
  *   /api/v1/...                            REST API (= /wp-json/emlak/v1/...)
  */
 
@@ -22,7 +22,8 @@ function ec_register_rewrites(): void
             add_rewrite_rule("^$l/{$s[$m][$l]}/?$", "index.php?ec_lang=$l&ec_page=search&ec_mode=$m", 'top');
             add_rewrite_rule("^$l/{$s[$m][$l]}/([a-z]+)/?$", 'index.php?ec_lang=' . $l . '&ec_page=search&ec_mode=' . $m . '&ec_city=$matches[1]', 'top');
         }
-        foreach (['project', 'add', 'favs'] as $p) {
+        add_rewrite_rule("^$l/{$s['projectd'][$l]}/([a-z0-9-]+)-([0-9]+)/?$", 'index.php?ec_lang=' . $l . '&ec_page=projectd&ec_id=$matches[2]', 'top');
+        foreach (['project', 'add', 'favs', 'index'] as $p) {
             add_rewrite_rule("^$l/{$s[$p][$l]}/?$", "index.php?ec_lang=$l&ec_page=$p", 'top');
         }
     }
@@ -73,6 +74,12 @@ function ec_url_listing(int $id, string $slug, ?string $lang = null): string
     return home_url('/' . $lang . '/' . ec_sections()['listing'][$lang] . '/' . $slug . '-' . $id . '/');
 }
 
+function ec_url_project(int $id, string $slug, ?string $lang = null): string
+{
+    $lang = $lang ?? ec_lang();
+    return home_url('/' . $lang . '/' . ec_sections()['projectd'][$lang] . '/' . $slug . '-' . $id . '/');
+}
+
 /**
  * Kök adres (/) ziyaretçinin tarayıcı diline göre /tr/, /en/ veya /ru/ adresine gider.
  * Yanlış slug ile gelen ilan linkleri doğru adrese 301 ile yönlendirilir.
@@ -99,6 +106,20 @@ add_action('template_redirect', function () {
             exit;
         }
         $GLOBALS['ec_current_listing'] = $item;
+    }
+    if ($page === 'projectd') {
+        $p = ec_project_get((int) get_query_var('ec_id'), ec_lang());
+        if (!$p) {
+            global $wp_query;
+            $wp_query->set_404();
+            status_header(404);
+            return;
+        }
+        if (untrailingslashit($p['url']) !== untrailingslashit(home_url(strtok($_SERVER['REQUEST_URI'], '?')))) {
+            wp_safe_redirect($p['url'], 301);
+            exit;
+        }
+        $GLOBALS['ec_current_project'] = $p;
     }
     if ($page === 'search') {
         $city = get_query_var('ec_city');

@@ -21,6 +21,9 @@ $slides = array_values(array_filter($featured, fn($a) => $a['cover']));
 $slides = array_slice($slides, 0, 5);
 $latest = ec_listing_search(['mode' => 'sale'], $lang, 1, 12)['items'];
 $agents = ec_agents_active(12);
+$projects = ec_projects($lang, 4);
+$idx = array_slice(ec_index_table('sale'), 0, 7);
+$posts = get_posts(['numberposts' => 3]);
 get_header();
 ?>
 <section class="hero" aria-roledescription="carousel" aria-label="<?php ae_e('featured'); ?>">
@@ -78,6 +81,26 @@ get_header();
     <?php if (!$latest) : ?><div class="empty"><?php ae_e('no_results'); ?></div><?php endif; ?>
   </div>
 
+  <?php if ($projects) : ?>
+    <div class="sechead"><h2 class="sec"><?php ae_e('new_projects'); ?></h2><a href="<?php echo esc_url(ec_url_section('project')); ?>"><?php ae_e('see_all'); ?> →</a></div>
+    <div class="grid"><?php foreach ($projects as $p) {
+        echo ae_project_card($p);
+    } ?></div>
+  <?php endif; ?>
+
+  <?php if ($idx) : ?>
+    <div class="sechead"><h2 class="sec"><?php ae_e('price_index'); ?></h2><a href="<?php echo esc_url(ec_url_section('index')); ?>"><?php ae_e('idx_see'); ?> →</a></div>
+    <div class="idxstrip">
+      <?php foreach ($idx as $r) : ?>
+        <a class="idxcard<?php echo $r['city'] === EC_INDEX_ALL ? ' total' : ''; ?>" href="<?php echo esc_url(add_query_arg($r['city'] === EC_INDEX_ALL ? [] : ['sehir' => $r['city']], ec_url_section('index'))); ?>">
+          <span class="sub"><?php echo esc_html($r['city'] === EC_INDEX_ALL ? ae_t('idx_all') : ec_city_name($r['city'], $lang)); ?></span>
+          <b class="price"><?php echo ae_money($r['m2']); ?></b><span class="sub"><?php ae_e('per_m2'); ?></span>
+          <span class="sub"><?php ae_e('idx_chg12'); ?>: <?php echo ae_pct($r['chg12']); ?></span>
+        </a>
+      <?php endforeach; ?>
+    </div>
+  <?php endif; ?>
+
   <?php echo ae_ad('mid'); ?>
 
   <?php if ($agents) : ?>
@@ -92,6 +115,16 @@ get_header();
         </a>
       <?php endforeach; ?>
     </div>
+  <?php endif; ?>
+
+  <?php if ($posts) : ?>
+    <div class="sechead"><h2 class="sec"><?php ae_e('from_blog'); ?></h2><a href="<?php echo esc_url(ae_blog_url()); ?>"><?php ae_e('all_posts'); ?> →</a></div>
+    <div class="grid posts"><?php foreach ($posts as $r) : ?>
+      <article class="card post"><a class="cardlink" href="<?php echo esc_url(get_permalink($r)); ?>" aria-label="<?php echo esc_attr(get_the_title($r)); ?>"></a>
+        <div class="img"><?php echo get_the_post_thumbnail($r, 'medium_large', ['loading' => 'lazy', 'alt' => '']) ?: AE_ICON; ?></div>
+        <div class="body"><div class="sub"><?php echo esc_html(get_the_date('', $r)); ?></div><h3 class="ttl"><?php echo esc_html(get_the_title($r)); ?></h3><p class="sub"><?php echo esc_html(get_the_excerpt($r)); ?></p></div>
+      </article>
+    <?php endforeach; ?></div>
   <?php endif; ?>
 </main>
 <?php

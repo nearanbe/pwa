@@ -12,6 +12,7 @@ add_action('admin_menu', function () {
     add_menu_page('Emlak', 'Emlak', 'manage_options', 'ec-listings', 'ec_admin_listings', 'dashicons-admin-home', 3);
     add_submenu_page('ec-listings', 'İlanlar', 'İlanlar', 'manage_options', 'ec-listings', 'ec_admin_listings');
     add_submenu_page('ec-listings', 'Yeni ilan', 'Yeni ilan', 'manage_options', 'ec-new', 'ec_admin_new');
+    add_submenu_page('ec-listings', 'Projeler', 'Projeler', 'manage_options', 'ec-projects', 'ec_admin_projects');
     add_submenu_page('ec-listings', 'Danışmanlar', 'Danışmanlar', 'manage_options', 'ec-agents', 'ec_admin_agents');
     add_submenu_page('ec-listings', 'Ayarlar', 'Ayarlar', 'manage_options', 'ec-settings', 'ec_admin_settings');
 });
@@ -255,7 +256,16 @@ function ec_admin_settings(): void
         }
         echo '<tr><th>' . $c . '</th><td><input name="rate_' . $c . '" type="number" step="0.0001" min="0" value="' . esc_attr($rates[$c]) . '"></td></tr>';
     }
-    echo '</table><p class="description">İlanlar kendi para birimiyle saklanır; arama ve sıralama için GBP karşılığı bu kurlarla hesaplanır. İleride KKTC Merkez Bankası kurlarından otomatik çekilecek.</p>';
+    $meta = (array) get_option('ec_rates_meta', []);
+    echo '<tr><th>Otomatik güncelleme</th><td><label><input type="checkbox" name="rates_auto" value="1"' . checked((int) get_option('ec_rates_auto', 1), 1, false) . '> Kurları her gün otomatik çek</label>';
+    if (!empty($meta['updated_at'])) {
+        echo '<p class="description">Son güncelleme: ' . esc_html(get_date_from_gmt($meta['updated_at'], 'd.m.Y H:i')) . ' · Kaynak: ' . esc_html($meta['source'] ?? '') . '</p>';
+    }
+    if (!empty($meta['error'])) {
+        echo '<p class="description" style="color:#b32d2e">Son deneme başarısız: ' . esc_html($meta['error']) . '</p>';
+    }
+    echo '</td></tr>';
+    echo '</table><p class="description">İlanlar kendi para birimiyle saklanır; arama ve sıralama için GBP karşılığı bu kurlarla hesaplanır. Otomatik güncelleme açıkken elle girilen değerlerin üzerine her gün yazılır.</p>';
     echo '<h2>Reklam (Google AdSense)</h2><table class="form-table">';
     foreach (['client' => 'Yayıncı kimliği (ca-pub-...)', 'top' => 'Üst alan slot', 'feed' => 'İlan arası slot', 'mid' => 'Orta alan slot', 'detail' => 'İlan detay slot'] as $k => $n) {
         echo '<tr><th>' . esc_html($n) . '</th><td><input name="ads_' . $k . '" class="regular-text" value="' . esc_attr($ads[$k] ?? '') . '"></td></tr>';
@@ -267,8 +277,48 @@ function ec_admin_settings(): void
     }
     echo '</table>';
     submit_button('Kaydet');
-    echo '</form></div>';
+    echo '</form>';
+
+    $tool = function (string $do, string $label, string $cls = 'button', string $confirm = '') {
+        $u = wp_nonce_url(admin_url('admin-post.php?action=ec_tool&do=' . $do), 'ec_tool_' . $do);
+        return '<a class="' . $cls . '" href="' . esc_url($u) . '"' . ($confirm ? ' onclick="return confirm(\'' . esc_js($confirm) . '\')"' : '') . '>' . esc_html($label) . '</a> ';
+    };
+    echo '<hr><h2>Araçlar</h2><p>' . $tool('rates', 'Kurları şimdi güncelle') . $tool('index', 'Fiyat endeksini şimdi hesapla') . '</p>';
+    echo '<p class="description">Fiyat endeksi her gün otomatik hesaplanır: yayındaki konut ilanlarının m² başına istenen fiyatlarının medyanı (şehir bazında, en az ' . EC_INDEX_MIN_N . ' ilan).</p>';
+    echo '<h2>Demo verisi</h2>';
+    if (ec_demo_active()) {
+        echo '<p>Demo verisi <b>yüklü</b>. Canlıya çıkmadan önce silin. Düzenlediğiniz demo blog yazıları silinmez.</p><p>' . $tool('unseed', 'Demo verisini sil', 'button button-link-delete', 'Tüm demo ilan, proje, danışman ve demo blog yazıları silinsin mi?') . '</p>';
+    } else {
+        echo '<p>Siteyi denemek için kurgusal ilanlar, danışmanlar, projeler, 3 blog yazısı ve 12 aylık örnek fiyat endeksi ekler.</p><p>' . $tool('seed', 'Demo verisi ekle', 'button button-primary') . '</p>';
+    }
+    echo '</div>';
 }
+
+add_action('admin_post_ec_tool', function () {
+    $do = sanitize_key($_GET['do'] ?? '');
+    if (!current_user_can('manage_options') || !wp_verify_nonce($_GET['_wpnonce'] ?? '', 'ec_tool_' . $do)) {
+        wp_die('Yetkisiz işlem');
+    }
+    switch ($do) {
+        case 'rates':
+            $r = ec_rates_update();
+            $msg = is_wp_error($r) ? esc_html($r->get_error_message()) : 'Kurlar güncellendi: 1 GBP = ' . esc_html($r['EUR'] . ' EUR, ' . $r['USD'] . ' USD, ' . $r['TRY'] . ' TRY');
+            break;
+        case 'index':
+            $msg = ec_index_compute() . ' endeks satırı hesaplandı.';
+            break;
+        case 'seed':
+            $r = ec_demo_seed();
+            $msg = is_wp_error($r) ? esc_html($r->get_error_message()) : esc_html($r);
+            break;
+        case 'unseed':
+            $msg = esc_html(ec_demo_unseed());
+            break;
+        default:
+            $msg = 'İşlem yok.';
+    }
+    ec_admin_back('ec-settings', $msg);
+});
 
 add_action('admin_post_ec_settings', function () {
     if (!current_user_can('manage_options') || !check_admin_referer('ec_settings')) {
@@ -282,6 +332,7 @@ add_action('admin_post_ec_settings', function () {
         }
     }
     update_option('ec_rates', $rates);
+    update_option('ec_rates_auto', !empty($p['rates_auto']) ? 1 : 0);
     $ads = [];
     foreach (['client', 'top', 'feed', 'mid', 'detail'] as $k) {
         $ads[$k] = preg_replace('/[^a-zA-Z0-9-]/', '', (string) ($p['ads_' . $k] ?? ''));
@@ -292,11 +343,67 @@ add_action('admin_post_ec_settings', function () {
         'email' => sanitize_email($p['contact_email'] ?? ''),
         'telegram_bot' => preg_replace('/[^a-zA-Z0-9_]/', '', (string) ($p['contact_telegram_bot'] ?? '')),
     ]);
-    // Kur değişince tüm ilanların GBP karşılığını yeniden hesapla.
-    global $wpdb;
-    $t = ec_table('listings');
-    foreach ($rates as $c => $r) {
-        $wpdb->query($wpdb->prepare("UPDATE $t SET price_gbp = ROUND(price / %f, 2) WHERE currency = %s", $r, $c));
-    }
+    ec_recompute_price_gbp();
     ec_admin_back('ec-settings', 'Ayarlar kaydedildi.');
+});
+
+function ec_admin_projects(): void
+{
+    global $wpdb;
+    $rows = $wpdb->get_results('SELECT * FROM ' . ec_table('projects') . ' ORDER BY id DESC', ARRAY_A);
+    echo '<div class="wrap"><h1>Projeler</h1>';
+    ec_admin_notice();
+    echo '<table class="widefat striped"><thead><tr><th>No</th><th>Proje</th><th>Firma</th><th>Konum</th><th>Konut</th><th>Teslim</th><th>Fiyat aralığı (GBP)</th><th></th></tr></thead><tbody>';
+    if (!$rows) {
+        echo '<tr><td colspan="8">Henüz proje yok.</td></tr>';
+    }
+    foreach ($rows as $r) {
+        $p = ec_project_present($r, 'tr');
+        $del = wp_nonce_url(admin_url('admin-post.php?action=ec_project_del&id=' . $r['id']), 'ec_project_del_' . $r['id']);
+        echo '<tr><td>' . (int) $r['id'] . '</td><td><a href="' . esc_url($p['url']) . '" target="_blank">' . esc_html($r['name']) . '</a>' . ($r['cover_path'] ? '' : ' <em>(görsel yok)</em>') . '</td><td>' . esc_html((string) $r['developer']) . '</td><td>' . esc_html($p['city_name'] . ($r['district'] ? ' / ' . $r['district'] : '')) . '</td><td>' . esc_html((string) $r['units']) . '</td><td>' . esc_html((string) $r['delivery_date']) . '</td><td>' . esc_html(number_format((float) $r['price_min_gbp'], 0, ',', '.') . ' – ' . number_format((float) $r['price_max_gbp'], 0, ',', '.')) . '</td><td><a class="button-link-delete" href="' . esc_url($del) . '" onclick="return confirm(\'Proje silinsin mi?\')">Sil</a></td></tr>';
+    }
+    echo '</tbody></table>';
+
+    $cities = array_map(fn($c) => $c['name']['tr'], ec_cities());
+    echo '<h2 style="margin-top:28px">Yeni proje</h2><form method="post" enctype="multipart/form-data" action="' . esc_url(admin_url('admin-post.php')) . '">';
+    wp_nonce_field('ec_project_new');
+    echo '<input type="hidden" name="action" value="ec_project_new"><table class="form-table">';
+    echo '<tr><th>Proje adı</th><td><input name="name" class="regular-text" required></td></tr>';
+    echo '<tr><th>İnşaat firması</th><td><input name="developer" class="regular-text"></td></tr>';
+    echo '<tr><th>Şehir / Bölge</th><td>' . ec_admin_select('city', $cities) . ' <input name="district" placeholder="Bölge"></td></tr>';
+    echo '<tr><th>Konut sayısı / Teslim</th><td><input name="units" type="number" min="0" style="width:90px"> <input name="delivery_date" type="month"></td></tr>';
+    echo '<tr><th>Fiyat aralığı (GBP)</th><td><input name="price_min_gbp" type="number" min="0" placeholder="En az"> – <input name="price_max_gbp" type="number" min="0" placeholder="En çok"></td></tr>';
+    echo '<tr><th>Ödeme planı</th><td><input name="payment_plan" class="regular-text" placeholder="%35 peşin, 36 ay taksit"></td></tr>';
+    foreach (['tr' => 'Türkçe', 'en' => 'İngilizce', 'ru' => 'Rusça'] as $l => $n) {
+        echo '<tr><th>Açıklama (' . $n . ')</th><td><textarea name="desc_' . $l . '" rows="3" class="large-text"></textarea></td></tr>';
+    }
+    echo '<tr><th>Kapak görseli</th><td><input type="file" name="cover" accept="image/jpeg,image/png,image/webp"></td></tr>';
+    echo '</table>';
+    submit_button('Projeyi kaydet');
+    echo '</form></div>';
+}
+
+add_action('admin_post_ec_project_new', function () {
+    if (!current_user_can('manage_options') || !check_admin_referer('ec_project_new')) {
+        wp_die('Yetkisiz işlem');
+    }
+    $id = ec_project_create(wp_unslash($_POST), 'panel');
+    if (is_wp_error($id)) {
+        wp_die(esc_html($id->get_error_message()));
+    }
+    $note = '';
+    if (!empty($_FILES['cover']['tmp_name']) && ($_FILES['cover']['error'] ?? 1) === UPLOAD_ERR_OK && is_uploaded_file($_FILES['cover']['tmp_name'])) {
+        $r = ec_project_set_cover($id, $_FILES['cover']['tmp_name']);
+        $note = is_wp_error($r) ? ' Görsel yüklenemedi: ' . esc_html($r->get_error_message()) : '';
+    }
+    ec_admin_back('ec-projects', 'Proje #' . $id . ' kaydedildi.' . $note);
+});
+
+add_action('admin_post_ec_project_del', function () {
+    $id = (int) ($_GET['id'] ?? 0);
+    if (!current_user_can('manage_options') || !wp_verify_nonce($_GET['_wpnonce'] ?? '', 'ec_project_del_' . $id)) {
+        wp_die('Yetkisiz işlem');
+    }
+    ec_project_delete($id);
+    ec_admin_back('ec-projects', 'Proje #' . $id . ' silindi.');
 });

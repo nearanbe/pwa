@@ -7,7 +7,7 @@ $page = function (string $slug): string {
     $p = get_page_by_path($slug);
     return $p ? get_permalink($p) : '#';
 };
-$blog = get_option('page_for_posts') ? get_permalink((int) get_option('page_for_posts')) : '#';
+$blog = ae_blog_url();
 ?>
 <?php if (!empty($GLOBALS['ae_quicklinks'])) : ?>
 <section class="qwrap" aria-label="<?php ae_e('listings'); ?>"><div class="qin">
@@ -48,6 +48,7 @@ $blog = get_option('page_for_posts') ? get_permalink((int) get_option('page_for_
     <a href="<?php echo esc_url(ec_url_section('rent')); ?>"><?php ae_e('rent'); ?></a>
     <a href="<?php echo esc_url(ec_url_section('daily')); ?>"><?php ae_e('daily'); ?></a>
     <a href="<?php echo esc_url(ec_url_section('project')); ?>"><?php ae_e('projects'); ?></a>
+    <a href="<?php echo esc_url(ec_url_section('index')); ?>"><?php ae_e('price_index'); ?></a>
   </div>
   <div><h5><?php ae_e('services'); ?></h5>
     <a href="<?php echo esc_url(ec_url_section('add')); ?>"><?php ae_e('add_listing'); ?></a>
@@ -55,7 +56,7 @@ $blog = get_option('page_for_posts') ? get_permalink((int) get_option('page_for_
     <a href="<?php echo esc_url(ec_url_section('add')); ?>#paketler"><?php ae_e('packages'); ?></a>
     <a href="<?php echo esc_url($blog); ?>"><?php ae_e('blog'); ?></a>
   </div>
-  <div><div class="flogo"><?php echo esc_html(ae_brand()); ?></div><div class="fdesc"><?php ae_e('footer_note'); ?></div></div>
+  <div><div class="flogo"><img src="<?php echo esc_url(get_theme_file_uri('assets/img/favicon.svg')); ?>" alt="" width="40" height="40"><?php echo esc_html(ae_brand()); ?></div><div class="fdesc"><?php ae_e('footer_note'); ?></div></div>
 </div>
 <div class="fnote">© <?php echo esc_html(gmdate('Y') . ' ' . ae_brand()); ?>. <?php ae_e('rights'); ?> <?php if (get_option('ec_demo_agents')) : ?><br><?php ae_e('demo_note'); ?><?php endif; ?></div>
 </div></footer>

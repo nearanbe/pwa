@@ -14,6 +14,7 @@ Site WordPress üzerinde çalışır. Ancak ileride Next.js altyapısına **bir 
 ## Durum
 
 - [x] 1a. Portal: veri tabloları, çok dilli linkler, arama, ilan detayı, slider, favoriler, kayıt başvurusu, reklam alanları, yönetim paneli, REST API
+- [x] 1a+. Otomatik kur, fiyat endeksi, projeler (liste, detay, yönetim), blog, logo ve site ikonları, panelden demo verisi
 - [ ] 1b. Telegram botu ve yapay zekâ motoru (metinden alanları çıkarma, 3 dile çeviri)
 - [ ] 2. Chrome eklentisi: 101evler ve hangiev modülleri
 - [ ] 3. Paketler, kota takibi, ödeme

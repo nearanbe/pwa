@@ -16,9 +16,7 @@ $cur = ae_currency();
 <?php wp_body_open(); ?>
 <a class="skip" href="#main"><?php echo esc_html(ae_t('listings')); ?></a>
 <header class="site-header"><div class="bar">
-  <a class="logo" href="<?php echo esc_url(ec_url_home()); ?>" aria-label="<?php echo esc_attr(ae_brand()); ?>">
-    <svg width="30" height="30" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M5 28V15a11 11 0 0 1 22 0v13"/><path d="M10 24q3-3 6 0t6 0" stroke="#b48a45"/></svg><?php echo esc_html(ae_brand()); ?>
-  </a>
+  <?php ae_logo(); ?>
   <form class="ino" id="ino" role="search">
     <label class="vh" for="ino-in"><?php ae_e('listing_no'); ?></label>
     <input id="ino-in" placeholder="<?php ae_e('listing_no'); ?>" inputmode="numeric" autocomplete="off">
@@ -35,4 +33,10 @@ $cur = ae_currency();
   <a class="ghost" href="<?php echo esc_url(ec_url_section('favs')); ?>">♥ <span class="hide-s"><?php ae_e('favourites'); ?></span></a>
   <button class="ghost" type="button" data-open="regov"><?php ae_e('register'); ?></button>
   <a class="btn" href="<?php echo esc_url(ec_url_section('add')); ?>"><?php ae_e('add_listing'); ?></a>
-</div></header>
+</div>
+<nav class="mainnav" aria-label="<?php ae_e('menu'); ?>"><div class="navin">
+  <?php foreach (ae_nav_items() as [$url, $label, $on]) : ?>
+    <a href="<?php echo esc_url($url); ?>" class="<?php echo $on ? 'on' : ''; ?>" <?php echo $on ? 'aria-current="page"' : ''; ?>><?php echo esc_html($label); ?></a>
+  <?php endforeach; ?>
+</div></nav>
+</header>

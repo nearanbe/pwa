@@ -108,6 +108,7 @@ function ec_install_schema(): void
   agent_id bigint(20) unsigned DEFAULT NULL,
   status varchar(20) NOT NULL DEFAULT 'published',
   name varchar(190) NOT NULL,
+  slug varchar(190) NOT NULL DEFAULT '',
   developer varchar(190) DEFAULT NULL,
   city varchar(40) NOT NULL,
   district varchar(80) DEFAULT NULL,
@@ -116,10 +117,30 @@ function ec_install_schema(): void
   price_min_gbp decimal(14,2) DEFAULT NULL,
   price_max_gbp decimal(14,2) DEFAULT NULL,
   payment_plan varchar(190) DEFAULT NULL,
+  desc_tr text,
+  desc_en text,
+  desc_ru text,
+  cover_path varchar(255) DEFAULT NULL,
+  source varchar(20) NOT NULL DEFAULT 'panel',
   created_at datetime NOT NULL,
   updated_at datetime NOT NULL,
   PRIMARY KEY  (id),
   KEY city (city)
+) $c;");
+
+    // Fiyat endeksi: her ay, şehir, ilan türü ve emlak tipi için m² medyanı (ilan fiyatlarından)
+    $index = ec_table('price_index');
+    dbDelta("CREATE TABLE $index (
+  period char(7) NOT NULL,
+  city varchar(40) NOT NULL,
+  mode varchar(10) NOT NULL,
+  ptype varchar(20) NOT NULL,
+  median_m2_gbp decimal(12,2) NOT NULL DEFAULT 0,
+  avg_price_gbp decimal(14,2) NOT NULL DEFAULT 0,
+  n int(10) unsigned NOT NULL DEFAULT 0,
+  is_demo tinyint(1) NOT NULL DEFAULT 0,
+  updated_at datetime NOT NULL,
+  PRIMARY KEY  (period,city,mode,ptype)
 ) $c;");
 
     // İlan numaraları 10001'den başlasın (ilk ilanlar "#1" gibi görünmesin).
