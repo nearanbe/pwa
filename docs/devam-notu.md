@@ -39,6 +39,22 @@ Dal: `claude/jolly-carson-l927uv`. Kod buradadır, her şey commit edilip gönde
   - Telefonda ilan ve proje sayfalarında `.mbar` alt iletişim çubuğu var; sıralama galeri → bilgiler → iletişim.
 - **Kullanıcıdan beklenen:** şehir kartları için gerçek fotoğraflar. Unsplash bot korumalı, buradan alınamadı.
 
+## 1c. Sürüm 1.0.3: PWA ve şehir fotoğrafları
+
+- **PWA:** `themes/adacasa-theme/inc/pwa.php`.
+  - Service worker kök adresten `/?ec_pwa=sw` ile sunulur. `/sw.js` kullanılmadı, çünkü uzantılı adresler PHP yerleşik sunucusunda ve bazı nginx ayarlarında WordPress'e ulaşmıyor.
+  - Manifest dile göre `/?ec_pwa=manifest&lang=xx` adresinden gelir.
+  - Sayfalar: önce ağ, sonra saklanan sayfa, sonra çevrimdışı sayfası. Sadece private/no-store olmayan sayfalar saklanır; sayfa önbelleği kapalıyken de kişisel sayfalar ve giriş yapmış kullanıcının sayfaları private işaretlenir.
+  - Statik dosyalar: önbellekten verilir, arka planda tazelenir.
+  - Telefon menüsünde "Uygulamayı yükle" düğmesi var; iPhone'da talimat gösterir.
+  - Manifest ekran görüntüleri: `assets/img/screen-*.webp`.
+  - Chrome denetimi (`Page.getInstallabilityErrors`) temiz.
+- **Şehir fotoğrafları:** Wikimedia Commons'tan alındı, özgür lisanslı ve atıf zorunlu. Atıf, medya açıklamasında "Foto: Ad · Lisans · Wikimedia Commons (adres)" biçiminde tutulur; ana sayfada kartların altında otomatik yazılır.
+  - Canlı sitede medya no 18–23: lefkosa 18, girne 19, gazimagusa 20, iskele 21, guzelyurt 22, lefke 23.
+  - `ec_city_photos` 1.0.3 kurulunca REST ile ayarlanacak.
+- **Ortam izinleri:** commons.wikimedia.org ve upload.wikimedia.org izinli. thumb.wikimedia.org izinli değil; küçük görsel adreslerinde alan adı upload.wikimedia.org ile değiştirilir. Wikimedia sık istekte 429 verir; istekler arasında beklenir.
+- **Örnek içerikler** ("Hello world!" yazısı 1, "Sample Page" sayfası 2, yorum 1): silme ve çöpe taşıma bu oturumda otomatik izin denetimine takıldı. Kullanıcı kendisi siler.
+
 ## 2. Proje özeti
 
 - **Amaç:** KKTC (Kuzey Kıbrıs) emlak ilan portalı. Rakipler: 101evler.com ve hangiev.com. İkisi de Cloudflare bot korumalı; bu ortamdan açılamaz.
@@ -63,8 +79,8 @@ Dal: `claude/jolly-carson-l927uv`. Kod buradadır, her şey commit edilip gönde
 
 | Parça | Kullanıcıya verilen son sürüm | Daldaki sürüm (teslim bekliyor) |
 |---|---|---|
-| Eklenti (adacasa-core, eski emlak-core) | **1.0.2** | 1.0.2 |
-| Tema (adacasa-theme, eski emlak-tema) | **1.0.2** | 1.0.2 |
+| Eklenti (adacasa-core, eski emlak-core) | **1.0.3** | 1.0.3 |
+| Tema (adacasa-theme, eski emlak-tema) | **1.0.3** | 1.0.3 |
 | Chrome eklentisi | **0.4.1** | 0.4.1 |
 
 Kullanıcının kuralı: "Her şey tamam olana kadar yeni sürüm verme." 0.7 içeriği marka değişikliğiyle birlikte **AdaCasa 1.0.1** olarak teslim edildi.

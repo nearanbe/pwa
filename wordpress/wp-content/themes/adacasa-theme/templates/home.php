@@ -60,6 +60,18 @@ $nFirm = (int) $wpdb->get_var("SELECT COUNT(*) FROM " . ec_table('agents') . " W
       </a>
     <?php endforeach; ?>
   </div>
+  <?php
+  // Özgür lisanslı fotoğraflar için zorunlu atıf: medya açıklamasından (Foto: Ad · Lisans · Wikimedia Commons (adres))
+  $credits = [];
+  foreach ((array) get_option('ec_city_photos', []) as $ck => $v) {
+      if (is_int($v) || ctype_digit((string) $v)) {
+          $cap = (string) wp_get_attachment_caption((int) $v);
+          if (preg_match('~^Foto:\s*(.+?)\s*·\s*(.+?)\s*·.*?\((https?://[^)\s]+)\)~u', $cap, $m)) {
+              $credits[] = '<a href="' . esc_url($m[3]) . '" rel="noopener" target="_blank">' . esc_html(ec_city_name($ck, $lang)) . '</a>: ' . esc_html($m[1] . ', ' . $m[2]);
+          }
+      }
+  }
+  if ($credits) : ?><p class="credits"><?php ae_e('photo_credits'); ?> <?php echo implode(' · ', $credits); // phpcs:ignore -- kaçışlı ?> (Wikimedia Commons)</p><?php endif; ?>
 
   <?php if ($featured) : ?>
     <h2 class="sec"><?php ae_e('featured'); ?></h2>

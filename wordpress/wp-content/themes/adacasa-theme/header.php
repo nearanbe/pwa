@@ -38,6 +38,7 @@ $cur = ae_currency();
     <?php else : ?>
       <a class="ghost" href="<?php echo esc_url(ec_url_section('login')); ?>"><?php ae_e('login'); ?></a>
     <?php endif; ?>
+    <button class="ghost pwa-btn" type="button" id="pwa-install" hidden data-ios="<?php ae_e('pwa_ios'); ?>">⬇ <?php ae_e('pwa_install'); ?></button>
   </div>
   <a class="btn addbtn" href="<?php echo esc_url(ec_current_agent() ? add_query_arg('bolum', 'ilan', ec_url_section('panel')) : ec_url_section('add')); ?>"><?php ae_e('add_listing'); ?></a>
   <button class="burger" type="button" aria-controls="tools" aria-expanded="false" aria-label="<?php ae_e('open_menu'); ?>"><span></span><span></span><span></span></button>

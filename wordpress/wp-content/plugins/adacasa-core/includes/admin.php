@@ -662,3 +662,4 @@ add_action('admin_post_ec_ai', function () {
     }
     ec_admin_back('ec-ai', 'Görsel üretildi ve medya kütüphanesine eklendi.' . ($kind === 'post' ? ' Blog yazısının öne çıkan görseli yapıldı.' : ''));
 });
+

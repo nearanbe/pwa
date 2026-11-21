@@ -96,6 +96,23 @@
     thumbs.forEach(function (t) { t.addEventListener('click', function () { g && g.go(Number(t.dataset.go)); }); });
   }
 
+  /* ---- PWA: service worker ve "Uygulamayı yükle" ---- */
+  if ('serviceWorker' in navigator && window.isSecureContext) {
+    window.addEventListener('load', function () { navigator.serviceWorker.register('/?ec_pwa=sw', { scope: '/' }).catch(function () {}); });
+  }
+  var pwaBtn = $('#pwa-install'), deferred = null;
+  var standalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+  if (pwaBtn && !standalone) {
+    window.addEventListener('beforeinstallprompt', function (e) { e.preventDefault(); deferred = e; pwaBtn.hidden = false; });
+    window.addEventListener('appinstalled', function () { pwaBtn.hidden = true; deferred = null; });
+    // iPhone/iPad Safari kurulum olayı vermez: talimat göster
+    if (/iphone|ipad|ipod/i.test(navigator.userAgent) && !window.MSStream) pwaBtn.hidden = false;
+    pwaBtn.addEventListener('click', function () {
+      if (deferred) { deferred.prompt(); deferred.userChoice.finally(function () { deferred = null; pwaBtn.hidden = true; }); }
+      else alert(pwaBtn.dataset.ios);
+    });
+  }
+
   /* ---- Telefonda üst menü (☰): ilan no, para birimi, dil, favoriler, giriş ---- */
   var burger = $('.burger'), shead = $('.site-header');
   if (burger && shead) {

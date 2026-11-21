@@ -7,7 +7,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-define('AE_VER', '1.0.2');
+define('AE_VER', '1.0.3');
 
 if (!function_exists('ec_table')) {
     // Eklenti kapalıysa: hiçbir eklenti fonksiyonu TANIMLANMAZ (aksi halde eklenti etkinleştirilirken
@@ -25,6 +25,7 @@ require_once __DIR__ . '/inc/helpers.php';
 require_once __DIR__ . '/inc/helpers-detail.php';
 require_once __DIR__ . '/inc/i18n-detail.php';
 require_once __DIR__ . '/inc/faq.php';
+require_once __DIR__ . '/inc/pwa.php';
 
 add_action('after_setup_theme', function () {
     add_theme_support('title-tag');

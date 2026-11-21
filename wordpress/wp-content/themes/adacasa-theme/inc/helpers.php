@@ -436,7 +436,7 @@ add_action('wp_head', function () {
         echo '<link rel="icon" href="' . $u('icon-32.png') . '" sizes="32x32" type="image/png">' . "\n";
         echo '<link rel="apple-touch-icon" href="' . $u('apple-touch-icon.png') . '">' . "\n";
     }
-    echo '<link rel="manifest" href="' . esc_url(get_theme_file_uri('assets/site.webmanifest')) . '">' . "\n";
+    // manifest: inc/pwa.php (/manifest.webmanifest?lang=..)
 }, 2);
 
 /** Proje kartı */

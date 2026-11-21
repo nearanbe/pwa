@@ -1,5 +1,7 @@
 # Kurulum (Plesk VPS)
 
+> **1.0.3 (PWA):** site telefona ve bilgisayara uygulama olarak yüklenebilir (Android/Chrome'da "Uygulamayı yükle", iPhone'da Paylaş → Ana Ekrana Ekle). Açılan sayfalar internet yokken de görüntülenir. Service worker `/?ec_pwa=sw`, manifest `/?ec_pwa=manifest&lang=tr` adresinden sunulur; sunucuda ek ayar gerekmez. Şehir fotoğrafları ve giriş görseli ayarları REST'e açıldı (`/wp-json/wp/v2/settings` → `ec_city_photos`, `ec_hero_photo`).
+>
 > **1.0.2 (görünüm):** fotoğraflı ana sayfa girişi ve üzerinde arama kutusu (Ara düğmesi sabit), telefonda ☰ menü, ilan sayfasında telefonda alt iletişim çubuğu, "AdaCasa" logo yazısı, AdSense kodu girilmediyse ziyaretçiye boş reklam kutusu gösterilmez. Giriş fotoğrafı **Emlak → Ayarlar → Ana sayfa giriş görseli** bölümünden değiştirilebilir; şehir kartları için gerçek fotoğraflar **Ana sayfa şehir kartları** bölümüne girilir. Güncelleme: eklenti ve tema zip'leri **Mevcut sürümü değiştir** ile yüklenir, ardından Cloudflare önbelleği temizlenir.
 >
 > **Marka değişti (1.0.1): AdaCasa.** Eklenti `emlak-core` → `adacasa-core`, tema `emlak-tema` → `adacasa-theme` oldu. WordPress eklentiyi ve temayı klasör adından tanıdığı için ikisi de **yeni** olarak kurulur. Veri tabloları (`wp_ec_*`) ve ayarlar aynen kalır, hiçbir şey kaybolmaz.
