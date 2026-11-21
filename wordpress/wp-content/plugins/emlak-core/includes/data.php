@@ -26,6 +26,12 @@ function ec_sections(): array
         'favs'    => ['tr' => 'favoriler', 'en' => 'favourites', 'ru' => 'izbrannoe'],
         'projectd' => ['tr' => 'proje', 'en' => 'project', 'ru' => 'proekt'],
         'index'   => ['tr' => 'fiyat-endeksi', 'en' => 'price-index', 'ru' => 'indeks-tsen'],
+        'login'   => ['tr' => 'giris', 'en' => 'login', 'ru' => 'vhod'],
+        'register' => ['tr' => 'kayit', 'en' => 'register', 'ru' => 'registratsiya'],
+        'verify'  => ['tr' => 'dogrula', 'en' => 'verify', 'ru' => 'podtverzhdenie'],
+        'panel'   => ['tr' => 'panelim', 'en' => 'my-account', 'ru' => 'kabinet'],
+        'review'  => ['tr' => 'onay', 'en' => 'review', 'ru' => 'moderatsiya'],
+        'office'  => ['tr' => 'ofis', 'en' => 'agent', 'ru' => 'agent'],
     ];
 }
 
@@ -122,15 +128,157 @@ function ec_room_options(): array
     return ['1+0', '1+1', '2+1', '3+1', '4+1', '5+1', '5+2', '6+'];
 }
 
-/** KKTC'ye özel: tapu türleri (yabancı alıcılar için kritik bilgi) */
+/**
+ * KKTC'ye özel: tapu türleri. Yabancı alıcılar için fiyat kadar önemlidir;
+ * satılık ilanlarda zorunludur ve ilan detayında açıklamasıyla gösterilir.
+ */
 function ec_deed_types(): array
 {
     return [
-        'turk-kocani' => ['tr' => 'Türk Koçanı', 'en' => 'Turkish Title Deed', 'ru' => 'Турецкий титул'],
-        'esdeger'     => ['tr' => 'Eşdeğer Koçan', 'en' => 'Exchange Title', 'ru' => 'Эквивалентный титул'],
-        'tahsis'      => ['tr' => 'Tahsis', 'en' => 'Allocation Title', 'ru' => 'Титул по распределению'],
-        'proje'       => ['tr' => 'Projeden (Sözleşmeli)', 'en' => 'Off-plan (Contract)', 'ru' => 'На этапе строительства'],
+        'turk-kocani' => ['tr' => 'Türk Koçanı', 'en' => 'Turkish Title Deed', 'ru' => 'Турецкий титул (Türk Koçanı)'],
+        'esdeger'     => ['tr' => 'Eşdeğer Koçan', 'en' => 'Exchange Title (Eşdeğer)', 'ru' => 'Эквивалентный титул (Eşdeğer)'],
+        'tahsis'      => ['tr' => 'Tahsis Koçanı', 'en' => 'Allocation Title (Tahsis)', 'ru' => 'Титул по распределению (Tahsis)'],
+        'vakif'       => ['tr' => 'Vakıf (Evkaf) Arazisi', 'en' => 'Evkaf (Foundation) Land', 'ru' => 'Земля фонда Эвкаф (Vakıf)'],
+        'proje'       => ['tr' => 'Projeden (Sözleşmeli, tapu bekleniyor)', 'en' => 'Off-plan (Contract, title pending)', 'ru' => 'Строящийся объект (договор, титул ожидается)'],
+        'diger'       => ['tr' => 'Diğer / İlan sahibine sorun', 'en' => 'Other / ask the seller', 'ru' => 'Другое / уточните у продавца'],
     ];
+}
+
+/** Tapu türlerinin kısa, genel açıklamaları (hukuki tavsiye değildir) */
+function ec_deed_desc(string $key, string $lang): string
+{
+    $d = [
+        'turk-kocani' => [
+            'tr' => '1974 öncesinden Kıbrıslı Türk mülkiyetinde olan arazi için verilen tapu. Mülkiyet geçmişi en az tartışmalı kabul edilir.',
+            'en' => 'Title for land in Turkish Cypriot ownership since before 1974. Generally regarded as the least disputed type of title.',
+            'ru' => 'Титул на землю, принадлежавшую киприотам-туркам ещё до 1974 года. Считается наименее спорным.',
+        ],
+        'esdeger' => [
+            'tr' => 'Güneyde mal bırakan Kıbrıslı Türklere, karşılığında kuzeyde verilen mülk için düzenlenen tapu. Yaygın olarak alınıp satılır.',
+            'en' => 'Issued to Turkish Cypriots for property in the north in exchange for property they left in the south. Widely traded.',
+            'ru' => 'Выдан киприотам-туркам на имущество на севере взамен оставленного на юге. Широко используется в сделках.',
+        ],
+        'tahsis' => [
+            'tr' => 'Devletin tahsis ettiği mülk. Hukuki durumu daha karmaşık olabilir; devrin mümkün olup olmadığını avukatınıza kontrol ettirin.',
+            'en' => 'Property allocated by the state. Its legal position can be more complex; have a lawyer confirm it can be transferred.',
+            'ru' => 'Имущество, выделенное государством. Правовой статус может быть сложнее; уточните у юриста возможность передачи.',
+        ],
+        'vakif' => [
+            'tr' => 'Evkaf İdaresi’ne ait arazi. Genellikle mülkiyet değil, uzun süreli kullanım/kira hakkı devredilir. Koşulları mutlaka sorun.',
+            'en' => 'Land owned by the Evkaf Administration. Usually a long-term lease or usage right is transferred, not ownership. Ask about the terms.',
+            'ru' => 'Земля управления Эвкаф. Обычно передаётся право долгосрочной аренды, а не собственность. Уточните условия.',
+        ],
+        'proje' => [
+            'tr' => 'İnşaatı süren projelerde daireye ait tapu inşaat bitince çıkar. Satış sözleşmesinin Tapu Dairesi’ne kaydı alıcıyı korur.',
+            'en' => 'For developments under construction, the unit’s own title is issued on completion. Registering the sales contract at the Land Registry protects the buyer.',
+            'ru' => 'Для строящихся объектов отдельный титул выдаётся после завершения. Регистрация договора в земельном реестре защищает покупателя.',
+        ],
+        'diger' => [
+            'tr' => 'Tapu durumu ilan sahibinden öğrenilmeli ve satın almadan önce avukata kontrol ettirilmelidir.',
+            'en' => 'Confirm the title status with the seller and have it checked by a lawyer before buying.',
+            'ru' => 'Уточните статус титула у продавца и проверьте его у юриста перед покупкой.',
+        ],
+    ];
+    return $d[$key][$lang] ?? ($d[$key]['tr'] ?? '');
+}
+
+/** İlan özellikleri (çoklu seçim) */
+function ec_features(): array
+{
+    return [
+        'deniz_manzarasi' => ['tr' => 'Deniz manzarası', 'en' => 'Sea view', 'ru' => 'Вид на море'],
+        'dag_manzarasi'   => ['tr' => 'Dağ manzarası', 'en' => 'Mountain view', 'ru' => 'Вид на горы'],
+        'denize_sifir'    => ['tr' => 'Denize sıfır', 'en' => 'Beachfront', 'ru' => 'Первая линия'],
+        'ozel_havuz'      => ['tr' => 'Özel havuz', 'en' => 'Private pool', 'ru' => 'Частный бассейн'],
+        'ortak_havuz'     => ['tr' => 'Ortak havuz', 'en' => 'Communal pool', 'ru' => 'Общий бассейн'],
+        'bahce'           => ['tr' => 'Bahçe', 'en' => 'Garden', 'ru' => 'Сад'],
+        'teras'           => ['tr' => 'Teras / çatı terası', 'en' => 'Terrace / roof terrace', 'ru' => 'Терраса'],
+        'balkon'          => ['tr' => 'Balkon', 'en' => 'Balcony', 'ru' => 'Балкон'],
+        'asansor'         => ['tr' => 'Asansör', 'en' => 'Lift', 'ru' => 'Лифт'],
+        'otopark'         => ['tr' => 'Otopark', 'en' => 'Parking', 'ru' => 'Парковка'],
+        'kapali_otopark'  => ['tr' => 'Kapalı otopark', 'en' => 'Covered parking', 'ru' => 'Крытая парковка'],
+        'klima'           => ['tr' => 'Klima', 'en' => 'Air conditioning', 'ru' => 'Кондиционер'],
+        'merkezi_isitma'  => ['tr' => 'Merkezi / yerden ısıtma', 'en' => 'Central / underfloor heating', 'ru' => 'Центр. / тёплый пол'],
+        'somine'          => ['tr' => 'Şömine', 'en' => 'Fireplace', 'ru' => 'Камин'],
+        'jenerator'       => ['tr' => 'Jeneratör', 'en' => 'Generator', 'ru' => 'Генератор'],
+        'gunes_paneli'    => ['tr' => 'Güneş paneli / güneş enerjisi', 'en' => 'Solar panels', 'ru' => 'Солнечные панели'],
+        'su_deposu'       => ['tr' => 'Su deposu', 'en' => 'Water tank', 'ru' => 'Резервуар для воды'],
+        'site_icinde'     => ['tr' => 'Site içinde', 'en' => 'Gated complex', 'ru' => 'Закрытый комплекс'],
+        'guvenlik'        => ['tr' => '7/24 güvenlik', 'en' => '24/7 security', 'ru' => 'Охрана 24/7'],
+        'spor_salonu'     => ['tr' => 'Spor salonu', 'en' => 'Gym', 'ru' => 'Спортзал'],
+        'beyaz_esya'      => ['tr' => 'Beyaz eşya', 'en' => 'White goods', 'ru' => 'Бытовая техника'],
+        'akilli_ev'       => ['tr' => 'Akıllı ev', 'en' => 'Smart home', 'ru' => 'Умный дом'],
+        'evcil_hayvan'    => ['tr' => 'Evcil hayvana uygun', 'en' => 'Pets allowed', 'ru' => 'Можно с животными'],
+        'ogrenciye_uygun' => ['tr' => 'Öğrenciye uygun', 'en' => 'Suitable for students', 'ru' => 'Подходит студентам'],
+        'engelli_erisimi' => ['tr' => 'Engelli erişimi', 'en' => 'Wheelchair access', 'ru' => 'Доступ для колясок'],
+    ];
+}
+
+/** Proje sosyal alanları */
+function ec_amenities(): array
+{
+    return [
+        'havuz'        => ['tr' => 'Açık havuz', 'en' => 'Outdoor pool', 'ru' => 'Открытый бассейн'],
+        'kapali_havuz' => ['tr' => 'Kapalı havuz', 'en' => 'Indoor pool', 'ru' => 'Крытый бассейн'],
+        'spa'          => ['tr' => 'SPA / sauna / hamam', 'en' => 'Spa / sauna / hammam', 'ru' => 'Спа / сауна / хаммам'],
+        'spor_salonu'  => ['tr' => 'Spor salonu', 'en' => 'Gym', 'ru' => 'Спортзал'],
+        'resepsiyon'   => ['tr' => 'Resepsiyon / concierge', 'en' => 'Reception / concierge', 'ru' => 'Ресепшн / консьерж'],
+        'restoran'     => ['tr' => 'Restoran / kafe', 'en' => 'Restaurant / café', 'ru' => 'Ресторан / кафе'],
+        'market'       => ['tr' => 'Market', 'en' => 'Mini market', 'ru' => 'Магазин'],
+        'cocuk_parki'  => ['tr' => 'Çocuk parkı', 'en' => 'Playground', 'ru' => 'Детская площадка'],
+        'tenis'        => ['tr' => 'Tenis / basketbol sahası', 'en' => 'Tennis / basketball court', 'ru' => 'Теннис / баскетбол'],
+        'otopark'      => ['tr' => 'Otopark', 'en' => 'Parking', 'ru' => 'Парковка'],
+        'guvenlik'     => ['tr' => '7/24 güvenlik', 'en' => '24/7 security', 'ru' => 'Охрана 24/7'],
+        'jenerator'    => ['tr' => 'Merkezi jeneratör', 'en' => 'Central generator', 'ru' => 'Центральный генератор'],
+        'plaj'         => ['tr' => 'Plaja erişim / servis', 'en' => 'Beach access / shuttle', 'ru' => 'Доступ к пляжу / трансфер'],
+        'kira_garanti' => ['tr' => 'Kira garantisi', 'en' => 'Rental guarantee', 'ru' => 'Гарантированная аренда'],
+    ];
+}
+
+/** Üyelik türleri. needs_review: ilanları yönetici onayından geçer */
+function ec_member_kinds(): array
+{
+    return [
+        'ofis'     => ['name' => ['tr' => 'Emlak Ofisi', 'en' => 'Estate Agency', 'ru' => 'Агентство недвижимости'], 'needs_review' => false, 'account_review' => true, 'projects' => true],
+        'insaat'   => ['name' => ['tr' => 'İnşaat Firması', 'en' => 'Developer', 'ru' => 'Застройщик'], 'needs_review' => false, 'account_review' => true, 'projects' => true],
+        'danisman' => ['name' => ['tr' => 'Bireysel Danışman', 'en' => 'Independent Agent', 'ru' => 'Частный агент'], 'needs_review' => true, 'account_review' => false, 'projects' => false],
+        'sahibi'   => ['name' => ['tr' => 'Mülk Sahibi (Sahibinden)', 'en' => 'Private Owner', 'ru' => 'Собственник'], 'needs_review' => true, 'account_review' => false, 'projects' => false],
+    ];
+}
+
+/** Sosyal ağlar: anahtar => [ad, adres örneği] */
+function ec_social_networks(): array
+{
+    return [
+        'instagram' => ['Instagram', 'https://instagram.com/...'],
+        'facebook'  => ['Facebook', 'https://facebook.com/...'],
+        'tiktok'    => ['TikTok', 'https://tiktok.com/@...'],
+        'youtube'   => ['YouTube', 'https://youtube.com/@...'],
+        'x'         => ['X (Twitter)', 'https://x.com/...'],
+        'linkedin'  => ['LinkedIn', 'https://linkedin.com/...'],
+        'telegram'  => ['Telegram', 'https://t.me/...'],
+        'whatsapp'  => ['WhatsApp', 'https://wa.me/90...'],
+    ];
+}
+
+/** Sosyal ağ linklerini temizler (sadece http/https, bilinen ağlar) */
+function ec_clean_socials(array $in): array
+{
+    $out = [];
+    foreach (ec_social_networks() as $k => $_) {
+        $u = trim((string) ($in[$k] ?? ''));
+        if ($u === '') {
+            continue;
+        }
+        if (!preg_match('#^https?://#i', $u)) {
+            $u = 'https://' . ltrim($u, '/');
+        }
+        $u = esc_url_raw($u, ['http', 'https']);
+        if ($u) {
+            $out[$k] = mb_substr($u, 0, 255);
+        }
+    }
+    return $out;
 }
 
 /** Kurlar: 1 GBP karşılığı. Yönetim ekranından güncellenir. */

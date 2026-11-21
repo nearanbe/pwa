@@ -8,7 +8,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-const EC_LISTING_STATUSES = ['draft', 'published', 'sold', 'passive'];
+const EC_LISTING_STATUSES = ['draft', 'pending', 'published', 'rejected', 'sold', 'passive'];
 
 function ec_now(): string
 {
@@ -81,6 +81,36 @@ function ec_listing_clean(array $in, bool $partial = false): array
     if (array_key_exists('status', $in)) {
         in_array($in['status'], EC_LISTING_STATUSES, true) ? $out['status'] = $in['status'] : $err['status'] = 'geçersiz';
     }
+    if (array_key_exists('features', $in)) {
+        $f = array_values(array_intersect(array_map('strval', (array) $in['features']), array_keys(ec_features())));
+        $out['features'] = $f ? wp_json_encode($f) : null;
+    }
+    foreach (['vat_paid', 'transformer_paid'] as $k) {
+        if (array_key_exists($k, $in)) {
+            $out[$k] = ($in[$k] === '' || $in[$k] === null) ? null : (int) (bool) $in[$k];
+        }
+    }
+    foreach (['sea_distance_m' => 100000, 'total_floors' => 200, 'year_built' => 2100] as $k => $max) {
+        if (array_key_exists($k, $in)) {
+            $v = ($in[$k] === '' || $in[$k] === null) ? null : (int) $in[$k];
+            $out[$k] = ($v !== null && ($v < 0 || $v > $max)) ? null : $v;
+        }
+    }
+    if (array_key_exists('floor', $in)) {
+        $out['floor'] = $in['floor'] === '' || $in['floor'] === null ? null : mb_substr(sanitize_text_field((string) $in['floor']), 0, 10);
+    }
+    if (array_key_exists('payment_plan', $in)) {
+        $out['payment_plan'] = mb_substr(sanitize_text_field((string) $in['payment_plan']), 0, 190) ?: null;
+    }
+    foreach (['video_url', 'tour_url'] as $k) {
+        if (array_key_exists($k, $in)) {
+            $u = trim((string) $in[$k]);
+            $out[$k] = $u === '' ? null : (esc_url_raw($u, ['https', 'http']) ?: null);
+        }
+    }
+    if (array_key_exists('project_id', $in)) {
+        $out['project_id'] = $in['project_id'] ? (int) $in['project_id'] : null;
+    }
 
     // Çeviriler: ['tr' => ['title' => .., 'description' => ..], 'en' => ..]
     if (array_key_exists('i18n', $in)) {
@@ -113,6 +143,9 @@ function ec_listing_create(array $in, ?int $agent_id = null, string $source = 'p
 {
     global $wpdb;
     [$d, $err] = ec_listing_clean($in);
+    if (!$err && $d['mode'] === 'sale' && ($d['status'] ?? 'draft') !== 'draft' && empty($d['deed_type'])) {
+        $err['deed_type'] = 'satılık ilanda tapu türü zorunlu';
+    }
     if ($err) {
         return new WP_Error('ec_invalid', 'Geçersiz ilan verisi', ['status' => 400, 'fields' => $err]);
     }
@@ -148,6 +181,11 @@ function ec_listing_update(int $id, array $in)
         $in['ptype'] = $row['ptype'];
     }
     [$d, $err] = ec_listing_clean($in, true);
+    // KKTC: yayına giden satılık ilanda tapu türü zorunlu (taslak serbest)
+    $final = array_merge($row, $d);
+    if (!$err && $final['mode'] === 'sale' && in_array($final['status'], ['published', 'pending'], true) && empty($final['deed_type'])) {
+        $err['deed_type'] = 'satılık ilanda tapu türü zorunlu';
+    }
     if ($err) {
         return new WP_Error('ec_invalid', 'Geçersiz ilan verisi', ['status' => 400, 'fields' => $err]);
     }
@@ -235,6 +273,8 @@ function ec_listings_present(array $rows, string $lang, bool $full = false): arr
             'baths' => $r['baths'] !== null ? (int) $r['baths'] : null,
             'deed_type' => $r['deed_type'],
             'deed_name' => $r['deed_type'] ? (ec_deed_types()[$r['deed_type']][$lang] ?? $r['deed_type']) : null,
+            'agent_id' => $r['agent_id'] ? (int) $r['agent_id'] : null,
+            'views' => (int) $r['views'],
             'furnished' => $r['furnished'] === null ? null : (bool) $r['furnished'],
             'featured' => $r['featured_until'] && strtotime($r['featured_until'] . ' UTC') > time(),
             'title' => $t['title'],
@@ -244,6 +284,19 @@ function ec_listings_present(array $rows, string $lang, bool $full = false): arr
             'published_at' => $r['published_at'],
         ];
         if ($full) {
+            $feat = $r['features'] ? (array) json_decode($r['features'], true) : [];
+            $item['features'] = $feat;
+            $item['feature_names'] = array_values(array_filter(array_map(fn($k) => ec_features()[$k][$lang] ?? null, $feat)));
+            $item['deed_desc'] = $r['deed_type'] ? ec_deed_desc($r['deed_type'], $lang) : '';
+            foreach (['vat_paid', 'transformer_paid'] as $k) {
+                $item[$k] = $r[$k] === null ? null : (bool) $r[$k];
+            }
+            foreach (['sea_distance_m', 'total_floors', 'year_built', 'project_id'] as $k) {
+                $item[$k] = $r[$k] !== null ? (int) $r[$k] : null;
+            }
+            foreach (['floor', 'payment_plan', 'video_url', 'tour_url', 'reject_reason', 'district', 'created_at', 'updated_at'] as $k) {
+                $item[$k] = $r[$k];
+            }
             $item['description'] = $t['description'];
             $item['photos'] = $ph;
             $item['lat'] = $r['lat'] !== null ? (float) $r['lat'] : null;
@@ -277,7 +330,7 @@ function ec_listing_search(array $f, string $lang, int $page = 1, int $per = 24)
     $t = ec_table('listings');
     $where = ["status = 'published'"];
     $args = [];
-    foreach (['mode', 'ptype', 'subtype', 'city', 'district', 'rooms'] as $k) {
+    foreach (['mode', 'ptype', 'subtype', 'city', 'district', 'rooms', 'deed_type'] as $k) {
         if (!empty($f[$k])) {
             $where[] = "$k = %s";
             $args[] = (string) $f[$k];
@@ -354,4 +407,30 @@ function ec_listing_add_view(int $id): void
 {
     global $wpdb;
     $wpdb->query($wpdb->prepare('UPDATE ' . ec_table('listings') . ' SET views = views + 1 WHERE id = %d', $id));
+}
+
+/**
+ * Yeni / yeniden yayına gönderilen ilanın gerçek durumu.
+ * Yönetici: istenen durum. Ofis ve inşaat firması (onaylı hesap): yayında.
+ * Bireysel danışman ve mülk sahibi ya da onaysız hesap: yönetici onayı bekler.
+ */
+function ec_listing_target_status(?array $agent, string $requested): string
+{
+    if ($requested !== 'published') {
+        return $requested;
+    }
+    if (!$agent) {
+        return 'published';
+    }
+    $kind = ec_member_kinds()[$agent['kind']] ?? ['needs_review' => true];
+    if ($agent['status'] !== 'active' || !empty($kind['needs_review'])) {
+        return 'pending';
+    }
+    return 'published';
+}
+
+function ec_listing_count_pending(): int
+{
+    global $wpdb;
+    return (int) $wpdb->get_var('SELECT COUNT(*) FROM ' . ec_table('listings') . " WHERE status = 'pending'");
 }

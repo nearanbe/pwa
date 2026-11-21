@@ -14,6 +14,7 @@ add_action('admin_menu', function () {
     add_submenu_page('ec-listings', 'Yeni ilan', 'Yeni ilan', 'manage_options', 'ec-new', 'ec_admin_new');
     add_submenu_page('ec-listings', 'Projeler', 'Projeler', 'manage_options', 'ec-projects', 'ec_admin_projects');
     add_submenu_page('ec-listings', 'Danışmanlar', 'Danışmanlar', 'manage_options', 'ec-agents', 'ec_admin_agents');
+    add_submenu_page('ec-listings', 'Görsel üret', 'Görsel üret', 'manage_options', 'ec-ai', 'ec_admin_ai');
     add_submenu_page('ec-listings', 'Ayarlar', 'Ayarlar', 'manage_options', 'ec-settings', 'ec_admin_settings');
 });
 
@@ -48,7 +49,7 @@ function ec_admin_listings(): void
         LEFT JOIN $t ru ON ru.listing_id = l.id AND ru.lang = 'ru'
         LEFT JOIN $a ag ON ag.id = l.agent_id
         $where ORDER BY l.id DESC LIMIT 200", ARRAY_A);
-    $labels = ['draft' => 'Taslak', 'published' => 'Yayında', 'sold' => 'Satıldı', 'passive' => 'Pasif'];
+    $labels = ['pending' => 'Onay bekliyor', 'draft' => 'Taslak', 'published' => 'Yayında', 'rejected' => 'Reddedildi', 'sold' => 'Satıldı', 'passive' => 'Pasif'];
     echo '<div class="wrap"><h1 class="wp-heading-inline">İlanlar</h1> <a class="page-title-action" href="' . esc_url(admin_url('admin.php?page=ec-new')) . '">Yeni ilan</a>';
     ec_admin_notice();
     echo '<ul class="subsubsub"><li><a href="?page=ec-listings">Tümü</a></li>';
@@ -67,7 +68,7 @@ function ec_admin_listings(): void
         };
         $links = [];
         if ($r['status'] !== 'published') {
-            $links[] = $act('publish', 'Yayınla');
+            $links[] = $act('publish', $r['status'] === 'pending' ? 'Onayla' : 'Yayınla');
         }
         if ($r['status'] === 'published') {
             $links[] = $act('sold', 'Satıldı');
@@ -94,7 +95,7 @@ add_action('admin_post_ec_listing', function () {
     global $wpdb;
     switch ($_GET['do'] ?? '') {
         case 'publish':
-            ec_listing_update($id, ['status' => 'published']);
+            ec_review_listing($id, 'approve');
             break;
         case 'sold':
             ec_listing_update($id, ['status' => 'sold']);
@@ -210,14 +211,16 @@ function ec_admin_agents(): void
     if (!$rows) {
         echo '<tr><td colspan="8">Henüz danışman yok.</td></tr>';
     }
-    $labels = ['pending' => 'Bekliyor', 'active' => 'Aktif', 'suspended' => 'Askıda'];
+    $labels = ['pending' => 'Onay bekliyor', 'active' => 'Aktif', 'suspended' => 'Askıda'];
     foreach ($rows as $r) {
         $act = function (string $do, string $label) use ($r) {
             $u = wp_nonce_url(admin_url('admin-post.php?action=ec_agent&do=' . $do . '&id=' . $r['id']), 'ec_agent_' . $r['id']);
             return '<a href="' . esc_url($u) . '">' . esc_html($label) . '</a>';
         };
-        $links = $r['status'] === 'active' ? [$act('key', $r['api_key_hash'] ? 'Yeni anahtar üret' : 'API anahtarı üret'), $act('suspend', 'Askıya al')] : [$act('approve', 'Onayla')];
-        echo '<tr><td>' . (int) $r['id'] . '</td><td>' . esc_html($r['name']) . '</td><td>' . esc_html($r['kind'] . ($r['company_type'] ? ' / ' . $r['company_type'] : '')) . '</td><td>' . esc_html($r['email']) . '</td><td>' . esc_html((string) $r['phone']) . '</td><td>' . esc_html($r['city'] ? ec_city_name($r['city'], 'tr') : '—') . '</td><td>' . esc_html($labels[$r['status']] ?? $r['status']) . '</td><td>' . implode(' · ', $links) . '</td></tr>';
+        $links = $r['status'] === 'active' ? [$act('key', $r['api_key_hash'] ? 'Yeni anahtar üret' : 'API anahtarı üret'), $act($r['verified'] ? 'unverify' : 'verify', $r['verified'] ? 'Doğrulanmış rozetini kaldır' : 'Doğrulanmış rozeti ver'), $act('suspend', 'Askıya al')] : [$act('approve', 'Onayla')];
+        $st = ($labels[$r['status']] ?? $r['status']) . (!$r['email_verified'] && $r['wp_user_id'] ? ' (e-posta doğrulanmadı)' : '');
+        $kn = (ec_member_kinds()[$r['kind']]['name']['tr'] ?? $r['kind']) . ($r['verified'] ? ' ✔' : '');
+        echo '<tr><td>' . (int) $r['id'] . '</td><td>' . esc_html($r['name']) . '</td><td>' . esc_html($kn) . '</td><td>' . esc_html($r['email']) . '</td><td>' . esc_html((string) $r['phone']) . '</td><td>' . esc_html($r['city'] ? ec_city_name($r['city'], 'tr') : '—') . '</td><td>' . esc_html($st) . '</td><td>' . implode(' · ', $links) . '</td></tr>';
     }
     echo '</tbody></table></div>';
 }
@@ -229,9 +232,9 @@ add_action('admin_post_ec_agent', function () {
     }
     global $wpdb;
     $do = $_GET['do'] ?? '';
-    if ($do === 'approve' || $do === 'suspend') {
-        $wpdb->update(ec_table('agents'), ['status' => $do === 'approve' ? 'active' : 'suspended', 'updated_at' => ec_now()], ['id' => $id]);
-        ec_admin_back('ec-agents', 'Danışman #' . $id . ' güncellendi.');
+    if (in_array($do, ['approve', 'suspend', 'verify', 'unverify'], true)) {
+        ec_review_agent($id, $do);
+        ec_admin_back('ec-agents', 'Üye #' . $id . ' güncellendi.');
     }
     if ($do === 'key') {
         $key = ec_agent_issue_key($id);
@@ -264,6 +267,9 @@ function ec_admin_settings(): void
     if (!empty($meta['error'])) {
         echo '<p class="description" style="color:#b32d2e">Son deneme başarısız: ' . esc_html($meta['error']) . '</p>';
     }
+    if (!empty($meta['sample'])) {
+        echo '<p class="description">KKTC Merkez Bankası cevabının başı (okunamadı; bu metni geliştiriciye gönderin):</p><textarea readonly rows="4" class="large-text code">' . esc_textarea($meta['sample']) . '</textarea>';
+    }
     echo '</td></tr>';
     echo '</table><p class="description">İlanlar kendi para birimiyle saklanır; arama ve sıralama için GBP karşılığı bu kurlarla hesaplanır. Otomatik güncelleme açıkken elle girilen değerlerin üzerine her gün yazılır.</p>';
     echo '<h2>Reklam (Google AdSense)</h2><table class="form-table">';
@@ -272,10 +278,37 @@ function ec_admin_settings(): void
     }
     echo '</table><p class="description">Boş bırakılırsa sitede sadece "Reklam alanı" yer tutucusu görünür.</p>';
     echo '<h2>İletişim</h2><table class="form-table">';
-    foreach (['whatsapp' => 'Site WhatsApp numarası (90533...)', 'email' => 'Site e-postası', 'telegram_bot' => 'Telegram bot kullanıcı adı (@ olmadan)'] as $k => $n) {
+    foreach (['whatsapp' => 'Site WhatsApp numarası (90533...)', 'email' => 'Site e-postası'] as $k => $n) {
         echo '<tr><th>' . esc_html($n) . '</th><td><input name="contact_' . $k . '" class="regular-text" value="' . esc_attr($contact[$k] ?? '') . '"></td></tr>';
     }
     echo '</table>';
+
+    $social = (array) get_option('ec_social', []);
+    echo '<h2>Sitenin sosyal medya hesapları</h2><p class="description">Link girilen hesapların simgesi sitenin üst ve alt bölümünde görünür; boş bırakılanlar gizlenir.</p><table class="form-table">';
+    foreach (ec_social_networks() as $k => [$n, $ph]) {
+        echo '<tr><th>' . esc_html($n) . '</th><td><input name="social[' . esc_attr($k) . ']" class="regular-text" placeholder="' . esc_attr($ph) . '" value="' . esc_attr($social[$k] ?? '') . '"></td></tr>';
+    }
+    echo '</table>';
+
+    $secret = fn(string $name, string $val) => '<input name="' . esc_attr($name) . '" type="password" class="regular-text" autocomplete="new-password" placeholder="' . ($val ? '•••••••• (kayıtlı, değiştirmek için yazın)' : '') . '">';
+    $ts = ec_turnstile_keys();
+    echo '<h2>Cloudflare Turnstile (kayıt ve giriş captcha)</h2><p class="description">Boş bırakılırsa formlar captcha’sız çalışır. Anahtarları Cloudflare → Turnstile → Add widget ekranından alın.</p><table class="form-table">';
+    echo '<tr><th>Site anahtarı (Site Key)</th><td><input name="ts_site" class="regular-text" value="' . esc_attr($ts['site']) . '"></td></tr>';
+    echo '<tr><th>Gizli anahtar (Secret Key)</th><td>' . $secret('ts_secret', $ts['secret']) . '</td></tr></table>';
+
+    $tg = (array) get_option('ec_telegram', []);
+    echo '<h2>Telegram</h2><p class="description">Bot anahtarını Telegram’da @BotFather’dan alın. Sohbet numaranızı öğrenmek için bota bir mesaj yazıp @userinfobot’a sorabilirsiniz. Yeni üye ve onay bekleyen ilan bildirimleri bu sohbete gelir.</p><table class="form-table">';
+    echo '<tr><th>Bot kullanıcı adı (@ olmadan)</th><td><input name="tg_bot" class="regular-text" value="' . esc_attr($tg['bot'] ?? ($contact['telegram_bot'] ?? '')) . '"></td></tr>';
+    echo '<tr><th>Bot anahtarı (token)</th><td>' . $secret('tg_token', (string) ($tg['token'] ?? '')) . '</td></tr>';
+    echo '<tr><th>Yönetici sohbet numarası (chat id)</th><td><input name="tg_admin_chat" class="regular-text" value="' . esc_attr($tg['admin_chat'] ?? '') . '"></td></tr></table>';
+
+    $host = preg_replace('/^www\./', '', (string) wp_parse_url(home_url('/'), PHP_URL_HOST));
+    echo '<h2>Ofis alt alan adları</h2><table class="form-table"><tr><th>Alt alan adları</th><td><label><input type="checkbox" name="subdomains" value="1"' . checked((int) get_option('ec_subdomains'), 1, false) . '> Ofis vitrinleri <code>ofisadi.' . esc_html($host) . '</code> adresinde açılsın</label><p class="description">Açmadan önce DNS’te <code>*</code> kaydı ve sunucuda yıldızlı (wildcard) alt alan adı + SSL kurulmuş olmalı (bkz. kurulum belgesi). Kapalıyken vitrinler <code>/tr/ofis/ofisadi/</code> adresinde açılır.</p></td></tr></table>';
+
+    $cf = (array) get_option('ec_cloudflare', []);
+    echo '<h2>Cloudflare Workers AI (temsili görsel üretimi)</h2><p class="description">Sadece blog, slider ve fotoğrafı olmayan projeler için “temsili görsel” üretir. İlan fotoğrafı olarak kullanılmaz.</p><table class="form-table">';
+    echo '<tr><th>Account ID</th><td><input name="cf_account" class="regular-text" value="' . esc_attr($cf['account'] ?? '') . '"></td></tr>';
+    echo '<tr><th>API Token</th><td>' . $secret('cf_token', (string) ($cf['token'] ?? '')) . '</td></tr></table>';
     submit_button('Kaydet');
     echo '</form>';
 
@@ -338,10 +371,27 @@ add_action('admin_post_ec_settings', function () {
         $ads[$k] = preg_replace('/[^a-zA-Z0-9-]/', '', (string) ($p['ads_' . $k] ?? ''));
     }
     update_option('ec_ads', $ads);
+    $bot = preg_replace('/[^a-zA-Z0-9_]/', '', (string) ($p['tg_bot'] ?? ''));
     update_option('ec_contact', [
         'whatsapp' => preg_replace('/\D/', '', (string) ($p['contact_whatsapp'] ?? '')),
         'email' => sanitize_email($p['contact_email'] ?? ''),
-        'telegram_bot' => preg_replace('/[^a-zA-Z0-9_]/', '', (string) ($p['contact_telegram_bot'] ?? '')),
+        'telegram_bot' => $bot,
+    ]);
+    update_option('ec_social', ec_clean_socials((array) ($p['social'] ?? [])));
+    $keep = fn(array $old, string $k, string $new) => $new !== '' ? $new : ($old[$k] ?? '');
+    $ts = ec_turnstile_keys();
+    update_option('ec_turnstile', ['site' => sanitize_text_field($p['ts_site'] ?? ''), 'secret' => $keep($ts, 'secret', sanitize_text_field($p['ts_secret'] ?? ''))]);
+    $tg = (array) get_option('ec_telegram', []);
+    update_option('ec_telegram', [
+        'bot' => $bot,
+        'token' => $keep($tg, 'token', preg_replace('/[^0-9A-Za-z:_-]/', '', (string) ($p['tg_token'] ?? ''))),
+        'admin_chat' => preg_replace('/[^0-9-]/', '', (string) ($p['tg_admin_chat'] ?? '')),
+    ]);
+    update_option('ec_subdomains', !empty($p['subdomains']) ? 1 : 0);
+    $cf = (array) get_option('ec_cloudflare', []);
+    update_option('ec_cloudflare', [
+        'account' => preg_replace('/[^a-f0-9]/', '', strtolower((string) ($p['cf_account'] ?? ''))),
+        'token' => $keep($cf, 'token', sanitize_text_field($p['cf_token'] ?? '')),
     ]);
     ec_recompute_price_gbp();
     ec_admin_back('ec-settings', 'Ayarlar kaydedildi.');
@@ -406,4 +456,68 @@ add_action('admin_post_ec_project_del', function () {
     }
     ec_project_delete($id);
     ec_admin_back('ec-projects', 'Proje #' . $id . ' silindi.');
+});
+
+function ec_admin_ai(): void
+{
+    global $wpdb;
+    $cf = (array) get_option('ec_cloudflare', []);
+    echo '<div class="wrap"><h1>Temsili görsel üret (Cloudflare Workers AI)</h1>';
+    ec_admin_notice();
+    if (empty($cf['account']) || empty($cf['token'])) {
+        echo '<div class="notice notice-warning"><p>Önce <a href="' . esc_url(admin_url('admin.php?page=ec-settings')) . '">Ayarlar</a> sayfasında Cloudflare Account ID ve API Token girin.</p></div>';
+    }
+    echo '<p><b>Dikkat:</b> Yapay zekâ ile üretilen görseller ilan fotoğrafı olarak kullanılmamalıdır. Blog, slider ve fotoğrafı henüz olmayan projeler için “temsili görsel” etiketiyle kullanın.</p>';
+    $projects = $wpdb->get_results('SELECT id, name FROM ' . ec_table('projects') . ' ORDER BY id DESC LIMIT 100', ARRAY_A);
+    $posts = get_posts(['numberposts' => 50, 'post_status' => ['publish', 'draft']]);
+    echo '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '">';
+    wp_nonce_field('ec_ai');
+    echo '<input type="hidden" name="action" value="ec_ai"><table class="form-table">';
+    echo '<tr><th>Görsel tarifi (İngilizce daha iyi sonuç verir)</th><td><textarea name="prompt" rows="4" class="large-text" required placeholder="Modern apartment complex with pool on the Mediterranean coast of North Cyprus, sunset, architectural photography, no people, no text"></textarea>';
+    echo '<p class="description">Hazır örnekler: <a href="#" class="ec-p">Modern villa with infinity pool overlooking the sea in Kyrenia, golden hour, architectural photography, no text</a> · <a href="#" class="ec-p">Aerial view of a new residential development near Long Beach Iskele, Mediterranean, daylight, no text</a> · <a href="#" class="ec-p">Cozy furnished living room with sea view balcony, bright, interior photography, no text</a></p></td></tr>';
+    echo '<tr><th>Nereye kaydedilsin?</th><td><select name="target"><option value="media">Sadece medya kütüphanesi</option>';
+    foreach ($projects as $p) {
+        echo '<option value="project:' . (int) $p['id'] . '">Proje kapağı: ' . esc_html($p['name']) . '</option>';
+    }
+    foreach ($posts as $p) {
+        echo '<option value="post:' . (int) $p->ID . '">Blog öne çıkan görsel: ' . esc_html(get_the_title($p)) . '</option>';
+    }
+    echo '</select></td></tr></table>';
+    submit_button('Görsel üret');
+    echo '</form><script>document.querySelectorAll(".ec-p").forEach(function(a){a.onclick=function(e){e.preventDefault();document.querySelector("textarea[name=prompt]").value=a.textContent;};});</script>';
+    $recent = get_posts(['post_type' => 'attachment', 'numberposts' => 8, 'meta_key' => '_ec_ai_image', 'meta_value' => 1]);
+    if ($recent) {
+        echo '<h2>Son üretilenler</h2><div style="display:flex;gap:10px;flex-wrap:wrap">';
+        foreach ($recent as $r) {
+            echo '<a href="' . esc_url(get_edit_post_link($r->ID)) . '">' . wp_get_attachment_image($r->ID, [200, 130]) . '</a>';
+        }
+        echo '</div>';
+    }
+    echo '</div>';
+}
+
+add_action('admin_post_ec_ai', function () {
+    if (!current_user_can('manage_options') || !check_admin_referer('ec_ai')) {
+        wp_die('Yetkisiz işlem');
+    }
+    @set_time_limit(120);
+    $prompt = (string) wp_unslash($_POST['prompt'] ?? '');
+    [$kind, $tid] = array_pad(explode(':', sanitize_text_field($_POST['target'] ?? 'media')), 2, 0);
+    $file = ec_cf_generate_image($prompt);
+    if (is_wp_error($file)) {
+        ec_admin_back('ec-ai', esc_html($file->get_error_message()));
+    }
+    if ($kind === 'project' && (int) $tid) {
+        $r = ec_project_set_cover((int) $tid, $file, true);
+        @unlink($file);
+        ec_admin_back('ec-ai', is_wp_error($r) ? esc_html($r->get_error_message()) : 'Görsel üretildi ve projenin kapağı yapıldı (“Temsili görsel” etiketiyle gösterilir).');
+    }
+    $id = ec_cf_to_media($file, wp_trim_words($prompt, 6, ''), $kind === 'post' ? (int) $tid : 0);
+    if (is_wp_error($id)) {
+        ec_admin_back('ec-ai', esc_html($id->get_error_message()));
+    }
+    if ($kind === 'post' && (int) $tid) {
+        set_post_thumbnail((int) $tid, $id);
+    }
+    ec_admin_back('ec-ai', 'Görsel üretildi ve medya kütüphanesine eklendi.' . ($kind === 'post' ? ' Blog yazısının öne çıkan görseli yapıldı.' : ''));
 });

@@ -7,20 +7,19 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-define('AE_VER', '0.2.0');
+define('AE_VER', '0.3.0');
 
-if (!function_exists('ec_lang')) {
-    // Eklenti kapalıysa site çökmesin, yöneticiye uyarı gösterilsin.
+if (!function_exists('ec_table')) {
+    // Eklenti kapalıysa: hiçbir eklenti fonksiyonu TANIMLANMAZ (aksi halde eklenti etkinleştirilirken
+    // "Cannot redeclare" hatası oluşur). Yöneticiye uyarı, ziyaretçiye sade bir bakım sayfası gösterilir.
     add_action('admin_notices', function () {
         echo '<div class="notice notice-error"><p>AdaEv teması için <b>Emlak Core</b> eklentisini etkinleştirin.</p></div>';
     });
-    function ec_lang(): string
-    {
-        return 'tr';
-    }
+    add_filter('template_include', fn() => __DIR__ . '/templates/no-plugin.php', 99);
     return;
 }
 
+require_once __DIR__ . '/inc/i18n-panel.php';
 require_once __DIR__ . '/inc/i18n.php';
 require_once __DIR__ . '/inc/helpers.php';
 
@@ -41,9 +40,6 @@ add_action('wp_enqueue_scripts', function () {
         'api' => home_url('/api/v1/'),
         'favsUrl' => ec_url_section('favs'),
         'msg' => [
-            'regRequired' => ae_t('reg_required'),
-            'regOk' => ae_t('reg_ok'),
-            'regErr' => ae_t('reg_err'),
             'notFoundNo' => ae_t('not_found_no'),
             'copied' => ae_t('copied'),
             'noPhone' => ae_t('no_phone'),
@@ -79,6 +75,12 @@ add_filter('template_include', function ($tpl) {
         'index' => 'price-index',
         'add' => 'add',
         'favs' => 'favs',
+        'login' => 'login',
+        'register' => 'register',
+        'verify' => 'verify',
+        'panel' => 'panel',
+        'review' => 'review',
+        'office' => 'office',
     ];
     $p = ec_page();
     return isset($map[$p]) ? get_theme_file_path('templates/' . $map[$p] . '.php') : $tpl;

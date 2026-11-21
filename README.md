@@ -15,7 +15,8 @@ Site WordPress üzerinde çalışır. Ancak ileride Next.js altyapısına **bir 
 
 - [x] 1a. Portal: veri tabloları, çok dilli linkler, arama, ilan detayı, slider, favoriler, kayıt başvurusu, reklam alanları, yönetim paneli, REST API
 - [x] 1a+. Otomatik kur, fiyat endeksi, projeler (liste, detay, yönetim), blog, logo ve site ikonları, panelden demo verisi
-- [ ] 1b. Telegram botu ve yapay zekâ motoru (metinden alanları çıkarma, 3 dile çeviri)
+- [x] 0.3. Üyelik (4 hesap türü, e-posta doğrulama, Turnstile), Panelim (adım adım ilan formu, proje formu, profil, sosyal hesaplar), onay paneli, ofis vitrinleri ve alt alan adları, KKTC Merkez Bankası kurları, zorunlu tapu türü, Cloudflare temsili görsel üretimi
+- [ ] 0.4. Telegram botu ve yapay zekâ motoru (metinden alanları çıkarma, 3 dile çeviri)
 - [ ] 2. Chrome eklentisi: 101evler ve hangiev modülleri
 - [ ] 3. Paketler, kota takibi, ödeme
 

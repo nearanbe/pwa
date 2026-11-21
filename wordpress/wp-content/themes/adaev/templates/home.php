@@ -41,7 +41,7 @@ get_header();
         <div class="scap">
           <span class="stag"><?php echo esc_html($a['subtype_name'] . ' · ' . trim(($a['district'] ? $a['district'] . ', ' : '') . $a['city_name'])); ?></span>
           <h2><?php echo esc_html($a['title']); ?></h2>
-          <p class="sprice"><?php echo ae_money($a['price_gbp']) . esc_html(ae_price_suffix($a['mode'])); ?></p>
+          <p class="sprice"><?php echo ae_price($a['price_gbp'], $a['mode']); ?></p>
           <a class="btn gold" href="<?php echo esc_url($a['url']); ?>"><?php ae_e('view_listing'); ?></a>
         </div>
       </div>

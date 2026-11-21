@@ -38,6 +38,76 @@ function ae_money(float $gbp): string
     return '<span class="money" data-gbp="' . esc_attr((string) $gbp) . '">' . esc_html(ae_format_money($gbp)) . '</span>';
 }
 
+/** İkinci para birimi: seçili birim TL değilse TL, TL ise sterlin */
+function ae_second_currency(?string $cur = null): string
+{
+    return ($cur ?? ae_currency()) === 'TRY' ? 'GBP' : 'TRY';
+}
+
+/** "1.234.567,89" biçiminde (kuruşlu) */
+function ae_format_money2(float $gbp, string $cur): string
+{
+    return AE_SYM[$cur] . number_format($gbp * (ec_rates()[$cur] ?? 1), 2, ',', '.');
+}
+
+/** Ana fiyat + ek + parantez içinde ikinci para birimi: £1.800 / ay (₺119.038,39) */
+function ae_price(float $gbp, string $mode = 'sale', bool $second = true): string
+{
+    $h = ae_money($gbp) . esc_html(ae_price_suffix($mode));
+    if ($second && $gbp > 0) {
+        $c2 = ae_second_currency();
+        $h .= ' <small class="money2" data-gbp="' . esc_attr((string) $gbp) . '">(' . esc_html(ae_format_money2($gbp, $c2)) . ')</small>';
+    }
+    return $h;
+}
+
+/** Sosyal medya ikonları (sadece linki girilmiş olanlar) */
+function ae_social_icons(array $links, string $class = 'socials'): string
+{
+    $paths = [
+        'instagram' => '<rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/>',
+        'facebook' => '<path d="M14 8h3V4h-3a4 4 0 0 0-4 4v3H7v4h3v6h4v-6h3l1-4h-4V8a0 0 0 0 1 0 0z"/>',
+        'tiktok' => '<path d="M15 3c.5 2.5 2 4 5 4v3.5c-2 0-3.6-.6-5-1.6V15a6 6 0 1 1-6-6v3.6A2.4 2.4 0 1 0 11.4 15V3z"/>',
+        'youtube' => '<rect x="2" y="5" width="20" height="14" rx="4"/><path d="M10 9l5 3-5 3z" fill="currentColor"/>',
+        'x' => '<path d="M4 4l16 16M20 4L4 20"/>',
+        'linkedin' => '<rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 10v7M8 7v.01M12 17v-4a2 2 0 0 1 4 0v4M12 10v7"/>',
+        'telegram' => '<path d="M21 4L3 11l6 2 2 6 3-4 5 4z"/><path d="M9 13l8-6"/>',
+        'whatsapp' => '<path d="M4 20l1.3-4A8 8 0 1 1 8 18.7z"/><path d="M9 9c0 3 3 6 6 6l1-1.5-2-1-1 1c-1-.5-2-1.5-2.5-2.5l1-1-1-2z" fill="currentColor" stroke="none"/>',
+        'website' => '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3.5 3 14.5 0 18M12 3c-3 3.5-3 14.5 0 18"/>',
+    ];
+    $h = '';
+    foreach ($links as $k => $u) {
+        if (!$u || !isset($paths[$k])) {
+            continue;
+        }
+        $name = $k === 'website' ? 'Web' : (ec_social_networks()[$k][0] ?? $k);
+        $h .= '<a href="' . esc_url($u) . '" target="_blank" rel="noopener nofollow" aria-label="' . esc_attr($name) . '" title="' . esc_attr($name) . '"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' . $paths[$k] . '</svg></a>';
+    }
+    return $h ? '<div class="' . esc_attr($class) . '">' . $h . '</div>' : '';
+}
+
+/** Turnstile kutusu (anahtar girilmişse) */
+function ae_turnstile(): string
+{
+    $k = function_exists('ec_turnstile_keys') ? ec_turnstile_keys() : ['site' => ''];
+    if (!$k['site']) {
+        return '';
+    }
+    wp_enqueue_script('cf-turnstile', 'https://challenges.cloudflare.com/turnstile/v0/api.js', [], null, ['strategy' => 'async']);
+    return '<div class="cf-turnstile" data-sitekey="' . esc_attr($k['site']) . '" data-language="' . esc_attr(ec_lang()) . '"></div>';
+}
+
+/** Form hata mesajı */
+function ae_field_error(array $errors, string $field): string
+{
+    if (empty($errors[$field])) {
+        return '';
+    }
+    $code = $errors[$field];
+    $key = 'err_' . (in_array($code, ['email_exists'], true) ? $code : $field);
+    return '<p class="ferr" role="alert">' . esc_html(ae_t($key)) . '</p>';
+}
+
 function ae_price_suffix(string $mode): string
 {
     return $mode === 'rent' ? ae_t('per_month') : ($mode === 'daily' ? ae_t('per_night') : '');
@@ -71,7 +141,7 @@ function ae_card(array $a): string
     <button class="heart<?php echo $fav ? ' on' : ''; ?>" type="button" data-fav="<?php echo (int) $a['id']; ?>" aria-pressed="<?php echo $fav ? 'true' : 'false'; ?>" aria-label="<?php ae_e('favourites'); ?>">♥</button>
   </div>
   <div class="body">
-    <div class="price"><?php echo ae_money($a['price_gbp']) . esc_html(ae_price_suffix($a['mode'])); ?></div>
+    <div class="price"><?php echo ae_price($a['price_gbp'], $a['mode']); ?></div>
     <h3 class="ttl"><?php echo esc_html($a['title']); ?></h3>
     <div class="sub"><?php echo esc_html(trim(($a['district'] ? $a['district'] . ', ' : '') . $a['city_name'])); ?></div>
     <?php if ($meta) : ?><div class="sub"><?php echo esc_html(implode(' · ', $meta)); ?></div><?php endif; ?>
@@ -162,6 +232,13 @@ function ae_search_box(array $s = []): void
         <option <?php selected($s['rooms'] ?? '', $r); ?>><?php echo esc_html($r); ?></option>
       <?php endforeach; ?>
     </select>
+    <label class="vh" for="f-deed"><?php ae_e('deed_filter'); ?></label>
+    <select id="f-deed" name="deed_type">
+      <option value=""><?php ae_e('deed_filter'); ?></option>
+      <?php foreach (ec_deed_types() as $dk => $dn) : if ($dk === 'diger') { continue; } ?>
+        <option value="<?php echo esc_attr($dk); ?>" <?php selected($s['deed_type'] ?? '', $dk); ?>><?php echo esc_html($dn[$lang]); ?></option>
+      <?php endforeach; ?>
+    </select>
     <label class="vh" for="f-min"><?php ae_e('min_price'); ?></label>
     <input id="f-min" name="min" inputmode="numeric" placeholder="<?php ae_e('min_price'); ?>" value="<?php echo esc_attr($s['min'] ?? ''); ?>">
     <label class="vh" for="f-max"><?php ae_e('max_price'); ?></label>
@@ -186,6 +263,9 @@ add_filter('pre_get_document_title', function ($t) {
 });
 
 add_action('wp_head', function () {
+    if (!empty($GLOBALS['ec_preview'])) {
+        echo '<meta name="robots" content="noindex, nofollow">' . "\n";
+    }
     $s = $GLOBALS['ae_seo'] ?? null;
     if (!$s) {
         return;
@@ -281,7 +361,7 @@ function ae_project_card(array $p): string
     ob_start(); ?>
 <article class="card proj">
   <a class="cardlink" href="<?php echo esc_url($p['url']); ?>" aria-label="<?php echo esc_attr($p['name']); ?>"></a>
-  <div class="img"><?php echo $img; ?><span class="tag"><?php echo esc_html($p['city_name'] . ($p['district'] ? ' · ' . $p['district'] : '')); ?></span></div>
+  <div class="img"><?php echo $img; ?><span class="tag"><?php echo esc_html($p['city_name'] . ($p['district'] ? ' · ' . $p['district'] : '')); ?></span><?php if (!empty($p['cover_ai'])) : ?><span class="aitag"><?php ae_e('temsili'); ?></span><?php endif; ?></div>
   <div class="body">
     <h3 class="ttl"><?php echo esc_html($p['name']); ?></h3>
     <div class="sub"><?php echo esc_html((string) $p['developer']); ?></div>
@@ -322,8 +402,9 @@ function ae_pct(?float $v): string
         return '—';
     }
     $cls = $v > 0.05 ? 'up' : ($v < -0.05 ? 'down' : 'flat');
-    $sign = $v > 0 ? '+' : '';
-    return '<span class="chg ' . $cls . '">' . esc_html($sign . number_format($v, 1, ',', '.') . '%') . '</span>';
+    $n = number_format(abs($v), 1, ',', '.');
+    $sign = $v > 0.05 ? '+' : ($v < -0.05 ? '−' : '');
+    return '<span class="chg ' . $cls . '">' . esc_html(ec_lang() === 'tr' ? $sign . '%' . $n : $sign . $n . '%') . '</span>';
 }
 
 /**
@@ -375,4 +456,11 @@ function ae_chart(array $s, string $label): string
         . '</svg>'
         . '<div class="cxl">' . $xl . '</div>'
         . '<figcaption><span>' . ae_money($min + $pad) . '</span><span>' . ae_money($max - $pad) . '</span></figcaption></figure>';
+}
+
+/** Yüzde biçimi: Türkçede "%28", diğer dillerde "28%" */
+function ae_pct_label(float $v): string
+{
+    $n = number_format(abs($v), 0, ',', '.');
+    return ec_lang() === 'tr' ? '%' . $n : $n . '%';
 }

@@ -31,12 +31,18 @@ $cur = ae_currency();
     <?php endforeach; ?>
   </nav>
   <a class="ghost" href="<?php echo esc_url(ec_url_section('favs')); ?>">♥ <span class="hide-s"><?php ae_e('favourites'); ?></span></a>
-  <button class="ghost" type="button" data-open="regov"><?php ae_e('register'); ?></button>
-  <a class="btn" href="<?php echo esc_url(ec_url_section('add')); ?>"><?php ae_e('add_listing'); ?></a>
+  <?php if (is_user_logged_in()) : ?>
+    <a class="ghost" href="<?php echo esc_url(current_user_can('manage_options') && !ec_current_agent() ? ec_url_section('review') : ec_url_section('panel')); ?>"><?php ae_e(current_user_can('manage_options') && !ec_current_agent() ? 'rv_title' : 'my_panel'); ?></a>
+    <a class="btn" href="<?php echo esc_url(ec_current_agent() ? add_query_arg('bolum', 'ilan', ec_url_section('panel')) : ec_url_section('add')); ?>"><?php ae_e('add_listing'); ?></a>
+  <?php else : ?>
+    <a class="ghost" href="<?php echo esc_url(ec_url_section('login')); ?>"><?php ae_e('login'); ?></a>
+    <a class="btn" href="<?php echo esc_url(ec_url_section('add')); ?>"><?php ae_e('add_listing'); ?></a>
+  <?php endif; ?>
 </div>
 <nav class="mainnav" aria-label="<?php ae_e('menu'); ?>"><div class="navin">
   <?php foreach (ae_nav_items() as [$url, $label, $on]) : ?>
     <a href="<?php echo esc_url($url); ?>" class="<?php echo $on ? 'on' : ''; ?>" <?php echo $on ? 'aria-current="page"' : ''; ?>><?php echo esc_html($label); ?></a>
   <?php endforeach; ?>
+  <?php echo ae_social_icons((array) get_option('ec_social', []), 'socials navsocial'); ?>
 </div></nav>
 </header>

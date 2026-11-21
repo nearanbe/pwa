@@ -33,6 +33,7 @@ get_header();
       <div class="gallery">
         <?php if ($p['cover']) : ?>
           <div class="gtrack"><figure class="gslide on"><img src="<?php echo esc_url($p['cover']['large']); ?>" alt="<?php echo esc_attr($p['name']); ?>"></figure></div>
+          <?php if ($p['cover_ai']) : ?><span class="aitag big"><?php ae_e('temsili'); ?></span><?php endif; ?>
         <?php else : ?>
           <div class="img noimg"><?php echo AE_ICON; ?></div>
         <?php endif; ?>

@@ -16,6 +16,7 @@ $f = [
     'subtype' => $g('subtype'),
     'district' => $g('district'),
     'rooms' => $g('rooms'),
+    'deed_type' => isset(ec_deed_types()[$g('deed_type')]) ? $g('deed_type') : '',
     'min' => $g('min'),
     'max' => $g('max'),
     'currency' => strtoupper($g('currency')) ?: ae_currency(),

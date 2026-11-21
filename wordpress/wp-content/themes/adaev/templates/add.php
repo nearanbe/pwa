@@ -22,7 +22,7 @@ get_header();
 <div class="pagehead"><div class="in"><h1><?php ae_e('add_title'); ?></h1><p><?php ae_e('add_sub'); ?></p></div></div>
 <main id="main" class="main">
   <ol class="steps">
-    <li><b>1</b><span><?php ae_e('add_step1'); ?></span><button class="btn" type="button" data-open="regov"><?php ae_e('register'); ?></button></li>
+    <li><b>1</b><span><?php ae_e('add_step1'); ?></span><a class="btn" href="<?php echo esc_url(ec_url_section('register')); ?>"><?php ae_e('register'); ?></a></li>
     <li><b>2</b><span><?php ae_e('add_step2'); ?></span>
       <?php if ($bot) : ?><a class="btn" href="https://t.me/<?php echo esc_attr($bot); ?>" target="_blank" rel="noopener">Telegram</a><?php else : ?><span class="pill"><?php ae_e('soon'); ?></span><?php endif; ?>
     </li>

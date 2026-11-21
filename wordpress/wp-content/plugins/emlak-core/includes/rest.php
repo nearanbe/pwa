@@ -20,12 +20,19 @@ function ec_rest_lang(WP_REST_Request $r): string
     return in_array($l, EC_LANGS, true) ? $l : EC_DEFAULT_LANG;
 }
 
-/** İstekteki anahtara ait danışman (yoksa null) */
+/**
+ * İsteği yapan danışman: API anahtarı (bot, eklenti) ya da sitede oturum açmış üye (Panelim).
+ * Oturum için WordPress'in X-WP-Nonce başlığı gerekir; nonce yoksa WordPress kullanıcıyı tanımaz.
+ */
 function ec_rest_agent(WP_REST_Request $r): ?array
 {
     $h = (string) $r->get_header('authorization');
     $key = str_starts_with($h, 'Bearer ') ? trim(substr($h, 7)) : (string) $r->get_header('x_emlak_key');
-    return $key ? ec_agent_by_key($key) : null;
+    if ($key) {
+        return ec_agent_by_key($key);
+    }
+    $a = is_user_logged_in() ? ec_current_agent() : null;
+    return ($a && $a['email_verified'] && $a['status'] !== 'suspended') ? $a : null;
 }
 
 function ec_rest_require_agent(WP_REST_Request $r)
@@ -110,9 +117,14 @@ add_action('rest_api_init', function () {
                 $body = $r->get_json_params() ?: $r->get_body_params();
                 $agentId = $agent ? (int) $agent['id'] : (isset($body['agent_id']) ? (int) $body['agent_id'] : null);
                 $source = sanitize_key($body['source'] ?? ($agent ? 'api' : 'panel'));
+                $requested = in_array($body['status'] ?? 'draft', ['draft', 'published'], true) ? ($body['status'] ?? 'draft') : 'draft';
+                $body['status'] = current_user_can('manage_options') && !$agent ? ($body['status'] ?? 'draft') : ec_listing_target_status($agent, $requested);
                 $id = ec_listing_create($body, $agentId, $source);
                 if (is_wp_error($id)) {
                     return $id;
+                }
+                if ($body['status'] === 'pending') {
+                    ec_notify_pending_listing($id);
                 }
                 $row = ec_listing_row($id);
                 $item = ec_listings_present([$row], ec_rest_lang($r), true)[0];
@@ -135,7 +147,25 @@ add_action('rest_api_init', function () {
             'methods' => 'PATCH',
             'permission_callback' => 'ec_rest_own_listing',
             'callback' => function (WP_REST_Request $r) {
-                $res = ec_listing_update((int) $r['id'], $r->get_json_params() ?: $r->get_body_params());
+                $body = $r->get_json_params() ?: $r->get_body_params();
+                $row = ec_listing_row((int) $r['id']);
+                $agent = ec_rest_agent($r);
+                if (isset($body['status']) && $agent && !current_user_can('manage_options')) {
+                    // Üye sadece taslak, yayına gönder, satıldı, pasif seçebilir; onay kuralı uygulanır
+                    $want = (string) $body['status'];
+                    if (!in_array($want, ['draft', 'published', 'sold', 'passive'], true)) {
+                        return new WP_Error('ec_status', 'Bu durumu seçemezsiniz', ['status' => 403]);
+                    }
+                    if ($want === 'published' && $row['status'] !== 'published') {
+                        $want = ec_listing_target_status($agent, 'published');
+                    }
+                    $body['status'] = $want;
+                }
+                unset($body['featured_until'], $body['agent_id']);
+                $res = ec_listing_update((int) $r['id'], $body);
+                if (!is_wp_error($res) && ($body['status'] ?? '') === 'pending' && $row['status'] !== 'pending') {
+                    ec_notify_pending_listing((int) $r['id']);
+                }
                 if (is_wp_error($res)) {
                     return $res;
                 }
@@ -228,23 +258,4 @@ add_action('rest_api_init', function () {
         },
     ]);
 
-    register_rest_route(EC_NS, '/agents/apply', [
-        'methods' => 'POST',
-        'permission_callback' => '__return_true',
-        'callback' => function (WP_REST_Request $r) {
-            $body = $r->get_json_params() ?: $r->get_body_params();
-            if (!empty($body['website'])) { // bot tuzağı (gizli alan)
-                return ['ok' => true];
-            }
-            $ip = $_SERVER['REMOTE_ADDR'] ?? '0';
-            $k = 'ec_apply_' . md5($ip);
-            $n = (int) get_transient($k);
-            if ($n >= 5) {
-                return new WP_Error('ec_rate', 'Çok fazla deneme, lütfen daha sonra tekrar deneyin', ['status' => 429]);
-            }
-            set_transient($k, $n + 1, HOUR_IN_SECONDS);
-            $id = ec_agent_apply($body);
-            return is_wp_error($id) ? $id : new WP_REST_Response(['ok' => true, 'id' => $id], 201);
-        },
-    ]);
 });

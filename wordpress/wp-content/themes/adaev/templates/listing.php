@@ -45,6 +45,7 @@ $n = count($a['photos']);
 get_header();
 ?>
 <main id="main" class="main detail">
+  <?php if (!empty($GLOBALS['ec_preview'])) : ?><p class="note warn">👁 <?php ae_e('st_' . $a['status']); ?><?php if ($a['reject_reason']) : ?> — <?php echo esc_html($a['reject_reason']); ?><?php endif; ?></p><?php endif; ?>
   <nav class="crumbs" aria-label="breadcrumb">
     <a href="<?php echo esc_url(ec_url_home()); ?>"><?php ae_e('home'); ?></a> ›
     <a href="<?php echo esc_url(ec_url_section($a['mode'])); ?>"><?php ae_e($a['mode']); ?></a> ›
@@ -83,16 +84,38 @@ get_header();
     </div>
 
     <div class="ddesc">
+      <section class="panel deedpanel">
+        <h2><?php ae_e('deed'); ?></h2>
+        <?php if ($a['deed_type']) : ?>
+          <p class="deedname"><b><?php echo esc_html($a['deed_name']); ?></b></p>
+          <p class="sub"><?php echo esc_html($a['deed_desc']); ?></p>
+        <?php else : ?>
+          <p class="deedname unknown"><b><?php ae_e('deed_unknown'); ?></b></p>
+        <?php endif; ?>
+        <?php if ($a['mode'] === 'sale') : ?><p class="note"><?php ae_e('deed_warning'); ?></p><?php endif; ?>
+      </section>
       <section class="panel">
         <h2><?php ae_e('description'); ?></h2>
         <div class="desc"><?php echo wpautop(esc_html($a['description'])); ?></div>
       </section>
+      <?php if ($a['feature_names']) : ?>
+        <section class="panel"><h2><?php ae_e('f_features'); ?></h2><ul class="featlist"><?php foreach ($a['feature_names'] as $fn) : ?><li><?php echo esc_html($fn); ?></li><?php endforeach; ?></ul></section>
+      <?php endif; ?>
+      <?php
+      $yt = $a['video_url'] && preg_match('~(?:youtube\.com/(?:watch\?v=|shorts/|embed/)|youtu\.be/)([A-Za-z0-9_-]{11})~', $a['video_url'], $ym) ? $ym[1] : null;
+      if ($yt || $a['video_url'] || $a['tour_url']) : ?>
+        <section class="panel"><h2><?php ae_e('video'); ?></h2>
+          <?php if ($yt) : ?><div class="video"><iframe src="https://www.youtube-nocookie.com/embed/<?php echo esc_attr($yt); ?>" title="<?php echo esc_attr($a['title']); ?>" loading="lazy" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
+          <?php elseif ($a['video_url']) : ?><p><a class="ghost" href="<?php echo esc_url($a['video_url']); ?>" target="_blank" rel="noopener nofollow">▶ <?php ae_e('video'); ?></a></p><?php endif; ?>
+          <?php if ($a['tour_url']) : ?><p><a class="btn" href="<?php echo esc_url($a['tour_url']); ?>" target="_blank" rel="noopener nofollow">⟳ <?php ae_e('tour'); ?></a></p><?php endif; ?>
+        </section>
+      <?php endif; ?>
       <?php echo ae_ad('detail'); ?>
     </div>
 
     <aside class="dside">
       <div class="panel sticky">
-        <div class="price big"><?php echo ae_money($a['price_gbp']) . esc_html(ae_price_suffix($a['mode'])); ?></div>
+        <div class="price big"><?php echo ae_price($a['price_gbp'], $a['mode']); ?></div>
         <?php if ($a['currency'] !== ae_currency()) : ?>
           <div class="sub"><?php ae_e('original_price'); ?>: <?php echo esc_html(AE_SYM[$a['currency']] . number_format($a['price'], 0, ',', '.')); ?></div>
         <?php endif; ?>
@@ -104,15 +127,24 @@ get_header();
           <?php if ($a['rooms']) : ?><tr><td><?php ae_e('bedrooms'); ?></td><td><?php echo esc_html($a['rooms']); ?></td></tr><?php endif; ?>
           <?php if ($a['baths']) : ?><tr><td><?php ae_e('baths'); ?></td><td><?php echo (int) $a['baths']; ?></td></tr><?php endif; ?>
           <?php if ($a['area_m2']) : ?><tr><td><?php ae_e('area'); ?></td><td><?php echo (int) $a['area_m2']; ?> m²</td></tr><?php endif; ?>
-          <?php if ($a['deed_name']) : ?><tr><td><?php ae_e('deed'); ?></td><td><b><?php echo esc_html($a['deed_name']); ?></b></td></tr><?php endif; ?>
+          <tr class="deedrow"><td><?php ae_e('deed'); ?></td><td><b><?php echo esc_html($a['deed_name'] ?: ae_t('deed_unknown')); ?></b></td></tr>
           <?php if ($a['furnished'] !== null && $a['ptype'] === 'konut') : ?><tr><td><?php ae_e('furnished'); ?></td><td><?php ae_e($a['furnished'] ? 'furnished_yes' : 'furnished_no'); ?></td></tr><?php endif; ?>
+          <?php if ($a['mode'] === 'sale' && $a['vat_paid'] !== null) : ?><tr><td><?php ae_e('f_vat'); ?></td><td><?php ae_e($a['vat_paid'] ? 'paid' : 'not_paid'); ?></td></tr><?php endif; ?>
+          <?php if ($a['mode'] === 'sale' && $a['transformer_paid'] !== null) : ?><tr><td><?php ae_e('f_transformer'); ?></td><td><?php ae_e($a['transformer_paid'] ? 'paid' : 'not_paid'); ?></td></tr><?php endif; ?>
+          <?php if ($a['floor']) : ?><tr><td><?php ae_e('f_floor'); ?></td><td><?php echo esc_html($a['total_floors'] ? ae_t('floor_of', $a['floor'], $a['total_floors']) : $a['floor']); ?></td></tr><?php endif; ?>
+          <?php if ($a['year_built']) : ?><tr><td><?php ae_e('year_built'); ?></td><td><?php echo (int) $a['year_built']; ?></td></tr><?php endif; ?>
+          <?php if ($a['sea_distance_m']) : ?><tr><td><?php ae_e('f_sea'); ?></td><td><?php echo esc_html(ae_t('sea_m', number_format_i18n($a['sea_distance_m']))); ?></td></tr><?php endif; ?>
+          <?php if ($a['payment_plan']) : ?><tr><td><?php ae_e('payment_plan'); ?></td><td><b><?php echo esc_html($a['payment_plan']); ?></b></td></tr><?php endif; ?>
           <tr><td><?php ae_e('location'); ?></td><td><?php echo esc_html($loc); ?></td></tr>
         </table>
         <?php if ($ag) : ?>
           <div class="agent">
-            <div class="av"><?php echo esc_html(mb_substr($ag['name'], 0, 1)); ?></div>
-            <div><b><?php echo esc_html($ag['name']); ?></b><div class="sub"><?php echo esc_html((string) $ag['office']); ?></div></div>
+            <?php echo $ag['logo'] ? '<img class="alogo" src="' . esc_url($ag['logo']['small']) . '" alt="">' : '<div class="av">' . esc_html(mb_substr($ag['name'], 0, 1)) . '</div>'; ?>
+            <div><b><?php echo esc_html($ag['name']); ?></b><?php if ($ag['verified']) : ?> <span class="vbadge sm" title="<?php ae_e('of_verified'); ?>">✔</span><?php endif; ?>
+              <div class="sub"><?php echo esc_html(ec_member_kinds()[$ag['kind']]['name'][ec_lang()] ?? ''); ?></div>
+              <?php if ($ag['url']) : ?><a class="sub link" href="<?php echo esc_url($ag['url']); ?>"><?php ae_e('agent_profile'); ?> →</a><?php endif; ?></div>
           </div>
+          <?php echo ae_social_icons(array_merge($ag['socials'], $ag['website'] ? ['website' => $ag['website']] : [])); ?>
         <?php endif; ?>
         <div class="row">
           <button class="btn" type="button" id="telbtn" data-tel="<?php echo esc_attr($tel); ?>"><?php ae_e('show_phone'); ?></button>
@@ -123,14 +155,13 @@ get_header();
           <button class="ghost" type="button" id="sharebtn" data-url="<?php echo esc_url($a['url']); ?>" data-title="<?php echo esc_attr($a['title']); ?>"><?php ae_e('share'); ?></button>
         </div>
         <?php $cmp = ec_index_compare($a); if ($cmp) :
-            $pct = number_format(abs($cmp['diff']), 0) . '%';
+            $pct = ae_pct_label($cmp['diff']);
             $key = abs($cmp['diff']) < 3 ? 'idx_compare_equal' : ($cmp['diff'] < 0 ? 'idx_compare_below' : 'idx_compare_above'); ?>
           <a class="cmp <?php echo $cmp['diff'] < -3 ? 'below' : ($cmp['diff'] > 3 ? 'above' : ''); ?>" href="<?php echo esc_url(add_query_arg(array_filter(['sehir' => $a['city'], 'tur' => $a['mode'] === 'rent' ? 'rent' : '']), ec_url_section('index'))); ?>">
             <b><?php echo esc_html(ae_t($key, $a['city_name'], $pct)); ?></b>
             <span class="sub"><?php echo ae_money($cmp['m2']); ?> <?php ae_e('per_m2'); ?> · <?php ae_e('price_index'); ?>: <?php echo ae_money($cmp['median']); ?> <?php ae_e('per_m2'); ?></span>
           </a>
         <?php endif; ?>
-        <?php if ($a['mode'] === 'sale') : ?><p class="note"><?php ae_e('deed_warning'); ?></p><?php endif; ?>
       </div>
     </aside>
   </div>

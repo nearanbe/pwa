@@ -33,12 +33,61 @@ function ec_agent_public(array $a): array
 {
     return [
         'id' => (int) $a['id'],
+        'kind' => $a['kind'],
         'name' => $a['name'],
         'office' => $a['office'],
+        'slug' => $a['slug'] ?? null,
         'phone' => $a['phone'],
         'whatsapp' => $a['whatsapp'] ?: $a['phone'],
         'city' => $a['city'],
+        'website' => $a['website'] ?? null,
+        'bio' => $a['bio'] ?? '',
+        'verified' => !empty($a['verified']),
+        'logo' => !empty($a['logo_path']) ? ec_image_urls($a['logo_path']) : null,
+        'socials' => !empty($a['socials']) ? (array) json_decode($a['socials'], true) : [],
+        'url' => !empty($a['slug']) ? ec_url_office($a['slug']) : null,
     ];
+}
+
+function ec_agent_by_user(int $uid): ?array
+{
+    global $wpdb;
+    if (!$uid) {
+        return null;
+    }
+    $r = $wpdb->get_row($wpdb->prepare('SELECT * FROM ' . ec_table('agents') . ' WHERE wp_user_id = %d', $uid), ARRAY_A);
+    return $r ?: null;
+}
+
+function ec_agent_by_slug(string $slug): ?array
+{
+    global $wpdb;
+    $r = $wpdb->get_row($wpdb->prepare('SELECT * FROM ' . ec_table('agents') . " WHERE slug = %s AND status = 'active'", $slug), ARRAY_A);
+    return $r ?: null;
+}
+
+/** Oturum açmış kullanıcının danışman kaydı */
+function ec_current_agent(): ?array
+{
+    static $cache = null;
+    if ($cache === null) {
+        $cache = ec_agent_by_user(get_current_user_id()) ?: false;
+    }
+    return $cache ?: null;
+}
+
+/** Alt alan adı / vitrin adresi için uygun ve benzersiz kısa ad */
+function ec_agent_unique_slug(string $name, int $exclude_id = 0): string
+{
+    global $wpdb;
+    $reserved = ['www', 'mail', 'smtp', 'ftp', 'api', 'admin', 'panel', 'blog', 'cdn', 'static', 'webmail', 'cpanel', 'plesk', 'ns1', 'ns2', 'tr', 'en', 'ru', 'test', 'dev', 'app', 'destek', 'help'];
+    $base = substr(trim(preg_replace('/-+/', '-', ec_slugify($name)), '-'), 0, 40) ?: 'ofis';
+    $slug = in_array($base, $reserved, true) ? $base . '-ofis' : $base;
+    $i = 2;
+    while ($wpdb->get_var($wpdb->prepare('SELECT id FROM ' . ec_table('agents') . ' WHERE slug = %s AND id <> %d', $slug, $exclude_id))) {
+        $slug = $base . '-' . $i++;
+    }
+    return $slug;
 }
 
 function ec_agents_active(int $limit = 12): array
@@ -52,42 +101,6 @@ function ec_agents_active(int $limit = 12): array
         ARRAY_A
     );
     return array_map(fn($a) => ec_agent_public($a) + ['listing_count' => (int) $a['listing_count']], $rows);
-}
-
-/** Siteden gelen üyelik başvurusu. Yönetici onaylayana kadar "pending" kalır. */
-function ec_agent_apply(array $in)
-{
-    global $wpdb;
-    $email = sanitize_email($in['email'] ?? '');
-    $name = sanitize_text_field($in['name'] ?? '');
-    if (!$name || !is_email($email)) {
-        return new WP_Error('ec_invalid', 'İsim ve geçerli bir e-posta zorunlu', ['status' => 400]);
-    }
-    $exists = $wpdb->get_var($wpdb->prepare('SELECT id FROM ' . ec_table('agents') . ' WHERE email = %s', $email));
-    if ($exists) {
-        return new WP_Error('ec_exists', 'Bu e-posta ile zaten bir başvuru var', ['status' => 409]);
-    }
-    $kind = ($in['kind'] ?? '') === 'kurumsal' ? 'kurumsal' : 'bireysel';
-    $city = sanitize_key($in['city'] ?? '');
-    $wpdb->insert(ec_table('agents'), [
-        'kind' => $kind,
-        'company_type' => $kind === 'kurumsal' ? sanitize_text_field($in['company_type'] ?? '') : null,
-        'name' => mb_substr($name, 0, 190),
-        'office' => $kind === 'kurumsal' ? mb_substr($name, 0, 190) : null,
-        'contact_person' => sanitize_text_field($in['contact_person'] ?? '') ?: null,
-        'email' => $email,
-        'phone' => preg_replace('/[^0-9+]/', '', (string) ($in['phone'] ?? '')) ?: null,
-        'city' => isset(ec_cities()[$city]) ? $city : null,
-        'status' => 'pending',
-        'created_at' => ec_now(),
-        'updated_at' => ec_now(),
-    ]);
-    $id = (int) $wpdb->insert_id;
-    if ($id) {
-        $admin = get_option('admin_email');
-        wp_mail($admin, 'Yeni danışman başvurusu: ' . $name, "İsim: $name\nE-posta: $email\nTür: $kind\n\nOnaylamak için: " . admin_url('admin.php?page=ec-agents'));
-    }
-    return $id;
 }
 
 /** Yeni API anahtarı üretir (eskisini geçersiz kılar) ve anahtarı bir kez döndürür. */

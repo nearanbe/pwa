@@ -51,7 +51,9 @@ function ec_demo_seed()
     $agentIds = [];
     foreach ($agents as $i => $a) {
         $wpdb->insert(ec_table('agents'), [
-            'kind' => 'kurumsal', 'company_type' => 'Emlak Acentesi', 'name' => $a[0], 'office' => $a[1],
+            'kind' => 'ofis', 'company_type' => 'Emlak Ofisi', 'name' => $a[1], 'office' => $a[1], 'contact_person' => $a[0],
+            'slug' => ec_agent_unique_slug($a[1]), 'email_verified' => 1, 'verified' => $i < 3 ? 1 : 0,
+            'bio' => $a[1] . ', ' . ec_city_name($a[2], 'tr') . ' bölgesinde satılık ve kiralık konut, arsa ve proje danışmanlığı veren kurgusal bir demo ofisidir.',
             'email' => 'demo' . ($i + 1) . '@example.com', 'phone' => '+90000000000' . ($i + 1), 'whatsapp' => '90000000000' . ($i + 1),
             'city' => $a[2], 'status' => 'active', 'created_at' => ec_now(), 'updated_at' => ec_now(),
         ]);
@@ -126,10 +128,17 @@ function ec_demo_seed()
         foreach (['tr', 'en', 'ru'] as $k => $lang) {
             $i18n[$lang] = ['title' => $x[12][$k], 'description' => sprintf($desc[$lang], $x[12][$k], $x[4], $x[6] ?? '—')];
         }
+        $featKeys = array_keys(ec_features());
+        shuffle($featKeys);
         $id = ec_listing_create([
             'mode' => $x[0], 'ptype' => $x[1], 'subtype' => $x[2], 'city' => $x[3], 'district' => $x[4],
             'price' => $x[5], 'currency' => 'GBP', 'area_m2' => $x[6], 'rooms' => $x[7], 'baths' => $x[8],
             'deed_type' => $x[9], 'furnished' => $x[10], 'status' => 'published', 'i18n' => $i18n,
+            'features' => $x[1] === 'konut' ? array_slice($featKeys, 0, mt_rand(4, 9)) : [],
+            'vat_paid' => $x[0] === 'sale' ? mt_rand(0, 1) : null,
+            'transformer_paid' => $x[0] === 'sale' ? mt_rand(0, 1) : null,
+            'sea_distance_m' => mt_rand(1, 40) * 100,
+            'year_built' => $x[1] === 'konut' ? mt_rand(2008, 2026) : null,
         ], $agentFor($x[3]), 'demo');
         if (is_wp_error($id)) {
             continue;
@@ -169,6 +178,14 @@ function ec_demo_seed()
             'agent_id' => $agentFor($p[2]), 'name' => $p[0], 'developer' => $p[1], 'city' => $p[2], 'district' => $p[3],
             'units' => $p[4], 'delivery_date' => $p[5], 'price_min_gbp' => $p[6], 'price_max_gbp' => $p[7], 'payment_plan' => $p[8],
             'desc_tr' => $p[9][0], 'desc_en' => $p[9][1], 'desc_ru' => $p[9][2],
+            'progress' => [35, 70, 15, 55, 80, 10][$k],
+            'down_payment_pct' => (int) ltrim($p[8], '%'), 'installments' => (int) preg_replace('/.*?(\d+) ay.*/', '$1', $p[8]),
+            'amenities' => array_slice(array_keys(ec_amenities()), $k, 6),
+            'unit_types' => [
+                ['type' => '1+1', 'm2_min' => 55, 'm2_max' => 70, 'price_from_gbp' => $p[6], 'available' => 6 + $k],
+                ['type' => '2+1', 'm2_min' => 85, 'm2_max' => 105, 'price_from_gbp' => round(($p[6] + $p[7]) / 2 / 1000) * 1000, 'available' => 10 - $k],
+                ['type' => '3+1', 'm2_min' => 130, 'm2_max' => 160, 'price_from_gbp' => $p[7], 'available' => 3],
+            ],
         ], 'demo');
         if (!is_wp_error($pid)) {
             $f = $tmp . 'ec-demo-proje-' . $pid . '.jpg';

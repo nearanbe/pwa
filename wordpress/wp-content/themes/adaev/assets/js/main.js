@@ -12,11 +12,14 @@
   function toast(t) { var d = document.createElement('div'); d.className = 'toast'; d.setAttribute('role', 'status'); d.textContent = t; document.body.appendChild(d); setTimeout(function () { d.remove(); }, 2200); }
 
   /* ---- Para birimi ---- */
+  function fmt2(gbp, cur) { var v = gbp * (AE.rates[cur] || 1); return (AE.sym[cur] || '') + v.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
   function fmt(gbp, cur) { var v = gbp * (AE.rates[cur] || 1); return (AE.sym[cur] || '') + Math.round(v).toLocaleString('de-DE'); }
   var cur = $('#cur');
   if (cur) cur.addEventListener('change', function () {
     setCookie('ec_cur', cur.value);
     $$('.money[data-gbp]').forEach(function (el) { el.textContent = fmt(parseFloat(el.dataset.gbp), cur.value); });
+    var c2 = cur.value === 'TRY' ? 'GBP' : 'TRY';
+    $$('.money2[data-gbp]').forEach(function (el) { el.textContent = '(' + fmt2(parseFloat(el.dataset.gbp), c2) + ')'; });
     var h = $('#f-cur'); if (h) h.value = cur.value;
   });
 
@@ -164,43 +167,6 @@
       $$('.qgrid').forEach(function (g) { g.hidden = g.dataset.qg !== b.dataset.q; });
     });
   });
-
-  /* ---- Kayıt modalı ---- */
-  var ov = $('#regov'), form = $('#regform'), last = null;
-  function setKind(k) {
-    form.kind.value = k;
-    $$('#rtabs button').forEach(function (b) { b.classList.toggle('on', b.dataset.k === k); });
-    $$('.corp-only', form).forEach(function (el) { el.hidden = k !== 'kurumsal'; });
-  }
-  function openReg(kind) { last = document.activeElement; ov.hidden = false; setKind(kind || 'bireysel'); setTimeout(function () { form.elements.name.focus(); }, 30); }
-  function closeReg() { ov.hidden = true; if (last) last.focus(); }
-  if (ov) {
-    document.addEventListener('click', function (e) {
-      var o = e.target.closest('[data-open="regov"]');
-      if (o) { e.preventDefault(); openReg(o.dataset.kind); }
-    });
-    ov.addEventListener('click', function (e) { if (e.target === ov || e.target.closest('[data-close]')) closeReg(); });
-    document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !ov.hidden) closeReg(); });
-    $$('#rtabs button').forEach(function (b) { b.addEventListener('click', function () { setKind(b.dataset.k); }); });
-    form.addEventListener('submit', function (e) {
-      e.preventDefault();
-      var msg = $('.formmsg', form);
-      msg.className = 'formmsg';
-      if (!form.elements.name.value.trim() || !form.email.value.trim() || !form.ok.checked) { msg.textContent = AE.msg.regRequired; msg.classList.add('err'); return; }
-      var data = {};
-      $$('input,select', form).forEach(function (el) { if (el.name && el.name !== 'ok' && !el.hidden) data[el.name] = el.value; });
-      data.website = form.website.value;
-      var btn = $('button[type=submit]', form); btn.disabled = true;
-      fetch(AE.api + 'agents/apply', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) })
-        .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
-        .then(function (x) {
-          if (x.ok) { msg.textContent = AE.msg.regOk; msg.classList.add('ok'); form.reset(); setKind('bireysel'); }
-          else { msg.textContent = AE.msg.regErr + (x.j.message || ''); msg.classList.add('err'); }
-        })
-        .catch(function () { msg.textContent = AE.msg.regErr; msg.classList.add('err'); })
-        .finally(function () { btn.disabled = false; });
-    });
-  }
 
   /* ---- AdSense alanları ---- */
   if (window.adsbygoogle || document.querySelector('ins.adsbygoogle')) {

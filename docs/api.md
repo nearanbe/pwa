@@ -7,6 +7,8 @@ Next.js'e geçişte aynı uçlar aynı cevaplarla yeniden yazılır, bot ve ekle
 - **Biçim:** JSON. Fotoğraf yüklemede `multipart/form-data`.
 - **Dil:** Metin döndüren uçlarda `?lang=tr|en|ru` kullanılır. Varsayılan `tr`.
 - **Kimlik doğrulama:** `Authorization: Bearer ec_...` (veya `X-Emlak-Key: ec_...`). Anahtar **Emlak → Danışmanlar** ekranından üretilir.
+  Sitedeki Panelim sayfası aynı uçları WordPress oturumu ve `X-WP-Nonce` başlığıyla kullanır.
+- **Onay kuralı:** Üye `status: "published"` gönderdiğinde ofis ve inşaat firması (onaylı hesap) için ilan yayına çıkar. Bireysel danışman ve mülk sahibi için ilan `pending` olur ve yönetici onayını bekler.
 - **Hatalar:** `{"code": "...", "message": "...", "data": {"status": 400, "fields": {"price": "zorunlu"}}}`
 
 ## Herkese açık uçlar
@@ -35,9 +37,8 @@ Cevap: `{"items": [İlan], "total": 42, "page": 1, "pages": 2}`
 ### `GET /listings/{id}`
 İlan detayı (yayında veya satıldı durumunda). Sahibi anahtarıyla taslak ilanını da görebilir.
 
-### `POST /agents/apply`
-Sitedeki kayıt formu: `{"name", "email", "phone", "kind": "bireysel|kurumsal", "company_type", "contact_person", "city"}`.
-Aynı IP'den saatte en çok 5 başvuru kabul edilir.
+### `GET /index/compare?city=girne&mode=sale&area_m2=120&price=180000&currency=GBP`
+İlanın m² fiyatının şehir medyanına göre farkı: `{"m2": 1500, "median": 1929, "diff": -22.2}`.
 
 ## Anahtar gerektiren uçlar
 
@@ -69,7 +70,9 @@ Yeni ilan oluşturur, cevap olarak `201` ve tam ilanı döndürür.
 ```
 
 Zorunlu alanlar: `mode`, `ptype`, `city`, `price` ve en az bir dilde `i18n.*.title`.
-`status`: `draft` (varsayılan), `published`, `sold`, `passive`.
+**Satılık ilanda yayına gönderirken `deed_type` zorunludur:** `turk-kocani`, `esdeger`, `tahsis`, `vakif`, `proje`, `diger`.
+`status`: `draft` (varsayılan), `published`, `sold`, `passive`. Sunucu tarafından atananlar: `pending`, `rejected`.
+Ek alanlar: `features` (dizi, `GET /meta` listesi), `vat_paid`, `transformer_paid` (true/false/null), `sea_distance_m`, `floor`, `total_floors`, `year_built`, `payment_plan`, `video_url`, `tour_url`, `lat`, `lng`.
 
 ### `PATCH /listings/{id}`
 Gönderilen alanları günceller. Örnekler: `{"price": 139000}`, `{"status": "sold"}`, `{"i18n": {"en": {...}}}`.
@@ -116,3 +119,17 @@ Anahtarın sahibi danışman, ilan sayıları ve tüm durumlardaki ilanları.
   "translations": {"tr": {"title": "...", "url": "..."}, "en": {}, "ru": {}}
 }
 ```
+
+## Panel ve proje uçları
+
+| Uç | Açıklama |
+|---|---|
+| `PATCH /me` | Profil: `name`, `contact_person`, `phone`, `whatsapp`, `city`, `address`, `website`, `bio`, `license_no`, `slug`, `socials{instagram,facebook,tiktok,youtube,x,linkedin,telegram,whatsapp}`, `telegram_opt_in` |
+| `POST /me/logo` | `multipart`, alan `logo` |
+| `POST /me/telegram-code` | 10 dakika geçerli eşleştirme kodu ve `t.me/<bot>?start=<kod>` linki |
+| `GET /me/projects` | Üyenin projeleri |
+| `POST /projects` · `PATCH/DELETE /projects/{id}` | Proje: `name`, `city`, `district`, `developer`, `units`, `delivery_date` (YYYY-MM), `price_min_gbp`, `price_max_gbp`, `payment_plan`, `down_payment_pct`, `installments`, `progress`, `amenities[]`, `unit_types[{type,m2_min,m2_max,price_from_gbp,available}]`, `desc_tr/en/ru`, `video_url`, `lat`, `lng`, `status` |
+| `POST /projects/{id}/cover` | `multipart`, alan `cover` |
+| `POST /projects/{id}/media` | `multipart`: `file`, `kind` = `photo` / `plan` / `brochure` (PDF), `title` |
+| `DELETE /projects/{id}/media/{mid}` | Dosyayı siler |
+| `POST /review/{listing|agent|project}/{id}` | Yönetici: `{"action": "approve" | "reject" | "suspend" | "verify", "reason": "..."}` |
