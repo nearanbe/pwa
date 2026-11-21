@@ -33,6 +33,7 @@ function ec_sections(): array
         'review'  => ['tr' => 'onay', 'en' => 'review', 'ru' => 'moderatsiya'],
         'office'  => ['tr' => 'ofis', 'en' => 'agent', 'ru' => 'agent'],
         'offices' => ['tr' => 'firmalar', 'en' => 'agencies', 'ru' => 'agentstva'],
+        'faq'     => ['tr' => 'sss', 'en' => 'faq', 'ru' => 'voprosy'],
     ];
 }
 

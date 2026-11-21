@@ -40,6 +40,7 @@ $blog = ae_blog_url();
   <div><h5><?php ae_e('corporate'); ?></h5>
     <a href="<?php echo esc_url($page('hakkimizda')); ?>"><?php ae_e('about'); ?></a>
     <a href="<?php echo esc_url($page('iletisim')); ?>"><?php ae_e('contact'); ?></a>
+    <a href="<?php echo esc_url(ec_url_section('faq')); ?>"><?php ae_e('faq_title'); ?></a>
     <a href="<?php echo esc_url($page('gizlilik-politikasi')); ?>"><?php ae_e('privacy'); ?></a>
     <a href="<?php echo esc_url($page('kullanim-sartlari')); ?>"><?php ae_e('terms'); ?></a>
   </div>

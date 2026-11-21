@@ -187,6 +187,11 @@ add_filter('emlak_tema_strings_extra', function (array $s): array {
         'sort_m2_asc' => ['m² fiyatı (artan)', 'Price per m² (low)', 'Цена за м² (возр.)'],
         'sort_area_desc' => ['En büyük', 'Largest', 'Крупнее'],
         'pk_want' => ['Merhaba, “%s” paketini almak istiyorum.', 'Hello, I would like the “%s” package.', 'Здравствуйте, хочу пакет «%s».'],
+        'faq_title' => ['Sıkça sorulan sorular', 'Frequently asked questions', 'Частые вопросы'],
+        'faq_sub' => ['Ev arayanlar, emlakçılar ve ilan sahipleri için cevaplar. Hukuki konular genel bilgidir; satın almadan önce mutlaka bir avukata danışın.', 'Answers for home seekers, agents and owners. Legal topics are general information; always consult a lawyer before buying.', 'Ответы для покупателей, агентов и собственников. Юридическая информация носит общий характер; перед покупкой проконсультируйтесь с юристом.'],
+        'faq_search' => ['Sorularda ara (ör. tapu, paket, Telegram)', 'Search the questions (e.g. title deed, package)', 'Поиск по вопросам (например, титул, пакет)'],
+        'faq_none' => ['Bu kelimeyle soru bulunamadı.', 'No questions match this word.', 'Ничего не найдено.'],
+        'faq_more' => ['Cevabını bulamadınız mı? Bize yazın.', 'Didn’t find your answer? Message us.', 'Не нашли ответ? Напишите нам.'],
         'rv_close_report' => ['Kapat', 'Close', 'Закрыть'],
     ]);
 });

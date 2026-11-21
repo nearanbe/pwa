@@ -40,6 +40,7 @@ get_header();
       </div>
     <?php endforeach; ?>
   </div>
+  <p class="center"><a class="ghost" href="<?php echo esc_url(ec_url_section('faq') . '#agents'); ?>"><?php ae_e('faq_title'); ?> →</a></p>
   <?php if ($wa) : ?><p style="text-align:center;margin-top:24px"><a class="wa" href="https://wa.me/<?php echo esc_attr($wa); ?>" target="_blank" rel="noopener"><?php ae_e('contact_us'); ?> (WhatsApp)</a></p><?php endif; ?>
 </main>
 <?php

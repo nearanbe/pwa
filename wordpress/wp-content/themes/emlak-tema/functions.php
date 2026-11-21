@@ -24,6 +24,7 @@ require_once __DIR__ . '/inc/i18n.php';
 require_once __DIR__ . '/inc/helpers.php';
 require_once __DIR__ . '/inc/helpers-detail.php';
 require_once __DIR__ . '/inc/i18n-detail.php';
+require_once __DIR__ . '/inc/faq.php';
 
 add_action('after_setup_theme', function () {
     add_theme_support('title-tag');
@@ -115,6 +116,7 @@ add_filter('template_include', function ($tpl) {
         'review' => 'review',
         'office' => 'office',
         'offices' => 'offices',
+        'faq' => 'faq',
     ];
     $p = ec_page();
     return isset($map[$p]) ? get_theme_file_path('templates/' . $map[$p] . '.php') : $tpl;
