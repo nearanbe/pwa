@@ -34,6 +34,7 @@ function ec_sections(): array
         'office'  => ['tr' => 'ofis', 'en' => 'agent', 'ru' => 'agent'],
         'offices' => ['tr' => 'firmalar', 'en' => 'agencies', 'ru' => 'agentstva'],
         'faq'     => ['tr' => 'sss', 'en' => 'faq', 'ru' => 'voprosy'],
+        'legal'   => ['tr' => 'yasal', 'en' => 'legal', 'ru' => 'pravo'],
     ];
 }
 

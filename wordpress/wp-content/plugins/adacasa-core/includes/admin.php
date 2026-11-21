@@ -329,6 +329,7 @@ function ec_admin_settings(): void
         echo '<tr><th>' . esc_html($n) . '</th><td><input name="ads_' . $k . '" class="regular-text" value="' . esc_attr($ads[$k] ?? '') . '"></td></tr>';
     }
     echo '</table><p class="description">Boş bırakılırsa sitede sadece "Reklam alanı" yer tutucusu görünür.</p>';
+    echo ec_company_settings_html();
     $tr = array_merge(['ga4' => '', 'gsc' => '', 'pixel' => '', 'bing' => ''], (array) get_option('ec_tracking', []));
     echo '<h2>Ölçüm ve doğrulama</h2><p class="description">Doldurulanlar sitenin her sayfasına eklenir; giriş yapmış yöneticiler sayılmaz.</p><table class="form-table">'
         . '<tr><th>Google Analytics 4 ölçüm kimliği</th><td><input name="tr_ga4" class="regular-text" placeholder="G-XXXXXXXXXX" value="' . esc_attr($tr['ga4']) . '"></td></tr>'
@@ -402,7 +403,7 @@ function ec_admin_settings(): void
         $u = wp_nonce_url(admin_url('admin-post.php?action=ec_tool&do=' . $do), 'ec_tool_' . $do);
         return '<a class="' . $cls . '" href="' . esc_url($u) . '"' . ($confirm ? ' onclick="return confirm(\'' . esc_js($confirm) . '\')"' : '') . '>' . esc_html($label) . '</a> ';
     };
-    echo '<hr><h2>Araçlar</h2><p>' . $tool('rates', 'Kurları şimdi güncelle') . $tool('live', 'Gün içi kuru şimdi çek') . $tool('index', 'Fiyat endeksini şimdi hesapla') . $tool('webhook', 'Telegram webhook’unu kur') . $tool('aitest', 'Yapay zekâyı dene') . $tool('pages', 'Sabit sayfaları taslak olarak oluştur') . $tool('dupscan', 'Benzer ilanları şimdi tara') . '</p>';
+    echo '<hr><h2>Araçlar</h2><p>' . $tool('rates', 'Kurları şimdi güncelle') . $tool('live', 'Gün içi kuru şimdi çek') . $tool('index', 'Fiyat endeksini şimdi hesapla') . $tool('webhook', 'Telegram webhook’unu kur') . $tool('aitest', 'Yapay zekâyı dene') . $tool('dupscan', 'Benzer ilanları şimdi tara') . '</p>';
     echo '<p class="description">Fiyat endeksi her gün otomatik hesaplanır: yayındaki konut ilanlarının m² başına istenen fiyatlarının medyanı (şehir bazında, en az ' . EC_INDEX_MIN_N . ' ilan).</p>';
     echo '<h2>Demo verisi</h2>';
     if (ec_demo_active()) {
@@ -498,6 +499,7 @@ add_action('admin_post_ec_settings', function () {
         $ads[$k] = preg_replace('/[^a-zA-Z0-9-]/', '', (string) ($p['ads_' . $k] ?? ''));
     }
     update_option('ec_ads', $ads);
+    ec_company_settings_save($p);
     update_option('ec_tracking', [
         'ga4' => preg_replace('/[^A-Z0-9-]/', '', strtoupper((string) ($p['tr_ga4'] ?? ''))),
         'gsc' => preg_replace('/[^A-Za-z0-9_-]/', '', (string) ($p['tr_gsc'] ?? '')),

@@ -54,7 +54,7 @@ get_header();
         <label class="chk"><input type="radio" name="telegram_opt_in" value="1" <?php checked($old['telegram_opt_in'] ?? '', '1'); ?>> <?php ae_e('yes'); ?></label>
         <label class="chk"><input type="radio" name="telegram_opt_in" value="0" <?php checked($old['telegram_opt_in'] ?? '0', '0'); ?>> <?php ae_e('no'); ?></label>
       </fieldset>
-      <label class="chk"><input type="checkbox" name="consent" value="1" <?php checked(!empty($old['consent'])); ?>> <?php ae_e('consent'); ?></label>
+      <label class="chk"><input type="checkbox" name="consent" value="1" <?php checked(!empty($old['consent'])); ?>> <?php printf(esc_html(ae_t('consent', '%1$s', '%2$s')), '<a href="' . esc_url(ec_url_legal('privacy')) . '" target="_blank">' . esc_html(ae_t('privacy')) . '</a>', '<a href="' . esc_url(ec_url_legal('terms')) . '" target="_blank">' . esc_html(ae_t('terms')) . '</a>'); ?></label>
       <?php echo ae_field_error($e, 'consent'); ?>
       <?php echo ae_turnstile(); ?><?php echo ae_field_error($e, 'captcha'); ?>
       <button class="btn wide" type="submit"><?php ae_e('create_account'); ?></button>

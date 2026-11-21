@@ -41,7 +41,7 @@ function emlak_tema_strings_panel(): array
         'tg_question_hint' => ['Fotoğrafları ve notunuzu Telegram’dan gönderin, ilanınız 3 dilde hazırlansın. İstediğiniz zaman Panelim’den açıp kapatabilirsiniz.', 'Send photos and notes on Telegram and your listing is prepared in 3 languages. You can change this any time in My account.', 'Отправьте фото и описание в Telegram — объявление будет подготовлено на 3 языках. Можно изменить в кабинете.'],
         'yes' => ['Evet', 'Yes', 'Да'],
         'no' => ['Hayır', 'No', 'Нет'],
-        'consent' => ['Kişisel verilerimin üyelik ve ilan hizmeti için işlenmesini kabul ediyorum (Aydınlatma Metni, Kullanım Şartları).', 'I agree to the processing of my personal data for membership and listing services (Privacy Notice, Terms).', 'Я согласен(на) на обработку персональных данных для регистрации и размещения объявлений.'],
+        'consent' => ['%1$s ve %2$s metinlerini okudum; kişisel verilerimin üyelik ve ilan hizmeti için işlenmesini kabul ediyorum.', 'I have read the %1$s and the %2$s and agree to the processing of my personal data for membership and listing services.', 'Я прочитал(а) %1$s и %2$s и согласен(на) на обработку моих персональных данных для членства и размещения объявлений.'],
         'create_account' => ['Üye ol', 'Create account', 'Зарегистрироваться'],
         'reg_done' => ['Kaydınız alındı. E-posta adresinize gönderdiğimiz bağlantıya tıklayarak hesabınızı doğrulayın.', 'Thanks! Please confirm your account using the link we emailed you.', 'Готово! Подтвердите аккаунт по ссылке из письма.'],
         'verify_ok' => ['E-posta adresiniz doğrulandı. Şimdi giriş yapabilirsiniz.', 'Your email is verified. You can now log in.', 'E-mail подтверждён. Теперь вы можете войти.'],

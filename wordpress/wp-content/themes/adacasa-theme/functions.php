@@ -7,7 +7,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-define('AE_VER', '1.1.4');
+define('AE_VER', '1.1.5');
 
 if (!function_exists('ec_table')) {
     // Eklenti kapalıysa: hiçbir eklenti fonksiyonu TANIMLANMAZ (aksi halde eklenti etkinleştirilirken
@@ -118,6 +118,7 @@ add_filter('template_include', function ($tpl) {
         'office' => 'office',
         'offices' => 'offices',
         'faq' => 'faq',
+        'legal' => 'legal',
     ];
     $p = ec_page();
     return isset($map[$p]) ? get_theme_file_path('templates/' . $map[$p] . '.php') : $tpl;

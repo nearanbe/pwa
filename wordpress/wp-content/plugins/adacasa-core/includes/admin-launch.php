@@ -70,9 +70,8 @@ function ec_launch_checks(): array
     if ($broken) {
         $add('fail', 'Kopan sosyal medya bağlantısı', count($broken) . ' sayfa: ' . esc_html(implode(', ', array_column($broken, 'page_name'))) . ' — Emlak → Sosyal medya → bağlantıyı yenile.');
     }
-    $pages = ['hakkimizda' => 'Hakkımızda', 'iletisim' => 'İletişim', 'gizlilik-politikasi' => 'Gizlilik Politikası', 'kullanim-sartlari' => 'Kullanım Şartları'];
-    $missing = array_filter($pages, fn($slug) => !get_page_by_path($slug), ARRAY_FILTER_USE_KEY);
-    $add($missing ? 'warn' : 'ok', 'Sabit sayfalar', $missing ? 'Eksik: ' . esc_html(implode(', ', $missing)) . ' (Sayfalar → Yeni ekle, kısa adlar kurulum belgesinde).' : '');
+    $co = (array) get_option('ec_company', []);
+    $add(!empty($co['name']) && !empty($co['address']) && !empty($co['email']) ? 'ok' : 'warn', 'Şirket ve yasal bilgiler (yasal sayfalar)', 'Emlak → Ayarlar → Şirket ve yasal bilgiler: unvan, adres, yasal iletişim e-postası. Yasal sayfalar TR/EN/RU olarak hazır; bir avukata kontrol ettirin.');
     $add(get_option('admin_email') && !str_ends_with((string) get_option('admin_email'), '@example.com') ? 'ok' : 'fail', 'Yönetici e-postası', 'Ayarlar → Genel → Yönetim e-posta adresi; bildirimler buraya gelir.');
     $add(get_bloginfo('name') && get_bloginfo('name') !== 'AdaEv' && get_bloginfo('name') !== 'Emlak392' ? 'ok' : 'warn', 'Site başlığı (marka)', 'Ayarlar → Genel → Site başlığı. Şu an: ' . esc_html(get_bloginfo('name')));
     $cp = (array) get_option('ec_city_photos', []);

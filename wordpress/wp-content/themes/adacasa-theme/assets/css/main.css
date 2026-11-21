@@ -974,3 +974,25 @@ body:has(.mbar) .pwabar{bottom:calc(82px + env(safe-area-inset-bottom,0px))}
 @keyframes pwaIn{from{transform:translateY(20px);opacity:0}to{transform:none;opacity:1}}
 @media(prefers-reduced-motion:reduce){.pwabar{animation:none}}
 @media print{.pwabar{display:none!important}}
+
+/* Yasal sayfalar (1.1.5) */
+.legal-grid{display:grid;grid-template-columns:minmax(0,1fr) 280px;gap:22px;align-items:start;margin-top:22px}
+.legal .prose{max-width:none;margin:0;padding:24px 28px;line-height:1.7}
+.legal .prose h2{font-size:24px;margin:26px 0 8px}.legal .prose h2:first-of-type{margin-top:10px}
+.legal .prose ul{padding-left:20px}.legal .prose li{margin:4px 0}
+.legal-nav{position:sticky;top:120px;display:grid;gap:2px;padding:12px}
+.legal-nav a,.legal-nav .linkbtn{padding:8px 10px;border-radius:10px;color:var(--text);text-decoration:none;font-size:14.5px;text-align:left}
+.legal-nav a.on{background:var(--soft);color:var(--acc);font-weight:600}
+.ltable{width:100%;border-collapse:collapse;font-size:14px;margin:8px 0 14px;display:block;overflow-x:auto}
+.ltable th,.ltable td{border-bottom:1px solid var(--line);padding:8px;text-align:left;vertical-align:top}
+.ltable th{background:var(--soft);font-weight:600}
+@media(max-width:900px){.legal-grid{grid-template-columns:minmax(0,1fr)}.legal-nav{position:static}.legal .prose{padding:18px 16px}}
+.site-footer .linkbtn,.site-footer [data-cookie-settings]{color:#b7c4d6}
+/* Çerez onayı */
+.cconsent{position:fixed;left:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:46;max-width:440px;background:var(--card);color:var(--text);border:1px solid var(--line);border-radius:16px;box-shadow:0 18px 40px rgba(4,10,24,.3);padding:16px;display:grid;gap:8px;font-size:14px}
+.cconsent[hidden]{display:none}
+.cconsent b{font-size:15.5px}.cconsent p{margin:0;color:var(--muted);line-height:1.5}.cconsent a{color:var(--gold)}
+.cc-opts{display:grid;gap:6px;padding:6px 0}.cc-opts label{display:flex;gap:8px;align-items:center}
+.cc-btns{display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end}
+@media(max-width:720px){.cconsent{right:12px;max-width:none}body:has(.mbar) .cconsent{bottom:calc(82px + env(safe-area-inset-bottom,0px))}}
+@media print{.cconsent{display:none!important}}

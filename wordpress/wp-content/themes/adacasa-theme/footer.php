@@ -45,11 +45,14 @@ $blog = ae_blog_url();
     </div><?php endif; ?>
     <?php $soc = ae_social_icons((array) get_option('ec_social', []), 'socials fsocial'); if ($soc) : ?><div class="ffollow"><?php ae_e('follow_us'); ?></div><?php echo $soc; endif; ?></div>
   <div><h5><?php ae_e('corporate'); ?></h5>
-    <a href="<?php echo esc_url($page('hakkimizda')); ?>"><?php ae_e('about'); ?></a>
-    <a href="<?php echo esc_url($page('iletisim')); ?>"><?php ae_e('contact'); ?></a>
+    <a href="<?php echo esc_url(ec_url_legal('about')); ?>"><?php ae_e('about'); ?></a>
+    <a href="<?php echo esc_url(ec_url_legal('contact')); ?>"><?php ae_e('contact'); ?></a>
     <a href="<?php echo esc_url(ec_url_section('faq')); ?>"><?php ae_e('faq_title'); ?></a>
-    <a href="<?php echo esc_url($page('gizlilik-politikasi')); ?>"><?php ae_e('privacy'); ?></a>
-    <a href="<?php echo esc_url($page('kullanim-sartlari')); ?>"><?php ae_e('terms'); ?></a>
+    <a href="<?php echo esc_url(ec_url_legal('privacy')); ?>"><?php ae_e('privacy'); ?></a>
+    <a href="<?php echo esc_url(ec_url_legal('cookies')); ?>"><?php ae_e('cookie_policy'); ?></a>
+    <a href="<?php echo esc_url(ec_url_legal('terms')); ?>"><?php ae_e('terms'); ?></a>
+    <a href="<?php echo esc_url(ec_url_legal('sales')); ?>"><?php ae_e('sales_terms'); ?></a>
+    <a href="#" data-cookie-settings><?php ae_e('cookie_settings'); ?></a>
   </div>
   <div><h5><?php ae_e('listings'); ?></h5>
     <a href="<?php echo esc_url(ec_url_section('sale')); ?>"><?php ae_e('sale'); ?></a>

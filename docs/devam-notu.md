@@ -123,6 +123,18 @@ Dal: `claude/jolly-carson-l927uv`. Kod buradadır, her şey commit edilip gönde
 - **Arayüz ve API:** Panelim → Ekibim'de danışman başına paylaşım ayarı (`POST /me/team/share`). Danışmanın özet ekranında paylaşım durumu ve bu ay kalan hak görünür.
 - **Turnstile:** kod 0.3'ten beri hazır (kayıt, giriş, mesaj formu); kullanıcı anahtarları girecek.
 
+## 1h. Sürüm 1.1.5: yasal sayfalar ve çerez onayı
+
+- **Yasal sayfalar** (`includes/legal.php`, metinler `includes/legal-texts.php`): TR/EN/RU olarak hakkımızda, iletişim, gizlilik, çerez politikası, kullanım şartları ve paket satış/iade koşulları.
+  - Adresler: `/tr/yasal/{slug}/`, `/en/legal/…`, `/ru/pravo/…`; tema şablonu `templates/legal.php`.
+  - Şirket bilgileri `ec_company` seçeneğinde; Ayarlar → Şirket ve yasal bilgiler.
+  - Eski WordPress sayfa adresleri (/hakkimizda/ vb.) 301 ile yeni adreslere yönlenir.
+  - Dayanak: KKTC 89/2007; uygulanabildiği ölçüde GDPR ve 6698. Avukat kontrolü önerildi.
+- **Çerez onayı** (`includes/tracking.php`): GA4 ve Pixel sadece izinle yüklenir; tercih `ac_consent` çerezinde ("a1m0" biçiminde).
+  - Alt bilgide ve yasal sayfalarda "Çerez ayarları" bağlantısı var.
+  - PWA kutusu, çerez kutusu cevaplanmadan çıkmaz.
+- **Formlar:** kayıt formundaki onayda gizlilik ve şartlar bağlantıları; mesaj formunda gizlilik bağlantısı.
+
 ## 2. Proje özeti
 
 - **Amaç:** KKTC (Kuzey Kıbrıs) emlak ilan portalı. Rakipler: 101evler.com ve hangiev.com. İkisi de Cloudflare bot korumalı; bu ortamdan açılamaz.
@@ -147,8 +159,8 @@ Dal: `claude/jolly-carson-l927uv`. Kod buradadır, her şey commit edilip gönde
 
 | Parça | Kullanıcıya verilen son sürüm | Daldaki sürüm (teslim bekliyor) |
 |---|---|---|
-| Eklenti (adacasa-core, eski emlak-core) | **1.1.2** | 1.1.2 |
-| Tema (adacasa-theme, eski emlak-tema) | **1.1.4** | 1.1.4 |
+| Eklenti (adacasa-core, eski emlak-core) | **1.1.5** | 1.1.5 |
+| Tema (adacasa-theme, eski emlak-tema) | **1.1.5** | 1.1.5 |
 | Chrome eklentisi | **0.4.1** | 0.4.1 |
 
 Kullanıcının kuralı: "Her şey tamam olana kadar yeni sürüm verme." 0.7 içeriği marka değişikliğiyle birlikte **AdaCasa 1.0.1** olarak teslim edildi.

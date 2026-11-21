@@ -122,8 +122,9 @@
     if (isIOS && pwaBtn) pwaBtn.hidden = false;
     if (pwaBtn) pwaBtn.addEventListener('click', function () { if (!doInstall()) showIOS(); });
     // 15 sn sonra soru: Android/Chrome'da kurulum olayı geldiyse, iPhone'da (Safari ya da uygulama içi tarayıcı) talimatla
-    if (bar && !snoozed() && window.innerWidth < 1000) setTimeout(function () {
+    if (bar && !snoozed() && window.innerWidth < 1000) setTimeout(function askPwa() {
       if (document.querySelector('.ov:not([hidden])') || standalone) return;
+      if (document.querySelector('#cconsent:not([hidden])')) { setTimeout(askPwa, 8000); return; } // önce çerez kutusu cevaplansın
       if (deferred) { bar.hidden = false; return; }
       if (isIOS) { bar.hidden = false; if (!iosSafari) showIOS(); }
     }, 15000);

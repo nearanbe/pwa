@@ -25,7 +25,7 @@ const [site, user, pass, shots] = process.argv.slice(2);
     ['ilan', L[0].url], ['ilan-360', withPano.url], ['ilan-ru', L[1].url.replace('/tr/', '/ru/').replace('/ilan/', '/obyavlenie/')],
     ['projeler', '/tr/projeler/'], ['proje', pj], ['firmalar', '/tr/firmalar/'], ['ofis', of], ['endeks', '/tr/fiyat-endeksi/'],
     ['sss', '/tr/sss/'], ['ilanver', '/tr/ilan-ver/'], ['kayit', '/tr/kayit/'], ['giris', '/tr/giris/'], ['favoriler', '/tr/favoriler/'],
-    ['blog', '/blog/'], ['yazi', post], ['404', '/tr/yok-boyle-sayfa/'],
+    ['blog', '/blog/'], ['yazi', post], ['404', '/tr/yok-boyle-sayfa/'], ['yasal-tr', '/tr/yasal/gizlilik/'], ['yasal-en', '/en/legal/cookies/'], ['yasal-ru', '/ru/pravo/usloviya/'],
   ].filter((x) => x[1]);
   const priv = ['ozet', 'ilanlar', 'ilan', 'projeler', 'proje', 'talepler', 'ekip', 'paket', 'sosyal', 'profil', 'telegram']
     .map((t) => ['panel-' + t, '/tr/panelim/?bolum=' + t]).concat([['onay', '/tr/onay/']]);

@@ -86,7 +86,7 @@ function ae_lead_form(string $kind, int $id, string $title): string
     <label class="wide"><span class="vh"><?php ae_e('lead_message'); ?></span><textarea name="message" rows="3"><?php echo esc_textarea(ae_t($kind === 'project' ? 'lead_default_project' : 'lead_default', $title)); ?></textarea></label>
   </div>
   <input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
-  <label class="chk sub"><input type="checkbox" name="consent" value="1" required> <?php ae_e('lead_consent'); ?></label>
+  <label class="chk sub"><input type="checkbox" name="consent" value="1" required> <?php ae_e('lead_consent'); ?> <a href="<?php echo esc_url(ec_url_legal('privacy')); ?>" target="_blank"><?php ae_e('privacy'); ?></a></label>
   <?php echo ae_turnstile(); ?>
   <p class="formmsg" role="status"></p>
   <button class="btn wide" type="submit"><?php ae_e('lead_send'); ?></button>

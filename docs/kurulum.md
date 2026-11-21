@@ -1,5 +1,11 @@
 # Kurulum (Plesk VPS)
 
+> **1.1.5 (yasal):**
+> - Yasal sayfalar TR/EN/RU olarak hazır: Hakkımızda, İletişim, Gizlilik ve Kişisel Veriler, Çerez Politikası, Kullanım Şartları, Paket Satış ve İade Koşulları.
+> - **Emlak → Ayarlar → Şirket ve yasal bilgiler** bölümünü doldurun: unvan, adres, vergi no, yasal e-posta.
+> - Çerez onay kutusu var; Google Analytics ve Meta Pixel sadece izinle çalışır.
+> - Metinleri bir avukata kontrol ettirin.
+>
 > **1.1.0:**
 > - **Vitrin:** öne çıkar, ana sayfa vitrini, kategori vitrini, acil ve yukarı taşı.
 >   - Krediler pakette tanımlanır (Emlak → Paketler). Örnek vitrin paketleri kendiliğinden eklenir; fiyatları değiştirin.
