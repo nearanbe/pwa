@@ -43,12 +43,26 @@ t('ekipteki danışmanın ilanı onaysız yayına girer', ec_listing_target_stat
 // Paket paylaşımı
 $pro = $wpdb->get_var("SELECT id FROM " . ec_table('packages') . " WHERE name LIKE 'Vitrin Paketi Pro%' LIMIT 1");
 $sub = ec_subscription_grant((int) $office['id'], ['package_id' => (int) $pro]);
+t('paylaşım kapalıyken ofis paketi geçerli değil', count(ec_subscriptions_active((int) $m1['id'])) === 0 && ec_promo_credits((int) $m1['id'])['home'] === 0);
+t('başka ofis paylaşım ayarını değiştiremez', ec_team_set_share((int) $office2['id'], (int) $m1['id'], true, 0, 0) === false);
+ec_team_set_share((int) $office['id'], (int) $m1['id'], true, 0, 0);
 t('ofisin paketi danışmana da geçerli', count(ec_subscriptions_active((int) $m1['id'])) >= 1 && ec_promo_credits((int) $m1['id'])['home'] === ec_promo_credits((int) $office['id'])['home']);
 $lid = (int) $wpdb->get_var("SELECT id FROM " . ec_table('listings') . " WHERE status = 'published' ORDER BY id DESC LIMIT 1");
 $wpdb->update(ec_table('listings'), ['agent_id' => $m1['id']], ['id' => $lid]);
 $before = ec_promo_credits((int) $office['id'])['featured'];
 $pa = ec_promo_apply($lid, 'featured', $m1);
 t('danışman ofisin vitrin kredisini kullandı (ortak kredi düştü)', !is_wp_error($pa) && ec_promo_credits((int) $office['id'])['featured'] === $before - 1);
+// Aylık vitrin sınırı: 2 (1'i kullanıldı)
+ec_team_set_share((int) $office['id'], (int) $m1['id'], true, 0, 2);
+t('bu ay kullanılan: 1 vitrin', ec_team_month_usage((int) $m1['id'])['promos'] === 1);
+t('sınırla kalan kredi 1', ec_promo_credits((int) $m1['id'])['home'] === 1);
+$pa2 = ec_promo_apply($lid, 'urgent', $m1);
+t('sınır içinde 2. vitrin uygulandı', !is_wp_error($pa2));
+t('sınır doldu: 3. vitrin reddedildi', is_wp_error(ec_promo_apply($lid, 'cat', $m1)));
+// Danışmanın kendi paketi varsa önce o kullanılır, sınır onu etkilemez
+$own = ec_subscription_grant((int) $m1['id'], ['package_id' => (int) $wpdb->get_var("SELECT id FROM " . ec_table('packages') . " WHERE name LIKE 'Vitrin: Kategori%' LIMIT 1")]);
+$pa3 = ec_promo_apply($lid, 'cat', $m1);
+t('kendi paketinden vitrin (ofis sınırı dolu olsa da)', !is_wp_error($pa3) && (int) $wpdb->get_var($wpdb->prepare('SELECT s.agent_id FROM ' . ec_table('promo_usage') . ' u JOIN ' . ec_table('subscriptions') . ' s ON s.id=u.subscription_id WHERE u.listing_id=%d AND u.kind=%s ORDER BY u.id DESC LIMIT 1', $lid, 'cat')) === (int) $m1['id']);
 $pub = ec_agent_public($m1);
 t('danışman kartında ofis adı', ($pub['team_of']['name'] ?? '') === $office['name']);
 
@@ -61,9 +75,10 @@ ec_team_decline(ec_agent((int) $m2['id']));
 t('reddedilen davet silindi', !ec_agent((int) $m2['id'])['team_invite'] && !ec_agent((int) $m2['id'])['parent_id']);
 t('ofis başka ofisin üyesini çıkaramaz', ec_team_remove((int) $m1['id'], (int) $office2['id']) === false);
 t('ofis danışmanı çıkardı', ec_team_remove((int) $m1['id'], (int) $office['id']) === true && !ec_agent((int) $m1['id'])['parent_id']);
-t('çıkarılınca ofis paketi geçerli değil', ec_promo_credits((int) $m1['id'])['featured'] === 0);
+t('çıkarılınca ofis paketi geçerli değil', ec_promo_credits((int) $m1['id'])['featured'] === 0 && ec_promo_credits((int) $m1['id'])['home'] === 0);
 ec_team_invite($office, 'ekip1@example.com');
 ec_team_accept(ec_agent((int) $m1['id']));
+t('yeniden katılınca paylaşım kapalı başlar', (int) ec_agent((int) $m1['id'])['team_share'] === 0);
 t('danışman ekipten ayrıldı', ec_team_remove((int) $m1['id']) === true && !ec_agent((int) $m1['id'])['parent_id']);
 
 // REST
@@ -78,6 +93,7 @@ wp_set_current_user(0);
 // temizlik
 $wpdb->update(ec_table('listings'), ['agent_id' => $office['id']], ['id' => $lid]);
 foreach ([$m1, $m2] as $m) {
+    $wpdb->delete(ec_table('subscriptions'), ['agent_id' => $m['id']]);
     $wpdb->delete($A, ['id' => $m['id']]);
     wp_delete_user((int) $m['wp_user_id']);
 }

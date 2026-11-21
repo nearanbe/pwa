@@ -144,7 +144,7 @@ $statusLabel = fn(string $s) => '<span class="st st-' . esc_attr($s) . '">' . es
         <div class="note teamnote">👥 <?php ae_e('team_invited', $tInv['name']); ?>
           <span class="row"><button type="button" class="btn sm" data-team="accept"><?php ae_e('team_accept'); ?></button><button type="button" class="ghost sm" data-team="decline"><?php ae_e('team_decline'); ?></button></span></div>
       <?php elseif ($tPar && $tab === 'ozet') : ?>
-        <div class="note teamnote">👥 <?php ae_e('team_member_of', $tPar['name']); ?> <button type="button" class="linkbtn" data-team="leave" data-confirm="<?php echo esc_attr(ae_t('team_leave_q')); ?>"><?php ae_e('team_leave'); ?></button></div>
+        <div class="note teamnote">👥 <?php ae_e('team_member_of', $tPar['name']); ?> <?php if (!empty($agent['team_share'])) : $tl = ec_team_left((int) $agent['id'], 'listings'); $tpm = ec_team_left((int) $agent['id'], 'promos'); ?><b><?php ae_e('team_shared_on'); ?></b><?php if ($tl !== null || $tpm !== null) : ?> <span class="sub">(<?php ae_e('team_left', $tl === null ? '∞' : $tl, $tpm === null ? '∞' : $tpm); ?>)</span><?php endif; ?><?php else : ?><span class="sub"><?php ae_e('team_shared_off'); ?></span><?php endif; ?> <button type="button" class="linkbtn" data-team="leave" data-confirm="<?php echo esc_attr(ae_t('team_leave_q')); ?>"><?php ae_e('team_leave'); ?></button></div>
       <?php endif;
   endif; ?>
 
@@ -274,7 +274,15 @@ $statusLabel = fn(string $s) => '<span class="st st-' . esc_attr($s) . '">' . es
       <?php if ($tm) : ?>
         <table class="ordtable"><tbody>
           <?php foreach ($tm as $m) : ?>
-            <tr><td><b><?php echo esc_html($m['name']); ?></b><br><span class="sub"><?php echo esc_html($m['email']); ?></span></td><td><?php ae_e('team_live', (int) $m['live']); ?></td>
+            <?php $mu = ec_team_month_usage((int) $m['id']); ?>
+            <tr><td><b><?php echo esc_html($m['name']); ?></b><br><span class="sub"><?php echo esc_html($m['email']); ?> · <?php ae_e('team_live', (int) $m['live']); ?></span></td>
+              <td><form class="teamshare" data-member="<?php echo (int) $m['id']; ?>">
+                <label class="chk"><input type="checkbox" name="share" value="1" <?php checked((int) $m['team_share'], 1); ?>> <?php ae_e('team_share'); ?></label>
+                <span class="tlims"><label><?php ae_e('team_lim_l'); ?> <input type="number" name="lim_listings" min="0" value="<?php echo (int) $m['team_lim_listings']; ?>"></label>
+                <label><?php ae_e('team_lim_p'); ?> <input type="number" name="lim_promos" min="0" value="<?php echo (int) $m['team_lim_promos']; ?>"></label></span>
+                <span class="sub"><?php ae_e('team_used', $mu['listings'], $mu['promos']); ?></span>
+                <button class="ghost sm" type="submit"><?php ae_e('pr_save'); ?></button>
+              </form></td>
               <td><button type="button" class="ghost sm" data-team="remove" data-member="<?php echo (int) $m['id']; ?>" data-confirm="<?php echo esc_attr(ae_t('team_remove_q', $m['name'])); ?>"><?php ae_e('team_remove'); ?></button></td></tr>
           <?php endforeach; ?>
         </tbody></table>

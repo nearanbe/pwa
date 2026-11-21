@@ -72,9 +72,14 @@ function ec_promo_left(array $sub, string $kind): int
 function ec_promo_credits(int $agent_id): array
 {
     $out = array_fill_keys(array_keys(ec_promo_kinds()), 0);
+    $teamLeft = function_exists('ec_team_left') ? ec_team_left($agent_id, 'promos') : null;
     foreach (ec_subscriptions_active($agent_id) as $s) {
         foreach (array_keys($out) as $k) {
-            $out[$k] += ec_promo_left($s, $k);
+            $left = ec_promo_left($s, $k);
+            if ((int) $s['agent_id'] !== $agent_id && $teamLeft !== null) {
+                $left = min($left, $teamLeft); // ofisin koyduğu aylık vitrin sınırı
+            }
+            $out[$k] += $left;
         }
     }
     return $out;
@@ -120,6 +125,9 @@ function ec_promo_apply(int $listing_id, string $kind, ?array $agent = null, ?in
             return new WP_Error('ec_forbidden', 'Bu ilan sizin değil', ['status' => 403]);
         }
         foreach (ec_subscriptions_active((int) $agent['id']) as $s) {
+            if ((int) $s['agent_id'] !== (int) $agent['id'] && function_exists('ec_team_left') && ec_team_left((int) $agent['id'], 'promos') === 0) {
+                continue;
+            }
             if (ec_promo_left($s, $kind) > 0) {
                 $sub = $s;
                 break;

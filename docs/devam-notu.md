@@ -113,6 +113,16 @@ Dal: `claude/jolly-carson-l927uv`. Kod buradadır, her şey commit edilip gönde
 - **EC_DB_VERSION:** 10.
 - **Ödeme araştırması:** `docs/odeme-kktc.md`. Sonuç: KKTC bankası NestPay/Cardplus sanal POS'u; iyzico ve PayTR Türkiye şirketi, Stripe güney Kıbrıs şirketi istiyor.
 
+## 1g. Sürüm 1.1.2: ekipte paket paylaşımı
+
+- **Yeni alanlar:** `agents.team_share` (varsayılan 0), `team_lim_listings`, `team_lim_promos` (aylık; 0 = sınırsız). EC_DB_VERSION 11.
+- **Davranış:**
+  - `ec_subscriptions_active` ofisin paketini sadece `team_share = 1` ise döner; önce danışmanın kendi paketi kullanılır.
+  - `ec_team_left()` ve `ec_team_month_usage()` sadece ofis paketinden yapılan, o aya ait kullanımı sayar. Kontrol yerleri: `ec_subscription_for` ve vitrinde `ec_promo_apply` / `ec_promo_credits`.
+  - Ekipten çıkınca paylaşım sıfırlanır.
+- **Arayüz ve API:** Panelim → Ekibim'de danışman başına paylaşım ayarı (`POST /me/team/share`). Danışmanın özet ekranında paylaşım durumu ve bu ay kalan hak görünür.
+- **Turnstile:** kod 0.3'ten beri hazır (kayıt, giriş, mesaj formu); kullanıcı anahtarları girecek.
+
 ## 2. Proje özeti
 
 - **Amaç:** KKTC (Kuzey Kıbrıs) emlak ilan portalı. Rakipler: 101evler.com ve hangiev.com. İkisi de Cloudflare bot korumalı; bu ortamdan açılamaz.
@@ -137,8 +147,8 @@ Dal: `claude/jolly-carson-l927uv`. Kod buradadır, her şey commit edilip gönde
 
 | Parça | Kullanıcıya verilen son sürüm | Daldaki sürüm (teslim bekliyor) |
 |---|---|---|
-| Eklenti (adacasa-core, eski emlak-core) | **1.1.0** | 1.1.0 |
-| Tema (adacasa-theme, eski emlak-tema) | **1.1.1** | 1.1.1 |
+| Eklenti (adacasa-core, eski emlak-core) | **1.1.2** | 1.1.2 |
+| Tema (adacasa-theme, eski emlak-tema) | **1.1.2** | 1.1.2 |
 | Chrome eklentisi | **0.4.1** | 0.4.1 |
 
 Kullanıcının kuralı: "Her şey tamam olana kadar yeni sürüm verme." 0.7 içeriği marka değişikliğiyle birlikte **AdaCasa 1.0.1** olarak teslim edildi.

@@ -92,7 +92,7 @@ function ec_subscriptions_active(int $agent_id): array
     global $wpdb;
     // 1.1: ofis ekibindeki danışman, ofisin paketlerini de kullanır (önce kendi paketi, sonra ofisinki)
     $ids = [$agent_id];
-    $parent = (int) $wpdb->get_var($wpdb->prepare('SELECT a.parent_id FROM ' . ec_table('agents') . ' a JOIN ' . ec_table('agents') . " p ON p.id = a.parent_id AND p.status = 'active' WHERE a.id = %d", $agent_id));
+    $parent = (int) $wpdb->get_var($wpdb->prepare('SELECT a.parent_id FROM ' . ec_table('agents') . ' a JOIN ' . ec_table('agents') . " p ON p.id = a.parent_id AND p.status = 'active' WHERE a.id = %d AND a.team_share = 1", $agent_id));
     if ($parent) {
         $ids[] = $parent;
     }
@@ -119,6 +119,10 @@ function ec_subscription_for(int $agent_id, string $feature, ?int $listing_id = 
         }
         if ($listing_id && $wpdb->get_var($wpdb->prepare('SELECT id FROM ' . ec_table('usage') . ' WHERE subscription_id = %d AND listing_id = %d', $s['id'], $listing_id))) {
             return $s; // bu ilan zaten bu pakette sayıldı
+        }
+        // Ofisin paketi: ofisin bu danışmana koyduğu aylık ilan sınırı
+        if ((int) $s['agent_id'] !== $agent_id && function_exists('ec_team_left') && ec_team_left($agent_id, 'listings') === 0) {
+            continue;
         }
         if ((int) $s['quota'] === 0 || ec_subscription_used((int) $s['id']) < (int) $s['quota']) {
             return $s;

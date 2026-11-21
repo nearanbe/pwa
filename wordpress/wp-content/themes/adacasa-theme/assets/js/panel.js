@@ -701,4 +701,15 @@
     api('POST', 'me/team/' + b.dataset.team, b.dataset.member ? { member: +b.dataset.member } : {}).then(function () { location.reload(); })
       .catch(function (er) { alert(er.message); b.disabled = false; });
   });
+
+  /* Ekibim: paket paylaşım ayarı */
+  document.addEventListener('submit', function (e) {
+    var f = e.target.closest('form.teamshare');
+    if (!f) return;
+    e.preventDefault();
+    var bt = f.querySelector('button'); bt.disabled = true;
+    api('POST', 'me/team/share', { member: +f.dataset.member, share: f.share.checked ? 1 : 0, lim_listings: +f.lim_listings.value || 0, lim_promos: +f.lim_promos.value || 0 })
+      .then(function () { bt.textContent = '✓'; setTimeout(function () { location.reload(); }, 600); })
+      .catch(function (er) { alert(er.message); bt.disabled = false; });
+  });
 })();
