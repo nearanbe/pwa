@@ -182,3 +182,16 @@ Paket ve kota kuralları:
 - `GET /ext/listing/{id}` (Chrome eklentisi) çağrısı kotadan **1 ilan** düşer. Aynı ilan aynı pakette bir kez sayılır; kota dolunca `402 ec_no_package` döner.
 - Telegram botu, Ayarlar'da "paket gereksin" açıksa paketsiz üyeye ilan hazırlamaz.
 - Sosyal medya paylaşımı her zaman paket ister. Sitenin kendi hesabına paylaşım ücretsizdir.
+
+## 0.6 uçları
+
+| Uç | Açıklama |
+|---|---|
+| `GET /listings/{id}/panos` | 360° fotoğraflar: `[{"id","title","url","thumb","width","height"}]` (`url` = en çok 6000 px WebP) |
+| `POST /listings/{id}/panos` | `multipart`: `pano` (dosya, genişlik = 2 × yükseklik, en az 1600 px), `title` (oda adı). İlan başına en çok 15. Oran tutmazsa `400 ec_pano_ratio`. |
+| `PATCH /listings/{id}/panos/{pid}` · `PUT /listings/{id}/panos/order` · `DELETE /listings/{id}/panos/{pid}` | Oda adı, sıra, silme |
+| `GET /listings?pano=1` | Sadece 360° fotoğraflı ilanlar |
+
+İlan nesnesine eklenenler: `pano_count` (her yerde) ve `panos` (sadece detayda).
+
+**Tapu türü kuralı (0.6):** `deed_type` sadece `mode: "sale"` ilanlarda saklanır ve döner. Kiralık ve günlük ilanda gönderilen değer yok sayılır, `deed_type` / `deed_name` her zaman `null` döner. Aramada kiralık için `deed_type` filtresi uygulanmaz.

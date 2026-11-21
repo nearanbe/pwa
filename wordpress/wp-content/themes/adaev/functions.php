@@ -7,7 +7,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-define('AE_VER', '0.5.0');
+define('AE_VER', '0.6.0');
 
 if (!function_exists('ec_table')) {
     // Eklenti kapalıysa: hiçbir eklenti fonksiyonu TANIMLANMAZ (aksi halde eklenti etkinleştirilirken
@@ -70,7 +70,8 @@ add_action('wp_enqueue_scripts', function () {
     ]);
     if (in_array(ec_page(), ['listing', 'projectd'], true)) {
         wp_enqueue_script('ae-detail', get_theme_file_uri('assets/js/detail.js'), ['ae-main'], AE_VER, ['in_footer' => true, 'strategy' => 'defer']);
-        wp_localize_script('ae-detail', 'AED', ['leaflet' => ['js' => get_theme_file_uri('assets/vendor/leaflet/leaflet.js'), 'css' => get_theme_file_uri('assets/vendor/leaflet/leaflet.css')], 't' => [
+        wp_localize_script('ae-detail', 'AED', ['leaflet' => ['js' => get_theme_file_uri('assets/vendor/leaflet/leaflet.js'), 'css' => get_theme_file_uri('assets/vendor/leaflet/leaflet.css')], 'pannellum' => ['js' => get_theme_file_uri('assets/vendor/pannellum/pannellum.js'), 'css' => get_theme_file_uri('assets/vendor/pannellum/pannellum.css')], 't' => [
+            'panoLoading' => ae_t('pano_loading'), 'panoFail' => ae_t('pano_fail'),
             'gallery' => ae_t('lb_gallery'), 'slideshow' => ae_t('lb_slideshow'), 'allPhotos' => ae_t('lb_grid'), 'close' => ae_t('close'),
             'nearbyNone' => ae_t('nearby_none'), 'nearbyFail' => ae_t('nearby_fail'), 'nearbySource' => ae_t('nearby_source', '%s'),
             'leadName' => ae_t('lead_err_name'), 'leadContact' => ae_t('lead_err_contact'), 'leadConsent' => ae_t('lead_err_consent'),

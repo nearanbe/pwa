@@ -16,7 +16,8 @@ $f = [
     'subtype' => $g('subtype'),
     'district' => $g('district'),
     'rooms' => $g('rooms'),
-    'deed_type' => isset(ec_deed_types()[$g('deed_type')]) ? $g('deed_type') : '',
+    'deed_type' => $mode === 'sale' && isset(ec_deed_types()[$g('deed_type')]) ? $g('deed_type') : '', // kiralıkta tapu yok
+    'pano' => $g('pano') ? 1 : '',
     'min' => $g('min'),
     'max' => $g('max'),
     'currency' => strtoupper($g('currency')) ?: ae_currency(),

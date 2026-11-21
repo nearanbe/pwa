@@ -23,7 +23,7 @@ function ec_social_settings(): array
 {
     return array_merge([
         'app_id' => '', 'app_secret' => '', 'graph_ver' => 'v24.0', 'user_token' => '', 'user_name' => '', 'connected_at' => '',
-        'site_auto' => 1, 'max_photos' => 10,
+        'site_auto' => 1, 'max_photos' => 10, 'fb_360' => 1,
         'tpl_tr' => '', 'tpl_en' => '', 'tpl_ru' => '',
     ], (array) get_option('ec_social', []));
 }
@@ -263,6 +263,7 @@ function ec_social_caption_one(array $row, string $lang, string $network, ?array
         $it['rooms'] ? '🛏 ' . $it['rooms'] : null,
         $it['area_m2'] ? '📐 ' . $it['area_m2'] . ' m²' : null,
         $it['deed_name'] ? '📜 ' . $it['deed_name'] : null,
+        $it['pano_count'] ? '🌐 360°' : null,
     ]));
     $feats = array_slice($it['feature_names'], 0, 6);
     $site = preg_replace('~^https?://(www\.)?~', '', untrailingslashit(home_url()));
@@ -382,6 +383,27 @@ function ec_social_post_facebook(array $acc, array $row, string $caption, array 
     }
     $pl = ec_graph('GET', $r['id'], ['fields' => 'permalink_url', 'access_token' => $tok]);
     return ['id' => (string) $r['id'], 'permalink' => is_wp_error($pl) ? null : ($pl['permalink_url'] ?? null)];
+}
+
+/** Facebook'ta çevrilebilir 360° fotoğraf gönderisi (ilan başına bir tane) */
+function ec_social_post_facebook_360(array $acc, array $row, array $pano, ?array $owner): void
+{
+    $url = ec_pano_jpeg($pano);
+    if (!$url) {
+        return;
+    }
+    $it = ec_listings_present([$row], 'tr')[0];
+    $meta = wp_json_encode([
+        'ProjectionType' => 'equirectangular',
+        'CroppedAreaImageWidthPixels' => $pano['width'], 'CroppedAreaImageHeightPixels' => $pano['height'],
+        'FullPanoWidthPixels' => $pano['width'], 'FullPanoHeightPixels' => $pano['height'],
+        'CroppedAreaLeftPixels' => 0, 'CroppedAreaTopPixels' => 0,
+    ]);
+    ec_graph('POST', $acc['page_id'] . '/photos', [
+        'url' => $url, 'allow_spherical_photo' => 'true', 'spherical_metadata' => $meta,
+        'caption' => '🌐 360° · ' . $it['title'] . ($pano['title'] ? ' — ' . $pano['title'] : '') . "\n👉 " . $it['url'],
+        'access_token' => ec_decrypt($acc['token_enc']),
+    ], 90);
 }
 
 /** @return array{id: string, permalink: ?string}|WP_Error */
@@ -521,7 +543,14 @@ function ec_social_process(array $p): array
     $max = max(1, min(10, (int) ec_social_settings()['max_photos']));
     $photos = $wpdb->get_col($wpdb->prepare('SELECT path FROM ' . ec_table('photos') . ' WHERE listing_id = %d ORDER BY sort, id LIMIT %d', $row['id'], $max));
     $urls = array_values(array_filter(array_map('ec_social_jpeg', $photos)));
+    $panos = function_exists('ec_panos') ? ec_panos((int) $row['id']) : [];
+    if ($p['network'] === 'instagram' && $panos && count($urls) < 10 && ($flat = ec_pano_flat($panos[0]))) {
+        $urls[] = $flat; // Instagram 360° göstermez: ortadan düz bir kesit eklenir
+    }
     $res = $p['network'] === 'instagram' ? ec_social_post_instagram($acc, $caption, $urls) : ec_social_post_facebook($acc, $row, $caption, $urls);
+    if (!is_wp_error($res) && $p['network'] === 'facebook' && $panos && ec_social_settings()['fb_360']) {
+        ec_social_post_facebook_360($acc, $row, $panos[0], $owner);
+    }
     if (is_wp_error($res)) {
         $d = (array) $res->get_error_data();
         $err = mb_substr($res->get_error_message(), 0, 255);

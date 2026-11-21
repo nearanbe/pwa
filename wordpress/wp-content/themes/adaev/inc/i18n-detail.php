@@ -155,6 +155,18 @@ add_filter('adaev_strings_extra', function (array $s): array {
         'so_st_queued' => ['Sırada', 'Queued', 'В очереди'],
         'so_st_failed' => ['Hata', 'Failed', 'Ошибка'],
         'so_st_skipped' => ['Atlandı', 'Skipped', 'Пропущено'],
+        'pano_tour' => ['360° Tur', '360° Tour', '360° тур'],
+        'pano_tour_n' => ['360° Tur (%s)', '360° Tour (%s)', '360° тур (%s)'],
+        'pano_room' => ['Oda %s', 'Room %s', 'Комната %s'],
+        'pano_rooms' => ['Odalar', 'Rooms', 'Комнаты'],
+        'pano_start' => ['360° turu başlat', 'Start 360° tour', 'Начать 360° тур'],
+        'pano_hint' => ['Sürükleyerek etrafa bakın', 'Drag to look around', 'Перетаскивайте, чтобы осмотреться'],
+        'pano_loading' => ['Yükleniyor…', 'Loading…', 'Загрузка…'],
+        'pano_fail' => ['Tur açılamadı, tekrar deneyin', 'Could not open the tour, try again', 'Не удалось открыть тур'],
+        'pano_only' => ['360°', '360°', '360°'],
+        'pano_filter' => ['Sadece 360° fotoğraflı ilanlar', 'Only listings with 360° photos', 'Только с 360° фото'],
+        'pano_add' => ['360° fotoğraf ekle', 'Add 360° photos', 'Добавить 360° фото'],
+        'pano_upload_hint' => ['Genişliği yüksekliğinin 2 katı olan küresel fotoğraf (360° kamera ya da telefonun “Fotoğraf küresi” modu). Her fotoğrafa oda adı yazın (Salon, Mutfak…). Dosya başına en çok %s.', 'Spherical photo twice as wide as it is tall (360° camera or the phone’s “Photo Sphere” mode). Name each room (Living room, Kitchen…). Max %s per file.', 'Сферическое фото с соотношением 2:1. Подпишите комнату. До %s на файл.'],
         'rv_close_report' => ['Kapat', 'Close', 'Закрыть'],
     ]);
 });

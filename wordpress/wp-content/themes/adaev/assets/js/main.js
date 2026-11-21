@@ -106,6 +106,8 @@
         if (b.dataset.m === 'project') { location.href = actions.project; return; }
         $$('.tabs button', sb).forEach(function (x) { x.classList.toggle('on', x === b); x.setAttribute('aria-selected', x === b ? 'true' : 'false'); });
         sb.action = actions[b.dataset.m];
+        // Tapu türü sadece satılıkta (kiracıyı ilgilendirmez)
+        $$('.sale-only', sb).forEach(function (n) { var on = b.dataset.m === 'sale'; n.hidden = !on; n.disabled = !on; if (!on) n.value = ''; });
       });
     });
     var pt = $('#f-ptype', sb), st = $('#f-sub', sb), city = $('#f-city', sb), dist = $('#f-dist', sb);
@@ -123,7 +125,8 @@
       var url = sb.action.replace(/\/?$/, '/') + (city.value ? city.value + '/' : '');
       var q = [];
       $$('select,input', sb).forEach(function (el) {
-        if (!el.name || el.name === 'city' || !el.value) return;
+        if (!el.name || el.name === 'city' || !el.value || el.disabled) return;
+        if (el.type === 'checkbox' && !el.checked) return;
         if (el.name === 'currency' && !$('#f-min', sb).value && !$('#f-max', sb).value) return;
         if (el.name === 'ptype' && el.value === 'konut' && !st.value) return;
         q.push(encodeURIComponent(el.name) + '=' + encodeURIComponent(el.value));

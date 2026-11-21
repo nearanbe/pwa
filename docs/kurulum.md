@@ -89,6 +89,27 @@ Nasıl çalışır:
 - Değer 30 dakikadan eskiyse (ör. zamanlanmış görev durduysa) site kendiliğinden resmi TCMB kuruna döner.
 - Sitede fiyatın yanında **"Piyasa kuru · 14:35"** yazar. Döviz çeviricide ayrıca **TCMB resmi kuru** görünür.
 
+## 360° fotoğraflar (0.6)
+
+- **Emlakçı:** Panelim → İlan → Fotoğraflar adımında **360° fotoğraf ekle**. Her fotoğrafa oda adı yazılır (Salon, Mutfak…). İlan başına en çok 15.
+  Genişliği yüksekliğinin 2 katı olan (küresel) bir fotoğraf normal fotoğraf yükleyicisine verilse bile site onu tanır ve 360° bölümüne koyar.
+- **Telegram:** 360° fotoğraf **📎 → Dosya** olarak gönderilmeli. Fotoğraf olarak gönderilirse Telegram küçültür ve görüntü bulanık olur; bot bunu emlakçıya söyler.
+- **İlan sayfası:** "360° Tur" bölümü. Ziyaretçi **360° turu başlat**'a basınca görüntüleyici yüklenir, bu yüzden sayfa yavaşlamaz.
+  - Fareyle, parmakla ya da telefonu döndürerek bakılır. Yakınlaştırma, tam ekran ve oda oda geçiş var.
+- **Sanal tur linki:** Matterport, Kuula, Momento360, CloudPano, Roundme ve Panoee linkleri ilan sayfasının içinde açılır.
+- **Arama:** **🌐 360°** kutusu, sadece 360° fotoğraflı ilanları listeler. Kartlarda "360°" rozeti çıkar.
+- **Sosyal medya:** Facebook sayfasında ilanın ilk 360° fotoğrafı ayrıca çevrilebilir 360° gönderi olarak paylaşılır. Instagram 360° göstermediği için fotoğrafın ortasından düz bir kesit gönderilir.
+- **Sunucu (bir kez):** Plesk → alan adı → PHP ayarları:
+  - `upload_max_filesize` = **32M**
+  - `post_max_size` = **32M**
+  - `memory_limit` = **256M**
+
+  **Emlak → Canlıya çıkış** bunu kontrol eder.
+
+## Tapu türü sadece satılıkta (0.6)
+
+Kiralık ve günlük kiralık ilanlarda tapu türü sorulmaz, saklanmaz ve gösterilmez. Arama kutusunda kiralık sekmesinde tapu filtresi yoktur. Eski kiralık ilanlardaki tapu bilgileri güncellemede kendiliğinden silinir.
+
 ## Ana sayfa şehir kartları
 
 **Emlak → Ayarlar → Ana sayfa şehir kartları:** her şehir için Medya kütüphanesindeki bir görselin numarasını ya da adresini girin. Kartlarda satılık ve kiralık ilan sayıları kendiliğinden yazar. Fotoğraf girilmeyen şehirde renkli arka plan görünür.

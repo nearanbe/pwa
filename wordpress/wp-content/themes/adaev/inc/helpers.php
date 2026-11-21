@@ -142,6 +142,7 @@ function ae_card(array $a): string
     <span class="tag"><?php echo esc_html($a['subtype_name']); ?></span>
     <?php if ($a['featured']) : ?><span class="fbadge"><?php ae_e('featured_badge'); ?></span><?php endif; ?>
     <?php if ($a['status'] === 'sold') : ?><span class="sbadge"><?php ae_e('sold'); ?></span><?php endif; ?>
+    <?php if (!empty($a['pano_count'])) : ?><span class="pbadge" title="<?php ae_e('pano_tour'); ?>">360°</span><?php endif; ?>
     <button class="heart<?php echo $fav ? ' on' : ''; ?>" type="button" data-fav="<?php echo (int) $a['id']; ?>" aria-pressed="<?php echo $fav ? 'true' : 'false'; ?>" aria-label="<?php ae_e('favourites'); ?>">♥</button>
   </div>
   <div class="body">
@@ -240,7 +241,7 @@ function ae_search_box(array $s = []): void
       <?php endforeach; ?>
     </select>
     <label class="vh" for="f-deed"><?php ae_e('deed_filter'); ?></label>
-    <select id="f-deed" name="deed_type">
+    <select id="f-deed" name="deed_type" class="sale-only" <?php echo $mode === 'sale' ? '' : 'hidden disabled'; ?>>
       <option value=""><?php ae_e('deed_filter'); ?></option>
       <?php foreach (ec_deed_types() as $dk => $dn) : if ($dk === 'diger') { continue; } ?>
         <option value="<?php echo esc_attr($dk); ?>" <?php selected($s['deed_type'] ?? '', $dk); ?>><?php echo esc_html($dn[$lang]); ?></option>
@@ -254,6 +255,7 @@ function ae_search_box(array $s = []): void
     <select id="f-cur" name="currency" class="fcur" title="<?php ae_e('currency'); ?>">
       <?php foreach (EC_CURRENCIES as $c) : ?><option value="<?php echo esc_attr($c); ?>" <?php selected($s['currency'] ?? ae_currency(), $c); ?>><?php echo esc_html(AE_SYM[$c] . ' ' . $c); ?></option><?php endforeach; ?>
     </select>
+    <label class="pano-chk" title="<?php ae_e('pano_filter'); ?>"><input type="checkbox" name="pano" value="1" <?php checked(!empty($s['pano'])); ?>> 🌐 <?php ae_e('pano_only'); ?></label>
     <button class="btn" type="submit"><?php ae_e('search'); ?></button>
   </div>
   <div class="recent" id="recent" data-label="<?php ae_e('recent_search'); ?>"></div>

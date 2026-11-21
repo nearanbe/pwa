@@ -278,6 +278,9 @@ function ec_demo_unseed(): string
         foreach ($wpdb->get_col($wpdb->prepare('SELECT id FROM ' . ec_table('photos') . ' WHERE listing_id = %d', $id)) as $pid) {
             ec_photo_delete((int) $id, (int) $pid);
         }
+        foreach ($wpdb->get_col($wpdb->prepare('SELECT id FROM ' . ec_table('panos') . ' WHERE listing_id = %d', $id)) as $pid) {
+            ec_pano_delete((int) $id, (int) $pid);
+        }
         @rmdir(ec_photo_base()['dir'] . '/' . $id);
         $wpdb->delete(ec_table('listing_i18n'), ['listing_id' => $id]);
         $wpdb->delete(ec_table('listings'), ['id' => $id]);

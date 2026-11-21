@@ -231,4 +231,40 @@
     ic.addEventListener('submit', function (e) { e.preventDefault(); });
     calc();
   }
+
+  /* ---------- 360° tur (Pannellum; düğmeye basınca yüklenir, sayfayı yavaşlatmaz) ---------- */
+  var pb = $('#panobox');
+  if (pb) {
+    var list = JSON.parse(pb.dataset.panos || '[]'), viewer = null, cur = 0, pnP = null;
+    var loadPn = function () {
+      if (window.pannellum) return Promise.resolve();
+      if (pnP) return pnP;
+      pnP = new Promise(function (res, rej) {
+        var c = document.createElement('link'); c.rel = 'stylesheet'; c.href = D.pannellum.css; document.head.appendChild(c);
+        var s = document.createElement('script'); s.src = D.pannellum.js; s.onload = res; s.onerror = rej; document.head.appendChild(s);
+      });
+      return pnP;
+    };
+    var show = function (i) {
+      cur = i;
+      $$('.panorooms button', pb).forEach(function (b, k) { b.classList.toggle('on', k === i); b.setAttribute('aria-selected', k === i ? 'true' : 'false'); });
+      if (!viewer) return;
+      viewer.loadScene('s' + i);
+    };
+    var start = function () {
+      var box = $('#panoview', pb), btn = $('#panostart', pb);
+      btn.disabled = true; btn.querySelector('span').textContent = T.panoLoading;
+      loadPn().then(function () {
+        var scenes = {};
+        list.forEach(function (p, i) { scenes['s' + i] = { type: 'equirectangular', panorama: p.u, title: p.t, hfov: 100, autoLoad: true }; });
+        box.innerHTML = '';
+        viewer = window.pannellum.viewer(box, {
+          default: { firstScene: 's' + cur, sceneFadeDuration: 600, autoLoad: true, autoRotate: reduce ? 0 : -2, autoRotateInactivityDelay: 4000, compass: false, showZoomCtrl: true, showFullscreenCtrl: true, orientationOnByDefault: false },
+          scenes: scenes
+        });
+      }).catch(function () { btn.disabled = false; btn.querySelector('span').textContent = T.panoFail; });
+    };
+    $('#panostart', pb).addEventListener('click', start);
+    $$('.panorooms button', pb).forEach(function (b) { b.addEventListener('click', function () { var i = +b.dataset.i; if (!viewer) { cur = i; $('#panostart', pb).style.backgroundImage = 'url(' + list[i].th + ')'; start(); } show(i); }); });
+  }
 })();

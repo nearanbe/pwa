@@ -583,6 +583,30 @@ html{scroll-padding-top:130px}
 .tgsteps{padding-left:20px;line-height:1.6}
 .ptabs .count{font-size:11px;padding:1px 7px;margin-left:4px}
 .printonly{display:none}
+/* 360° tur */
+.pbadge{position:absolute;left:10px;bottom:10px;background:rgba(15,34,39,.78);color:#fff;font:700 12px/1 Inter,sans-serif;padding:5px 8px;border-radius:999px;letter-spacing:.3px}
+.gfull.g360{left:auto;right:64px;text-decoration:none}
+@media(max-width:600px){.gfull.g360{right:auto;left:12px;bottom:52px}}
+.panoview{position:relative;aspect-ratio:16/9;border-radius:16px;overflow:hidden;background:var(--soft)}
+.panostart{position:absolute;inset:0;width:100%;border:0;background:#123 center/cover no-repeat;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;cursor:pointer}
+.panostart::before{content:"";position:absolute;inset:0;background:rgba(10,24,28,.45)}
+.panostart span,.panostart small{position:relative;z-index:1}
+.panostart span{font:600 18px/1 Inter,sans-serif;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.5);padding:12px 18px;border-radius:999px}
+.panostart small{opacity:.9}
+.panorooms{display:flex;gap:8px;overflow-x:auto;margin-top:10px;padding-bottom:4px}
+.panorooms button{flex:0 0 120px;border:2px solid transparent;border-radius:10px;padding:0;background:var(--card);overflow:hidden;text-align:left;cursor:pointer}
+.panorooms button.on{border-color:var(--gold)}
+.panorooms img{width:100%;height:60px;object-fit:cover;display:block}
+.panorooms span{display:block;font-size:12.5px;padding:4px 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text)}
+.tourframe{position:relative;aspect-ratio:16/9;border-radius:16px;overflow:hidden;margin-top:12px;background:var(--soft)}
+.tourframe iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.pano-chk{display:flex;align-items:center;gap:6px;font-size:14px;white-space:nowrap;padding:0 4px}
+.pano-chk input{width:auto}
+.panoup{margin-top:18px;border-top:1px solid var(--line);padding-top:12px}
+.panolist{list-style:none;padding:0;display:grid;gap:8px;margin-top:10px}
+.panolist li{display:grid;grid-template-columns:120px 1fr auto;gap:10px;align-items:center}
+.panolist img{width:120px;height:60px;object-fit:cover;border-radius:8px}
+@media print{#tur{display:none!important}}
 .pkcard{border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin:10px 0}.pkcard h3{margin:0 0 4px}.pkcard .pbar{margin:8px 0 4px}
 .pklist{list-style:none;padding:0}.pklist li{padding:8px 0;border-bottom:1px solid var(--line)}.pklist .price{float:right;font-size:20px}
 .soacc,.sorecent{list-style:none;padding:0}.soacc li,.sorecent li{padding:8px 0;border-bottom:1px solid var(--line)}

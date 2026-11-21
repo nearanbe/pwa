@@ -45,7 +45,7 @@ $steps = ['basics' => 'f_step_basics', 'location' => 'f_step_location', 'details
 
   <section class="wstep panel" data-step="details">
     <h2><?php ae_e('f_step_details'); ?></h2>
-    <fieldset class="deedbox">
+    <fieldset class="deedbox sale-only">
       <legend><?php ae_e('deed'); ?> <span class="req-sale">*</span></legend>
       <p class="sub"><?php ae_e('f_deed_required'); ?></p>
       <div class="deeds">
@@ -95,6 +95,12 @@ $steps = ['basics' => 'f_step_basics', 'location' => 'f_step_location', 'details
       <label class="btn filebtn"><?php ae_e('f_choose_photos'); ?><input type="file" id="photofiles" accept="image/jpeg,image/png,image/webp" multiple hidden></label>
     </div>
     <ul class="photos" id="photos"></ul>
+    <div class="panoup" id="panoup">
+      <h3>🌐 <?php ae_e('pano_tour'); ?> <span class="sub">(<?php ae_e('optional'); ?>, <?php echo (int) EC_PANO_MAX; ?>)</span></h3>
+      <p class="sub"><?php ae_e('pano_upload_hint', size_format(wp_max_upload_size())); ?></p>
+      <label class="ghost filebtn sm">＋ <?php ae_e('pano_add'); ?><input type="file" id="panofiles" accept="image/jpeg,image/png,image/webp" multiple hidden></label>
+      <ul class="panolist" id="panolist"></ul>
+    </div>
   </section>
 
   <section class="wstep panel" data-step="preview">

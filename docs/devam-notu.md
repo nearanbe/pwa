@@ -15,6 +15,22 @@ Bu dosya, projeyi yeni bir oturumda kaldığı yerden sürdürmek için yazıld�
 - **Paketleme:** `bash scripts/paketle.sh` komutu `dist/emlak-core.zip`, `dist/adaev.zip` ve `dist/ilan-aktarici.zip` dosyalarını üretir. Kullanıcı bunları yönetim panelinden "mevcut sürümü değiştir" seçeneğiyle yükler.
 - **Dal:** `claude/jolly-carson-l927uv`.
 
+## Sürüm durumu (0.6)
+
+- **360° fotoğraflar (`includes/panos.php`, tablo `wp_ec_panos`):**
+  - 2:1 oran kontrolü; WebP en çok 6000 px + küçük resim; ilan başına 15; her fotoğrafın oda adı var.
+  - Panelde ayrı bölüm. Normal yükleyiciye verilen 2:1 dosya da otomatik 360°'a gider.
+  - Telegram'da "dosya olarak" gönderilen 360° fotoğraf tanınır.
+  - İlan sayfasında Pannellum 2.5.6 (`assets/vendor/pannellum`, tıklayınca yüklenir), oda geçişi.
+  - Matterport/Kuula vb. sanal tur linkleri sayfa içinde açılır (`ec_tour_embed`).
+  - Arama `pano=1` filtresi, kartlarda "360°" rozeti.
+  - Facebook'ta ilk 360° fotoğraf `allow_spherical_photo` ile ayrı gönderi (Ayarlar'da `fb_360`). Instagram'a ortadan düz kesit.
+- **Tapu türü sadece satılıkta:**
+  - Çekirdekte (`ec_listing_create` / `update`) kiralıkta `deed_type` boşaltılıyor. `ec_listings_present` kiralıkta tapu döndürmüyor.
+  - Arama kutusunda kiralık sekmesinde gizli. Form, ilan sayfası, onay paneli, Telegram önizlemesi, yapay zekâ ve sosyal metin buna göre düzenlendi.
+  - DB v6 eski kiralık tapularını sildi.
+- Testler: social-test 30/30 (360° dahil), backend 29/29.
+
 ## Sürüm durumu (0.5)
 
 0.5'te eklenenler:

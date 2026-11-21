@@ -360,6 +360,24 @@ function ec_install_schema(): void
   KEY status (status)
 ) $c;");
 
+    // 360° fotoğraflar (0.6)
+    $pn = ec_table('panos');
+    dbDelta("CREATE TABLE $pn (
+  id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  listing_id bigint(20) unsigned NOT NULL,
+  title varchar(60) DEFAULT NULL,
+  path varchar(255) NOT NULL,
+  width int(10) unsigned DEFAULT NULL,
+  height int(10) unsigned DEFAULT NULL,
+  sort smallint(5) unsigned NOT NULL DEFAULT 0,
+  created_at datetime NOT NULL,
+  PRIMARY KEY  (id),
+  KEY listing_id (listing_id,sort)
+) $c;");
+
+    // 0.6: tapu türü sadece satılık ilanlarda (kiracıyı ilgilendirmez)
+    $wpdb->query("UPDATE $listings SET deed_type = NULL WHERE mode <> 'sale' AND deed_type IS NOT NULL");
+
     // v1 → v3: eski hesap türlerini yeni adlara çevir
     $wpdb->query("UPDATE $agents SET kind = 'ofis' WHERE kind = 'kurumsal'");
     $wpdb->query("UPDATE $agents SET kind = 'danisman' WHERE kind = 'bireysel'");

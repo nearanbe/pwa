@@ -27,7 +27,7 @@ get_header();
         <div class="price"><?php echo ae_price($a['price_gbp'], $a['mode'], false); ?></div>
         <h3><a href="<?php echo esc_url($a['url']); ?>" target="_blank">#<?php echo (int) $a['id']; ?> <?php echo esc_html($a['title']); ?></a></h3>
         <div class="sub"><?php echo esc_html(ae_t($a['mode']) . ' · ' . $a['subtype_name'] . ' · ' . trim(($a['district'] ? $a['district'] . ', ' : '') . $a['city_name'])); ?></div>
-        <div class="sub"><?php echo esc_html(implode(' · ', array_filter([$a['area_m2'] ? $a['area_m2'] . ' m²' : '', $a['rooms'], $a['deed_name'] ?: ae_t('deed_unknown')]))); ?></div>
+        <div class="sub"><?php echo esc_html(implode(' · ', array_filter([$a['area_m2'] ? $a['area_m2'] . ' m²' : '', $a['rooms'], $a['mode'] === 'sale' ? ($a['deed_name'] ?: ae_t('deed_unknown')) : '']))); ?></div>
         <?php if ($a['description']) : ?><p class="rvdesc"><?php echo esc_html(wp_trim_words($a['description'], 40)); ?></p><?php endif; ?>
         <?php if ($ag) : ?>
           <div class="rvowner"><b><?php echo esc_html($ag['name']); ?></b> · <?php echo esc_html($kinds[$ag['kind']]['name']['tr'] ?? $ag['kind']); ?>

@@ -151,6 +151,9 @@ function ec_listing_create(array $in, ?int $agent_id = null, string $source = 'p
     }
     $i18n = $d['i18n'];
     unset($d['i18n']);
+    if ($d['mode'] !== 'sale') {
+        $d['deed_type'] = null; // tapu türü sadece satılıkta
+    }
     $d['currency'] = $d['currency'] ?? 'GBP';
     $d['price_gbp'] = round(ec_to_gbp($d['price'], $d['currency']), 2);
     $d['status'] = $d['status'] ?? 'draft';
@@ -194,6 +197,9 @@ function ec_listing_update(int $id, array $in)
     }
     $i18n = $d['i18n'] ?? null;
     unset($d['i18n']);
+    if ($final['mode'] !== 'sale') {
+        $d['deed_type'] = null; // tapu türü sadece satılıkta
+    }
     if (isset($d['price']) || isset($d['currency'])) {
         $d['price_gbp'] = round(ec_to_gbp($d['price'] ?? (float) $row['price'], $d['currency'] ?? $row['currency']), 2);
     }
@@ -253,6 +259,7 @@ function ec_listings_present(array $rows, string $lang, bool $full = false): arr
     foreach ($wpdb->get_results($photoSql, ARRAY_A) as $p) {
         $photos[$p['listing_id']][] = $p;
     }
+    $panoN = function_exists('ec_pano_counts') ? ec_pano_counts($ids) : [];
     $agentIds = array_filter(array_unique(array_map(fn($r) => (int) $r['agent_id'], $rows)));
     $agents = $agentIds ? ec_agents_by_ids($agentIds) : [];
 
@@ -279,8 +286,9 @@ function ec_listings_present(array $rows, string $lang, bool $full = false): arr
             'area_m2' => $r['area_m2'] !== null ? (int) $r['area_m2'] : null,
             'rooms' => $r['rooms'],
             'baths' => $r['baths'] !== null ? (int) $r['baths'] : null,
-            'deed_type' => $r['deed_type'],
-            'deed_name' => $r['deed_type'] ? (ec_deed_types()[$r['deed_type']][$lang] ?? $r['deed_type']) : null,
+            'deed_type' => $r['mode'] === 'sale' ? $r['deed_type'] : null,
+            'deed_name' => $r['mode'] === 'sale' && $r['deed_type'] ? (ec_deed_types()[$r['deed_type']][$lang] ?? $r['deed_type']) : null,
+            'pano_count' => $panoN[$id] ?? 0,
             'agent_id' => $r['agent_id'] ? (int) $r['agent_id'] : null,
             'views' => (int) $r['views'],
             'furnished' => $r['furnished'] === null ? null : (bool) $r['furnished'],
@@ -295,7 +303,8 @@ function ec_listings_present(array $rows, string $lang, bool $full = false): arr
             $feat = $r['features'] ? (array) json_decode($r['features'], true) : [];
             $item['features'] = $feat;
             $item['feature_names'] = array_values(array_filter(array_map(fn($k) => ec_features()[$k][$lang] ?? null, $feat)));
-            $item['deed_desc'] = $r['deed_type'] ? ec_deed_desc($r['deed_type'], $lang) : '';
+            $item['deed_desc'] = $r['mode'] === 'sale' && $r['deed_type'] ? ec_deed_desc($r['deed_type'], $lang) : '';
+            $item['panos'] = function_exists('ec_panos') ? ec_panos($id) : [];
             foreach (['vat_paid', 'transformer_paid'] as $k) {
                 $item[$k] = $r[$k] === null ? null : (bool) $r[$k];
             }
@@ -338,6 +347,12 @@ function ec_listing_search(array $f, string $lang, int $page = 1, int $per = 24)
     $t = ec_table('listings');
     $where = ["status = 'published'"];
     $args = [];
+    if (($f['mode'] ?? 'sale') !== 'sale') {
+        unset($f['deed_type']); // kiralıkta tapu filtresi yok
+    }
+    if (!empty($f['pano'])) {
+        $where[] = 'id IN (SELECT listing_id FROM ' . ec_table('panos') . ')';
+    }
     foreach (['mode', 'ptype', 'subtype', 'city', 'district', 'rooms', 'deed_type'] as $k) {
         if (!empty($f[$k])) {
             $where[] = "$k = %s";

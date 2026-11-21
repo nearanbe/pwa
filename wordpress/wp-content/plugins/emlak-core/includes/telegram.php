@@ -352,9 +352,16 @@ function ec_tg_collect_photo(array $d, array $m): void
     } elseif (!empty($m['document']) && str_starts_with((string) ($m['document']['mime_type'] ?? ''), 'image/')) {
         $fid = $m['document']['file_id'];
     }
-    if ($fid && count($photos) < EC_PHOTO_MAX) {
+    if ($fid && count($photos) < EC_PHOTO_MAX + EC_PANO_MAX) {
         $photos[] = ['file_id' => $fid, 'done' => false];
         ec_tg_draft_save((int) $d['id'], ['photos' => $photos]);
+    }
+    // 360° fotoğraf "fotoğraf" olarak gönderildiyse Telegram 1280 px'e sıkıştırır: dosya olarak göndermesini söyle
+    if (!empty($m['photo'])) {
+        $big = end($m['photo']);
+        if (!empty($big['width']) && !empty($big['height']) && abs($big['width'] / $big['height'] - 2) < 0.06) {
+            ec_tg_send($d['chat_id'], "🌐 360° fotoğraf algıladım. Telegram fotoğrafları küçülttüğü için 360° görüntü bulanık olur.\nEn iyi sonuç için 360° fotoğrafı <b>📎 → Dosya</b> olarak gönderin.");
+        }
     }
 }
 
@@ -379,7 +386,13 @@ function ec_tg_sync_photos(array $d): void
         if (is_wp_error($tmp)) {
             continue;
         }
-        $r = ec_photo_add((int) $d['listing_id'], $tmp);
+        $sz = @getimagesize($tmp);
+        if ($sz && ec_is_pano_size((int) $sz[0], (int) $sz[1])) {
+            $r = ec_pano_add((int) $d['listing_id'], $tmp); // 2:1 oran: 360° fotoğraf
+            $photos[$i]['pano'] = true;
+        } else {
+            $r = ec_photo_add((int) $d['listing_id'], $tmp);
+        }
         @unlink($tmp);
         $photos[$i]['done'] = !is_wp_error($r);
     }
@@ -468,12 +481,14 @@ function ec_tg_preview(int $id): void
         ec_tg_esc(implode(' · ', array_filter([['sale' => 'Satılık', 'rent' => 'Kiralık', 'daily' => 'Günlük kiralık'][$it['mode']], $it['subtype_name'], trim(($it['district'] ? $it['district'] . ', ' : '') . $it['city_name'])]))),
         '💰 ' . $sym . number_format($it['price'], 0, ',', '.') . ($it['mode'] === 'rent' ? ' / ay' : ($it['mode'] === 'daily' ? ' / gece' : '')),
         ec_tg_esc(implode(' · ', array_filter([$it['area_m2'] ? $it['area_m2'] . ' m²' : null, $it['rooms'], $it['baths'] ? $it['baths'] . ' banyo' : null]))),
-        '📜 Tapu: ' . ec_tg_esc($it['deed_name'] ?: '— (belirtilmemiş)'),
     ];
+    if ($it['mode'] === 'sale') {
+        $lines[] = '📜 Tapu: ' . ec_tg_esc($it['deed_name'] ?: '— (belirtilmemiş)');
+    }
     if ($it['feature_names']) {
         $lines[] = '✨ ' . ec_tg_esc(implode(', ', array_slice($it['feature_names'], 0, 10)));
     }
-    $lines[] = '📷 ' . count($it['photos']) . ' fotoğraf · 🌐 ' . strtoupper(implode(' / ', array_keys($it['translations'])));
+    $lines[] = '📷 ' . count($it['photos']) . ' fotoğraf' . ($it['pano_count'] ? ' · 360° ' . $it['pano_count'] : '') . ' · 🌐 ' . strtoupper(implode(' / ', array_keys($it['translations'])));
     if (!empty($ai['missing'])) {
         $lines[] = '';
         $lines[] = '⚠️ Eksik: ' . ec_tg_esc(implode(', ', $ai['missing']));

@@ -76,6 +76,7 @@ $q = ec_social_queue($lid);
 t('paketli: üyenin FB + IG hesabı da sıraya alındı', $q === 2);
 t('aynı ilan tekrar sıraya alınmaz', ec_social_queue($lid) === 0);
 
+ec_pano_add($lid, '/tmp/x/pano1.jpg', 'Salon'); // 0.6: 360° fotoğraf
 $GLOBALS['graph'] = [];
 $res = ec_social_run(10);
 $done = count(array_filter($res, fn($r) => $r['status'] === 'done'));
@@ -91,6 +92,10 @@ $cap = ($car[2]['caption'] ?? $igSingle[0][2]['caption'] ?? '');
 t('IG metni: tıklanmayan link yerine ilan no', str_contains($cap, '#' . $lid) && !str_contains($cap, 'http'));
 t('metin TR + EN (üyenin varsayılanı)', str_contains($cap, '— — —'));
 t('kota: ilan 1 kez sayıldı', ec_subscription_used($sid) === 1);
+$sph = array_filter($GLOBALS['graph'], fn($g) => str_ends_with($g[1], '/photos') && ($g[2]['allow_spherical_photo'] ?? '') === 'true');
+t('FB: 360° fotoğraf ayrı gönderi olarak paylaşıldı (site + üye = 2)', count($sph) === 2 && str_ends_with(array_values($sph)[0][2]['url'], '-fb.jpg'));
+$igItems = array_filter($GLOBALS['graph'], fn($g) => $g[1] === '9222/media' && str_ends_with($g[2]['image_url'] ?? '', '-ig.jpg') && str_contains($g[2]['image_url'], '/360-'));
+t('IG: 360° fotoğrafın düz kesiti eklendi', count($igItems) === 1);
 
 // Kota dolunca üyenin sayfası atlanır
 $l2 = (int) $wpdb->get_var($wpdb->prepare('SELECT id FROM ' . ec_table('listings') . " WHERE agent_id = %d AND status = 'published' AND id <> %d LIMIT 1", $agent['id'], $lid));
@@ -127,6 +132,7 @@ do_action('shutdown');
 $files = $GLOBALS['cf'][0]['files'] ?? [];
 t('Cloudflare: ilan + ana sayfa + liste adresleri temizlendi', count($files) >= 9 && count(array_filter($files, fn($f) => str_contains($f, '-' . $l3 . '/'))) === 3);
 update_option('ec_speed', ['cache' => 0]);
+$wpdb->update(ec_table('listings'), ['source' => 'demo'], ['agent_id' => $agent['id'], 'source' => 'panel']); // demo temizliği silebilsin
 foreach (['social_posts', 'social_accounts', 'subscriptions', 'usage'] as $tb) { $wpdb->query('DELETE FROM ' . ec_table($tb)); }
 delete_option('ec_social');
 echo "\n";

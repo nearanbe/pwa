@@ -58,6 +58,8 @@ function ec_launch_checks(): array
     $meta = (array) get_option('ec_rates_meta', []);
     $add(!empty($meta['updated_at']) && time() - strtotime($meta['updated_at'] . ' UTC') < 2 * DAY_IN_SECONDS ? 'ok' : 'warn', 'Resmi kurlar güncel', 'Son güncelleme: ' . (!empty($meta['updated_at']) ? get_date_from_gmt($meta['updated_at'], 'd.m.Y H:i') : '—'));
 
+    $up = wp_max_upload_size();
+    $add($up >= 24 * MB_IN_BYTES ? 'ok' : 'warn', 'Yükleme sınırı (360° fotoğraflar için)', 'Şu an ' . size_format($up) . '. Plesk → PHP ayarları → upload_max_filesize ve post_max_size = 32M, memory_limit = 256M.');
     $sp = ec_speed_settings();
     $add($sp['cache'] ? 'ok' : 'warn', 'Sayfa önbelleği (hız)', 'Emlak → Hız → “Ziyaretçi sayfaları önbelleğe alınabilsin”. Tarif: docs/hiz.md');
     $add($sp['cf_token'] && $sp['cf_zone'] ? 'ok' : 'warn', 'Cloudflare önbellek temizleme anahtarı', 'Emlak → Hız. İlan eklenince sayfalar anında yenilenir.');

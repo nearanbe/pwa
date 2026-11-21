@@ -20,6 +20,7 @@ Site WordPress üzerinde çalışır. Ancak ileride Next.js altyapısına **bir 
 - [x] 0.4. Telegram botu ve yapay zekâ motoru (metinden alanları çıkarma, 3 dile çeviri, önizleme, Telegram'dan onay), 101evler'e göre eksikler (tam ekran galeri, harita, yakın yerler, fiyat trendi, mesaj formu, paylaş, hatalı ilan bildir, not, yazdır, proje sayfası, şehir kartları, firmalar dizini), gün içi kur, canlıya çıkış kontrolü
 - [x] 2. Chrome eklentisi: 101evler ve hangiev modülleri (`extension/`; seçiciler gerçek formla kesinleştirilecek)
 - [x] 0.5. Paketler ve kota (yönetici kontrolünde), Facebook sayfası ve Instagram'da otomatik paylaşım (sitenin ve üyelerin hesapları), hız (sayfa önbelleği, Cloudflare temizleme, yerel yazı tipleri; mobil Lighthouse 96–97)
+- [x] 0.6. 360° fotoğraflar (oda oda tur, arama filtresi, Facebook 360° gönderi), sanal tur linklerinin sayfada açılması; tapu türü sadece satılık ilanlarda
 - [ ] 3. Online ödeme (şimdilik paketler elle verilir)
 
 ## Hızlı başlangıç

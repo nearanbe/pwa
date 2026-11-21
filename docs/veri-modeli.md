@@ -88,6 +88,11 @@ Sohbet başına açık taslak: `chat_id`, `agent_id`, `state` (`collecting` / `p
 
 Üyeler tablosuna 0.5'te eklenenler: `social_auto`, `social_lang` (`tr+en` varsayılan), `social_sign`.
 
+### `wp_ec_panos` – 360° fotoğraflar (0.6)
+`listing_id`, `title` (oda adı), `path` (`{ilan}/360-xxxx` → `-p.webp` en çok 6000 px, `-t.webp` küçük resim; paylaşım için `-fb.jpg` ve `-ig.jpg` gerektiğinde üretilir), `width`, `height`, `sort`.
+
+`wp_ec_listings.deed_type` 0.6'dan itibaren sadece `mode = 'sale'` ilanlarda doludur.
+
 ## Geçiş gecesi (WordPress → Next.js + Supabase)
 
 Geçiş için ölçüt ilan sayısı değil. Şu işaretlerden biri görüldüğünde düşünülmeli:
@@ -101,7 +106,7 @@ Adımlar:
 
 1. Next.js sitesi önceden hazırlanır ve aynı link yapısını ve aynı `/api/v1` uçlarını sunar.
 2. Bakım modu açılır.
-3. On altı `wp_ec_*` tablosu dışa aktarılır (`wp db export --tables=...`) ve önek olmadan PostgreSQL'e yüklenir.
+3. On yedi `wp_ec_*` tablosu dışa aktarılır (`wp db export --tables=...`) ve önek olmadan PostgreSQL'e yüklenir.
 4. `uploads/ilan-foto/` klasörü olduğu gibi Supabase Storage'a kopyalanır.
 5. DNS kaydı yeni sisteme çevrilir.
 

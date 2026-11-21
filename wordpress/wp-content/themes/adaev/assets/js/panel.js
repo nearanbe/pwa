@@ -160,7 +160,7 @@
         var t = F['title_' + l].value.trim();
         if (t) i18n[l] = { title: t, description: F['desc_' + l].value.trim() };
       });
-      var deed = $('input[name=deed_type]:checked', F);
+      var deed = mode() === 'sale' ? $('input[name=deed_type]:checked', F) : null; // tapu sadece satılıkta
       var tri = function (n) { return F[n].value === '' ? null : F[n].value === '1'; };
       return {
         mode: mode(), ptype: F.ptype.value, subtype: F.subtype.value || null,
@@ -288,9 +288,57 @@
       var from = photos.findIndex(function (p) { return String(p.id) === dragId; }), to = photos.findIndex(function (p) { return String(p.id) === li.dataset.id; });
       var p = photos.splice(from, 1)[0]; photos.splice(to, 0, p); renderPhotos(); saveOrder();
     });
+    // 360° fotoğraflar
+    var panos = (L0.panos || []).slice(), plist = $('#panolist');
+    function renderPanos() {
+      if (!plist) return;
+      plist.innerHTML = '';
+      panos.forEach(function (p, i) {
+        var li = document.createElement('li'); li.dataset.id = p.id;
+        li.innerHTML = '<img src="' + p.thumb + '" alt=""><input value="" maxlength="60" placeholder="' + T.panoRoom.replace('%s', i + 1) + '"><button type="button" class="ghost sm" data-pa="del" aria-label="✕">✕</button>';
+        $('input', li).value = p.title || '';
+        $('input', li).addEventListener('change', function (e) { api('PATCH', 'listings/' + id + '/panos/' + p.id, { title: e.target.value }); p.title = e.target.value; });
+        $('button', li).addEventListener('click', function () { if (!confirm(T.confirm)) return; api('DELETE', 'listings/' + id + '/panos/' + p.id).then(function () { panos.splice(panos.indexOf(p), 1); renderPanos(); }); });
+        plist.appendChild(li);
+      });
+    }
+    function isPano(file) {
+      return new Promise(function (res) {
+        var u = URL.createObjectURL(file), im = new Image();
+        im.onload = function () { URL.revokeObjectURL(u); res(Math.abs(im.naturalWidth / im.naturalHeight - 2) < 0.06 && im.naturalWidth >= 1600); };
+        im.onerror = function () { URL.revokeObjectURL(u); res(false); };
+        im.src = u;
+      });
+    }
+    function uploadPanos(files) {
+      files = Array.prototype.slice.call(files).filter(function (f) { return /^image\/(jpeg|png|webp)$/.test(f.type); });
+      if (!files.length || !id) return Promise.resolve();
+      var i = 0;
+      return new Promise(function (done) {
+        (function nextPano() {
+          if (i >= files.length) { msg(lmsg, T.saved + ' ✓', true); done(); return; }
+          msg(lmsg, '🌐 ' + T.uploading + ' ' + (i + 1) + '/' + files.length, true);
+          var fd = new FormData(); fd.append('pano', files[i++]);
+          api('POST', 'listings/' + id + '/panos', fd, true)
+            .then(function (p) { panos.push(p); renderPanos(); nextPano(); })
+            .catch(function (e) { msg(lmsg, e.message, false); nextPano(); });
+        })();
+      });
+    }
+    var pf = $('#panofiles'); if (pf) pf.addEventListener('change', function () { uploadPanos(pf.files); pf.value = ''; });
+    renderPanos();
+
     function upload(files) {
       files = Array.prototype.slice.call(files).filter(function (f) { return /^image\/(jpeg|png|webp)$/.test(f.type); });
       if (!files.length || !id) return;
+      // 2:1 oranlı (360°) fotoğrafları normal galeriye değil 360° bölümüne gönder
+      Promise.all(files.map(isPano)).then(function (flags) {
+        var pn = files.filter(function (f, k) { return flags[k]; });
+        var normal = files.filter(function (f, k) { return !flags[k]; });
+        (pn.length ? uploadPanos(pn) : Promise.resolve()).then(function () { if (normal.length) uploadNormal(normal); });
+      });
+    }
+    function uploadNormal(files) {
       var i = 0;
       (function nextFile() {
         if (i >= files.length) { msg(lmsg, T.saved + ' ✓', true); return; }

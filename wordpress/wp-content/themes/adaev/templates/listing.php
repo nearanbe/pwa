@@ -87,7 +87,7 @@ $details = [
         [ae_t('dt_parking'), in_array('kapali_otopark', $feat, true) ? ec_features()['kapali_otopark'][$lang] : (in_array('otopark', $feat, true) ? ae_t('yes') : null)],
     ],
     'dg_sale' => [
-        [ae_t('deed'), $a['deed_name'] ?: ae_t('deed_unknown')],
+        [ae_t('deed'), $a['mode'] === 'sale' ? ($a['deed_name'] ?: ae_t('deed_unknown')) : null],
         [ae_t('f_vat'), $a['mode'] === 'sale' && $a['vat_paid'] !== null ? ae_t($a['vat_paid'] ? 'paid' : 'not_paid') : null],
         [ae_t('f_transformer'), $a['mode'] === 'sale' && $a['transformer_paid'] !== null ? ae_t($a['transformer_paid'] ? 'paid' : 'not_paid') : null],
         [ae_t('payment_plan'), $a['payment_plan']],
@@ -98,7 +98,13 @@ $details = [
         [ae_t('f_sea'), $a['sea_distance_m'] ? ae_t('sea_m', number_format_i18n($a['sea_distance_m'])) : null],
     ],
 ];
-$sections = ['ozet' => ae_t('sec_overview'), 'detaylar' => ae_t('sec_details')];
+$panos = $a['panos'];
+$tourEmbed = function_exists('ec_tour_embed') ? ec_tour_embed($a['tour_url']) : null;
+$sections = ['ozet' => ae_t('sec_overview')];
+if ($panos || $tourEmbed) {
+    $sections['tur'] = ae_t('pano_tour');
+}
+$sections['detaylar'] = ae_t('sec_details');
 if ($groups) {
     $sections['ozellikler'] = ae_t('f_features');
 }
@@ -152,6 +158,7 @@ echo ae_sticky_head(['logo' => $a['agent']['logo']['small'] ?? '', 'title' => $a
           <?php endif; ?>
           <span class="gcount"><span class="gi">1</span> / <?php echo $n; ?></span>
           <button type="button" class="gfull" data-lightbox="0"><?php echo ae_icon('expand', 16); ?> <?php ae_e('all_photos', $n); ?></button>
+          <?php if ($panos) : ?><a class="gfull g360" href="#tur">🌐 <?php ae_e('pano_tour_n', count($panos)); ?></a><?php endif; ?>
           <?php if ($a['status'] === 'sold') : ?><span class="sbadge big"><?php ae_e('sold'); ?></span><?php endif; ?>
         <?php else : ?>
           <div class="img noimg"><?php echo AE_ICON; ?><span><?php ae_e('no_photo'); ?></span></div>
@@ -182,6 +189,26 @@ echo ae_sticky_head(['logo' => $a['agent']['logo']['small'] ?? '', 'title' => $a
         <div class="desc"><?php echo wpautop(esc_html($a['description'])); ?></div>
       </section>
 
+      <?php if ($panos || $tourEmbed) : ?>
+        <section class="panel" id="tur"><h2>🌐 <?php ae_e('pano_tour'); ?></h2>
+          <?php if ($panos) : ?>
+            <div class="panobox" id="panobox" data-panos="<?php echo esc_attr(wp_json_encode(array_map(fn($p) => ['u' => $p['url'], 't' => $p['title'] ?: ae_t('pano_room', 1), 'th' => $p['thumb']], $panos), JSON_UNESCAPED_SLASHES)); ?>">
+              <div class="panoview" id="panoview">
+                <button type="button" class="panostart" id="panostart" style="background-image:url('<?php echo esc_url($panos[0]['thumb']); ?>')"><span>▶ <?php ae_e('pano_start'); ?></span><small><?php ae_e('pano_hint'); ?></small></button>
+              </div>
+              <?php if (count($panos) > 1) : ?>
+                <div class="panorooms" role="tablist" aria-label="<?php ae_e('pano_rooms'); ?>">
+                  <?php foreach ($panos as $i => $p) : ?><button type="button" role="tab" data-i="<?php echo $i; ?>" class="<?php echo $i ? '' : 'on'; ?>"><img src="<?php echo esc_url($p['thumb']); ?>" alt="" loading="lazy"><span><?php echo esc_html($p['title'] ?: ae_t('pano_room', $i + 1)); ?></span></button><?php endforeach; ?>
+                </div>
+              <?php endif; ?>
+            </div>
+          <?php endif; ?>
+          <?php if ($tourEmbed) : ?>
+            <div class="tourframe"><iframe src="<?php echo esc_url($tourEmbed); ?>" title="<?php ae_e('tour'); ?>" loading="lazy" allow="fullscreen; xr-spatial-tracking; gyroscope; accelerometer" allowfullscreen></iframe></div>
+          <?php endif; ?>
+        </section>
+      <?php endif; ?>
+
       <section class="panel" id="detaylar">
         <h2><?php ae_e($a['ptype'] === 'konut' ? 'sec_details_home' : 'sec_details'); ?></h2>
         <div class="dgroups">
@@ -193,6 +220,7 @@ echo ae_sticky_head(['logo' => $a['agent']['logo']['small'] ?? '', 'title' => $a
         </div>
       </section>
 
+      <?php if ($a['mode'] === 'sale') : ?>
       <section class="panel deedpanel">
         <h2><?php ae_e('deed'); ?></h2>
         <?php if ($a['deed_type']) : ?>
@@ -201,8 +229,9 @@ echo ae_sticky_head(['logo' => $a['agent']['logo']['small'] ?? '', 'title' => $a
         <?php else : ?>
           <p class="deedname unknown"><b><?php ae_e('deed_unknown'); ?></b></p>
         <?php endif; ?>
-        <?php if ($a['mode'] === 'sale') : ?><p class="note"><?php ae_e('deed_warning'); ?></p><?php endif; ?>
+        <p class="note"><?php ae_e('deed_warning'); ?></p>
       </section>
+      <?php endif; ?>
 
       <?php if ($groups) : ?>
         <section class="panel" id="ozellikler"><h2><?php ae_e('f_features'); ?></h2>
@@ -212,11 +241,11 @@ echo ae_sticky_head(['logo' => $a['agent']['logo']['small'] ?? '', 'title' => $a
 
       <?php
       $yt = $a['video_url'] && preg_match('~(?:youtube\.com/(?:watch\?v=|shorts/|embed/)|youtu\.be/)([A-Za-z0-9_-]{11})~', $a['video_url'], $ym) ? $ym[1] : null;
-      if ($yt || $a['video_url'] || $a['tour_url']) : ?>
+      if ($yt || $a['video_url'] || ($a['tour_url'] && !$tourEmbed)) : ?>
         <section class="panel"><h2><?php ae_e('video'); ?></h2>
           <?php if ($yt) : ?><div class="video"><iframe src="https://www.youtube-nocookie.com/embed/<?php echo esc_attr($yt); ?>" title="<?php echo esc_attr($a['title']); ?>" loading="lazy" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
           <?php elseif ($a['video_url']) : ?><p><a class="ghost" href="<?php echo esc_url($a['video_url']); ?>" target="_blank" rel="noopener nofollow">▶ <?php ae_e('video'); ?></a></p><?php endif; ?>
-          <?php if ($a['tour_url']) : ?><p><a class="btn" href="<?php echo esc_url($a['tour_url']); ?>" target="_blank" rel="noopener nofollow">⟳ <?php ae_e('tour'); ?></a></p><?php endif; ?>
+          <?php if ($a['tour_url'] && !$tourEmbed) : ?><p><a class="btn" href="<?php echo esc_url($a['tour_url']); ?>" target="_blank" rel="noopener nofollow">⟳ <?php ae_e('tour'); ?></a></p><?php endif; ?>
         </section>
       <?php endif; ?>
 

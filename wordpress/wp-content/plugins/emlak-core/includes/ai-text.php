@@ -81,7 +81,7 @@ function ec_ai_system_prompt(): string
         . "- rooms uses the Turkish format: '2+1' means 2 bedrooms + 1 living room; '3 yatak odalı' = '3+1'; a studio is '1+0'.\n"
         . "- KDV ödendi / KDV dahil → vat_paid true; trafo ödendi → transformer_paid true. 'eşyalı' → furnished true, 'eşyasız' → false.\n"
         . "- city and district must use these keys and names:\n  " . implode("\n  ", $cities) . "\n"
-        . "- deed_type keys: " . implode('; ', $deeds) . ". 'Türk malı' / 'Türk koçanı' = turk-kocani.\n"
+        . "- deed_type keys: " . implode('; ', $deeds) . ". 'Türk malı' / 'Türk koçanı' = turk-kocani. Only for sale listings; for rent and daily listings deed_type is always null and is never listed as missing.\n"
         . "- subtype keys: " . implode('; ', $subs) . "\n"
         . "- features keys: " . implode('; ', $feats) . "\n"
         . "- i18n: write a short, factual title (max 70 characters, no emojis, no all-caps, no phone numbers) and a clear description in Turkish (tr), English (en) and Russian (ru). Translate the agent's facts faithfully; do not add marketing claims that are not in the message. Remove phone numbers, prices in the description are allowed.\n"
@@ -174,6 +174,10 @@ function ec_ai_normalize(array $d): array
         if (isset($d['i18n'][$l]['title'])) {
             $d['i18n'][$l]['title'] = mb_substr(trim($d['i18n'][$l]['title']), 0, 120);
         }
+    }
+    if (($d['mode'] ?? 'sale') !== 'sale') {
+        $d['deed_type'] = null;
+        $d['missing'] = array_values(array_filter((array) ($d['missing'] ?? []), fn($m) => stripos($m, 'tapu') === false));
     }
     $d['features'] = array_values(array_unique((array) ($d['features'] ?? [])));
     $d['missing'] = array_values((array) ($d['missing'] ?? []));

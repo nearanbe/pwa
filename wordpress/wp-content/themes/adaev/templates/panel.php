@@ -90,7 +90,7 @@ $data = [
         'perMonth' => ae_t('per_month'), 'perNight' => ae_t('per_night'), 'confirm' => ae_t('act_delete_confirm'),
         'calc' => ae_t('pf_calc', '%1', '%2', '%3'), 'saveFirst' => ae_t('pf_save_first'), 'tgSoon' => ae_t('tg_bot_soon'), 'tgHint' => ae_t('tg_code_hint'),
         'mode' => ['sale' => ae_t('sale'), 'rent' => ae_t('rent'), 'daily' => ae_t('daily')],
-        'cover' => ae_t('pf_cover'),
+        'cover' => ae_t('pf_cover'), 'panoRoom' => ae_t('pano_room', '%s'),
     ],
 ];
 
