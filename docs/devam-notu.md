@@ -42,6 +42,8 @@ Kullanıcının isteği: **"Her şey tamam olana kadar bana yeni sürüm verme, 
    - 16 sayfa tipi 390 px ve 1280 px'te taranıp düzeltildi: kayıt sayfası yatay taşma, onay kutularının görünümü, Telegram kutusu başlığı.
    - "İlan Ver" sayfası artık "Yakında" yazmıyor; paketleri Emlak → Paketler'den gösteriyor.
 5. Testler: backend 29/29, social 30/30, arama/harita/çekmece, yönetim 360° ekranı, tasarım taraması temiz.
+6. **SSS sayfası** `/tr/sss/` · `/en/faq/` · `/ru/voprosy/`: 22 soru, 3 grup, arama kutusu, Google için FAQPage işaretlemesi. İçerik `themes/emlak-tema/inc/faq.php`; hukuki konular genel bilgi, avukata yönlendirir.
+7. **"Neden biz?" emlakçı rehberi:** `docs/neden-biz.html` (Claude'da yayımlandı: https://claude.ai/artifact/YL2sUFCN2h12Nt6Te49o2d) ve A4 PDF `docs/neden-biz.pdf` (11 sayfa). PDF, sayfanın Playwright ile basılmasıyla üretilir. Paket fiyatları rehberde örnek olarak sabit yazılı; paket tanımları değişirse rehber de güncellenmeli.
 
 ## Tema adı (0.6.1)
 Tema klasörü `adaev` → `emlak-tema`, tema adı "Emlak Tema". Etkinleştirmede `theme_mods_adaev` yeni temaya taşınır (`functions.php`). İç fonksiyon önekleri (`ae_`) aynı kaldı. Marka (site adı) hâlâ "Site başlığı" ayarından gelir.
