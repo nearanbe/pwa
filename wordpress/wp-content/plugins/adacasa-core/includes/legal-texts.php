@@ -114,6 +114,7 @@ H,
 <li><b>İlan bilgileri:</b> ilan metinleri, fiyat, konum (harita işareti), fotoğraflar, 360° fotoğraflar ve videolar.</li>
 <li><b>İletişim talepleri:</b> ilan sahibine “Mesaj gönder” formuyla ilettiğiniz ad, telefon, e-posta ve mesaj; hatalı ilan bildirimleri.</li>
 <li><b>Telegram kullanımı:</b> Telegram sohbet numarası, bota gönderilen fotoğraflar, metinler ve doğrulama kodları.</li>
+<li><b>Google veya Facebook ile giriş:</b> bu yöntemi seçerseniz ilgili hizmetin bize ilettiği ad soyad, e-posta adresi ve hesap numarası. Google veya Facebook şifreniz bize iletilmez.</li>
 <li><b>Sosyal medya bağlantısı:</b> paylaşım yapılacak Facebook sayfasının ve Instagram işletme hesabının adı, numarası ve erişim anahtarı (şifrelenmiş olarak). Şifrenizi asla istemeyiz.</li>
 <li><b>Ödeme ve sipariş bilgileri:</b> sipariş kodu, paket, tutar, havale dekontu. Kartla ödemede kart bilgileri bankanın güvenli ödeme sayfasında girilir; <b>kart numaranız bize ulaşmaz ve saklanmaz</b>, sadece bankanın onay kodu ve kartın son dört hanesi kaydedilir.</li>
 <li><b>Kullanım verileri:</b> IP adresi, tarayıcı ve cihaz bilgisi, ziyaret edilen sayfalar, ilan görüntülenme sayıları, güvenlik kayıtları; izin vermeniz hâlinde analiz ve pazarlama çerezleri (bkz. <a href="{cookies_url}">Çerez Politikası</a>).</li>
@@ -165,6 +166,8 @@ H,
 <p>Kişisel verilerinizin işlenip işlenmediğini öğrenme, bilgi ve kopya isteme, düzeltilmesini, silinmesini ya da işlenmesinin kısıtlanmasını isteme, verilerinizi taşınabilir biçimde alma, işlemeye itiraz etme ve verdiğiniz rızayı her zaman geri alma haklarına sahipsiniz. Çerez iznini sayfanın altındaki <b>“Çerez ayarları”</b> bağlantısından değiştirebilirsiniz.</p>
 <p>Başvurunuzu <a href="mailto:{email}">{email}</a> adresine, üyeliğinizde kayıtlı e-postadan gönderin. Başvurunuz en geç <b>30 gün</b> içinde yanıtlanır. Sonuçtan memnun kalmazsanız KKTC Kişisel Verileri Koruma Kurulu’na (AB’de yaşıyorsanız ülkenizin veri koruma otoritesine) başvurabilirsiniz.</p>
 
+<p id="veri-silme"><b>Google / Facebook verilerinin silinmesi:</b> Hesabınızı ve Google veya Facebook ile girişte aldığımız bilgileri sildirmek için {email} adresine “hesabımı sil” yazmanız yeterlidir; 30 gün içinde silinir. Bağlantıyı Google veya Facebook hesap ayarlarınızdaki “Uygulamalar” bölümünden de kaldırabilirsiniz.</p>
+
 <h2>7. Güvenlik</h2>
 <p>Site HTTPS ile şifrelenir. Şifreler ve erişim anahtarları şifrelenmiş olarak saklanır. Erişim yetkileri sınırlıdır. Hiçbir sistem %100 güvenli değildir; bir ihlal fark edersek yasal sürelerde bildiririz.</p>
 
@@ -188,6 +191,7 @@ H,
 <li><b>Listing data:</b> texts, price, location (map pin), photos, 360° photos and videos.</li>
 <li><b>Enquiries:</b> the name, phone, email and message you send to an advertiser via “Send a message”; listing reports.</li>
 <li><b>Telegram:</b> chat ID, photos, texts and verification codes sent to the bot.</li>
+<li><b>Sign-in with Google or Facebook:</b> if you choose this, the name, email address and account ID that the service sends us. Your Google or Facebook password is never shared with us.</li>
 <li><b>Social media connection:</b> name, ID and access token (encrypted) of the Facebook page and Instagram business account used for sharing. We never ask for your password.</li>
 <li><b>Orders and payments:</b> order code, package, amount, bank transfer receipt. For card payments, card details are entered on the bank’s secure payment page; <b>your card number never reaches or is stored by us</b> — only the bank’s approval code and the last four digits are recorded.</li>
 <li><b>Usage data:</b> IP address, browser and device information, pages visited, listing view counts, security logs; analytics and marketing cookies only with your consent (see the <a href="{cookies_url}">Cookie Policy</a>).</li>
@@ -239,6 +243,8 @@ H,
 <p>You have the right to know whether your data is processed, to request information and a copy, rectification, erasure or restriction, to receive your data in a portable format, to object, and to withdraw your consent at any time. You can change your cookie consent via <b>“Cookie settings”</b> at the bottom of every page.</p>
 <p>Send your request to <a href="mailto:{email}">{email}</a> from the email address registered to your account. We reply within <b>30 days</b>. If you are not satisfied, you may complain to the TRNC Personal Data Protection Board (or, if you live in the EU, to your national data protection authority).</p>
 
+<p id="veri-silme"><b>Deleting Google / Facebook data:</b> to delete your account and the information we received through Google or Facebook sign-in, email {email} with “delete my account”; it is deleted within 30 days. You can also remove the connection under “Apps” in your Google or Facebook account settings.</p>
+
 <h2>7. Security</h2>
 <p>The site is encrypted with HTTPS. Passwords and access tokens are stored encrypted, and access is restricted. No system is 100% secure; if we become aware of a breach we will notify it within the legal time limits.</p>
 
@@ -262,6 +268,7 @@ H,
 <li><b>Объявления:</b> тексты, цена, расположение (метка на карте), фото, фото 360° и видео.</li>
 <li><b>Запросы:</b> имя, телефон, e-mail и сообщение, отправленные автору объявления через форму «Написать сообщение»; жалобы на объявления.</li>
 <li><b>Telegram:</b> ID чата, отправленные боту фото, тексты и коды подтверждения.</li>
+<li><b>Вход через Google или Facebook:</b> если вы выбираете этот способ — имя, e-mail и идентификатор аккаунта, которые передаёт сервис. Ваш пароль Google или Facebook нам не передаётся.</li>
 <li><b>Подключение соцсетей:</b> название, ID и ключ доступа (зашифрован) страницы Facebook и бизнес-аккаунта Instagram. Мы никогда не запрашиваем ваш пароль.</li>
 <li><b>Заказы и платежи:</b> код заказа, пакет, сумма, квитанция банковского перевода. При оплате картой данные карты вводятся на защищённой странице банка; <b>номер карты к нам не поступает и не хранится</b> — сохраняются только код подтверждения банка и последние четыре цифры.</li>
 <li><b>Данные об использовании:</b> IP-адрес, сведения о браузере и устройстве, посещённые страницы, число просмотров объявлений, журналы безопасности; аналитические и маркетинговые cookie — только с вашего согласия (см. <a href="{cookies_url}">Политику cookie</a>).</li>
@@ -312,6 +319,8 @@ H,
 <h2>6. Ваши права</h2>
 <p>Вы вправе узнать, обрабатываются ли ваши данные, запросить сведения и копию, исправление, удаление или ограничение обработки, получить данные в переносимом формате, возразить против обработки и в любой момент отозвать согласие. Согласие на cookie можно изменить по ссылке <b>«Настройки cookie»</b> внизу каждой страницы.</p>
 <p>Направляйте запросы на <a href="mailto:{email}">{email}</a> с адреса, указанного в аккаунте. Мы отвечаем в течение <b>30 дней</b>. Если ответ вас не устроит, вы можете обратиться в Совет по защите персональных данных ТРСК (а при проживании в ЕС — в национальный надзорный орган).</p>
+
+<p id="veri-silme"><b>Удаление данных Google / Facebook:</b> чтобы удалить аккаунт и данные, полученные при входе через Google или Facebook, напишите на {email} «удалите мой аккаунт» — удаление в течение 30 дней. Связь можно также отключить в разделе «Приложения» настроек аккаунта Google или Facebook.</p>
 
 <h2>7. Безопасность</h2>
 <p>Сайт защищён HTTPS. Пароли и ключи доступа хранятся в зашифрованном виде, доступ ограничен. Ни одна система не защищена на 100%; об утечке мы сообщим в установленные законом сроки.</p>

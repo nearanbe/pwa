@@ -75,7 +75,8 @@ function ec_turnstile_verify(?string $token): bool
  * Yeni üye. @return int|WP_Error danışman (agent) numarası
  * $in: kind, name, contact_person, email, phone, city, password, consent, telegram_opt_in, lang, cf-turnstile-response
  */
-function ec_member_register(array $in)
+/** @param array|null $social yalnızca ec_sl_pending() sonucu (Google/Facebook ile doğrulanmış e-posta) */
+function ec_member_register(array $in, ?array $social = null)
 {
     global $wpdb;
     $err = [];
@@ -87,6 +88,10 @@ function ec_member_register(array $in)
     $pass = (string) ($in['password'] ?? '');
     $city = sanitize_key((string) ($in['city'] ?? ''));
     $lang = in_array($in['lang'] ?? '', EC_LANGS, true) ? $in['lang'] : EC_DEFAULT_LANG;
+    if ($social) {
+        $email = sanitize_email((string) $social['email']);
+        $pass = wp_generate_password(24);
+    }
 
     if (!isset($kinds[$kind])) {
         $err['kind'] = 'kind';
@@ -148,8 +153,8 @@ function ec_member_register(array $in)
         'city' => isset(ec_cities()[$city]) ? $city : null,
         'slug' => ec_agent_unique_slug($name),
         'status' => $kinds[$kind]['account_review'] ? 'pending' : 'active',
-        'email_verified' => 0,
-        'verify_token' => $token,
+        'email_verified' => $social ? 1 : 0,
+        'verify_token' => $social ? null : $token,
         'consent_at' => ec_now(),
         'telegram_opt_in' => !empty($in['telegram_opt_in']) ? 1 : 0,
         'created_at' => ec_now(),
@@ -160,7 +165,11 @@ function ec_member_register(array $in)
         wp_delete_user($uid);
         return new WP_Error('ec_db', 'Kayıt oluşturulamadı');
     }
-    ec_member_send_verification($id);
+    if ($social) {
+        ec_sl_pending_done($social, (int) $uid);
+    } else {
+        ec_member_send_verification($id);
+    }
     ec_notify_admin(
         sprintf("🆕 Yeni üye: %s (%s)\n%s · %s%s", $name, $kinds[$kind]['name']['tr'], $email, $phone, $company ? "\nHesap onayınızı bekliyor." : ''),
         ec_url_section('review', 'tr')
@@ -353,7 +362,22 @@ add_action('template_redirect', function () {
 
     if ($page === 'register') {
         $post['lang'] = $lang;
-        $id = ec_member_register($post);
+        $sg = !empty($post['sosyal_kayit']) && function_exists('ec_sl_pending') ? ec_sl_pending((string) $post['sosyal_kayit']) : null;
+        if (!empty($post['sosyal_kayit']) && !$sg) {
+            $GLOBALS['ec_form_state'] = ['errors' => ['form' => 'social_expired'], 'old' => $post, 'notice' => ''];
+            return;
+        }
+        $id = ec_member_register($post, $sg);
+        if (!is_wp_error($id) && $sg) {
+            // Google/Facebook ile kayıt: e-posta doğrulanmış sayılır, doğrudan oturum açılır
+            $a = ec_agent((int) $id);
+            if ($a) {
+                wp_set_current_user((int) $a['wp_user_id']);
+                wp_set_auth_cookie((int) $a['wp_user_id'], true, is_ssl());
+            }
+            wp_safe_redirect(add_query_arg('kayit', 'sosyal', ec_url_section('panel', $lang)));
+            exit;
+        }
         if (is_wp_error($id)) {
             unset($post['password']);
             $GLOBALS['ec_form_state'] = ['errors' => $id->get_error_data()['fields'] ?? ['form' => 'error'], 'old' => $post, 'notice' => ''];

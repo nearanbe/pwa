@@ -1,5 +1,7 @@
 # Kurulum (Plesk VPS)
 
+> **1.2.0 / 1.2.1 (tema 1.1.7):** Google ve Facebook ile giriş/kayıt (`includes/social-login.php`, Ayarlar > AdaCasa Sosyal Giriş); gizlilik metnine sosyal giriş verisi ve veri silme paragrafı.
+
 > **1.1.9:** RSS akışında (/feed/) her blog yazısına Instagram uyumlu JPEG paylaşım görseli (`<enclosure>`, `media:content`; `includes/rss.php`). n8n AdaCasa paylaşım akışı bunu kullanır.
 
 > **1.1.8:** ana sayfa firma şeridinde yalnızca yayında ilanı olan firmalar/danışmanlar (mülk sahipleri ve 0 ilanlılar gösterilmez); e-postalarda gönderen adı "WordPress" yerine site adı. (Canlı üyelik testinde bulundu.)

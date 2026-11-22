@@ -122,6 +122,7 @@ $statusLabel = fn(string $s) => '<span class="st st-' . esc_attr($s) . '">' . es
 ?>
 <script type="application/json" id="ec-data"><?php echo wp_json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG); ?></script>
 <main id="main" class="main panelpage">
+  <?php if (($_GET['kayit'] ?? '') === 'sosyal') : ?><p class="okmsg" role="status"><?php ae_e('reg_done_social'); ?></p><?php endif; ?>
   <div class="phead">
     <div class="pwho">
       <?php if (!empty($agent['logo_path'])) : ?><img class="plogo" src="<?php echo esc_url(ec_image_urls($agent['logo_path'])['small']); ?>" alt=""><?php else : ?><div class="av"><?php echo esc_html(mb_substr($agent['name'], 0, 1)); ?></div><?php endif; ?>

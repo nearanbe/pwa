@@ -19,9 +19,11 @@ get_header();
     <h1><?php ae_e('login_title'); ?></h1>
     <?php if (($_GET['kayit'] ?? '') === 'ok') : ?><p class="okmsg" role="status"><?php ae_e('reg_done'); ?></p><?php endif; ?>
     <?php if ($st['notice'] === 'resent') : ?><p class="okmsg" role="status"><?php ae_e('resent'); ?></p><?php endif; ?>
+    <?php echo ae_social_error(); ?>
     <?php if ($err) : ?>
       <p class="errmsg" role="alert"><?php ae_e($err === 'captcha' ? 'err_captcha' : 'err_' . str_replace('ec_', '', $err)); ?></p>
     <?php endif; ?>
+    <?php echo ae_social_buttons('login'); ?>
     <form method="post" class="form">
       <?php wp_nonce_field('ec_login', '_ecnonce'); ?>
       <label><?php ae_e('login_id'); ?><input name="email" type="text" inputmode="email" autocapitalize="none" spellcheck="false" autocomplete="username" required value="<?php echo esc_attr($st['old']['email'] ?? ''); ?>"></label>
