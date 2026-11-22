@@ -164,16 +164,35 @@ function ae_card(array $a): string
 
 function ae_ad(string $slot, string $extra_class = ''): string
 {
-    $ads = get_option('ec_ads', []);
-    $client = $ads['client'] ?? '';
-    $id = $ads[$slot] ?? '';
-    if (!($client && $id) && !current_user_can('manage_options')) {
-        return ''; // reklam kodu girilmemiş: ziyaretçi boş kutu görmesin
+    if (!function_exists('ec_ad_resolve')) {
+        return '';
     }
-    $inner = ($client && $id)
-        ? '<ins class="adsbygoogle" style="display:block" data-ad-client="' . esc_attr($client) . '" data-ad-slot="' . esc_attr($id) . '" data-ad-format="auto" data-full-width-responsive="true"></ins>'
-        : '<div class="adph">' . esc_html(ae_t('ad_space')) . '</div>';
-    return '<aside class="ad ' . esc_attr($extra_class) . '" aria-label="' . esc_attr(ae_t('ad')) . '"><span class="adl">' . esc_html(ae_t('ad')) . '</span>' . $inner . '</aside>';
+    $r = ec_ad_resolve($slot);
+    $sz = ec_ad_slots()[$slot] ?? ['d' => [728, 90], 'm' => [320, 100]];
+    $label = '<span class="adl">' . esc_html(ae_t('ad')) . '</span>';
+    $pic = function (string $d, string $m, string $alt) use ($sz): string {
+        return '<picture>' . ($m !== $d ? '<source media="(max-width: 640px)" srcset="' . esc_url($m) . '" width="' . $sz['m'][0] . '" height="' . $sz['m'][1] . '">' : '')
+            . '<img src="' . esc_url($d) . '" alt="' . esc_attr($alt) . '" width="' . $sz['d'][0] . '" height="' . $sz['d'][1] . '" loading="lazy" decoding="async"></picture>';
+    };
+    switch ($r['type']) {
+        case 'direct':
+            $inner = $label . '<a href="' . esc_url($r['href']) . '" rel="sponsored nofollow noopener" target="_blank">' . $pic($r['img'], $r['img_m'], $r['alt'] ?: ae_t('ad')) . '</a>';
+            $cls = 'ad-img';
+            break;
+        case 'adsense':
+            $inner = $label . '<ins class="adsbygoogle" style="display:block" data-ad-client="' . esc_attr($r['client']) . '" data-ad-slot="' . esc_attr($r['id']) . '" data-ad-format="auto" data-full-width-responsive="true"></ins>';
+            $cls = '';
+            break;
+        case 'house':
+            $l = in_array(ec_lang(), ['tr', 'en', 'ru'], true) ? ec_lang() : 'tr';
+            $f = fn(array $wh) => get_template_directory_uri() . '/assets/img/reklam/reklam-' . $wh[0] . 'x' . $wh[1] . '-' . $l . '.webp';
+            $inner = '<a href="' . esc_url($r['href'], ['https', 'http', 'mailto', 'tel']) . '" rel="nofollow">' . $pic($f($sz['d']), $f($sz['m']), ae_t('ad_here')) . '</a>';
+            $cls = 'ad-img ad-house';
+            break;
+        default:
+            return '';
+    }
+    return '<aside class="ad ' . esc_attr(trim($cls . ' ad-s-' . $slot . ' ' . $extra_class)) . '" aria-label="' . esc_attr(ae_t('ad')) . '">' . $inner . '</aside>';
 }
 
 function ae_ad_card(): string

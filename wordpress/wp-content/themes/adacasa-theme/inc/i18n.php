@@ -75,6 +75,7 @@ function emlak_tema_strings(): array
         'per_night' => [' / gece', ' / night', ' / ночь'],
         'ad' => ['Reklam', 'Advertisement', 'Реклама'],
         'ad_space' => ['Reklam alanı', 'Ad space', 'Место для рекламы'],
+        'ad_here' => ['Bu alana reklam verebilirsiniz', 'Advertise here', 'Здесь может быть ваша реклама'],
         'sort' => ['Sırala', 'Sort', 'Сортировка'],
         'sort_new' => ['En yeni', 'Newest', 'Новые'],
         'sort_price_asc' => ['Fiyat (artan)', 'Price (low to high)', 'Цена (по возрастанию)'],

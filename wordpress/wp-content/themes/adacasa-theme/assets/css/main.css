@@ -130,6 +130,8 @@ h2.sec{margin:34px 2px 14px;font-size:30px;font-weight:600}
 .adph{color:var(--muted);font-size:13px;display:flex;align-items:center;justify-content:center;min-height:90px;border:1px dashed var(--line);border-radius:10px}
 .ad-feed{display:flex;align-items:center;justify-content:center;background:var(--soft);box-shadow:none;min-height:270px}
 .ad-feed:hover{transform:none;box-shadow:none}.ad-feed .ad{width:100%;margin:0;background:none}
+.ad-img{background:none;padding:0;min-height:0}.ad-img a{display:block;line-height:0}.ad-img picture,.ad-img img{display:block;margin:0 auto;max-width:100%;height:auto;border-radius:12px}
+.ad-img .adl{line-height:1.4}.ad-feed .ad-img img{border-radius:12px}.ad-feed:has(.ad-img){background:none}
 
 /* İç sayfa başlığı */
 .pagehead{background:radial-gradient(700px 240px at 85% 0%,rgba(184,137,63,.3),transparent),linear-gradient(160deg,#0e1f3d,#14284b 60%,#24477a);color:#fff;padding:30px 16px 64px}
