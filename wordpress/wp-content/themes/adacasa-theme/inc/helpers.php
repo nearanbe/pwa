@@ -353,6 +353,23 @@ add_action('wp_head', function () {
     }
 }, 1);
 
+/** SEO: yapılandırılmış veride kullanılacak kurum bilgisi (logo: site simgesi ya da tema simgesi) */
+function ae_org_ld(): array
+{
+    $logo = has_site_icon() ? get_site_icon_url(512) : get_theme_file_uri('assets/img/icon-512.png');
+    return ['@type' => 'Organization', '@id' => home_url('/#org'), 'name' => ae_brand(), 'url' => home_url('/'), 'logo' => $logo];
+}
+
+/** SEO: içerik haritası (BreadcrumbList); $items = [[ad, adres], ...] */
+function ae_breadcrumb_ld(array $items): array
+{
+    $out = [];
+    foreach (array_values($items) as $i => $it) {
+        $out[] = ['@type' => 'ListItem', 'position' => $i + 1, 'name' => wp_strip_all_tags((string) $it[0]), 'item' => $it[1]];
+    }
+    return ['@type' => 'BreadcrumbList', 'itemListElement' => $out];
+}
+
 /** Dil değiştiricide aynı sayfanın diğer dillerdeki adresleri */
 function ae_lang_links(): array
 {

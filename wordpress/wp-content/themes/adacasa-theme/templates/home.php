@@ -9,10 +9,29 @@ foreach (EC_LANGS as $l) {
     $alts[$l] = ec_url_home($l);
 }
 ae_seo([
-    'title' => ae_t('hero_title') . ' – ' . ae_t('tagline'),
-    'description' => ae_t('hero_sub'),
+    'title' => ae_t('seo_home_title'),
+    'description' => ae_t('seo_home_desc'),
     'canonical' => ec_url_home(),
     'alternates' => $alts,
+    'jsonld' => [
+        '@context' => 'https://schema.org',
+        '@graph' => [
+            ae_org_ld(),
+            [
+                '@type' => 'WebSite',
+                '@id' => home_url('/#website'),
+                'name' => ae_brand(),
+                'url' => ec_url_home(),
+                'inLanguage' => $lang,
+                'publisher' => ['@id' => home_url('/#org')],
+                'potentialAction' => [
+                    '@type' => 'SearchAction',
+                    'target' => ['@type' => 'EntryPoint', 'urlTemplate' => ec_url_section('sale') . '?q={search_term_string}'],
+                    'query-input' => 'required name=search_term_string',
+                ],
+            ],
+        ],
+    ],
 ]);
 $GLOBALS['ae_quicklinks'] = true;
 
@@ -141,7 +160,7 @@ $nFirm = (int) $wpdb->get_var("SELECT COUNT(*) FROM " . ec_table('agents') . " W
     <div class="sechead"><h2 class="sec"><?php ae_e('from_blog'); ?></h2><a href="<?php echo esc_url(ae_blog_url()); ?>"><?php ae_e('all_posts'); ?> →</a></div>
     <div class="grid posts"><?php foreach ($posts as $r) : ?>
       <article class="card post"><a class="cardlink" href="<?php echo esc_url(get_permalink($r)); ?>" aria-label="<?php echo esc_attr(get_the_title($r)); ?>"></a>
-        <div class="img"><?php echo get_the_post_thumbnail($r, 'medium_large', ['loading' => 'lazy', 'alt' => '']) ?: AE_ICON; ?></div>
+        <div class="img"><?php echo get_the_post_thumbnail($r, 'medium_large', ['loading' => 'lazy']) ?: AE_ICON; ?></div>
         <div class="body"><div class="sub"><?php echo esc_html(ae_date((int) get_post_timestamp($r))); ?></div><h3 class="ttl"><?php echo esc_html(get_the_title($r)); ?></h3><p class="sub"><?php echo esc_html(get_the_excerpt($r)); ?></p></div>
       </article>
     <?php endforeach; ?></div>

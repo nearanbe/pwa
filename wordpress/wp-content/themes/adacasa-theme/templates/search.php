@@ -54,11 +54,30 @@ foreach (EC_LANGS as $l) {
     $alts[$l] = ec_url_section($mode, $l, $city ?: null, $keep + ($pg > 1 ? ['sayfa' => $pg] : []));
 }
 $filtered = array_filter(array_diff_key($f, array_flip(['mode', 'city', 'ptype', 'subtype', 'district', 'currency', 'sort'])));
+// SEO başlığı (uzun kuyruk): "Girne Satılık Ev, Daire ve Villa İlanları"
+$seoPlace = trim(($city ? ec_city_name($city, $lang) : ae_t('seo_place_all')) . ($f['district'] ? ' ' . $f['district'] : ''));
+$seoTitle = ae_t('seo_search_title', $seoPlace, ae_t($mode), $what ?: ae_t('seo_what_' . $mode));
+$crumbs = [[ae_t('home'), ec_url_home()], [ae_t($mode), ec_url_section($mode)]];
+if ($city) {
+    $crumbs[] = [ec_city_name($city, $lang), ec_url_section($mode, $lang, $city)];
+}
+$ldItems = [];
+foreach (array_slice($res['items'], 0, 24) as $i => $it) {
+    $ldItems[] = ['@type' => 'ListItem', 'position' => $i + 1, 'url' => $it['url'], 'name' => $it['title']];
+}
 ae_seo([
-    'title' => $heading . ' – ' . ae_t('listings_count', number_format_i18n($res['total'])),
-    'description' => $heading . '. ' . ae_t('hero_sub'),
+    'title' => $seoTitle,
+    'description' => ae_t('seo_search_desc', $seoTitle, number_format_i18n($res['total'])),
     'canonical' => $alts[$lang],
     'alternates' => $alts,
+    'jsonld' => [
+        '@context' => 'https://schema.org',
+        '@graph' => array_values(array_filter([
+            ['@type' => 'CollectionPage', 'name' => $seoTitle, 'url' => $alts[$lang], 'inLanguage' => $lang, 'isPartOf' => ['@id' => home_url('/#website')]],
+            ae_breadcrumb_ld($crumbs),
+            $ldItems ? ['@type' => 'ItemList', 'numberOfItems' => (int) $res['total'], 'itemListElement' => $ldItems] : null,
+        ])),
+    ],
 ]);
 if ($filtered || $view !== 'izgara') {
     add_action('wp_head', fn() => print('<meta name="robots" content="noindex, follow">' . "\n")); // filtre kombinasyonları dizine girmesin
@@ -99,7 +118,7 @@ get_header();
 ?>
 <div class="pagehead slim"><div class="in">
   <nav class="crumbs" aria-label="breadcrumb"><a href="<?php echo esc_url(ec_url_home()); ?>"><?php ae_e('home'); ?></a> › <a href="<?php echo esc_url(ec_url_section($mode)); ?>"><?php ae_e($mode); ?></a><?php if ($city) : ?> › <?php echo esc_html(ec_city_name($city, $lang)); ?><?php endif; ?></nav>
-  <h1><?php echo esc_html($heading); ?></h1>
+  <h1><?php echo esc_html($seoTitle); ?></h1>
 </div></div>
 <main id="main" class="main sres">
   <aside class="sfilter" id="sfilter" aria-label="<?php ae_e('filters'); ?>">

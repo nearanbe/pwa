@@ -1,5 +1,14 @@
 # Kurulum (Plesk VPS)
 
+> **1.1.6 (SEO):**
+> - **Site haritası:** `/wp-sitemap.xml` içine AdaCasa bölümü eklendi: ana sayfa, ilan bulunan şehir arama sayfaları, projeler, firmalar, fiyat endeksi, SSS ve yasal sayfalar (her dil ayrı) ile tüm ilanlar, projeler ve firma vitrinleri. Kullanıcı (yazar) haritası kapatıldı.
+> - **Demo içerik:** demo ilan, proje ve firma sayfaları `noindex` olur ve site haritasına girmez; ziyaretçi görmeye devam eder.
+> - **Arama sayfaları:** başlık ve H1 uzun kuyruk biçiminde ("Girne Satılık Ev, Daire ve Villa İlanları"), her sayfaya özgü açıklama; CollectionPage + BreadcrumbList + ItemList yapılandırılmış verisi.
+> - **Ana sayfa:** başlık "Kuzey Kıbrıs Satılık ve Kiralık Ev İlanları", WebSite (site içi arama) + Organization verisi.
+> - **İlan sayfası:** mevcut RealEstateListing verisine BreadcrumbList eklendi.
+> - **Blog:** BlogPosting + BreadcrumbList; kapak ve kart görsellerinde medya kütüphanesindeki alt metin kullanılır.
+> - Blog kategorileri (REST ile açıldı): Bölge Rehberi, Satın Alma Rehberi, Kiralama Rehberi, Tapu ve Yasal Süreçler, Yatırım ve Projeler. Gün aşırı otomatik blog yazısı görevi çalışıyor.
+>
 > **1.1.5 (yasal):**
 > - Yasal sayfalar TR/EN/RU olarak hazır: Hakkımızda, İletişim, Gizlilik ve Kişisel Veriler, Çerez Politikası, Kullanım Şartları, Paket Satış ve İade Koşulları.
 > - **Emlak → Ayarlar → Şirket ve yasal bilgiler** bölümünü doldurun: unvan, adres, vergi no, yasal e-posta.

@@ -11,12 +11,24 @@ ae_seo([
     'image' => get_the_post_thumbnail_url(null, 'large') ?: '',
     'jsonld' => [
         '@context' => 'https://schema.org',
-        '@type' => 'Article',
-        'headline' => get_the_title(),
-        'datePublished' => get_the_date('c'),
-        'dateModified' => get_the_modified_date('c'),
-        'image' => get_the_post_thumbnail_url(null, 'large') ?: null,
-        'publisher' => ['@type' => 'Organization', 'name' => ae_brand()],
+        '@graph' => [
+            array_filter([
+                '@type' => 'BlogPosting',
+                'headline' => get_the_title(),
+                'description' => wp_strip_all_tags(get_the_excerpt()),
+                'url' => get_permalink(),
+                'mainEntityOfPage' => get_permalink(),
+                'inLanguage' => 'tr',
+                'datePublished' => get_the_date('c'),
+                'dateModified' => get_the_modified_date('c'),
+                'image' => get_the_post_thumbnail_url(null, 'full') ?: null,
+                'articleSection' => wp_list_pluck(get_the_category(), 'name') ?: null,
+                'author' => ['@id' => home_url('/#org')],
+                'publisher' => ['@id' => home_url('/#org')],
+            ]),
+            ae_org_ld(),
+            ae_breadcrumb_ld([[ae_t('home'), ec_url_home()], [ae_t('blog'), ae_blog_url()], [get_the_title(), get_permalink()]]),
+        ],
     ],
 ]);
 $recent = get_posts(['numberposts' => 3, 'post__not_in' => [get_the_ID()]]);
@@ -27,14 +39,14 @@ get_header();
   <article <?php post_class('panel prose'); ?>>
     <h1><?php the_title(); ?></h1>
     <div class="sub"><?php echo esc_html(ae_date((int) get_post_timestamp())); ?></div>
-    <?php if (has_post_thumbnail()) : ?><figure class="hero-img"><?php the_post_thumbnail('large', ['alt' => '']); ?></figure><?php endif; ?>
+    <?php if (has_post_thumbnail()) : ?><figure class="hero-img"><?php the_post_thumbnail('large', ['sizes' => '(max-width: 860px) 100vw, 860px']); ?></figure><?php endif; ?>
     <div class="entry"><?php the_content(); ?></div>
   </article>
   <?php if ($recent) : ?>
     <div class="sechead"><h2 class="sec"><?php ae_e('from_blog'); ?></h2><a href="<?php echo esc_url(ae_blog_url()); ?>"><?php ae_e('all_posts'); ?> →</a></div>
     <div class="grid posts"><?php foreach ($recent as $r) : ?>
       <article class="card post"><a class="cardlink" href="<?php echo esc_url(get_permalink($r)); ?>" aria-label="<?php echo esc_attr(get_the_title($r)); ?>"></a>
-        <div class="img"><?php echo get_the_post_thumbnail($r, 'medium_large', ['loading' => 'lazy', 'alt' => '']) ?: AE_ICON; ?></div>
+        <div class="img"><?php echo get_the_post_thumbnail($r, 'medium_large', ['loading' => 'lazy']) ?: AE_ICON; ?></div>
         <div class="body"><div class="sub"><?php echo esc_html(ae_date((int) get_post_timestamp($r))); ?></div><h3 class="ttl"><?php echo esc_html(get_the_title($r)); ?></h3></div>
       </article>
     <?php endforeach; ?></div>

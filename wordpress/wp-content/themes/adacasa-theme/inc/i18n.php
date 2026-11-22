@@ -15,6 +15,14 @@ function emlak_tema_strings(): array
         return $all;
     }
     return $all = apply_filters('emlak_tema_strings_extra', array_merge(emlak_tema_strings_panel(), [
+        'seo_home_title' => ['Kuzey Kıbrıs Satılık ve Kiralık Ev İlanları', 'North Cyprus Property for Sale and Rent', 'Недвижимость Северного Кипра: продажа и аренда'],
+        'seo_home_desc' => ['Kuzey Kıbrıs’ta satılık ev, kiralık daire, villa ve yeni konut projeleri. Girne, Lefkoşa, Gazimağusa ve İskele’deki güncel ilanları fiyat, oda sayısı ve tapu türüne göre karşılaştırın.', 'Houses, apartments and villas for sale and rent in North Cyprus, plus new developments. Compare current listings in Kyrenia, Nicosia, Famagusta and Iskele by price, bedrooms and title deed.', 'Дома, квартиры и виллы на продажу и в аренду на Северном Кипре, а также новые проекты. Сравнивайте объявления в Кирении, Никосии, Фамагусте и Искеле по цене, комнатам и типу титула.'],
+        'seo_place_all' => ['Kuzey Kıbrıs', 'North Cyprus', 'Северный Кипр'],
+        'seo_what_sale' => ['Ev, Daire ve Villa', 'Houses, Apartments & Villas', 'домов, квартир и вилл'],
+        'seo_what_rent' => ['Ev ve Daire', 'Houses & Apartments', 'домов и квартир'],
+        'seo_what_daily' => ['Villa ve Daire', 'Villas & Apartments', 'вилл и квартир'],
+        'seo_search_title' => ['%1$s %2$s %3$s İlanları', '%3$s %2$s in %1$s', '%2$s %3$s: %1$s'],
+        'seo_search_desc' => ['%1$s: %2$s güncel ilan. Fiyata, oda sayısına ve bölgeye göre filtreleyin, ilan sahibine doğrudan WhatsApp ile ulaşın.', '%1$s: %2$s current listings. Filter by price, bedrooms and area and contact the owner directly on WhatsApp.', '%1$s — актуальных объявлений: %2$s. Фильтры по цене, комнатам и району, связь с владельцем в WhatsApp.'],
         'tagline' => ['Kıbrıs Emlak İlanları', 'North Cyprus Property Listings', 'Недвижимость Северного Кипра'],
         'hero_title' => ['Adanın en seçkin evleri', 'The finest homes on the island', 'Лучшие дома острова'],
         'hero_sub' => ['Girne’den Gazimağusa’ya satılık, kiralık ve günlük kiralık ilanlar', 'Homes for sale, long-term and holiday rental from Kyrenia to Famagusta', 'Продажа, аренда и посуточная аренда от Кирении до Фамагусты'],

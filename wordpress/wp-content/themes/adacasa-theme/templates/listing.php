@@ -21,8 +21,14 @@ ae_seo([
     'canonical' => $a['url'],
     'alternates' => $alts,
     'image' => $a['cover']['large'] ?? '',
-    'jsonld' => [
-        '@context' => 'https://schema.org',
+    'jsonld' => ['@context' => 'https://schema.org', '@graph' => [
+        ae_breadcrumb_ld(array_values(array_filter([
+            [ae_t('home'), ec_url_home()],
+            [ae_t($a['mode']), ec_url_section($a['mode'])],
+            isset(ec_cities()[$a['city']]) ? [$a['city_name'], ec_url_section($a['mode'], $lang, $a['city'])] : null,
+            [$a['title'], $a['url']],
+        ]))),
+        [
         '@type' => 'RealEstateListing',
         'name' => $a['title'],
         'url' => $a['url'],
@@ -30,7 +36,8 @@ ae_seo([
         'datePosted' => $a['published_at'] ? gmdate('c', strtotime($a['published_at'] . ' UTC')) : null,
         'offers' => ['@type' => 'Offer', 'price' => $a['price'], 'priceCurrency' => $a['currency']],
         'address' => ['@type' => 'PostalAddress', 'addressLocality' => $loc, 'addressCountry' => 'CY'],
-    ],
+        ],
+    ]],
 ]);
 $ag = $a['agent'];
 $tel = $ag['phone'] ?? '';

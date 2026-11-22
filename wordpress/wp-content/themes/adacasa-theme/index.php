@@ -15,7 +15,7 @@ get_header();
         <article <?php post_class('card post'); ?>>
           <a class="cardlink" href="<?php the_permalink(); ?>" aria-label="<?php the_title_attribute(); ?>"></a>
           <div class="img"><?php if (has_post_thumbnail()) {
-              the_post_thumbnail('medium_large', ['loading' => 'lazy', 'alt' => '']);
+              the_post_thumbnail('medium_large', ['loading' => 'lazy']);
           } else {
               echo AE_ICON;
           } ?></div>
