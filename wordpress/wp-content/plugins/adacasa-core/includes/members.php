@@ -450,3 +450,7 @@ add_action('admin_post_ec_self_profile', function () {
     wp_safe_redirect(is_wp_error($r) ? add_query_arg('hata', rawurlencode($r->get_error_message()), $to) : $to);
     exit;
 });
+
+
+/** E-postalarda gönderen adı "WordPress" yerine site adı (1.1.8) */
+add_filter('wp_mail_from_name', fn($name) => ($name === '' || $name === 'WordPress') ? wp_specialchars_decode(get_bloginfo('name'), ENT_QUOTES) : $name);

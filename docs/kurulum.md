@@ -1,5 +1,7 @@
 # Kurulum (Plesk VPS)
 
+> **1.1.8:** ana sayfa firma şeridinde yalnızca yayında ilanı olan firmalar/danışmanlar (mülk sahipleri ve 0 ilanlılar gösterilmez); e-postalarda gönderen adı "WordPress" yerine site adı. (Canlı üyelik testinde bulundu.)
+>
 > **1.1.7 (Cloudflare gerçek IP):** eklenti, istek Cloudflare'dan geliyorsa `CF-Connecting-IP` başlığını gerçek ziyaretçi IP'si olarak kullanır (sahte başlık yok sayılır). Site turuncu buluta alınmadan önce kurulmalı; yoksa IP başına sınırlar tüm ziyaretçileri birlikte sayar. Tema değişmedi (1.1.6).
 >
 > **1.1.6 (SEO):**

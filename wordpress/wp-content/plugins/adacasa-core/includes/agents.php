@@ -97,8 +97,9 @@ function ec_agents_active(int $limit = 12): array
     $t = ec_table('agents');
     $l = ec_table('listings');
     $rows = $wpdb->get_results(
+        // Ana sayfa şeridi: yalnızca yayında ilanı olan firmalar/danışmanlar; mülk sahipleri listelenmez (1.1.8)
         "SELECT a.*, (SELECT COUNT(*) FROM $l x WHERE x.agent_id = a.id AND x.status = 'published') AS listing_count
-         FROM $t a WHERE a.status = 'active' ORDER BY listing_count DESC, a.id ASC LIMIT " . (int) $limit,
+         FROM $t a WHERE a.status = 'active' AND a.kind <> 'sahibi' HAVING listing_count > 0 ORDER BY listing_count DESC, a.id ASC LIMIT " . (int) $limit,
         ARRAY_A
     );
     return array_map(fn($a) => ec_agent_public($a) + ['listing_count' => (int) $a['listing_count']], $rows);
