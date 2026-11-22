@@ -12,7 +12,7 @@ Yeni oturumda **önce bu dosyayı oku**, sonra gerekirse `README.md`, `docs/kuru
 - **Zamanlanmış görevler:** AdaVira günlük (09:40, ücretli hesap, doğal belgesel fotoğraf), Stetosgop gün aşırı (07:43, Default ortamında), **AdaCasa gün aşırı (11:17, yeni, `trig_01FkKdijSnPwgi3ap5gKAsqQ`)**. Üçü de uzun kuyruk anahtar kelime + doğal fotoğraf kuralıyla.
 - **AdaCasa blog:** kategoriler 3–7 (Bölge, Satın Alma, Kiralama, Tapu ve Yasal, Yatırım ve Projeler). Yazılar 27, 29, 31 genişletildi (artık demo değil, unseed silmez), 47 yeni. Yazı içi görseller ilgili arama sayfasına bağlı.
 - **1.1.6 (SEO):** bkz. kurulum.md. Yerelde: site haritası, robots, JSON-LD doğrulandı; mobile-audit 156 görünüm temiz; testler 29/30/25/28.
-- Kullanıcının isteği: **her şeyi Claude yapar**, kullanıcıya yalnızca zorunlu işler (zip kurulumu, panel erişimi gerektirenler) bırakılır. Kararları makul varsayımla ver, söyle.
+- Kullanıcının isteği: **her şeyi Claude yapar**; kullanıcıdan yalnızca Claude'un yapamadığı işler istenir (zip kurulumu, panel ya da hesap erişimi gerektirenler). **Önbellek temizleme Claude'da:** zip kurulduktan sonra üç zone için `purge_everything`, yazı yayınlarında `files`; AdaVira Cache Enabler için yayındaki bir yazıyı yeniden kaydet. Kararları makul varsayımla ver ve söyle.
 
 ---
 
