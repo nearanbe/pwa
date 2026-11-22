@@ -179,3 +179,6 @@ if (class_exists('WP_Sitemaps_Provider')) {
 
 /** WordPress'in kullanıcı (yazar) site haritası gereksiz: yazarlar ayrı sayfa olarak yayınlanmıyor */
 add_filter('wp_sitemaps_add_provider', fn($provider, $name) => $name === 'users' ? false : $provider, 10, 2);
+// Kök adres (/) /tr/'ye yönlendirdiği için haritada yönlendiren adres olmasın: dil ana sayfası kullanılır (1.2.4)
+add_filter('wp_sitemaps_posts_show_on_front_entry', fn($e) => array_merge((array) $e, ['loc' => ec_url_home('tr')]));
+add_filter('wp_sitemaps_posts_entry', fn($e) => (isset($e['loc']) && untrailingslashit($e['loc']) === untrailingslashit(home_url('/'))) ? array_merge($e, ['loc' => ec_url_home('tr')]) : $e);
