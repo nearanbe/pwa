@@ -1,5 +1,7 @@
 # Kurulum (Plesk VPS)
 
+> **1.1.7 (Cloudflare gerçek IP):** eklenti, istek Cloudflare'dan geliyorsa `CF-Connecting-IP` başlığını gerçek ziyaretçi IP'si olarak kullanır (sahte başlık yok sayılır). Site turuncu buluta alınmadan önce kurulmalı; yoksa IP başına sınırlar tüm ziyaretçileri birlikte sayar. Tema değişmedi (1.1.6).
+>
 > **1.1.6 (SEO):**
 > - **Site haritası:** `/wp-sitemap.xml` içine AdaCasa bölümü eklendi: ana sayfa, ilan bulunan şehir arama sayfaları, projeler, firmalar, fiyat endeksi, SSS ve yasal sayfalar (her dil ayrı) ile tüm ilanlar, projeler ve firma vitrinleri. Kullanıcı (yazar) haritası kapatıldı.
 > - **Demo içerik:** demo ilan, proje ve firma sayfaları `noindex` olur ve site haritasına girmez; ziyaretçi görmeye devam eder.
