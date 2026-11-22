@@ -6,14 +6,22 @@ Yeni oturumda **önce bu dosyayı oku**, sonra gerekirse `README.md`, `docs/kuru
 - **Paketleme:** `bash scripts/paketle.sh` → `dist/adacasa-core-X.zip`, `dist/adacasa-theme-X.zip`, `dist/ilan-aktarici-X.zip`. Sürüm numaraları dosya başlıklarından okunur.
 - Önceki ayrıntılı sürüm notları git geçmişinde: `git log`, `git show <commit>:docs/devam-notu.md`.
 
+## 0. 22.11 oturumu (tüm projeler tek oturumdan)
+- Bu ortamda erişim: adacasa.com, adavira.com, stetosgop.com, ferihacelik.com.tr, mavicinar.com (WP REST, proxy ekler). Depolar: nearanbe/pwa ve nearanbe/stetosgop (dal `claude/jolly-carson-l927uv`).
+- **Cloudflare anahtarı yenilendi:** Workers AI yalnızca ücretli hesapta (`f8f895b79ad9f366a28517dd3fe89e52`) çalışıyor; `b30a…` hesabında AI yetkisi yok. Zone okuma ve **önbellek temizleme artık çalışıyor** (adacasa a920477193d181a481d0e36b7a51955d, adavira 3bd7d938daeab16c4407b45c643178ff, stetosgop 7a196db28933088a585ba4041940ff12). Yalnızca `files` listesiyle temizle.
+- **Zamanlanmış görevler:** AdaVira günlük (09:40, ücretli hesap, doğal belgesel fotoğraf), Stetosgop gün aşırı (07:43, Default ortamında), **AdaCasa gün aşırı (11:17, yeni, `trig_01FkKdijSnPwgi3ap5gKAsqQ`)**. Üçü de uzun kuyruk anahtar kelime + doğal fotoğraf kuralıyla.
+- **AdaCasa blog:** kategoriler 3–7 (Bölge, Satın Alma, Kiralama, Tapu ve Yasal, Yatırım ve Projeler). Yazılar 27, 29, 31 genişletildi (artık demo değil, unseed silmez), 47 yeni. Yazı içi görseller ilgili arama sayfasına bağlı.
+- **1.1.6 (SEO):** bkz. kurulum.md. Yerelde: site haritası, robots, JSON-LD doğrulandı; mobile-audit 156 görünüm temiz; testler 29/30/25/28.
+- Kullanıcının isteği: **her şeyi Claude yapar**, kullanıcıya yalnızca zorunlu işler (zip kurulumu, panel erişimi gerektirenler) bırakılır. Kararları makul varsayımla ver, söyle.
+
 ---
 
 ## 1. Durum özeti
 
 | Parça | Daldaki sürüm | Kullanıcıya verilen | Canlıda kurulu (son kontrol) |
 |---|---|---|---|
-| Eklenti `adacasa-core` | **1.1.5** | 1.1.5 | 1.1.2 ya da 1.1.5 (kullanıcı henüz "kurdum" demedi) |
-| Tema `adacasa-theme` | **1.1.5** | 1.1.5 | 1.1.4 ya da 1.1.5 |
+| Eklenti `adacasa-core` | **1.1.6** | 1.1.6 (22.11) | 1.1.5 (22.11 doğrulandı) |
+| Tema `adacasa-theme` | **1.1.6** | 1.1.6 (22.11) | 1.1.5 (22.11 doğrulandı) |
 | Chrome eklentisi "AdaCasa İlan Aktarıcı" | 0.4.1 | 0.4.1 | — |
 | `EC_DB_VERSION` | 11 | | |
 

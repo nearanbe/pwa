@@ -79,7 +79,7 @@ ae_seo([
         ])),
     ],
 ]);
-if ($filtered || $view !== 'izgara') {
+if ($filtered || $view !== 'izgara' || !$res['total']) { // boş sonuç sayfası da dizine girmesin
     add_action('wp_head', fn() => print('<meta name="robots" content="noindex, follow">' . "\n")); // filtre kombinasyonları dizine girmesin
 }
 $GLOBALS['ae_quicklinks'] = true;
