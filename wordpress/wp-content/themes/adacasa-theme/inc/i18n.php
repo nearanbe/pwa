@@ -156,6 +156,7 @@ function emlak_tema_strings(): array
         'guide' => ['Emlak Rehberi', 'Buying Guide', 'Гид покупателя'],
         'footer_note' => ['Kıbrıs’ın seçkin emlak ilan platformu', 'North Cyprus’ finest property platform', 'Платформа недвижимости Северного Кипра'],
         'rights' => ['Tüm hakları saklıdır.', 'All rights reserved.', 'Все права защищены.'],
+        'credit' => ['Web tasarım ve yazılım:', 'Web design & development:', 'Дизайн и разработка сайта:'],
         'demo_note' => ['Demo aşaması: ilanlar, firmalar ve kişiler kurgusaldır; kurlar yaklaşıktır.', 'Demo stage: listings, companies and people are fictional; rates are approximate.', 'Демо-версия: объявления, компании и люди вымышлены; курсы приблизительные.'],
         'lang_name' => ['Türkçe', 'English', 'Русский'],
         'in_city' => ['%s', '%s', '%s'],

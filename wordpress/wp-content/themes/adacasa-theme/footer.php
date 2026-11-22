@@ -69,7 +69,7 @@ $blog = ae_blog_url();
     <a href="#" data-conv="1000">⇄ <?php ae_e('conv_title'); ?></a>
   </div>
 </div>
-<div class="fnote">© <?php echo esc_html(gmdate('Y') . ' ' . ae_brand()); ?>. <?php ae_e('rights'); ?> <?php if (get_option('ec_demo_agents')) : ?><br><?php ae_e('demo_note'); ?><?php endif; ?></div>
+<div class="fnote">© <?php echo esc_html(gmdate('Y') . ' ' . ae_brand()); ?>. <?php ae_e('rights'); ?> · <?php ae_e('credit'); ?> <a href="https://adavira.com/is/adacasa" target="_blank" rel="noopener">AdaVira</a> <?php if (get_option('ec_demo_agents')) : ?><br><?php ae_e('demo_note'); ?><?php endif; ?></div>
 </div></footer>
 
 
