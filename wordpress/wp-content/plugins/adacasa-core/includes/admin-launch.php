@@ -63,7 +63,9 @@ function ec_launch_checks(): array
     $sp = ec_speed_settings();
     $add($sp['cache'] ? 'ok' : 'warn', 'Sayfa önbelleği (hız)', 'Emlak → Hız → “Ziyaretçi sayfaları önbelleğe alınabilsin”. Tarif: docs/hiz.md');
     $add($sp['cf_token'] && $sp['cf_zone'] ? 'ok' : 'warn', 'Cloudflare önbellek temizleme anahtarı', 'Emlak → Hız. İlan eklenince sayfalar anında yenilenir.');
-    $add(function_exists('opcache_get_status') && @opcache_get_status(false)['opcache_enabled'] ? 'ok' : 'warn', 'PHP OPcache', 'Plesk → PHP ayarları → opcache.enable = on');
+    // Plesk opcache_get_status()'u kapatabiliyor (disable_functions); o durumda ini ayarına bakılır
+    $opc = is_callable('opcache_get_status') ? !empty(@opcache_get_status(false)['opcache_enabled']) : (extension_loaded('Zend OPcache') && filter_var(ini_get('opcache.enable'), FILTER_VALIDATE_BOOLEAN));
+    $add($opc ? 'ok' : 'warn', 'PHP OPcache', 'Plesk → PHP ayarları → opcache.enable = on');
     $siteAcc = array_filter(ec_social_accounts(0), fn($a) => $a['status'] === 'ok');
     $add($siteAcc ? 'ok' : 'warn', 'Sitenin Facebook / Instagram hesabı bağlı', 'Emlak → Sosyal medya (docs/sosyal-medya-kurulum.md).');
     $broken = array_filter(ec_social_accounts(), fn($a) => $a['status'] !== 'ok' && $a['agent_id'] !== null);
