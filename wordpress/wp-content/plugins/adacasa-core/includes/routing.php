@@ -129,6 +129,18 @@ function ec_url_project(int $id, string $slug, ?string $lang = null): string
  */
 add_action('template_redirect', function () {
     $page = ec_page();
+    // Ofis alt alan adları açıkken: eski /tr/ofis/ad/ adresleri alt alan adına, alt alan adındaki diğer sayfalar ana alan adına (yinelenen içerik olmasın)
+    if (get_option('ec_subdomains') && ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'GET') {
+        $sub = ec_request_office_slug();
+        if ($sub && $page !== 'office') {
+            wp_safe_redirect(home_url($_SERVER['REQUEST_URI'] ?? '/'), 301);
+            exit;
+        }
+        if (!$sub && $page === 'office' && ec_agent_by_slug((string) get_query_var('ec_slug'))) {
+            wp_safe_redirect(ec_url_office((string) get_query_var('ec_slug'), ec_lang()), 301);
+            exit;
+        }
+    }
     if (!$page && !ec_request_office_slug() && (is_front_page() || is_home()) && !is_paged() && trim(parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH), '/') === trim((string) parse_url(home_url('/'), PHP_URL_PATH), '/')) {
         $accept = strtolower($_SERVER['HTTP_ACCEPT_LANGUAGE'] ?? '');
         $lang = str_starts_with($accept, 'ru') ? 'ru' : (str_starts_with($accept, 'tr') || $accept === '' ? 'tr' : 'en');
@@ -220,4 +232,13 @@ add_filter('redirect_canonical', function ($url) {
 
 add_filter('pre_handle_404', function ($handled, $q) {
     return ec_page() ? true : $handled;
+}, 10, 2);
+
+/** wp_safe_redirect alt alan adına (ofis vitrini) yönlendirebilsin */
+add_filter('allowed_redirect_hosts', function ($hosts, $host = '') {
+    $base = preg_replace('/^www\./', '', strtolower((string) wp_parse_url(home_url('/'), PHP_URL_HOST)));
+    if (get_option('ec_subdomains') && $host && str_ends_with(strtolower($host), '.' . $base) && preg_match('/^[a-z0-9-]{2,60}\.' . preg_quote($base, '/') . '$/', strtolower($host))) {
+        $hosts[] = strtolower($host);
+    }
+    return $hosts;
 }, 10, 2);

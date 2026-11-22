@@ -81,7 +81,7 @@ function ec_current_agent(): ?array
 function ec_agent_unique_slug(string $name, int $exclude_id = 0): string
 {
     global $wpdb;
-    $reserved = ['www', 'mail', 'smtp', 'ftp', 'api', 'admin', 'panel', 'blog', 'cdn', 'static', 'webmail', 'cpanel', 'plesk', 'ns1', 'ns2', 'tr', 'en', 'ru', 'test', 'dev', 'app', 'destek', 'help'];
+    $reserved = ['www', 'mail', 'smtp', 'ftp', 'api', 'admin', 'panel', 'blog', 'cdn', 'static', 'webmail', 'cpanel', 'plesk', 'ns1', 'ns2', 'tr', 'en', 'ru', 'test', 'dev', 'app', 'destek', 'help', 'ipv4', 'ipv6', 'imap', 'pop', 'pop3', 'autodiscover', 'autoconfig', 'n8n', 'status', 'docs', 'assets', 'media', 'img'];
     $base = substr(trim(preg_replace('/-+/', '-', ec_slugify($name)), '-'), 0, 40) ?: 'ofis';
     $slug = in_array($base, $reserved, true) ? $base . '-ofis' : $base;
     $i = 2;
