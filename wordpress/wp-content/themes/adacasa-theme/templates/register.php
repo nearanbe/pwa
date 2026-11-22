@@ -28,7 +28,7 @@ get_header();
     <p class="sub"><?php ae_e('register_sub'); ?></p>
     <?php echo ae_social_error(); ?>
     <?php if ($e) : ?><p class="errmsg" role="alert"><?php ae_e(isset($e['form']) && in_array($e['form'], ['expired', 'social_expired'], true) ? ($e['form'] === 'expired' ? 'err_expired' : 'err_social_expired') : 'err_form'); ?></p><?php endif; ?>
-    <?php if ($sg) : ?><p class="okmsg" role="status"><?php echo esc_html(ae_t('social_reg_note', $sg['p'] === 'google' ? 'Google' : 'Facebook')); ?></p><?php else : echo ae_social_buttons('register'); endif; ?>
+    <?php if ($sg) : ?><p class="okmsg" role="status"><?php echo esc_html(ae_t($sg['email'] !== '' ? 'social_reg_note' : 'social_reg_note_noemail', $sg['p'] === 'google' ? 'Google' : 'Facebook')); ?></p><?php else : echo ae_social_buttons('register'); endif; ?>
     <form method="post" class="form" id="regform" novalidate>
       <?php wp_nonce_field('ec_register', '_ecnonce'); ?>
       <?php if ($sg) : ?><input type="hidden" name="sosyal_kayit" value="<?php echo esc_attr($sg['token']); ?>"><?php endif; ?>
@@ -48,7 +48,7 @@ get_header();
           <input name="name" required autocomplete="organization" value="<?php echo $v('name'); ?>"><?php echo ae_field_error($e, 'name'); ?></label>
         <label class="corp-only"<?php echo in_array($kind, ['ofis', 'insaat'], true) ? '' : ' hidden'; ?>><?php ae_e('reg_contact'); ?>
           <input name="contact_person" autocomplete="name" value="<?php echo $v('contact_person'); ?>"></label>
-        <?php if ($sg) : ?>
+        <?php if ($sg && $sg['email'] !== '') : ?>
         <label><?php ae_e('reg_email'); ?><input type="email" value="<?php echo esc_attr($sg['email']); ?>" readonly><?php echo ae_field_error($e, 'email'); ?></label>
         <?php else : ?>
         <label><?php ae_e('reg_email'); ?><input name="email" type="email" required autocomplete="email" value="<?php echo $v('email'); ?>"><?php echo ae_field_error($e, 'email'); ?></label>

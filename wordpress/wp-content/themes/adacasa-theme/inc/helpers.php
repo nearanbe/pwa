@@ -612,6 +612,6 @@ function ae_social_buttons(string $intent): string
 function ae_social_error(): string
 {
     $c = sanitize_key((string) ($_GET['sosyal'] ?? ''));
-    return in_array($c, ['iptal', 'hata', 'eposta', 'yonetici', 'askida'], true) ? '<p class="errmsg" role="alert">' . esc_html(ae_t('social_err_' . $c)) . '</p>' : '';
+    return in_array($c, ['iptal', 'hata', 'eposta', 'yonetici', 'askida', 'dogrulama'], true) ? '<p class="errmsg" role="alert">' . esc_html(ae_t('social_err_' . $c)) . '</p>' : '';
 }
 

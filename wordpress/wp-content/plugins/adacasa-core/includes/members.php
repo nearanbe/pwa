@@ -88,8 +88,11 @@ function ec_member_register(array $in, ?array $social = null)
     $pass = (string) ($in['password'] ?? '');
     $city = sanitize_key((string) ($in['city'] ?? ''));
     $lang = in_array($in['lang'] ?? '', EC_LANGS, true) ? $in['lang'] : EC_DEFAULT_LANG;
+    $socialVerified = $social && !empty($social['email']); // sağlayıcı e-postayı verdi ve doğruladı
     if ($social) {
-        $email = sanitize_email((string) $social['email']);
+        if ($socialVerified) {
+            $email = sanitize_email((string) $social['email']);
+        }
         $pass = wp_generate_password(24);
     }
 
@@ -153,8 +156,8 @@ function ec_member_register(array $in, ?array $social = null)
         'city' => isset(ec_cities()[$city]) ? $city : null,
         'slug' => ec_agent_unique_slug($name),
         'status' => $kinds[$kind]['account_review'] ? 'pending' : 'active',
-        'email_verified' => $social ? 1 : 0,
-        'verify_token' => $social ? null : $token,
+        'email_verified' => $socialVerified ? 1 : 0,
+        'verify_token' => $socialVerified ? null : $token,
         'consent_at' => ec_now(),
         'telegram_opt_in' => !empty($in['telegram_opt_in']) ? 1 : 0,
         'created_at' => ec_now(),
@@ -167,7 +170,8 @@ function ec_member_register(array $in, ?array $social = null)
     }
     if ($social) {
         ec_sl_pending_done($social, (int) $uid);
-    } else {
+    }
+    if (!$socialVerified) {
         ec_member_send_verification($id);
     }
     ec_notify_admin(
@@ -368,7 +372,7 @@ add_action('template_redirect', function () {
             return;
         }
         $id = ec_member_register($post, $sg);
-        if (!is_wp_error($id) && $sg) {
+        if (!is_wp_error($id) && $sg && !empty($sg['email'])) {
             // Google/Facebook ile kayıt: e-posta doğrulanmış sayılır, doğrudan oturum açılır
             $a = ec_agent((int) $id);
             if ($a) {

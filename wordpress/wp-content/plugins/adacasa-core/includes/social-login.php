@@ -104,7 +104,7 @@ function ec_sl_start(string $p): void
     } else {
         $url = 'https://www.facebook.com/' . $s['fb_ver'] . '/dialog/oauth?' . http_build_query([
             'client_id' => $s['fb_id'], 'redirect_uri' => ec_sl_redirect_uri('facebook'), 'response_type' => 'code',
-            'scope' => 'email,public_profile', 'state' => $state,
+            'scope' => 'email,public_profile', 'state' => $state, 'auth_type' => 'rerequest',
         ]);
     }
     wp_redirect($url); // dış sağlayıcı
@@ -209,6 +209,9 @@ function ec_sl_callback(string $p): void
         if ($a && !$a['email_verified'] && $prof['email'] && strcasecmp($prof['email'], (string) $a['email']) === 0) {
             $wpdb->update(ec_table('agents'), ['email_verified' => 1, 'verify_token' => null, 'updated_at' => ec_now()], ['id' => $a['id']]);
         }
+        elseif ($a && !$a['email_verified']) {
+            ec_sl_fail('dogrulama', 'login', $lang); // e-postasını henüz doğrulamamış (sağlayıcı e-posta vermedi)
+        }
         update_user_meta($user->ID, $meta, $prof['id']);
         wp_set_current_user($user->ID);
         wp_set_auth_cookie($user->ID, true, is_ssl());
@@ -216,9 +219,7 @@ function ec_sl_callback(string $p): void
         ec_sl_go(ec_url_section('panel', ec_member_lang($user->ID) ?: $lang));
     }
 
-    if (!$prof['email']) {
-        ec_sl_fail('eposta', $intent, $lang);
-    }
+    // E-posta gelmediyse (telefonla açılmış Facebook hesabı vb.) kayıt formunda e-posta sorulur ve doğrulama postası gider
     $token = wp_generate_password(32, false, false);
     set_transient('ec_slr_' . $token, ['p' => $p, 'id' => $prof['id'], 'email' => $prof['email'], 'name' => $prof['name']], 30 * MINUTE_IN_SECONDS);
     ec_sl_go(add_query_arg('sosyal_kayit', $token, ec_url_section('register', $lang)));
