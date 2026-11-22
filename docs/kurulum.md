@@ -1,5 +1,7 @@
 # Kurulum (Plesk VPS)
 
+> **1.1.9:** RSS akışında (/feed/) her blog yazısına Instagram uyumlu JPEG paylaşım görseli (`<enclosure>`, `media:content`; `includes/rss.php`). n8n AdaCasa paylaşım akışı bunu kullanır.
+
 > **1.1.8:** ana sayfa firma şeridinde yalnızca yayında ilanı olan firmalar/danışmanlar (mülk sahipleri ve 0 ilanlılar gösterilmez); e-postalarda gönderen adı "WordPress" yerine site adı. (Canlı üyelik testinde bulundu.)
 >
 > **1.1.7 (Cloudflare gerçek IP):** eklenti, istek Cloudflare'dan geliyorsa `CF-Connecting-IP` başlığını gerçek ziyaretçi IP'si olarak kullanır (sahte başlık yok sayılır). Site turuncu buluta alınmadan önce kurulmalı; yoksa IP başına sınırlar tüm ziyaretçileri birlikte sayar. Tema değişmedi (1.1.6).
