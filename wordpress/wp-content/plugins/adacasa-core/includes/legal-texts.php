@@ -462,7 +462,7 @@ H,
 <p>Site “olduğu gibi” sunulur. Kesintisiz ya da hatasız çalışacağı garanti edilmez. {brand}; ilanların doğruluğundan, kullanıcılar arasındaki görüşme ve işlemlerden, üçüncü taraf hizmetlerin (Telegram, Meta, bankalar, diğer ilan siteleri) kesinti ya da kurallarından doğan zararlardan, yasaların izin verdiği ölçüde sorumlu değildir. Alıcıların satın almadan önce tapuyu ve belgeleri bağımsız bir avukata kontrol ettirmesi önerilir.</p>
 
 <h2>9. Fikrî mülkiyet</h2>
-<p>Sitenin tasarımı, yazılımı, logosu ve {brand} markası {company}’ye aittir; izinsiz kullanılamaz.</p>
+<p>Sitenin tasarımı, yazılımı, logosu ve {brand} markası üzerindeki tüm haklar {company} tarafından saklıdır; izinsiz kullanılamaz.</p>
 
 <h2>10. Hesabın kapatılması</h2>
 <p>Üyeliğinizi istediğiniz zaman {email} adresine yazarak kapatabilirsiniz. Ücretli paketlerin iadesi için <a href="{sales_url}">Paket Satış ve İade Koşulları</a> geçerlidir.</p>
