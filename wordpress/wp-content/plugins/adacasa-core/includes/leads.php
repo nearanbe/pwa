@@ -116,7 +116,7 @@ function ec_lead_create(array $in, array $target)
 
     $body = "📩 Yeni mesaj: $title\n\nAd: $name\n" . ($phone ? "Telefon: $phone\n" : '') . ($email ? "E-posta: $email\n" : '') . 'Dil: ' . strtoupper($lang) . "\n\n$message\n\n$url";
     if ($agent) {
-        if (!empty($agent['email'])) {
+        if (!empty($agent['email']) && !preg_match('/@example\.(com|org|net)$/i', (string) $agent['email'])) { // demo ofisler: sahte adrese gönderme (geri dönen e-posta itibarı düşürür)
             $headers = $email ? ['Reply-To: ' . $name . ' <' . $email . '>'] : [];
             wp_mail($agent['email'], get_bloginfo('name') . ': ilanınız için yeni mesaj', $body . "\n\nTüm mesajlar: " . add_query_arg('bolum', 'talepler', ec_url_section('panel', ec_member_lang((int) $agent['wp_user_id']))), $headers);
         }
