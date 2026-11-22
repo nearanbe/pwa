@@ -49,11 +49,24 @@ function ec_sl_start_url(string $p, string $intent, ?string $lang = null): strin
     return add_query_arg(['ec_oauth' => $p, 'start' => 1, 'intent' => $intent === 'register' ? 'register' : 'login', 'lang' => $lang ?? ec_lang()], home_url('/'));
 }
 
+/**
+ * Yönlendir ve sonucu 2 dakika hatırla. Bazı telefonlar (Facebook uygulaması yüklü Android) dönüş adresini
+ * aynı saniyede iki kez açıyor; ikinci istek tek kullanımlık durumu bulamayıp hata gösteriyordu.
+ * Aynı "state" yeniden gelirse ilk sonuca gidilir.
+ */
+function ec_sl_go(string $url): void
+{
+    if (!empty($GLOBALS['ec_sl_state'])) {
+        set_transient('ec_sl_done_' . md5($GLOBALS['ec_sl_state']), $url, 2 * MINUTE_IN_SECONDS);
+    }
+    wp_safe_redirect($url);
+    exit;
+}
+
 /** Hata/iptal: giriş ya da kayıt sayfasına ?sosyal=<kod> ile dön */
 function ec_sl_fail(string $code, string $intent, string $lang): void
 {
-    wp_safe_redirect(add_query_arg('sosyal', $code, ec_url_section($intent === 'register' ? 'register' : 'login', $lang)));
-    exit;
+    ec_sl_go(add_query_arg('sosyal', $code, ec_url_section($intent === 'register' ? 'register' : 'login', $lang)));
 }
 
 add_action('init', function () {
@@ -141,10 +154,28 @@ function ec_sl_callback(string $p): void
     $lang = is_array($st) ? $st['l'] : EC_DEFAULT_LANG;
     $intent = is_array($st) ? $st['i'] : 'login';
     $cookie = (string) ($_COOKIE['ec_sl'] ?? '');
+    if (!is_array($st) && $state) {
+        // Aynı dönüşün tekrarı: ilk istek bitmişse sonucuna git, sürüyorsa en çok 10 sn bekle
+        $k = md5($state);
+        for ($i = 0; $i < 20; $i++) {
+            // Doğrudan veritabanından oku (WordPress önbelleği "yok" sonucunu hatırlıyor)
+            $done = (string) $wpdb->get_var($wpdb->prepare("SELECT option_value FROM {$wpdb->options} WHERE option_name = %s", '_transient_ec_sl_done_' . $k));
+            if ($done !== '') {
+                wp_safe_redirect($done);
+                exit;
+            }
+            if (!$wpdb->get_var($wpdb->prepare("SELECT 1 FROM {$wpdb->options} WHERE option_name = %s", '_transient_ec_sl_busy_' . $k))) {
+                break;
+            }
+            usleep(500000);
+        }
+    }
     if (!is_array($st) || $st['p'] !== $p || !hash_equals(hash_hmac('sha256', $state, wp_salt('auth')), $cookie)) {
         ec_sl_fail('hata', 'login', $lang);
     }
+    set_transient('ec_sl_busy_' . md5($state), 1, MINUTE_IN_SECONDS);
     delete_transient('ec_sl_' . $state);
+    $GLOBALS['ec_sl_state'] = $state;
     setcookie('ec_sl', '', time() - 3600, '/');
     if (!empty($_GET['error']) || empty($_GET['code'])) {
         ec_sl_fail('iptal', $intent, $lang);
@@ -182,8 +213,7 @@ function ec_sl_callback(string $p): void
         wp_set_current_user($user->ID);
         wp_set_auth_cookie($user->ID, true, is_ssl());
         do_action('wp_login', $user->user_login, $user);
-        wp_safe_redirect(ec_url_section('panel', ec_member_lang($user->ID) ?: $lang));
-        exit;
+        ec_sl_go(ec_url_section('panel', ec_member_lang($user->ID) ?: $lang));
     }
 
     if (!$prof['email']) {
@@ -191,8 +221,7 @@ function ec_sl_callback(string $p): void
     }
     $token = wp_generate_password(32, false, false);
     set_transient('ec_slr_' . $token, ['p' => $p, 'id' => $prof['id'], 'email' => $prof['email'], 'name' => $prof['name']], 30 * MINUTE_IN_SECONDS);
-    wp_safe_redirect(add_query_arg('sosyal_kayit', $token, ec_url_section('register', $lang)));
-    exit;
+    ec_sl_go(add_query_arg('sosyal_kayit', $token, ec_url_section('register', $lang)));
 }
 
 /** Kayıt formundaki sosyal jeton → bekleyen profil */
