@@ -21,9 +21,9 @@ function ec_tracking(): array
 function ec_consent_texts(string $lang): array
 {
     $t = [
-        'tr' => ['title' => 'Çerez tercihleriniz', 'text' => 'Siteyi çalıştırmak için zorunlu çerezler kullanıyoruz. İzin verirseniz ziyaretleri ölçmek (analiz) ve reklamlarımızın etkisini görmek (pazarlama) için ek çerezler de kullanırız.', 'more' => 'Çerez Politikası', 'accept' => 'Tümünü kabul et', 'reject' => 'Sadece zorunlu', 'settings' => 'Ayarlar', 'save' => 'Seçimi kaydet', 'nec' => 'Zorunlu (her zaman açık)', 'an' => 'Analiz (Google Analytics)', 'mk' => 'Pazarlama (Meta Pixel)', 'open' => 'Çerez ayarları'],
-        'en' => ['title' => 'Your cookie choices', 'text' => 'We use essential cookies to run the site. With your consent we also use cookies to measure visits (analytics) and the effect of our ads (marketing).', 'more' => 'Cookie Policy', 'accept' => 'Accept all', 'reject' => 'Essential only', 'settings' => 'Settings', 'save' => 'Save choices', 'nec' => 'Essential (always on)', 'an' => 'Analytics (Google Analytics)', 'mk' => 'Marketing (Meta Pixel)', 'open' => 'Cookie settings'],
-        'ru' => ['title' => 'Настройки cookie', 'text' => 'Мы используем необходимые cookie для работы сайта. С вашего согласия мы также используем cookie для статистики посещений (аналитика) и оценки рекламы (маркетинг).', 'more' => 'Политика cookie', 'accept' => 'Принять все', 'reject' => 'Только необходимые', 'settings' => 'Настройки', 'save' => 'Сохранить', 'nec' => 'Необходимые (всегда включены)', 'an' => 'Аналитика (Google Analytics)', 'mk' => 'Маркетинг (Meta Pixel)', 'open' => 'Настройки cookie'],
+        'tr' => ['title' => 'Çerez tercihleriniz', 'text' => 'Siteyi çalıştırmak için zorunlu çerezler kullanıyoruz. İzin verirseniz ziyaretleri ölçmek (analiz) ve reklamlarımızın etkisini görmek (pazarlama) için ek çerezler de kullanırız.', 'more' => 'Çerez Politikası', 'accept' => 'Tümünü kabul et', 'reject' => 'Sadece zorunlu', 'settings' => 'Ayarlar', 'save' => 'Seçimi kaydet', 'nec' => 'Zorunlu (her zaman açık)', 'an' => 'Analiz (Google Analytics)', 'mk' => 'Pazarlama ve reklam (Meta Pixel, Google AdSense)', 'open' => 'Çerez ayarları'],
+        'en' => ['title' => 'Your cookie choices', 'text' => 'We use essential cookies to run the site. With your consent we also use cookies to measure visits (analytics) and the effect of our ads (marketing).', 'more' => 'Cookie Policy', 'accept' => 'Accept all', 'reject' => 'Essential only', 'settings' => 'Settings', 'save' => 'Save choices', 'nec' => 'Essential (always on)', 'an' => 'Analytics (Google Analytics)', 'mk' => 'Marketing and ads (Meta Pixel, Google AdSense)', 'open' => 'Cookie settings'],
+        'ru' => ['title' => 'Настройки cookie', 'text' => 'Мы используем необходимые cookie для работы сайта. С вашего согласия мы также используем cookie для статистики посещений (аналитика) и оценки рекламы (маркетинг).', 'more' => 'Политика cookie', 'accept' => 'Принять все', 'reject' => 'Только необходимые', 'settings' => 'Настройки', 'save' => 'Сохранить', 'nec' => 'Необходимые (всегда включены)', 'an' => 'Аналитика (Google Analytics)', 'mk' => 'Маркетинг и реклама (Meta Pixel, Google AdSense)', 'open' => 'Настройки cookie'],
     ];
     return $t[$lang] ?? $t['tr'];
 }
@@ -37,14 +37,17 @@ add_action('wp_head', function () {
         echo '<meta name="msvalidate.01" content="' . esc_attr($t['bing']) . '">' . "\n";
     }
     $skip = current_user_can('edit_posts') || !empty($GLOBALS['ec_preview']);
-    $cfg = ['ga4' => $skip ? '' : $t['ga4'], 'pixel' => $skip ? '' : $t['pixel']];
+    $ads = (array) get_option('ec_ads', []);
+    $cfg = ['ga4' => $skip ? '' : $t['ga4'], 'pixel' => $skip ? '' : $t['pixel'], 'ads' => $skip ? '' : (string) ($ads['client'] ?? '')];
     // Onay okuyucu ve yükleyici (izin gelince GA4 / Pixel yüklenir)
     echo '<script>window.EC_TRK=' . wp_json_encode($cfg) . ";(function(){"
         . "function c(){var m=document.cookie.match(/(?:^|; )ac_consent=([^;]+)/);return m?m[1]:'';}"
         . "window.ecConsent=function(){var v=c();return{set:!!v,a:v.indexOf('a1')>-1,m:v.indexOf('m1')>-1};};"
         . "var L={};window.ecLoadTrackers=function(){var k=ecConsent(),T=window.EC_TRK;"
         . "if(k.a&&T.ga4&&!L.ga){L.ga=1;var s=document.createElement('script');s.async=1;s.src='https://www.googletagmanager.com/gtag/js?id='+T.ga4;document.head.appendChild(s);window.dataLayer=window.dataLayer||[];window.gtag=function(){dataLayer.push(arguments);};gtag('js',new Date());gtag('config',T.ga4,{anonymize_ip:true});}"
-        . "if(k.m&&T.pixel&&!L.px){L.px=1;!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init',T.pixel);fbq('track','PageView');}};"
+        . "if(k.m&&T.pixel&&!L.px){L.px=1;!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init',T.pixel);fbq('track','PageView');}"
+        // Google AdSense: yalnızca pazarlama izniyle; izin yoksa reklam alanında kendi "reklam verebilirsiniz" görselimiz kalır
+        . "if(k.m&&T.ads&&!L.ad){L.ad=1;document.documentElement.classList.add('ec-ads-on');var a=document.createElement('script');a.async=1;a.crossOrigin='anonymous';a.src='https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client='+encodeURIComponent(T.ads);document.head.appendChild(a);}};"
         . "window.ecTrack=function(ev,p){try{p=p||{};if(window.gtag&&L.ga)gtag('event',ev==='lead'?'generate_lead':ev,p);if(window.fbq&&L.px)fbq('track',ev==='lead'?'Lead':(ev==='view_item'?'ViewContent':ev),p);}catch(e){}};"
         . "ecLoadTrackers();})();</script>\n";
 }, 3);

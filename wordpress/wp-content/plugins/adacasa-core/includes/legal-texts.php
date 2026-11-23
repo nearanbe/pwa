@@ -142,7 +142,7 @@ H,
   <li>Telegram (bot mesajları),</li>
   <li>Anthropic (Claude yapay zekâ: Telegram’dan gönderilen ilan metinlerinden alan çıkarma ve çeviri; bu veriler model eğitiminde kullanılmaz),</li>
   <li>Meta Platforms (Facebook ve Instagram paylaşımı; çerez izni verdiyseniz Meta Pixel),</li>
-  <li>Google (çerez izni verdiyseniz Google Analytics),</li>
+  <li>Google (çerez izni verdiyseniz Google Analytics ve Google AdSense reklamları),</li>
   <li>OpenStreetMap ve harita karo sağlayıcıları (harita gösterimi),</li>
   <li>YouTube ve Vimeo (ilan sahibi video eklediyse),</li>
   <li>Kartla ödemede ilgili banka ve ödeme altyapısı,</li>
@@ -153,6 +153,7 @@ H,
 </ul>
 <p>Bazı hizmet sağlayıcıların sunucuları KKTC dışında (AB, ABD ve başka ülkelerde) bulunabilir. Bu aktarımlar hizmetin sunulması için gereklidir ve sağlayıcıların veri koruma taahhütlerine dayanır.</p>
 
+<p><b>Google reklamları:</b> Sitemizde Google AdSense reklamları gösterilebilir. Google dahil üçüncü taraf sağlayıcılar, bu siteye ve diğer sitelere yaptığınız önceki ziyaretlere dayalı reklamlar sunmak için çerezler kullanır. Google’ın reklam çerezlerini kullanması, Google’ın ve iş ortaklarının size bu siteye ve/veya internetteki diğer sitelere yaptığınız ziyaretlere göre reklam göstermesini sağlar. Kişiselleştirilmiş reklamları <a href="https://adssettings.google.com" target="_blank" rel="noopener">Google Reklam Ayarları</a> sayfasından kapatabilir, üçüncü taraf sağlayıcıların çerezlerini <a href="https://www.aboutads.info/choices" target="_blank" rel="noopener">www.aboutads.info</a> üzerinden reddedebilirsiniz. Bu çerezler yalnızca sitemizdeki çerez tercihlerinde “Pazarlama ve reklam” iznini verdiğinizde yüklenir. Google’ın verileri nasıl kullandığı: <a href="https://policies.google.com/technologies/partner-sites" target="_blank" rel="noopener">policies.google.com/technologies/partner-sites</a>.</p>
 <h2>5. Ne kadar süre saklıyoruz?</h2>
 <ul>
 <li>Üyelik ve ilan bilgileri: hesabınız açık olduğu sürece; hesabın kapatılmasından sonra en fazla 1 yıl (uyuşmazlık ve güvenlik için).</li>
@@ -219,7 +220,7 @@ H,
   <li>Telegram (bot messages),</li>
   <li>Anthropic (Claude AI: extracting fields from and translating listing texts sent via Telegram; not used for model training),</li>
   <li>Meta Platforms (Facebook and Instagram sharing; Meta Pixel if you consent),</li>
-  <li>Google (Google Analytics if you consent),</li>
+  <li>Google (Google Analytics and Google AdSense ads if you consent),</li>
   <li>OpenStreetMap and map tile providers,</li>
   <li>YouTube and Vimeo (if the advertiser adds a video),</li>
   <li>the bank and payment infrastructure for card payments,</li>
@@ -230,6 +231,7 @@ H,
 </ul>
 <p>Some providers’ servers may be located outside the TRNC (EU, USA and other countries). These transfers are necessary to provide the service and rely on the providers’ data protection commitments.</p>
 
+<p><b>Google ads:</b> Google AdSense ads may be shown on this site. Third-party vendors, including Google, use cookies to serve ads based on your prior visits to this website or other websites. Google’s use of advertising cookies enables it and its partners to serve ads to you based on your visits to this site and/or other sites on the Internet. You may opt out of personalised advertising by visiting <a href="https://adssettings.google.com" target="_blank" rel="noopener">Google Ads Settings</a>, and opt out of third-party vendors’ cookies at <a href="https://www.aboutads.info/choices" target="_blank" rel="noopener">www.aboutads.info</a>. These cookies are only loaded if you allow “Marketing and ads” in the cookie settings on our site. How Google uses data: <a href="https://policies.google.com/technologies/partner-sites" target="_blank" rel="noopener">policies.google.com/technologies/partner-sites</a>.</p>
 <h2>5. How long do we keep data?</h2>
 <ul>
 <li>Account and listing data: while your account is open; up to 1 year after closure (disputes and security).</li>
@@ -296,7 +298,7 @@ H,
   <li>Telegram (сообщения бота),</li>
   <li>Anthropic (ИИ Claude: извлечение данных из текстов объявлений, присланных через Telegram, и перевод; данные не используются для обучения моделей),</li>
   <li>Meta Platforms (публикации в Facebook и Instagram; Meta Pixel — при вашем согласии),</li>
-  <li>Google (Google Analytics — при вашем согласии),</li>
+  <li>Google (Google Analytics и реклама Google AdSense — при вашем согласии),</li>
   <li>OpenStreetMap и поставщики картографических данных,</li>
   <li>YouTube и Vimeo (если автор добавил видео),</li>
   <li>банк и платёжная инфраструктура при оплате картой,</li>
@@ -307,6 +309,7 @@ H,
 </ul>
 <p>Серверы некоторых поставщиков могут находиться за пределами ТРСК (в ЕС, США и других странах). Такая передача необходима для оказания услуг и основана на обязательствах поставщиков по защите данных.</p>
 
+<p><b>Реклама Google:</b> на сайте может показываться реклама Google AdSense. Сторонние поставщики, в том числе Google, используют файлы cookie для показа рекламы с учётом ваших предыдущих посещений этого и других сайтов. Рекламные cookie позволяют Google и его партнёрам показывать вам рекламу на основе посещений этого сайта и/или других сайтов в интернете. Отключить персонализированную рекламу можно в <a href="https://adssettings.google.com" target="_blank" rel="noopener">настройках рекламы Google</a>, а cookie сторонних поставщиков — на <a href="https://www.aboutads.info/choices" target="_blank" rel="noopener">www.aboutads.info</a>. Эти cookie загружаются только если вы разрешили «Маркетинг и реклама» в настройках cookie на нашем сайте. Как Google использует данные: <a href="https://policies.google.com/technologies/partner-sites" target="_blank" rel="noopener">policies.google.com/technologies/partner-sites</a>.</p>
 <h2>5. Сроки хранения</h2>
 <ul>
 <li>Данные аккаунта и объявлений: пока аккаунт открыт; до 1 года после закрытия (споры и безопасность).</li>
@@ -357,7 +360,9 @@ H,
 <h2>Pazarlama (izninizle)</h2>
 <table class="ltable"><tr><th>Ad</th><th>Sağlayıcı</th><th>Amaç</th><th>Süre</th></tr>
 <tr><td>_fbp, fr</td><td>Meta (Facebook / Instagram)</td><td>Reklamların etkisini ölçme ve ilgili reklam gösterme</td><td>3 ay</td></tr>
+<tr><td>__gads, __gpi, IDE</td><td>Google AdSense (sitede Google reklamı gösteriliyorsa)</td><td>Reklam gösterme, sıklık sınırı ve reklam ölçümü</td><td>13 aya kadar</td></tr>
 </table>
+<p><b>Google reklamları:</b> Sitemizde Google AdSense reklamları gösterilebilir. Google dahil üçüncü taraf sağlayıcılar, bu siteye ve diğer sitelere yaptığınız önceki ziyaretlere dayalı reklamlar sunmak için çerezler kullanır. Google’ın reklam çerezlerini kullanması, Google’ın ve iş ortaklarının size bu siteye ve/veya internetteki diğer sitelere yaptığınız ziyaretlere göre reklam göstermesini sağlar. Kişiselleştirilmiş reklamları <a href="https://adssettings.google.com" target="_blank" rel="noopener">Google Reklam Ayarları</a> sayfasından kapatabilir, üçüncü taraf sağlayıcıların çerezlerini <a href="https://www.aboutads.info/choices" target="_blank" rel="noopener">www.aboutads.info</a> üzerinden reddedebilirsiniz. Bu çerezler yalnızca sitemizdeki çerez tercihlerinde “Pazarlama ve reklam” iznini verdiğinizde yüklenir. Google’ın verileri nasıl kullandığı: <a href="https://policies.google.com/technologies/partner-sites" target="_blank" rel="noopener">policies.google.com/technologies/partner-sites</a>.</p>
 <h2>Üçüncü taraf içerikler</h2>
 <p>İlan sayfasında video (YouTube gizlilik modu, Vimeo) ya da sanal tur (Matterport, Kuula vb.) varsa, bu içerikler oynatıldığında ilgili sağlayıcı kendi çerezlerini kullanabilir. Harita gösterimi OpenStreetMap ile yapılır ve çerez kullanmaz.</p>
 <h2>Çerezleri tarayıcıdan yönetme</h2>
@@ -382,7 +387,9 @@ H,
 <h2>Marketing (with your consent)</h2>
 <table class="ltable"><tr><th>Name</th><th>Provider</th><th>Purpose</th><th>Duration</th></tr>
 <tr><td>_fbp, fr</td><td>Meta (Facebook / Instagram)</td><td>Measuring ad performance and showing relevant ads</td><td>3 months</td></tr>
+<tr><td>__gads, __gpi, IDE</td><td>Google AdSense (when Google ads are shown on the site)</td><td>Showing ads, frequency capping and ad measurement</td><td>up to 13 months</td></tr>
 </table>
+<p><b>Google ads:</b> Google AdSense ads may be shown on this site. Third-party vendors, including Google, use cookies to serve ads based on your prior visits to this website or other websites. Google’s use of advertising cookies enables it and its partners to serve ads to you based on your visits to this site and/or other sites on the Internet. You may opt out of personalised advertising by visiting <a href="https://adssettings.google.com" target="_blank" rel="noopener">Google Ads Settings</a>, and opt out of third-party vendors’ cookies at <a href="https://www.aboutads.info/choices" target="_blank" rel="noopener">www.aboutads.info</a>. These cookies are only loaded if you allow “Marketing and ads” in the cookie settings on our site. How Google uses data: <a href="https://policies.google.com/technologies/partner-sites" target="_blank" rel="noopener">policies.google.com/technologies/partner-sites</a>.</p>
 <h2>Third-party content</h2>
 <p>If a listing contains a video (YouTube privacy-enhanced mode, Vimeo) or a virtual tour (Matterport, Kuula etc.), the provider may set its own cookies when the content is played. Maps are shown with OpenStreetMap and set no cookies.</p>
 <h2>Managing cookies in your browser</h2>
@@ -407,7 +414,9 @@ H,
 <h2>Маркетинговые (с вашего согласия)</h2>
 <table class="ltable"><tr><th>Название</th><th>Поставщик</th><th>Назначение</th><th>Срок</th></tr>
 <tr><td>_fbp, fr</td><td>Meta (Facebook / Instagram)</td><td>Оценка эффективности и показ релевантной рекламы</td><td>3 месяца</td></tr>
+<tr><td>__gads, __gpi, IDE</td><td>Google AdSense (если на сайте показывается реклама Google)</td><td>Показ рекламы, ограничение частоты и измерение эффективности</td><td>до 13 месяцев</td></tr>
 </table>
+<p><b>Реклама Google:</b> на сайте может показываться реклама Google AdSense. Сторонние поставщики, в том числе Google, используют файлы cookie для показа рекламы с учётом ваших предыдущих посещений этого и других сайтов. Рекламные cookie позволяют Google и его партнёрам показывать вам рекламу на основе посещений этого сайта и/или других сайтов в интернете. Отключить персонализированную рекламу можно в <a href="https://adssettings.google.com" target="_blank" rel="noopener">настройках рекламы Google</a>, а cookie сторонних поставщиков — на <a href="https://www.aboutads.info/choices" target="_blank" rel="noopener">www.aboutads.info</a>. Эти cookie загружаются только если вы разрешили «Маркетинг и реклама» в настройках cookie на нашем сайте. Как Google использует данные: <a href="https://policies.google.com/technologies/partner-sites" target="_blank" rel="noopener">policies.google.com/technologies/partner-sites</a>.</p>
 <h2>Сторонний контент</h2>
 <p>Если в объявлении есть видео (YouTube в режиме повышенной конфиденциальности, Vimeo) или виртуальный тур (Matterport, Kuula и др.), при воспроизведении поставщик может устанавливать свои cookie. Карты показываются через OpenStreetMap и cookie не устанавливают.</p>
 <h2>Управление cookie в браузере</h2>

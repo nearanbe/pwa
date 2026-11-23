@@ -180,8 +180,12 @@ function ae_ad(string $slot, string $extra_class = ''): string
             $cls = 'ad-img';
             break;
         case 'adsense':
-            $inner = $label . '<ins class="adsbygoogle" style="display:block" data-ad-client="' . esc_attr($r['client']) . '" data-ad-slot="' . esc_attr($r['id']) . '" data-ad-format="auto" data-full-width-responsive="true"></ins>';
-            $cls = '';
+            // İzin yoksa (ya da AdSense doldurmazsa) yerine kendi "reklam verebilirsiniz" görselimiz görünür; ec-ads-on sınıfı izinle eklenir
+            $l = in_array(ec_lang(), ['tr', 'en', 'ru'], true) ? ec_lang() : 'tr';
+            $f = fn(array $wh) => get_template_directory_uri() . '/assets/img/reklam/reklam-' . $wh[0] . 'x' . $wh[1] . '-' . $l . '.webp';
+            $inner = $label . '<ins class="adsbygoogle" style="display:block" data-ad-client="' . esc_attr($r['client']) . '" data-ad-slot="' . esc_attr($r['id']) . '" data-ad-format="auto" data-full-width-responsive="true"></ins>'
+                . '<a class="ad-yedek" href="' . esc_url(function_exists('ec_ad_house_url') ? ec_ad_house_url() : '#', ['https', 'http', 'mailto', 'tel']) . '" rel="nofollow">' . $pic($f($sz['d']), $f($sz['m']), ae_t('ad_here')) . '</a>';
+            $cls = 'ad-img ad-g';
             break;
         case 'house':
             $l = in_array(ec_lang(), ['tr', 'en', 'ru'], true) ? ec_lang() : 'tr';

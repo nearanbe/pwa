@@ -7,7 +7,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-define('AE_VER', '1.2.0');
+define('AE_VER', '1.2.1');
 
 if (!function_exists('ec_table')) {
     // Eklenti kapalıysa: hiçbir eklenti fonksiyonu TANIMLANMAZ (aksi halde eklenti etkinleştirilirken
@@ -80,10 +80,7 @@ add_action('wp_enqueue_scripts', function () {
             'leadOk' => ae_t('lead_ok'), 'leadErr' => ae_t('lead_err'), 'reportReason' => ae_t('report_err_reason'), 'reportOk' => ae_t('report_ok'),
         ]]);
     }
-    $ads = get_option('ec_ads', []);
-    if (!empty($ads['client'])) {
-        wp_enqueue_script('adsense', 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=' . rawurlencode($ads['client']), [], null, ['strategy' => 'async']);
-    }
+    // AdSense betiği burada yüklenmez: adacasa-core tracking.php yalnızca pazarlama çerez izniyle yükler
 });
 
 // Gereksiz WordPress çıktıları (hız için)
