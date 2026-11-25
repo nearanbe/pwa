@@ -165,6 +165,6 @@ mkdir -p /tmp/wpdev && cd /tmp/wpdev && composer require -q johnpbloch/wordpress
 | `docs/marka/` | Logo PNG ve WebP, `adacasa-mark.svg` |
 
 ## 25.11 Telegram 0.5 (adacasa-core 1.2.13)
-- Mevcut ilan düzenleme: `/ilanlarim` (her ilana ✏️ düğmesi, `el:ID`) ya da `/duzenle 123`. Taslak satırı `data.existing=1` ile açılır; doğal dille düzeltme `ec_tg_correct` (güncel ilan `ec_tg_listing_ai()` ile yapay zekâya verilir), fotoğraf gönderme = ekleme, 📷 menü (`ec_tg_photo_menu`: sil `phd`, kapak `phc`), 🏷 Satıldı/Kiralandı (`sold`), 🗑 İlanı kaldır (onaylı, `status=passive`, sitedeki silme ile aynı), ▶️ Yayınla (`repub`), ✅ Bitti (`done`). İptal mevcut ilanı silmez. Yönetici sohbeti her ilanı düzenleyebilir.
+- Mevcut ilan düzenleme: `/ilanlarim` (her ilana ✏️ düğmesi, `el:ID`) ya da `/duzenle 123`. Taslak satırı `data.existing=1` ile açılır; doğal dille düzeltme `ec_tg_correct` (güncel ilan `ec_tg_listing_ai()` ile yapay zekâya verilir), fotoğraf gönderme = ekleme, 📷 menü (`ec_tg_photo_menu`: sil `phd`, kapak `phc`), 🏷 Satıldı/Kiralandı (`sold`), 🗑 İlanı kaldır (onaylı, `status=passive`, sitedeki silme ile aynı), ▶️ Yayınla (`repub`), ✅ Bitti (`done`). İptal mevcut ilanı silmez. Yalnızca ilan sahibi düzenleyebilir (yönetici sohbeti dahil; başkasının ilanı için site paneli).
 - Yönetici Telegram sohbeti (8755949901) AdaCasa yönetici profiline (agent 9) bağlandı.
 - Demo ilan #10063 (Alsancak 3+1 villa, Telegram'dan) source=demo yapıldı; 7 fotoğraf (6 Cloudflare FLUX.2 + kullanıcının 1 fotoğrafı). Yanlışlıkla oluşan kopya #10064 pasif.

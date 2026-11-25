@@ -19,6 +19,7 @@
  * Mevcut ilanı düzenleme (0.5): /duzenle 123 ya da /ilanlarim → ✏️. Taslak satırı data.existing=1 ile açılır;
  * doğal dille düzeltme (bilgi ekleme/çıkarma), fotoğraf ekleme, fotoğraf silme / kapak yapma, satıldı,
  * yayından kaldırma (sitede silme = pasif; panelden geri açılır). İptal mevcut ilanı silmez.
+ * Yetki: yalnızca ilanın sahibi olan üye (ec_tg_can_edit), yönetici sohbeti de dahil.
  */
 
 if (!defined('ABSPATH')) {
@@ -687,10 +688,13 @@ function ec_tg_handle_callback(array $q): void
 
 /* ---------------- Mevcut ilanı düzenleme ---------------- */
 
-/** İlan sahibi mi? (yönetici sohbeti her ilanı düzenleyebilir) */
+/**
+ * Telegram'dan yalnızca kendi portföyündeki ilan düzenlenir (yönetici dahil; başkasının ilanı için site paneli).
+ * Ekip (ofis) danışmanının ilanı danışmanın kendisine aittir.
+ */
 function ec_tg_can_edit(string $chat, array $agent, ?array $row): bool
 {
-    return $row && ((int) $row['agent_id'] === (int) $agent['id'] || ec_tg_is_admin($chat));
+    return $row && (int) $row['agent_id'] === (int) $agent['id'] && $agent['status'] !== 'suspended';
 }
 
 /** İlanın güncel hâli, yapay zekâ şemasıyla aynı biçimde (düzeltmede "CURRENT LISTING JSON") */
