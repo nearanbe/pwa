@@ -1,6 +1,6 @@
 <?php
 /**
- * Telegram botu (tek merkezi bot). Sürüm 0.4.
+ * Telegram botu (tek merkezi bot). Sürüm 0.5.
  *
  * Akış:
  *  1. Üye Panelim → Telegram → "Telegram'ı bağla" der; 10 dakika geçerli kodla t.me/<bot>?start=KOD açılır.
@@ -14,7 +14,11 @@
  *     yöneticiye Telegram'dan [Onayla] [Reddet] düğmeleriyle bildirim gider.
  *
  * Webhook adresi: /api/v1/telegram/webhook  (Telegram "X-Telegram-Bot-Api-Secret-Token" başlığı ile doğrulanır)
- * Komutlar: /start, /yeni (taslağı sıfırla), /iptal, /ilanlarim, /yardim, (yönetici) /bekleyen
+ * Komutlar: /start, /yeni (taslağı sıfırla), /iptal, /ilanlarim, /duzenle [no], /yardim, (yönetici) /bekleyen
+ *
+ * Mevcut ilanı düzenleme (0.5): /duzenle 123 ya da /ilanlarim → ✏️. Taslak satırı data.existing=1 ile açılır;
+ * doğal dille düzeltme (bilgi ekleme/çıkarma), fotoğraf ekleme, fotoğraf silme / kapak yapma, satıldı,
+ * yayından kaldırma (sitede silme = pasif; panelden geri açılır). İptal mevcut ilanı silmez.
  */
 
 if (!defined('ABSPATH')) {
@@ -236,7 +240,12 @@ function ec_tg_handle_update(array $u): void
             ec_tg_send($chat, $text === '/yeni' ? '🆕 Yeni ilan için fotoğrafları ve metni gönderin.' : '🗑 Açık taslak silindi.');
             return;
         case '/ilanlarim':
-            ec_tg_my_listings($chat, $agent);
+        case '/duzenle':
+            if (preg_match('~^/duzenle\s+#?(\d+)~', $text, $em)) {
+                ec_tg_edit_start($chat, $agent, (int) $em[1]);
+            } else {
+                ec_tg_my_listings($chat, $agent);
+            }
             return;
     }
 
@@ -293,7 +302,8 @@ function ec_tg_help(array $agent): string
         . "📸 İlan vermek için fotoğrafları ve ilan metnini gönderin (sırası önemli değil).\n"
         . "🪄 Sonra <b>İlanı hazırla</b>'ya basın: yapay zekâ bilgileri çıkarır, Türkçe, İngilizce ve Rusçaya çevirir.\n"
         . "✅ Önizlemeyi kontrol edip <b>Yayınla</b> ya da <b>Düzelt</b> deyin.\n\n"
-        . "Komutlar:\n/yeni – yeni ilana başla\n/iptal – açık taslağı sil\n/ilanlarim – son ilanlarım\n/yardim – bu mesaj";
+        . "✏️ Yayındaki bir ilanı değiştirmek, bilgi eklemek, fotoğraf eklemek/silmek ya da ilanı kaldırmak için /ilanlarim yazıp ilanın düğmesine basın (ya da <i>/duzenle 123</i>).\n\n"
+        . "Komutlar:\n/yeni – yeni ilana başla\n/iptal – açık taslağı ya da düzenlemeyi kapat\n/ilanlarim – son ilanlarım ve düzenleme\n/duzenle 123 – 123 numaralı ilanı düzenle\n/yardim – bu mesaj";
 }
 
 function ec_tg_link(string $chat, string $code, array $from): void
@@ -330,8 +340,8 @@ function ec_tg_cancel_open(string $chat): void
 function ec_tg_cancel(array $d): void
 {
     global $wpdb;
-    // Yayına gönderilmemiş taslak ilanı sil
-    if ($d['listing_id'] && ($row = ec_listing_row((int) $d['listing_id'])) && $row['status'] === 'draft' && $row['source'] === 'telegram') {
+    // Yayına gönderilmemiş taslak ilanı sil (mevcut ilan düzenlemesinde ilana dokunulmaz)
+    if (empty(ec_tg_j($d['data'])['existing']) && $d['listing_id'] && ($row = ec_listing_row((int) $d['listing_id'])) && $row['status'] === 'draft' && $row['source'] === 'telegram') {
         foreach ($wpdb->get_col($wpdb->prepare('SELECT id FROM ' . ec_table('photos') . ' WHERE listing_id = %d', $row['id'])) as $pid) {
             ec_photo_delete((int) $row['id'], (int) $pid);
         }
@@ -501,10 +511,16 @@ function ec_tg_preview(int $id): void
     $lines[] = '';
     $lines[] = '<i>' . ec_tg_esc(mb_substr((string) $it['description'], 0, 500)) . (mb_strlen((string) $it['description']) > 500 ? '…' : '') . '</i>';
     $panel = add_query_arg(['bolum' => 'ilan', 'id' => $it['id']], ec_url_section('panel', 'tr'));
-    $kb = [
-        [['text' => '✅ Yayınla', 'callback_data' => 'pub:' . $id], ['text' => '✏️ Düzelt', 'callback_data' => 'edit:' . $id]],
-        [['text' => '🖥 Panelde aç', 'url' => $panel], ['text' => '🗑 İptal', 'callback_data' => 'cancel:' . $id]],
-    ];
+    if (!empty(ec_tg_j($d['data'])['existing'])) {
+        $st = ['draft' => '📝 Taslak', 'pending' => '🕓 Onay bekliyor', 'published' => '✅ Yayında', 'rejected' => '❌ Reddedildi', 'sold' => '🏷 Satıldı / kiralandı', 'passive' => '⏸ Yayında değil'];
+        $lines[0] = '✏️ <b>Düzenleme</b> · #' . $it['id'] . ' · ' . ($st[$it['status']] ?? $it['status']);
+        $kb = ec_tg_edit_keyboard($id, $it, $panel);
+    } else {
+        $kb = [
+            [['text' => '✅ Yayınla', 'callback_data' => 'pub:' . $id], ['text' => '✏️ Düzelt', 'callback_data' => 'edit:' . $id]],
+            [['text' => '🖥 Panelde aç', 'url' => $panel], ['text' => '🗑 İptal', 'callback_data' => 'cancel:' . $id]],
+        ];
+    }
     $text = implode("\n", $lines);
     $cover = $it['photos'][0]['large'] ?? null;
     $r = null;
@@ -527,6 +543,10 @@ function ec_tg_correct(int $id, string $text): void
     }
     $data = ec_tg_j($d['data']);
     $orig = implode("\n\n", ec_tg_j($d['texts']));
+    if (!empty($data['existing']) && $d['listing_id'] && ($row = ec_listing_row((int) $d['listing_id']))) {
+        $data['ai'] = ec_tg_listing_ai($row); // sitede ya da başka yerde değişmiş olabilir: güncel hâlinden başla
+        $orig = $orig !== '' ? $orig : ($data['ai']['i18n']['tr']['description'] ?? '');
+    }
     $ai = ec_ai_extract($orig, $data['ai'] ?? null, $text);
     if (is_wp_error($ai)) {
         ec_tg_send($d['chat_id'], '⚠️ ' . ec_tg_esc($ai->get_error_message()));
@@ -615,6 +635,16 @@ function ec_tg_handle_callback(array $q): void
         return;
     }
 
+    if ($act === 'el') {
+        $agent = ec_tg_agent_by_chat($chat);
+        $ack();
+        if ($agent) {
+            ec_tg_edit_start($chat, $agent, (int) $arg);
+        }
+        return;
+    }
+
+    [$arg, $sub] = array_pad(explode(':', $arg, 2), 2, '');
     $d = ec_tg_draft_get((int) $arg);
     $agent = ec_tg_agent_by_chat($chat);
     if (!$d || $d['chat_id'] !== $chat || !$agent) {
@@ -642,12 +672,216 @@ function ec_tg_handle_callback(array $q): void
             ec_tg_send($chat, "✏️ Neyi değiştirelim? Doğal dille yazın, ör.:\n• <i>fiyat 165.000 sterlin</i>\n• <i>tapu eşdeğer, KDV ödendi</i>\n• <i>başlığa 'deniz manzaralı' ekle</i>\n\nFotoğraf eklemek için fotoğrafı göndermeniz yeterli.");
             return;
         case 'cancel':
+            $existing = !empty(ec_tg_j($d['data'])['existing']);
             ec_tg_cancel($d);
-            $ack('İptal edildi');
-            ec_tg_send($chat, '🗑 Taslak silindi. Yeni ilan için fotoğrafları ve metni gönderin.');
+            $ack($existing ? 'Düzenleme kapatıldı' : 'İptal edildi');
+            ec_tg_send($chat, $existing ? '👌 Düzenleme kapatıldı. Yaptığınız değişiklikler kayıtlı.' : '🗑 Taslak silindi. Yeni ilan için fotoğrafları ve metni gönderin.');
+            return;
+    }
+    if (!empty(ec_tg_j($d['data'])['existing']) && in_array($d['state'], ['preview', 'editing'], true)) {
+        ec_tg_edit_callback($d, $act, $sub, $ack);
+        return;
+    }
+    $ack();
+}
+
+/* ---------------- Mevcut ilanı düzenleme ---------------- */
+
+/** İlan sahibi mi? (yönetici sohbeti her ilanı düzenleyebilir) */
+function ec_tg_can_edit(string $chat, array $agent, ?array $row): bool
+{
+    return $row && ((int) $row['agent_id'] === (int) $agent['id'] || ec_tg_is_admin($chat));
+}
+
+/** İlanın güncel hâli, yapay zekâ şemasıyla aynı biçimde (düzeltmede "CURRENT LISTING JSON") */
+function ec_tg_listing_ai(array $row): array
+{
+    global $wpdb;
+    $ai = [];
+    foreach (['mode', 'ptype', 'subtype', 'city', 'district', 'currency', 'rooms', 'deed_type', 'floor', 'payment_plan'] as $k) {
+        $ai[$k] = isset($row[$k]) && $row[$k] !== '' ? (string) $row[$k] : null;
+    }
+    foreach (['area_m2', 'baths', 'total_floors', 'year_built', 'sea_distance_m'] as $k) {
+        $ai[$k] = isset($row[$k]) && $row[$k] !== null && $row[$k] !== '' ? (int) $row[$k] : null;
+    }
+    $ai['price'] = isset($row['price']) ? (float) $row['price'] : null;
+    foreach (['furnished', 'vat_paid', 'transformer_paid'] as $k) {
+        $ai[$k] = isset($row[$k]) && $row[$k] !== null && $row[$k] !== '' ? (bool) (int) $row[$k] : null;
+    }
+    $ai['features'] = !empty($row['features']) ? array_values((array) json_decode($row['features'], true)) : [];
+    $ai['i18n'] = [];
+    foreach ($wpdb->get_results($wpdb->prepare('SELECT lang, title, description FROM ' . ec_table('listing_i18n') . ' WHERE listing_id = %d', $row['id']), ARRAY_A) as $t) {
+        $ai['i18n'][$t['lang']] = ['title' => (string) $t['title'], 'description' => (string) $t['description']];
+    }
+    $ai['missing'] = [];
+    return $ai;
+}
+
+/** /duzenle 123 ya da ✏️ düğmesi: ilan için düzenleme oturumu açar ve kartı gönderir */
+function ec_tg_edit_start(string $chat, array $agent, int $lid): void
+{
+    global $wpdb;
+    $row = ec_listing_row($lid);
+    if (!ec_tg_can_edit($chat, $agent, $row)) {
+        ec_tg_send($chat, "⛔ #$lid numaralı ilan bulunamadı ya da size ait değil. Son ilanlarınız için /ilanlarim yazın.");
+        return;
+    }
+    $t = ec_table('tg_drafts');
+    $open = $wpdb->get_row($wpdb->prepare("SELECT * FROM $t WHERE chat_id = %s AND state IN ('collecting','processing','preview','editing') ORDER BY id DESC LIMIT 1", $chat), ARRAY_A);
+    if ($open) {
+        $isEdit = !empty(ec_tg_j($open['data'])['existing']);
+        if (!$isEdit && $open['state'] === 'processing') {
+            ec_tg_send($chat, '⏳ Yeni ilanınız hazırlanıyor. Bitince tekrar deneyin.');
+            return;
+        }
+        if (!$isEdit && ($open['listing_id'] || ec_tg_j($open['texts']) || ec_tg_j($open['photos']))) {
+            ec_tg_send($chat, "📝 Yarım kalmış yeni bir ilan taslağınız var. Önce onu yayınlayın ya da /iptal yazın, sonra düzenlemeye geçin.");
+            return;
+        }
+        ec_tg_draft_save((int) $open['id'], ['state' => 'cancelled']); // boş taslak ya da başka bir düzenleme: kapat
+        wp_clear_scheduled_hook('ec_tg_auto', [(int) $open['id']]);
+    }
+    $wpdb->insert($t, ['chat_id' => $chat, 'agent_id' => (int) $agent['id'], 'listing_id' => $lid, 'state' => 'editing', 'texts' => '[]', 'photos' => '[]',
+        'data' => wp_json_encode(['existing' => 1, 'ai' => ec_tg_listing_ai($row)], JSON_UNESCAPED_UNICODE), 'created_at' => ec_now(), 'updated_at' => ec_now()]);
+    $id = (int) $wpdb->insert_id;
+    ec_tg_preview($id);
+    ec_tg_send($chat, "✏️ <b>#$lid düzenleniyor.</b> Değiştirmek ya da eklemek istediğinizi yazmanız yeterli, ör.:\n• <i>fiyat 175.000 sterlin</i>\n• <i>eşyalı, ortak havuz ve otopark var</i>\n• <i>asansör yok, açıklamadan çıkar</i>\n\n📷 Fotoğraf eklemek için fotoğrafı gönderin. Bitince <b>✅ Bitti</b>'ye basın.");
+}
+
+function ec_tg_edit_keyboard(int $id, array $it, string $panel): array
+{
+    $kb = [[['text' => '✅ Bitti', 'callback_data' => 'done:' . $id], ['text' => '📷 Fotoğraflar', 'callback_data' => 'ph:' . $id]]];
+    $row2 = [];
+    if ($it['status'] === 'published') {
+        $row2[] = ['text' => $it['mode'] === 'sale' ? '🏷 Satıldı' : '🏷 Kiralandı', 'callback_data' => 'sold:' . $id];
+    } elseif (in_array($it['status'], ['passive', 'sold', 'draft', 'rejected'], true)) {
+        $row2[] = ['text' => '▶️ Yayınla', 'callback_data' => 'repub:' . $id];
+    }
+    if ($it['status'] !== 'passive') {
+        $row2[] = ['text' => '🗑 İlanı kaldır', 'callback_data' => 'del:' . $id];
+    }
+    if ($row2) {
+        $kb[] = $row2;
+    }
+    $kb[] = [['text' => '🖥 Panelde aç', 'url' => $panel]];
+    return $kb;
+}
+
+function ec_tg_edit_callback(array $d, string $act, string $sub, callable $ack): void
+{
+    $chat = $d['chat_id'];
+    $id = (int) $d['id'];
+    $lid = (int) $d['listing_id'];
+    $row = ec_listing_row($lid);
+    $agent = ec_tg_agent_by_chat($chat);
+    if (!$agent || !ec_tg_can_edit($chat, $agent, $row)) {
+        $ack('Bu ilan size ait değil');
+        return;
+    }
+    $close = function () use ($id) {
+        ec_tg_draft_save($id, ['state' => 'done']);
+    };
+    switch ($act) {
+        case 'done':
+            $ack('Kaydedildi');
+            $close();
+            $it = ec_listings_present([ec_listing_row($lid)], 'tr')[0];
+            ec_tg_send($chat, "👌 Değişiklikler kayıtlı: <b>" . ec_tg_esc($it['title']) . "</b>\n" . $it['url']);
+            return;
+        case 'ph':
+            $ack();
+            ec_tg_photo_menu($d);
+            return;
+        case 'phd':
+            $ok = ec_photo_delete($lid, (int) $sub);
+            $ack($ok ? 'Fotoğraf silindi' : 'Fotoğraf bulunamadı');
+            if ($ok) {
+                do_action('ec_listing_changed', $lid);
+            }
+            ec_tg_photo_menu($d);
+            return;
+        case 'phc':
+            $ids = array_column(ec_listings_present([$row], 'tr', true)[0]['photos'], 'id');
+            if (in_array((int) $sub, $ids, true)) {
+                ec_photo_reorder($lid, array_merge([(int) $sub], array_values(array_diff($ids, [(int) $sub]))));
+                do_action('ec_listing_changed', $lid);
+                $ack('Kapak fotoğrafı değişti');
+            } else {
+                $ack('Fotoğraf bulunamadı');
+            }
+            ec_tg_photo_menu($d);
+            return;
+        case 'sold':
+            $r = ec_listing_update($lid, ['status' => 'sold']);
+            $ack(is_wp_error($r) ? 'Olmadı' : 'İşaretlendi');
+            $close();
+            ec_tg_send($chat, is_wp_error($r) ? '⚠️ ' . ec_tg_esc($r->get_error_message()) : "🏷 #$lid " . ($row['mode'] === 'sale' ? 'satıldı' : 'kiralandı') . " olarak işaretlendi. Sitede bu etiketle görünür.");
+            return;
+        case 'del':
+            $ack();
+            ec_tg_send($chat, "🗑 #$lid ilanı yayından kaldırılsın mı?\nİlan sitede görünmez olur. Fotoğraflar ve bilgiler saklanır; istediğinizde buradan ya da panelden yeniden yayınlayabilirsiniz.", [[['text' => '🗑 Evet, kaldır', 'callback_data' => 'delok:' . $id], ['text' => '↩️ Vazgeç', 'callback_data' => 'delno:' . $id]]]);
+            return;
+        case 'delok':
+            $r = ec_listing_update($lid, ['status' => 'passive']);
+            $ack(is_wp_error($r) ? 'Olmadı' : 'Kaldırıldı');
+            $close();
+            ec_tg_send($chat, is_wp_error($r) ? '⚠️ ' . ec_tg_esc($r->get_error_message()) : "🗑 #$lid yayından kaldırıldı. Geri açmak için: <i>/duzenle $lid</i> → ▶️ Yayınla.");
+            return;
+        case 'delno':
+            $ack('Vazgeçildi');
+            return;
+        case 'repub':
+            $target = ec_listing_target_status($agent, 'published');
+            $r = ec_listing_update($lid, ['status' => $target]);
+            if (is_wp_error($r)) {
+                $ack();
+                $f = array_keys((array) ($r->get_error_data()['fields'] ?? []));
+                ec_tg_send($chat, '⛔ Yayınlamadan önce gerekli: <b>' . ec_tg_esc(implode(', ', array_map('ec_tg_field_name', $f))) . "</b>\nLütfen yazın (ör. \"tapu Türk koçanı\").");
+                return;
+            }
+            $ack($target === 'pending' ? 'Onaya gönderildi' : 'Yayında');
+            $close();
+            if ($target === 'pending') {
+                ec_notify_pending_listing($lid);
+            }
+            $it = ec_listings_present([ec_listing_row($lid)], 'tr')[0];
+            ec_tg_send($chat, $target === 'pending' ? "🕓 #$lid onaya gönderildi." : "🎉 #$lid yeniden yayında: " . $it['url']);
+            return;
+        case 'edit':
+            $ack();
+            ec_tg_send($chat, '✏️ Değiştirmek ya da eklemek istediğinizi yazın.');
             return;
     }
     $ack();
+}
+
+/** Fotoğraf listesi: her biri için [🗑 sil] [⭐ kapak] */
+function ec_tg_photo_menu(array $d): void
+{
+    $row = ec_listing_row((int) $d['listing_id']);
+    $photos = $row ? ec_listings_present([$row], 'tr', true)[0]['photos'] : [];
+    if (!$photos) {
+        ec_tg_send($d['chat_id'], '📷 Bu ilanda fotoğraf yok. Eklemek için fotoğrafları buraya gönderin.');
+        return;
+    }
+    $media = [];
+    foreach (array_slice($photos, 0, 10) as $i => $p) {
+        if (!str_contains($p['large'], '://localhost')) {
+            $media[] = ['type' => 'photo', 'media' => $p['large'], 'caption' => (string) ($i + 1)];
+        }
+    }
+    if ($media) {
+        ec_tg_api('sendMediaGroup', ['chat_id' => $d['chat_id'], 'media' => $media]);
+    }
+    $kb = [];
+    foreach ($photos as $i => $p) {
+        $n = $i + 1;
+        $kb[] = $i === 0
+            ? [['text' => "⭐ $n (kapak)", 'callback_data' => 'noop:' . $d['id']], ['text' => "🗑 $n. fotoğrafı sil", 'callback_data' => 'phd:' . $d['id'] . ':' . $p['id']]]
+            : [['text' => "⭐ $n. kapak olsun", 'callback_data' => 'phc:' . $d['id'] . ':' . $p['id']], ['text' => "🗑 $n. fotoğrafı sil", 'callback_data' => 'phd:' . $d['id'] . ':' . $p['id']]];
+    }
+    $kb[] = [['text' => '✅ Bitti', 'callback_data' => 'done:' . $d['id']]];
+    ec_tg_send($d['chat_id'], '📷 <b>' . count($photos) . " fotoğraf.</b> Silmek ya da kapak yapmak istediğinizi seçin. Yeni fotoğraf eklemek için göndermeniz yeterli.", $kb);
 }
 
 function ec_tg_my_listings(string $chat, array $agent): void
@@ -660,10 +894,14 @@ function ec_tg_my_listings(string $chat, array $agent): void
     }
     $st = ['draft' => '📝', 'pending' => '🕓', 'published' => '✅', 'rejected' => '❌', 'sold' => '🏷', 'passive' => '⏸'];
     $out = ["<b>Son ilanlarınız</b>"];
+    $kb = [];
     foreach (ec_listings_present($rows, 'tr') as $it) {
         $out[] = ($st[$it['status']] ?? '') . ' #' . $it['id'] . ' <a href="' . esc_url($it['url']) . '">' . ec_tg_esc(mb_substr($it['title'], 0, 60)) . '</a>';
+        $kb[] = [['text' => '✏️ #' . $it['id'] . ' ' . mb_substr($it['title'], 0, 40), 'callback_data' => 'el:' . $it['id']]];
     }
-    ec_tg_send($chat, implode("\n", $out));
+    $out[] = '';
+    $out[] = 'Düzenlemek, bilgi eklemek, fotoğraf silmek ya da ilanı kaldırmak için ilanın düğmesine basın.';
+    ec_tg_send($chat, implode("\n", $out), $kb);
 }
 
 function ec_tg_admin_pending(string $chat): void
