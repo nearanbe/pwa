@@ -158,6 +158,9 @@ function ec_listing_create(array $in, ?int $agent_id = null, string $source = 'p
     $d['price_gbp'] = round(ec_to_gbp($d['price'], $d['currency']), 2);
     $d['status'] = $d['status'] ?? 'draft';
     $d['agent_id'] = $agent_id;
+    // Ofis portföyü: ekipteki danışmanın açtığı ilan o ofise aittir (danışman ayrılırsa kilitlenir, bkz. team.php)
+    $owner = $agent_id ? ec_agent($agent_id) : null;
+    $d['office_id'] = $owner && !empty($owner['parent_id']) ? (int) $owner['parent_id'] : null;
     $d['source'] = substr($source, 0, 20);
     $d['created_at'] = $d['updated_at'] = ec_now();
     if ($d['status'] === 'published') {

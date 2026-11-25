@@ -58,7 +58,13 @@ function ec_rest_own_listing(WP_REST_Request $r)
         return true;
     }
     $agent = ec_rest_agent($r);
-    return (int) $row['agent_id'] === (int) $agent['id'] ? true : new WP_Error('ec_forbidden', 'Bu ilan size ait değil', ['status' => 403]);
+    if ((int) $row['agent_id'] !== (int) $agent['id']) {
+        return new WP_Error('ec_forbidden', 'Bu ilan size ait değil', ['status' => 403]);
+    }
+    if (!empty($row['hold_office_id']) && $r->get_method() !== 'GET') {
+        return new WP_Error('ec_locked', 'Bu ilan ayrıldığınız ofisin portföyünde; ofis aktarımı tamamlanana kadar değiştirilemez.', ['status' => 423]);
+    }
+    return true;
 }
 
 add_action('rest_api_init', function () {

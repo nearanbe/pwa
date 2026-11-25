@@ -66,7 +66,7 @@ $views = array_sum(array_map(fn($c) => (int) $c->v, $counts));
 $editListing = null;
 if ($tab === 'ilan' && $id) {
     $row = ec_listing_row($id);
-    if ($row && (int) $row['agent_id'] === (int) $agent['id']) {
+    if ($row && (int) $row['agent_id'] === (int) $agent['id'] && empty($row['hold_office_id'])) { // kilitli ofis portföyü düzenlenemez
         $editListing = ec_listings_present([$row], $lang, true)[0];
         $editListing['i18n'] = [];
         foreach ($wpdb->get_results($wpdb->prepare('SELECT lang, title, description FROM ' . ec_table('listing_i18n') . ' WHERE listing_id = %d', $id), ARRAY_A) as $t) {
@@ -185,11 +185,14 @@ $statusLabel = fn(string $s) => '<span class="st st-' . esc_attr($s) . '">' . es
             <div><?php echo $statusLabel($a['status']); ?> <span class="sub">#<?php echo (int) $a['id']; ?> · <?php echo (int) $a['views']; ?> <?php ae_e('views'); ?></span></div>
             <h3><?php echo esc_html($a['title']); ?></h3>
             <div class="sub"><?php echo esc_html($a['subtype_name'] . ' · ' . trim(($a['district'] ? $a['district'] . ', ' : '') . $a['city_name'])); ?> · <b><?php echo ae_price($a['price_gbp'], $a['mode'], false); ?></b></div>
+            <?php $held = !empty($rowById[$a['id']]['hold_office_id']); if ($held) : ?><p class="ferr"><?php ae_e('hold_note'); ?></p><?php endif; ?>
             <?php if ($a['status'] === 'rejected' && $a['reject_reason']) : ?><p class="ferr"><?php ae_e('reject_reason'); ?>: <?php echo esc_html($a['reject_reason']); ?></p><?php endif; ?>
             <?php if (!empty($dupOf[$a['id']]) && in_array($a['status'], ['published', 'pending'], true)) : ?><p class="ferr">⚠️ <?php ae_e('dup_badge', (int) $dupOf[$a['id']]); ?> <a href="<?php echo $url('ilan', ['id' => $a['id']]); ?>"><?php ae_e('act_edit'); ?> →</a></p><?php endif; ?>
             <?php $syn = ec_syndication_for((int) $a['id']); if ($syn) : ?><div class="synd"><?php foreach ($syn as $site => $sy) : ?><a class="st st-<?php echo $sy['status'] === 'published' ? 'published' : 'draft'; ?>" <?php echo $sy['remote_url'] ? 'href="' . esc_url($sy['remote_url']) . '" target="_blank" rel="noopener"' : ''; ?>><?php echo esc_html($site); ?> <?php echo $sy['status'] === 'published' ? '✓' : '…'; ?></a><?php endforeach; ?></div><?php endif; ?>
           </div>
           <div class="myact">
+            <?php if ($held) : ?>
+            <?php else : ?>
             <a class="ghost sm" href="<?php echo $url('ilan', ['id' => $a['id']]); ?>"><?php ae_e('act_edit'); ?></a>
             <a class="ghost sm" href="<?php echo esc_url($a['url']); ?>" target="_blank"><?php ae_e('act_view'); ?></a>
             <?php if ($a['status'] === 'published') : ?>
@@ -212,6 +215,7 @@ $statusLabel = fn(string $s) => '<span class="st st-' . esc_attr($s) . '">' . es
               <button class="ghost sm" data-status="passive"><?php ae_e('act_passive'); ?></button>
             <?php elseif (in_array($a['status'], ['draft', 'rejected', 'sold', 'passive'], true)) : ?>
               <button class="btn sm" data-status="published"><?php ae_e('act_republish'); ?></button>
+            <?php endif; ?>
             <?php endif; ?>
           </div>
         </article>

@@ -694,7 +694,7 @@ function ec_tg_handle_callback(array $q): void
  */
 function ec_tg_can_edit(string $chat, array $agent, ?array $row): bool
 {
-    return $row && (int) $row['agent_id'] === (int) $agent['id'] && $agent['status'] !== 'suspended';
+    return $row && (int) $row['agent_id'] === (int) $agent['id'] && $agent['status'] !== 'suspended' && empty($row['hold_office_id']);
 }
 
 /** İlanın güncel hâli, yapay zekâ şemasıyla aynı biçimde (düzeltmede "CURRENT LISTING JSON") */
@@ -726,6 +726,10 @@ function ec_tg_edit_start(string $chat, array $agent, int $lid): void
 {
     global $wpdb;
     $row = ec_listing_row($lid);
+    if ($row && (int) $row['agent_id'] === (int) $agent['id'] && !empty($row['hold_office_id'])) {
+        ec_tg_send($chat, "🔒 #$lid ayrıldığınız ofisin portföyünde. Ofis aktarımı tamamlanana kadar değiştirilemez.");
+        return;
+    }
     if (!ec_tg_can_edit($chat, $agent, $row)) {
         ec_tg_send($chat, "⛔ #$lid numaralı ilan bulunamadı ya da size ait değil. Son ilanlarınız için /ilanlarim yazın.");
         return;
@@ -901,7 +905,11 @@ function ec_tg_my_listings(string $chat, array $agent): void
     $kb = [];
     foreach (ec_listings_present($rows, 'tr') as $it) {
         $out[] = ($st[$it['status']] ?? '') . ' #' . $it['id'] . ' <a href="' . esc_url($it['url']) . '">' . ec_tg_esc(mb_substr($it['title'], 0, 60)) . '</a>';
-        $kb[] = [['text' => '✏️ #' . $it['id'] . ' ' . mb_substr($it['title'], 0, 40), 'callback_data' => 'el:' . $it['id']]];
+        if (empty(array_column($rows, 'hold_office_id', 'id')[$it['id']])) {
+            $kb[] = [['text' => '✏️ #' . $it['id'] . ' ' . mb_substr($it['title'], 0, 40), 'callback_data' => 'el:' . $it['id']]];
+        } else {
+            $out[count($out) - 1] = '🔒' . $out[count($out) - 1];
+        }
     }
     $out[] = '';
     $out[] = 'Düzenlemek, bilgi eklemek, fotoğraf silmek ya da ilanı kaldırmak için ilanın düğmesine basın.';

@@ -7,7 +7,11 @@
  *     · ofisin paketleri (otomasyon kotası, vitrin kredileri) danışmana da geçerlidir (kullanım ortak sayılır),
  *     · onaylı ofisin ekibindeki danışmanın ilanları onay beklemeden yayına girer,
  *     · ilan sayfasında danışman kartında "X ekibi" yazar.
- * - Ofis istediği zaman danışmanı çıkarır; danışman istediği zaman ayrılır. Danışmanın ilanları kendisinde kalır.
+ * - Ofis istediği zaman danışmanı çıkarır; danışman istediği zaman ayrılır.
+ * - 1.3 Ofis portföyü: ekipteyken açılan ilanlar (listings.office_id) ofise aittir. Danışman ayrılınca (ya da başka
+ *   ofise geçmek için ayrılınca) bu ilanlar taslağa alınır ve kilitlenir (hold_office_id, önceki durum hold_prev_status).
+ *   Danışman kilitli ilanı değiştiremez/yayınlayamaz. Ofisin başvurusu üzerine yönetici Emlak → Portföy aktarımı
+ *   ekranından ilanları ofisin bildirdiği kullanıcıya taşır (önceki durumuna döner) ya da danışmana bırakır.
  */
 
 if (!defined('ABSPATH')) {
@@ -105,12 +109,73 @@ function ec_team_remove(int $member_id, ?int $office_id = null): bool
     }
     $wpdb->update(ec_table('agents'), ['parent_id' => null, 'team_share' => 0, 'team_lim_listings' => 0, 'team_lim_promos' => 0, 'updated_at' => ec_now()], ['id' => $member_id]);
     $office = ec_agent((int) $m['parent_id']);
+    $held = ec_team_hold_portfolio($m, (int) $m['parent_id']);
+    $oname = $office['name'] ?? 'Ofis';
+    $heldNote = $held
+        ? "\n\nEkipteyken açtığınız $held ilan ofisin portföyü sayıldığı için taslağa alındı ve kilitlendi. Bu ilanlar, ofisin başvurusu üzerine site yönetimi tarafından ofisin bildirdiği kişiye aktarılır. Ofise katılmadan önce açtığınız ilanlar etkilenmez."
+        : '';
     if ($office_id) {
-        ec_notify_member($m, 'Ofis ekibinden çıkarıldınız', ($office['name'] ?? 'Ofis') . ' sizi ekibinden çıkardı. İlanlarınız hesabınızda kalır; ofisin paketleri artık sizin için geçerli değil.');
-    } elseif ($office) {
-        ec_notify_member($office, 'Ekibinizden ayrıldı: ' . $m['name'], "{$m['name']} ekibinizden ayrıldı.");
+        ec_notify_member($m, 'Ofis ekibinden çıkarıldınız', $oname . ' sizi ekibinden çıkardı. Ofisin paketleri artık sizin için geçerli değil.' . $heldNote);
+    } else {
+        ec_notify_member($m, 'Ofis ekibinden ayrıldınız', $oname . ' ekibinden ayrıldınız. Ofisin paketleri artık sizin için geçerli değil.' . $heldNote);
+    }
+    if ($office) {
+        ec_notify_member($office, ($office_id ? 'Ekibinizden çıkarıldı: ' : 'Ekibinizden ayrıldı: ') . $m['name'],
+            "{$m['name']} artık ekibinizde değil." . ($held ? "\n\nEkibinizdeyken açtığı $held ilan taslağa alındı ve kilitlendi; sitede görünmüyor. Bu ilanların ekibinizden birine (ya da ofis hesabınıza) aktarılmasını istiyorsanız, aktarılacak kişinin adını ve e-postasını yazarak bize başvurun: " . get_option('admin_email') : ''));
+    }
+    if ($held) {
+        wp_mail(get_option('admin_email'), '[' . get_bloginfo('name') . '] Portföy aktarımı bekliyor: ' . $oname,
+            "{$m['name']} (#{$m['id']}) {$oname} (#{$m['parent_id']}) ekibinden " . ($office_id ? 'çıkarıldı' : 'ayrıldı') . ". $held ilan kilitlendi.\nOfis başvurunca: WP Admin → Emlak → Portföy aktarımı\n" . admin_url('admin.php?page=ec-transfer'));
     }
     return true;
+}
+
+/**
+ * Danışmanın o ofisteyken açtığı ilanları taslağa alıp kilitler. @return int kilitlenen ilan sayısı
+ */
+function ec_team_hold_portfolio(array $member, int $office_id): int
+{
+    global $wpdb;
+    $t = ec_table('listings');
+    $ids = $wpdb->get_col($wpdb->prepare("SELECT id FROM $t WHERE agent_id = %d AND office_id = %d AND hold_office_id IS NULL", $member['id'], $office_id));
+    foreach ($ids as $id) {
+        $row = ec_listing_row((int) $id);
+        $wpdb->update($t, ['hold_office_id' => $office_id, 'hold_prev_status' => $row['status'], 'status' => 'draft', 'updated_at' => ec_now()], ['id' => $id]);
+        if (in_array($row['status'], ['published', 'sold'], true)) {
+            do_action('ec_listing_changed', (int) $id);
+        }
+    }
+    return count($ids);
+}
+
+/**
+ * Kilitli ilanları ofisin bildirdiği kullanıcıya taşır ($to_agent) ya da danışmana bırakır ($to_agent = 0).
+ * Taşınan ilan önceki durumuna döner; danışmana bırakılan taslak kalır ve ofis bağı silinir.
+ * @return int işlenen ilan sayısı
+ */
+function ec_team_transfer_portfolio(int $office_id, int $from_agent, int $to_agent, array $only_ids = []): int
+{
+    global $wpdb;
+    $t = ec_table('listings');
+    $ids = array_map('intval', $wpdb->get_col($wpdb->prepare("SELECT id FROM $t WHERE hold_office_id = %d AND agent_id = %d", $office_id, $from_agent)));
+    if ($only_ids) {
+        $ids = array_values(array_intersect($ids, array_map('intval', $only_ids)));
+    }
+    foreach ($ids as $id) {
+        $row = ec_listing_row($id);
+        if ($to_agent) {
+            $prev = $row['hold_prev_status'] ?: 'draft';
+            $wpdb->update($t, ['agent_id' => $to_agent, 'office_id' => $office_id, 'hold_office_id' => null, 'hold_prev_status' => null, 'status' => $prev, 'updated_at' => ec_now()], ['id' => $id]);
+            // Telegram'daki açık düzenleme oturumları eski sahibinde kalmasın
+            $wpdb->query($wpdb->prepare('UPDATE ' . ec_table('tg_drafts') . " SET state = 'cancelled' WHERE listing_id = %d AND state IN ('preview','editing')", $id));
+            if (in_array($prev, ['published', 'sold'], true)) {
+                do_action('ec_listing_changed', $id);
+            }
+        } else {
+            $wpdb->update($t, ['office_id' => null, 'hold_office_id' => null, 'hold_prev_status' => null, 'updated_at' => ec_now()], ['id' => $id]);
+        }
+    }
+    return count($ids);
 }
 
 add_action('rest_api_init', function () {

@@ -11,6 +11,9 @@ Tablo adlarının önündeki `wp_` öneki WordPress'e aittir, geçişte kaldır�
 |---|---|---|
 | id | bigint | İlan numarası, 10001'den başlar |
 | agent_id | bigint | → `ec_agents.id` |
+| office_id | bigint null | İlan açıldığında sahibinin ofisi (ofis portföyü, 1.3) |
+| hold_office_id | bigint null | Danışman ofisten ayrılınca kilit: bu ofisin aktarım başvurusu bekleniyor |
+| hold_prev_status | text null | Kilitlenmeden önceki durum (aktarımda geri yüklenir) |
 | status | varchar | `draft`, `pending` (onay bekliyor), `published`, `rejected`, `sold`, `passive` |
 | mode | varchar | `sale`, `rent`, `daily` |
 | ptype / subtype | varchar | Anahtarlar `data.php`'de (`konut` / `villa` …) |

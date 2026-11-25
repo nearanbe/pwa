@@ -80,6 +80,9 @@ function ec_install_schema(): void
     dbDelta("CREATE TABLE $listings (
   id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   agent_id bigint(20) unsigned DEFAULT NULL,
+  office_id bigint(20) unsigned DEFAULT NULL,
+  hold_office_id bigint(20) unsigned DEFAULT NULL,
+  hold_prev_status varchar(20) DEFAULT NULL,
   status varchar(20) NOT NULL DEFAULT 'draft',
   mode varchar(10) NOT NULL,
   ptype varchar(20) NOT NULL,
@@ -127,6 +130,8 @@ function ec_install_schema(): void
   KEY search (status,mode,ptype,city),
   KEY price_gbp (price_gbp),
   KEY agent_id (agent_id),
+  KEY office_id (office_id),
+  KEY hold_office_id (hold_office_id),
   KEY featured_until (featured_until),
   KEY home_until (home_until),
   KEY cat_until (cat_until)
@@ -457,6 +462,9 @@ function ec_install_schema(): void
     if ($max < 10000) {
         $wpdb->query("ALTER TABLE $listings AUTO_INCREMENT = 10001");
     }
+
+    // 1.3 (db 12): ofis portföyü. Ekipteki danışmanın mevcut ilanları şu anki ofisine yazılır.
+    $wpdb->query("UPDATE $listings l JOIN $agents a ON a.id = l.agent_id SET l.office_id = a.parent_id WHERE a.parent_id IS NOT NULL AND l.office_id IS NULL");
 
     // 0.7: eski fotoğrafların görsel parmak izlerini arka planda hesapla
     if (!wp_next_scheduled('ec_dup_backfill')) {
