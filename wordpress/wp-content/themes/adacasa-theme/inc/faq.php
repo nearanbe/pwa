@@ -112,6 +112,12 @@ function ae_faq(): array
                      'Одно из ваших фото или описание совпадает с другим опубликованным объявлением. Если это тот же объект, обновите прежнее объявление. Скопированный контент передаётся на проверку.'],
                 ],
                 [
+                    ['Ofisten ayrılırsam ilanlarıma ne olur?', 'What happens to my listings if I leave an agency?', 'Что будет с моими объявлениями, если я уйду из агентства?'],
+                    ['Bir ofisin ekibindeyken açtığınız ilanlar o ofisin portföyüne aittir. Ekipten ayrılırsanız, çıkarılırsanız ya da başka bir ofise geçerseniz bu ilanlar taslağa alınır, yayından kalkar ve kilitlenir. Ofisin başvurusu üzerine ofisin bildirdiği kişiye aktarılır; ofis istemezse kilit kaldırılır ve ilanlar sizde kalır. Ofise katılmadan önce açtığınız ilanlar her zaman sizindir.',
+                     'Listings you create while in an agency’s team belong to that agency’s portfolio. If you leave, are removed or move to another agency, they are moved to draft, taken offline and locked. At the agency’s request they are transferred to the person the agency names; if the agency does not want them, they are unlocked and stay with you. Listings you created before joining are always yours.',
+                     'Объявления, созданные в команде агентства, принадлежат его портфелю. Если вы уходите, вас исключают или вы переходите в другое агентство, они становятся черновиками, снимаются с публикации и блокируются. По запросу агентства их передают указанному агентством человеку; если агентство от них отказывается, блокировка снимается и они остаются у вас. Объявления, созданные до вступления в агентство, всегда ваши.'],
+                ],
+                [
                     ['Talepleri (müşteri mesajlarını) nereden görürüm?', 'Where do I see enquiries?', 'Где смотреть заявки?'],
                     ['İlan sayfanızdan gelen her mesaj anında e-postanıza ve bağlıysa Telegram’ınıza gelir. Hepsi Panelim → “Talepler” sekmesinde listelenir; okundu, tamamlandı ya da spam olarak işaretleyebilirsiniz.',
                      'Every message from your listing pages arrives instantly by email and, if connected, Telegram. All are listed in My panel → “Enquiries”, where you can mark them read, done or spam.',

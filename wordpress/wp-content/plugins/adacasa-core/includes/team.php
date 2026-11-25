@@ -73,9 +73,9 @@ function ec_team_invite(array $office, string $email)
     }
     $wpdb->update(ec_table('agents'), ['team_invite' => (int) $office['id']], ['id' => $m['id']]);
     $lang = ec_member_lang((int) $m['wp_user_id']);
-    ec_notify_member($m, 'Ekip daveti: ' . $office['name'], "Merhaba {$m['name']},\n\n{$office['name']} sizi ekibine eklemek istiyor. Kabul ederseniz ilanlarınız onay beklemeden yayına girer; ofis isterse paketlerini (101evler/hangiev aktarımı, sosyal medya, vitrin) sizinle paylaşır.\n\nPanelim'den kabul ya da ret edebilirsiniz:\n" . ec_url_section('panel', $lang));
+    ec_notify_member($m, 'Ekip daveti: ' . $office['name'], "Merhaba {$m['name']},\n\n{$office['name']} sizi ekibine eklemek istiyor. Kabul ederseniz ilanlarınız onay beklemeden yayına girer; ofis isterse paketlerini (101evler/hangiev aktarımı, sosyal medya, vitrin) sizinle paylaşır.\n\nÖnemli: Ekipteyken açtığınız ilanlar ofisin portföyüne aittir. Ekipten ayrılırsanız ya da çıkarılırsanız bu ilanlar taslağa alınıp kilitlenir ve ofisin başvurusuyla ofisin bildirdiği kişiye aktarılır. Ofise katılmadan önce açtığınız ilanlar etkilenmez.\n\nPanelim'den kabul ya da ret edebilirsiniz:\n" . ec_url_section('panel', $lang));
     if (!empty($m['telegram_chat_id']) && function_exists('ec_tg_send') && ec_tg_ready()) {
-        ec_tg_send($m['telegram_chat_id'], "👥 {$office['name']} sizi ekibine davet etti. Panelim'den kabul edebilirsiniz.");
+        ec_tg_send($m['telegram_chat_id'], "👥 {$office['name']} sizi ekibine davet etti. Panelim'den kabul edebilirsiniz.\n\nNot: ekipteyken açtığınız ilanlar ofisin portföyüne aittir; ayrılırsanız taslağa alınıp kilitlenir.");
     }
     return $m;
 }

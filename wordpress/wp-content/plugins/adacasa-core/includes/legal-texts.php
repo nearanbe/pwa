@@ -442,6 +442,7 @@ H,
 <li>Emlak ofisi ve inşaat firması hesapları onaydan sonra kullanılabilir. Bireysel danışman ve mülk sahibi ilanları kontrol edildikten sonra yayınlanabilir.</li>
 <li>Hesap güvenliğinden, şifrenizden ve API anahtarlarınızdan siz sorumlusunuz. Yetkisiz kullanımı fark ederseniz hemen bize bildirin.</li>
 <li>Ofis hesapları, kayıtlı danışmanları ekiplerine ekleyebilir. Ofis, paketini ekip üyeleriyle paylaşıp paylaşmamaya ve kullanım sınırlarına kendisi karar verir. Ekip üyesinin ilanları kendi sorumluluğundadır; ofis de ekibinin ilanlarının doğruluğunu gözetmekle yükümlüdür.</li>
+<li><b>Ofis portföyü:</b> Danışmanın bir ofisin ekibindeyken açtığı ilanlar o ofisin portföyüne aittir. Danışman ekipten ayrılır, çıkarılır ya da başka bir ofise geçerse bu ilanlar taslağa alınır, yayından kalkar ve kilitlenir; danışman bunları değiştiremez, yayınlayamaz ve silemez. Ofisin başvurusu üzerine {brand}, ilanları ofisin bildirdiği kullanıcıya (ofis hesabı ya da ofisin ekibindeki bir danışman) aktarır ya da ofis istemezse kilidi kaldırıp danışmana bırakır. Danışmanın ofise katılmadan önce açtığı ilanlar bu kuraldan etkilenmez.</li>
 </ul>
 
 <h2>3. İlan kuralları</h2>
@@ -495,6 +496,7 @@ H,
 <li>Agency and developer accounts can be used after approval; listings from independent agents and owners may be reviewed before publication.</li>
 <li>You are responsible for the security of your account, password and API keys. Report any unauthorised use immediately.</li>
 <li>Agency accounts may add registered agents to their team. The agency decides whether to share its package with team members and sets usage limits. Team members are responsible for their own listings; the agency also oversees the accuracy of its team’s listings.</li>
+<li><b>Agency portfolio:</b> Listings an agent creates while in an agency’s team belong to that agency’s portfolio. If the agent leaves the team, is removed or moves to another agency, these listings are moved to draft, taken offline and locked; the agent cannot edit, publish or delete them. At the agency’s request, {brand} transfers them to the user the agency names (the agency account or an agent in its team), or, if the agency does not want them, unlocks them and leaves them with the agent. Listings the agent created before joining the agency are not affected.</li>
 </ul>
 
 <h2>3. Listing rules</h2>
@@ -548,6 +550,7 @@ H,
 <li>Аккаунты агентств и застройщиков используются после одобрения; объявления частных агентов и собственников могут проверяться перед публикацией.</li>
 <li>Вы отвечаете за безопасность аккаунта, пароля и API-ключей. Сообщайте о несанкционированном доступе немедленно.</li>
 <li>Агентства могут добавлять зарегистрированных агентов в свою команду. Агентство само решает, делиться ли пакетом с участниками команды, и устанавливает лимиты. Участник команды отвечает за свои объявления; агентство также контролирует достоверность объявлений своей команды.</li>
+<li><b>Портфель агентства:</b> объявления, созданные агентом в составе команды агентства, принадлежат портфелю этого агентства. Если агент покидает команду, исключается из неё или переходит в другое агентство, такие объявления переводятся в черновики, снимаются с публикации и блокируются; агент не может их изменять, публиковать или удалять. По запросу агентства {brand} передаёт их указанному агентством пользователю (аккаунту агентства или агенту его команды) либо, если агентство от них отказывается, снимает блокировку и оставляет их агенту. Объявления, созданные агентом до вступления в агентство, это правило не затрагивает.</li>
 </ul>
 
 <h2>3. Правила объявлений</h2>
