@@ -113,6 +113,7 @@ H,
 <li><b>Profil ve vitrin bilgileri:</b> logo, adres, web sitesi, ruhsat numarası, sosyal medya hesapları, tanıtım yazısı.</li>
 <li><b>İlan bilgileri:</b> ilan metinleri, fiyat, konum (harita işareti), fotoğraflar, 360° fotoğraflar ve videolar.</li>
 <li><b>İletişim talepleri:</b> ilan sahibine “Mesaj gönder” formuyla ilettiğiniz ad, telefon, e-posta ve mesaj; hatalı ilan bildirimleri.</li>
+<li><b>Emlak talepleri:</b> yapay zekâ aramasından sonra “Emlak talebi bırak” formuyla ilettiğiniz ad, telefon, e-posta, aradığınız emlağın özellikleri ve arama cümleniz.</li>
 <li><b>Telegram kullanımı:</b> Telegram sohbet numarası, bota gönderilen fotoğraflar, metinler ve doğrulama kodları.</li>
 <li><b>Google veya Facebook ile giriş:</b> bu yöntemi seçerseniz ilgili hizmetin bize ilettiği ad soyad, e-posta adresi ve hesap numarası. Google veya Facebook şifreniz bize iletilmez.</li>
 <li><b>Sosyal medya bağlantısı:</b> paylaşım yapılacak Facebook sayfasının ve Instagram işletme hesabının adı, numarası ve erişim anahtarı (şifrelenmiş olarak). Şifrenizi asla istemeyiz.</li>
@@ -125,6 +126,7 @@ H,
 <ul>
 <li>Üyeliğin oluşturulması, ilanların yayınlanması ve platform hizmetlerinin sunulması (sözleşmenin kurulması ve ifası).</li>
 <li>İlanlarla ilgili mesajların ilan sahibine iletilmesi (açık rızanız ve talebiniz).</li>
+<li>Emlak talebinizin, size uygun ilan sunabilmeleri için AdaCasa’ya kayıtlı emlak ofisleri ve danışmanlarla paylaşılması (açık rızanız).</li>
 <li>Paketlerin satışı, faturalandırılması ve muhasebe kayıtları (sözleşme ve yasal yükümlülük).</li>
 <li>Sahte, kopya ve yanıltıcı ilanların önlenmesi; spam, bot ve kötüye kullanımın engellenmesi; güvenlik (meşru menfaat).</li>
 <li>Ziyaret istatistikleri ve hizmetin iyileştirilmesi; reklam ölçümü (sadece açık rızanızla, çerez tercihlerinize göre).</li>
@@ -134,6 +136,7 @@ H,
 <h2>4. Kimlerle paylaşıyoruz?</h2>
 <ul>
 <li><b>İlan sahipleri:</b> “Mesaj gönder” formuyla ilettiğiniz bilgiler, mesaj verdiğiniz ilanın sahibine (emlak ofisi, danışman ya da mülk sahibi) iletilir.</li>
+<li><b>Kayıtlı emlak ofisleri ve danışmanlar:</b> “Emlak talebi bırak” formuyla ilettiğiniz bilgiler, açık rızanızla AdaCasa’ya kayıtlı tüm aktif emlak ofislerine ve bağımsız danışmanlara iletilir; size telefon, WhatsApp ya da e-postayla ulaşabilirler.</li>
 <li><b>Herkese açık ilan ve vitrin bilgileri:</b> ilan sahibinin yayınladığı ilanlar, firma adı, logosu, telefon ve WhatsApp numarası ziyaretçilere gösterilir.</li>
 <li><b>Hizmet sağlayıcılarımız</b> (sadece hizmetin gerektirdiği kadar):
   <ul>
@@ -191,6 +194,7 @@ H,
 <li><b>Profile and showcase data:</b> logo, address, website, licence number, social media accounts, description.</li>
 <li><b>Listing data:</b> texts, price, location (map pin), photos, 360° photos and videos.</li>
 <li><b>Enquiries:</b> the name, phone, email and message you send to an advertiser via “Send a message”; listing reports.</li>
+<li><b>Property requests:</b> the name, phone, email, property criteria and search sentence you send via the “Leave a property request” form after a smart search.</li>
 <li><b>Telegram:</b> chat ID, photos, texts and verification codes sent to the bot.</li>
 <li><b>Sign-in with Google or Facebook:</b> if you choose this, the name, email address and account ID that the service sends us. Your Google or Facebook password is never shared with us.</li>
 <li><b>Social media connection:</b> name, ID and access token (encrypted) of the Facebook page and Instagram business account used for sharing. We never ask for your password.</li>
@@ -203,6 +207,7 @@ H,
 <ul>
 <li>Creating your account, publishing listings and providing the platform (performance of a contract).</li>
 <li>Forwarding your enquiries to advertisers (your consent and request).</li>
+<li>Sharing your property request with the estate agents registered on AdaCasa so they can offer suitable properties (your explicit consent).</li>
 <li>Selling packages, invoicing and accounting (contract and legal obligation).</li>
 <li>Preventing fake, duplicate and misleading listings, spam, bots and abuse; security (legitimate interests).</li>
 <li>Visitor statistics, service improvement and advertising measurement (only with your consent, according to your cookie choices).</li>
@@ -212,6 +217,7 @@ H,
 <h2>4. Who do we share data with?</h2>
 <ul>
 <li><b>Advertisers:</b> details you send via “Send a message” are forwarded to the owner of that listing (agency, agent or owner).</li>
+<li><b>Registered estate agents:</b> with your explicit consent, details sent via “Leave a property request” are forwarded to all active agencies and independent agents registered on AdaCasa, who may contact you by phone, WhatsApp or email.</li>
 <li><b>Public listing and showcase data:</b> listings, company name, logo, phone and WhatsApp number published by the advertiser are shown to visitors.</li>
 <li><b>Our service providers</b> (only as needed to provide the service):
   <ul>
@@ -269,6 +275,7 @@ H,
 <li><b>Профиль и витрина:</b> логотип, адрес, сайт, номер лицензии, соцсети, описание.</li>
 <li><b>Объявления:</b> тексты, цена, расположение (метка на карте), фото, фото 360° и видео.</li>
 <li><b>Запросы:</b> имя, телефон, e-mail и сообщение, отправленные автору объявления через форму «Написать сообщение»; жалобы на объявления.</li>
+<li><b>Заявки на недвижимость:</b> имя, телефон, e-mail, критерии объекта и поисковая фраза, отправленные через форму «Оставить заявку» после умного поиска.</li>
 <li><b>Telegram:</b> ID чата, отправленные боту фото, тексты и коды подтверждения.</li>
 <li><b>Вход через Google или Facebook:</b> если вы выбираете этот способ — имя, e-mail и идентификатор аккаунта, которые передаёт сервис. Ваш пароль Google или Facebook нам не передаётся.</li>
 <li><b>Подключение соцсетей:</b> название, ID и ключ доступа (зашифрован) страницы Facebook и бизнес-аккаунта Instagram. Мы никогда не запрашиваем ваш пароль.</li>
@@ -281,6 +288,7 @@ H,
 <ul>
 <li>Создание аккаунта, публикация объявлений и работа платформы (исполнение договора).</li>
 <li>Передача ваших запросов авторам объявлений (ваше согласие и запрос).</li>
+<li>Передача вашей заявки на недвижимость зарегистрированным на AdaCasa агентствам и агентам, чтобы они предложили подходящие объекты (ваше явное согласие).</li>
 <li>Продажа пакетов, выставление счетов и бухгалтерия (договор и требования закона).</li>
 <li>Предотвращение фейковых, дублирующих и вводящих в заблуждение объявлений, спама, ботов и злоупотреблений; безопасность (законный интерес).</li>
 <li>Статистика посещений, улучшение сервиса и измерение рекламы (только с вашего согласия, согласно настройкам cookie).</li>
@@ -290,6 +298,7 @@ H,
 <h2>4. Кому мы передаём данные</h2>
 <ul>
 <li><b>Авторам объявлений:</b> данные из формы «Написать сообщение» передаются владельцу этого объявления (агентству, агенту или собственнику).</li>
+<li><b>Зарегистрированным агентствам и агентам:</b> с вашего явного согласия данные из формы «Оставить заявку» передаются всем активным агентствам и независимым агентам AdaCasa; они могут связаться с вами по телефону, WhatsApp или e-mail.</li>
 <li><b>Публичные данные:</b> объявления, название компании, логотип, телефон и WhatsApp, опубликованные автором, видны посетителям.</li>
 <li><b>Наши поставщики услуг</b> (только в необходимом объёме):
   <ul>

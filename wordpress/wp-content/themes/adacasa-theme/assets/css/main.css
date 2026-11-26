@@ -1051,3 +1051,11 @@ html[dir=rtl] .heart{right:auto;left:12px}html[dir=rtl] .tag{left:auto;right:12p
 html[dir=rtl] .ctbl td,html[dir=rtl] .ctbl th{text-align:right}html[dir=rtl] .ctbl td:last-child,html[dir=rtl] .ctbl th:last-child{text-align:left}
 html[dir=rtl] .stagecap{left:auto;right:10px}
 html[dir=rtl] .price,html[dir=rtl] .ctbl td:last-child,html[dir=rtl] .phlist b{unicode-bidi:plaintext}
+.reqbox{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin:18px 0;padding:16px 18px;border:1px dashed var(--gold);border-radius:14px;background:var(--card)}.reqbox p{margin:4px 0 0}.reqbox.big{border-style:solid;box-shadow:var(--shadow)}
+.reqf{display:grid;gap:10px;max-width:560px}.reqf h2{margin:0}.reqf label{display:grid;gap:4px;font-size:14px}.reqf textarea,.reqf input:not([type=radio]):not([type=checkbox]),.reqf select{width:100%}
+.reqf .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}.reqf fieldset{border:0;padding:0;margin:0}.reqf .chk{display:flex;gap:8px;align-items:flex-start;font-size:13px}
+.reqf label.bad{outline:2px solid #d9534f;outline-offset:2px;border-radius:8px}.reqf .rqmsg{margin:0;font-weight:600}.reqf .rqmsg:empty{display:none}.reqf.sent .rqmsg{color:#2e8b57}.reqf.sent button[type=submit]{display:none}
+@media(max-width:560px){.reqf .row2{grid-template-columns:1fr}}
+.lkind{display:inline-block;background:var(--gold);color:#13213b;font-size:12px;font-weight:700;padding:2px 8px;border-radius:999px}
+.reqov{z-index:60}
+.sheet{position:relative}.ovx{position:absolute;top:12px;inset-inline-end:12px;width:36px;height:36px;padding:0;display:grid;place-items:center;border-radius:50%;border:1px solid var(--line);background:var(--card);color:var(--text);font-size:16px;cursor:pointer;z-index:1}.sheet h2{padding-inline-end:44px}

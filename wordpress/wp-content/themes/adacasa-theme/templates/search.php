@@ -225,6 +225,9 @@ get_header();
       } ?>
       <?php if (!$res['items']) : ?><div class="empty"><?php ae_e('no_results'); ?> <a href="<?php echo esc_url(ec_url_section($mode)); ?>"><?php ae_e('sf_clear'); ?> →</a></div><?php endif; ?>
     </div>
+    <?php if (!empty($_GET['ai'])) { // Emlak talebi yalnızca yapay zekâ aramasından sonra
+        get_template_part('templates/parts/request-form', null, ['filters' => ['mode' => $mode, 'city' => $city] + array_diff_key($f, ['sort' => 1, 'agent_id' => 1]), 'heading' => $heading, 'url' => $alUrl, 'empty' => !$res['items']]);
+    } ?>
 
     <?php if ($res['pages'] > 1) :
         $nums = array_unique(array_filter([1, $pg - 2, $pg - 1, $pg, $pg + 1, $pg + 2, $res['pages']], fn($n) => $n >= 1 && $n <= $res['pages']));

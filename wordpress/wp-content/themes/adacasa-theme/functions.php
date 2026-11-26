@@ -7,7 +7,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-define('AE_VER', '1.7.1');
+define('AE_VER', '1.8.0');
 
 if (!function_exists('ec_table')) {
     // Eklenti kapalıysa: hiçbir eklenti fonksiyonu TANIMLANMAZ (aksi halde eklenti etkinleştirilirken
@@ -40,7 +40,7 @@ add_action('wp_enqueue_scripts', function () {
     wp_enqueue_script('ae-converter', get_theme_file_uri('assets/js/converter.js'), ['ae-main'], AE_VER, ['in_footer' => true, 'strategy' => 'defer']);
     wp_enqueue_script('ae-alerts', get_theme_file_uri('assets/js/alerts.js'), ['ae-main'], AE_VER, ['in_footer' => true, 'strategy' => 'defer']);
     $at = [];
-    foreach (['priceBtn' => 'al_price_btn', 'priceOn' => 'al_price_on', 'searchBtn' => 'al_search_btn', 'searchOn' => 'al_search_on', 'priceH' => 'al_price_h', 'priceP' => 'al_price_p', 'searchH' => 'al_search_h', 'searchP' => 'al_search_p', 'thisDevice' => 'al_this_device', 'byEmail' => 'al_by_email', 'emailPh' => 'al_email_ph', 'privacy' => 'al_privacy', 'iosHint' => 'al_ios', 'noPush' => 'al_no_push', 'denied' => 'al_denied', 'okPush' => 'al_ok_push', 'checkMail' => 'al_check_mail', 'err' => 'al_err', 'offQ' => 'al_off_q', 'offDone' => 'al_off_done', 'favQ' => 'al_fav_q', 'yes' => 'al_yes', 'aiWait' => 'ai_wait'] as $k => $key) {
+    foreach (['priceBtn' => 'al_price_btn', 'priceOn' => 'al_price_on', 'searchBtn' => 'al_search_btn', 'searchOn' => 'al_search_on', 'priceH' => 'al_price_h', 'priceP' => 'al_price_p', 'searchH' => 'al_search_h', 'searchP' => 'al_search_p', 'thisDevice' => 'al_this_device', 'byEmail' => 'al_by_email', 'emailPh' => 'al_email_ph', 'privacy' => 'al_privacy', 'iosHint' => 'al_ios', 'noPush' => 'al_no_push', 'denied' => 'al_denied', 'okPush' => 'al_ok_push', 'checkMail' => 'al_check_mail', 'err' => 'al_err', 'offQ' => 'al_off_q', 'offDone' => 'al_off_done', 'favQ' => 'al_fav_q', 'yes' => 'al_yes', 'aiWait' => 'ai_wait', 'rqOk' => 'rq_ok', 'rqOk0' => 'rq_ok0', 'rqMany' => 'rq_many', 'rqFill' => 'rq_fill'] as $k => $key) {
         $at[$k] = ae_t($key);
     }
     wp_localize_script('ae-alerts', 'AEA', ['t' => $at]);

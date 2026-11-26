@@ -133,9 +133,53 @@
     if (q.length < 4) { f.q.focus(); return; }
     b.disabled = true; m.textContent = T.aiWait || '…';
     req('POST', 'ai-search', { q: q, lang: (window.AE && AE.lang) || 'tr' })
-      .then(function (r) { location.href = r.url; })
+      .then(function (r) { try { sessionStorage.setItem('ec_aiq', q); } catch (x) {} location.href = r.url; })
       .catch(function (x) { m.textContent = (x && x.message) || T.err; b.disabled = false; });
   });
+
+  /* Emlak talep formu (yalnızca yapay zekâ aramasından sonra gösterilir) */
+  var rov = document.getElementById('reqov');
+  if (rov) {
+    var rf = $('form', rov), aiq = '';
+    try { aiq = sessionStorage.getItem('ec_aiq') || ''; } catch (x) {}
+    if (aiq && !rf.message.value) rf.message.value = aiq;
+    var rclose = function () { rov.hidden = true; };
+    rov.addEventListener('click', function (e) { if (e.target === rov || e.target.closest('.ovx')) rclose(); });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !rov.hidden) rclose(); });
+    document.addEventListener('click', function (e) {
+      if (!e.target.closest('[data-req-open]')) return;
+      e.preventDefault(); rov.hidden = false;
+      setTimeout(function () { (rf.message.value ? rf.elements.name : rf.message).focus(); }, 30);
+    });
+    rf.addEventListener('input', function (e) { var l = e.target.closest('.bad'); if (l) l.classList.toggle('bad', false); if (!$('.bad', rf) && !rf.classList.contains('sent')) $('.rqmsg', rf).textContent = ''; });
+    rf.addEventListener('change', function (e) { var l = e.target.closest('.bad'); if (l) l.classList.toggle('bad', false); });
+    rf.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var el = rf.elements, msg = $('.rqmsg', rf), btn = $('button[type=submit]', rf);
+      $$('.bad', rf).forEach(function (x) { x.classList.toggle('bad', false); });
+      var miss = ['message', 'name', 'phone'].filter(function (n) { return !el[n].value.trim(); });
+      if (!el.consent.checked) miss.push('consent');
+      if (miss.length) { miss.forEach(function (n) { (el[n].closest('label') || el[n]).classList.add('bad'); }); msg.textContent = T.rqFill; return; }
+      var filters = {}; try { filters = JSON.parse(rf.dataset.filters || '{}'); } catch (x) {}
+      var ts = rf.querySelector('[name="cf-turnstile-response"]');
+      var body = { name: el.name.value, phone: el.phone.value, email: el.email.value, message: el.message.value, timing: el.timing.value,
+        contact: (rf.querySelector('[name=contact]:checked') || {}).value, consent: 1, website: el.website.value, ai_q: aiq, filters: filters,
+        url: rf.dataset.url || location.href, lang: (window.AE && AE.lang) || 'tr', 'cf-turnstile-response': ts ? ts.value : '' };
+      btn.disabled = true; msg.textContent = '…';
+      req('POST', 'requests', body).then(function (r) {
+        msg.textContent = r.count ? T.rqOk.replace('%s', r.count) : T.rqOk0;
+        rf.classList.add('sent'); try { sessionStorage.setItem('ec_aiq', ''); } catch (x) {}
+        $$('[data-req-open]').forEach(function (b) { b.disabled = true; });
+        setTimeout(rclose, 4500);
+      }, function (x) {
+        btn.disabled = false;
+        if (x && x.code === 'ec_too_many') msg.textContent = T.rqMany;
+        else if (x && x.data && x.data.fields) { Object.keys(x.data.fields).forEach(function (n) { if (el[n]) (el[n].closest('label') || el[n]).classList.add('bad'); }); msg.textContent = T.rqFill; }
+        else msg.textContent = (x && x.message) || T.err;
+        if (window.turnstile) { try { turnstile.reset(); } catch (y) {} }
+      });
+    });
+  }
 
   /* Sayfa açılınca: bu cihazdaki açık uyarıları işaretle */
   var me = store();

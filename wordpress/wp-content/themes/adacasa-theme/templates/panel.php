@@ -250,6 +250,7 @@ $statusLabel = fn(string $s) => '<span class="st st-' . esc_attr($s) . '">' . es
           <div class="myinfo">
             <div><?php echo $ld['status'] === 'new' ? '<span class="st st-pending">' . esc_html(ae_t('lead_new')) . '</span>' : ''; ?> <span class="sub"><?php echo esc_html(get_date_from_gmt($ld['created_at'], 'd.m.Y H:i')); ?> · <?php echo esc_html(strtoupper($ld['lang'])); ?></span></div>
             <h3><?php echo esc_html($ld['name']); ?></h3>
+            <?php if ($ld['kind'] === 'request') : ?><div><span class="lkind">🏠 <?php ae_e('rq_badge'); ?></span> <span class="sub"><?php ae_e('rq_badge_p'); ?></span></div><?php endif; ?>
             <div class="sub"><?php if ($ld['phone']) : ?><a href="tel:<?php echo esc_attr($ld['phone']); ?>">📞 <?php echo esc_html($ld['phone']); ?></a> · <a href="https://wa.me/<?php echo esc_attr(preg_replace('/\D/', '', $ld['phone'])); ?>" target="_blank" rel="noopener">WhatsApp</a><?php endif; ?><?php if ($ld['email']) : ?> · <a href="mailto:<?php echo esc_attr($ld['email']); ?>">✉ <?php echo esc_html($ld['email']); ?></a><?php endif; ?></div>
             <?php if ($ld['about']) : ?><div class="sub"><a href="<?php echo esc_url($ld['about']['url']); ?>" target="_blank"><?php echo esc_html(($ld['about']['type'] === 'listing' ? '#' . $ld['about']['id'] . ' ' : '') . $ld['about']['title']); ?></a></div><?php endif; ?>
             <?php if ($ld['message']) : ?><p class="rvdesc"><?php echo nl2br(esc_html((string) $ld['message'])); ?></p><?php endif; ?>
