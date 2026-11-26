@@ -185,14 +185,14 @@ function ec_dup_message(array $dups, string $lang = 'tr'): string
         $what[] = ['tr' => $d['photos'] . ' fotoğraf', 'en' => $d['photos'] . ' photo(s)', 'ru' => 'фото: ' . $d['photos']][$lang];
     }
     if ($d['text']) {
-        $what[] = ['tr' => 'açıklama', 'en' => 'the description', 'ru' => 'описание'][$lang];
+        $what[] = ec_i18n_pick(['tr' => 'açıklama', 'en' => 'the description', 'ru' => 'описание'], $lang);
     }
-    $w = implode(['tr' => ' ve ', 'en' => ' and ', 'ru' => ' и '][$lang], $what);
-    return [
+    $w = implode(ec_i18n_pick(['tr' => ' ve ', 'en' => ' and ', 'ru' => ' и '], $lang), $what);
+    return ec_i18n_pick([
         'tr' => "Buna benzer bir ilan zaten yayında: #{$d['id']} “{$d['title']}” ($w aynı). Aynı mülkü iki kez yayınlamayın; fotoğraf ve açıklama size ait olmalı.",
         'en' => "A similar listing is already live: #{$d['id']} “{$d['title']}” (same $w). Do not list the same property twice; photos and text must be your own.",
         'ru' => "Похожее объявление уже опубликовано: #{$d['id']} «{$d['title']}» (совпадает: $w). Не публикуйте один объект дважды.",
-    ][$lang] . (count($dups) > 1 ? ['tr' => ' (+' . (count($dups) - 1) . ' benzer ilan daha)', 'en' => ' (+' . (count($dups) - 1) . ' more)', 'ru' => ' (+' . (count($dups) - 1) . ')'][$lang] : '');
+    ], $lang) . (count($dups) > 1 ? ec_i18n_pick(['tr' => ' (+' . (count($dups) - 1) . ' benzer ilan daha)', 'en' => ' (+' . (count($dups) - 1) . ' more)', 'ru' => ' (+' . (count($dups) - 1) . ')'], $lang) : '');
 }
 
 /** Başka üyenin ilanıyla eşleşme varsa yöneticiye otomatik "kopya ilan" bildirimi (açık bildirim yoksa) */

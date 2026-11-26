@@ -18,13 +18,13 @@ if (!defined('ABSPATH')) {
 
 function ec_promo_kinds(): array
 {
-    return [
+    return ec_i18n_fill([
         'featured' => ['col' => 'featured_until', 'name' => ['tr' => 'Öne çıkar', 'en' => 'Featured', 'ru' => 'Выделить'], 'icon' => '★'],
         'home' => ['col' => 'home_until', 'name' => ['tr' => 'Ana sayfa vitrini', 'en' => 'Homepage showcase', 'ru' => 'Витрина на главной'], 'icon' => '🏠'],
         'cat' => ['col' => 'cat_until', 'name' => ['tr' => 'Kategori vitrini', 'en' => 'Category showcase', 'ru' => 'Витрина категории'], 'icon' => '▦'],
         'urgent' => ['col' => 'urgent_until', 'name' => ['tr' => 'Acil', 'en' => 'Urgent', 'ru' => 'Срочно'], 'icon' => '⚡'],
         'bump' => ['col' => 'bumped_at', 'name' => ['tr' => 'Yukarı taşı', 'en' => 'Bump to top', 'ru' => 'Поднять'], 'icon' => '↑'],
-    ];
+    ]);
 }
 
 function ec_promo_name(string $kind, string $lang = 'tr'): string

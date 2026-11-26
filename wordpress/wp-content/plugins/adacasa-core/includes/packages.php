@@ -17,11 +17,11 @@ if (!defined('ABSPATH')) {
 
 function ec_package_features(): array
 {
-    return [
+    return ec_i18n_fill([
         'syndication' => '101evler / hangiev aktarımı (Chrome eklentisi)',
         'social' => 'Facebook ve Instagram’da otomatik paylaşım',
         'telegram' => 'Telegram botuyla ilan verme',
-    ];
+    ]);
 }
 
 /** Bu özellik paket gerektiriyor mu? (Ayarlar → Paketler) */

@@ -229,7 +229,7 @@ $statusLabel = fn(string $s) => '<span class="st st-' . esc_attr($s) . '">' . es
 
   <?php if ($tab === 'ilan') : include __DIR__ . '/parts/listing-form.php'; endif; ?>
 
-  <?php if ($tab === 'talepler') : $leads = ec_leads_for_agent((int) $agent['id']); $stages = function_exists('ec_crm_stages') ? ec_crm_stages() : []; $li = ['tr' => 0, 'en' => 1, 'ru' => 2][$lang] ?? 0; ?>
+  <?php if ($tab === 'talepler') : $leads = ec_leads_for_agent((int) $agent['id']); $stages = function_exists('ec_crm_stages') ? ec_crm_stages() : []; ?>
     <div class="crmbar">
       <button type="button" class="ghost sm" data-crm-push>🔔 <?php ae_e('crm_push'); ?></button>
       <details class="crmadd"><summary class="btn sm">＋ <?php ae_e('crm_add'); ?></summary>
@@ -255,7 +255,7 @@ $statusLabel = fn(string $s) => '<span class="st st-' . esc_attr($s) . '">' . es
             <?php if ($ld['message']) : ?><p class="rvdesc"><?php echo nl2br(esc_html((string) $ld['message'])); ?></p><?php endif; ?>
             <?php if ($stages) : ?>
             <form class="crmf" data-crm="<?php echo (int) $ld['id']; ?>">
-              <label><?php ae_e('crm_stage'); ?><select name="stage"><?php foreach ($stages as $sk => $sn) : ?><option value="<?php echo esc_attr($sk); ?>" <?php selected($ld['stage'], $sk); ?>><?php echo esc_html($sn[$li]); ?></option><?php endforeach; ?></select></label>
+              <label><?php ae_e('crm_stage'); ?><select name="stage"><?php foreach ($stages as $sk => $sn) : ?><option value="<?php echo esc_attr($sk); ?>" <?php selected($ld['stage'], $sk); ?>><?php echo esc_html(ec_i18n_pick($sn, $lang)); ?></option><?php endforeach; ?></select></label>
               <label><?php ae_e('crm_follow'); ?><input name="follow_at" type="datetime-local" value="<?php echo $ld['follow_at'] ? esc_attr(get_date_from_gmt($ld['follow_at'], 'Y-m-d\TH:i')) : ''; ?>"></label>
               <label class="wide"><?php ae_e('crm_notes'); ?><textarea name="notes" rows="2"><?php echo esc_textarea((string) $ld['notes']); ?></textarea></label>
               <button class="ghost sm" type="submit"><?php ae_e('save'); ?></button> <span class="sub crmmsg" role="status"></span>

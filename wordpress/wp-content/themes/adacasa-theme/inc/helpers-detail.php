@@ -264,7 +264,7 @@ function ae_gallery_view(array $o): string
     <div class="gv-main">
       <?php if ($hasG) : ?>
         <div class="gv-pane" data-pane="g"><div class="gv-grid">
-          <?php foreach ($o['photos'] as $i => $p) : ?><button type="button" class="gv-ph" data-i="<?php echo (int) $i; ?>" aria-label="<?php echo esc_attr(ae_t('gallery', $i + 1, count($o['photos']))); ?>"><img src="<?php echo esc_url($p['large']); ?>" alt="" loading="lazy" decoding="async"></button><?php endforeach; ?>
+          <?php foreach ($o['photos'] as $i => $p) : ?><button type="button" class="gv-ph" data-i="<?php echo (int) $i; ?>" aria-label="<?php echo esc_attr(ae_t('gallery', $i + 1, count($o['photos']))); ?>"><img src="<?php echo esc_url($p['large']); ?>" alt="" loading="lazy" decoding="async"><?php if (!empty($p['staged'])) : ?><span class="stagecap">🛋 <?php ae_e('staged_cap'); ?></span><?php endif; ?></button><?php endforeach; ?>
         </div></div>
       <?php endif; ?>
       <?php if ($hasV) : ?><div class="gv-pane gv-video" data-pane="v" hidden><?php echo ae_video_html($o['video'], $o['title'], true); ?></div><?php endif; ?>

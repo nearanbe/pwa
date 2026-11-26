@@ -60,6 +60,7 @@ $blog = ae_blog_url();
     <a href="<?php echo esc_url(ec_url_section('daily')); ?>"><?php ae_e('daily'); ?></a>
     <a href="<?php echo esc_url(ec_url_section('project')); ?>"><?php ae_e('projects'); ?></a>
     <a href="<?php echo esc_url(ec_url_section('index')); ?>"><?php ae_e('price_index'); ?></a>
+    <?php if (function_exists('ec_areas_all') && ec_areas_all()) : ?><a href="<?php echo esc_url(ec_url_area()); ?>"><?php ae_e('ar_list_title'); ?></a><?php endif; ?>
   </div>
   <div><h5><?php ae_e('services'); ?></h5>
     <a href="<?php echo esc_url(ec_url_section('add')); ?>"><?php ae_e('add_listing'); ?></a>

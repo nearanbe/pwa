@@ -124,6 +124,19 @@
     }, 0);
   });
 
+  /* Doğal dille arama */
+  document.addEventListener('submit', function (e) {
+    var f = e.target.closest('[data-ai-search]');
+    if (!f) return;
+    e.preventDefault();
+    var q = f.q.value.trim(), m = f.querySelector('.aimsg'), b = f.querySelector('button');
+    if (q.length < 4) { f.q.focus(); return; }
+    b.disabled = true; m.textContent = T.aiWait || '…';
+    req('POST', 'ai-search', { q: q, lang: (window.AE && AE.lang) || 'tr' })
+      .then(function (r) { location.href = r.url; })
+      .catch(function (x) { m.textContent = (x && x.message) || T.err; b.disabled = false; });
+  });
+
   /* Sayfa açılınca: bu cihazdaki açık uyarıları işaretle */
   var me = store();
   if (me && ($('[data-alert-price]') || $('[data-alert-search]'))) {

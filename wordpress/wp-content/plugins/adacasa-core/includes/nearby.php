@@ -14,14 +14,14 @@ const EC_NEARBY_RADIUS = 2000; // metre
 
 function ec_nearby_categories(): array
 {
-    return [
+    return ec_i18n_fill([
         'health'    => ['name' => ['tr' => 'Sağlık', 'en' => 'Health', 'ru' => 'Медицина'], 'icon' => '✚', 'q' => ['amenity' => 'hospital|clinic|doctors|pharmacy|dentist']],
         'education' => ['name' => ['tr' => 'Eğitim', 'en' => 'Education', 'ru' => 'Образование'], 'icon' => '🎓', 'q' => ['amenity' => 'school|kindergarten|university|college']],
         'bank'      => ['name' => ['tr' => 'Banka', 'en' => 'Banks', 'ru' => 'Банки'], 'icon' => '🏦', 'q' => ['amenity' => 'bank']],
         'food'      => ['name' => ['tr' => 'Yeme içme', 'en' => 'Food & drink', 'ru' => 'Кафе и рестораны'], 'icon' => '🍽', 'q' => ['amenity' => 'restaurant|cafe|fast_food|pub|bar']],
         'market'    => ['name' => ['tr' => 'Market', 'en' => 'Shopping', 'ru' => 'Магазины'], 'icon' => '🛒', 'q' => ['shop' => 'supermarket|convenience|bakery|greengrocer|mall']],
         'tourism'   => ['name' => ['tr' => 'Turizm ve plaj', 'en' => 'Leisure & beach', 'ru' => 'Досуг и пляж'], 'icon' => '⛱', 'q' => ['tourism' => 'attraction|museum|viewpoint', 'natural' => 'beach', 'leisure' => 'beach_resort|park|marina']],
-    ];
+    ]);
 }
 
 function ec_haversine(float $lat1, float $lng1, float $lat2, float $lng2): int

@@ -176,6 +176,9 @@ get_header();
   </aside>
 
   <section class="sresults" aria-live="polite">
+    <?php echo ae_ai_search_box('top'); ?>
+    <?php if (!empty($_GET['ai'])) : ?><p class="note ainote">🪄 <?php ae_e('ai_note'); ?></p><?php endif; ?>
+    <?php if ($city && function_exists('ec_area_for') && ($arSlug = ec_area_for($city, $f['district'] ?: null))) : ?><p class="argo"><a class="link" href="<?php echo esc_url(ec_url_area($arSlug)); ?>">📍 <?php ae_e('ar_guide_link', $f['district'] ?: ec_city_name($city, $lang)); ?> →</a></p><?php endif; ?>
     <div class="stools">
       <button type="button" class="ghost sf-open" data-sf-open>☰ <?php ae_e('filters'); ?><?php if ($nFilters) : ?> <span class="count"><?php echo (int) $nFilters; ?></span><?php endif; ?></button>
       <b class="scount"><?php ae_e('listings_count', number_format_i18n($res['total'])); ?></b>

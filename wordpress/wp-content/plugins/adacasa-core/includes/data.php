@@ -9,7 +9,65 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-const EC_LANGS = ['tr', 'en', 'ru'];
+const EC_LANGS = ['tr', 'en', 'ru', 'de', 'ar'];
+/** Metinleri elle yazılmış diller; de/ar çevirisi includes/i18n-de-ar.php sözlüğünden (İngilizce metne göre) gelir */
+const EC_LANGS_BASE = ['tr', 'en', 'ru'];
+
+/** İngilizce metin → [de, ar] sözlüğü */
+function ec_i18n_map(): array
+{
+    static $m = null;
+    if ($m === null) {
+        $f = __DIR__ . '/i18n-de-ar.php';
+        $m = is_file($f) ? (array) include $f : [];
+    }
+    return $m;
+}
+
+/** İngilizce kaynaktan de/ar çevirisi (yoksa İngilizce) */
+function ec_i18n_x(string $en, string $lang): string
+{
+    $i = ['de' => 0, 'ar' => 1][$lang] ?? null;
+    if ($i === null) {
+        return $en;
+    }
+    $t = ec_i18n_map()[$en][$i] ?? '';
+    return $t !== '' ? $t : $en;
+}
+
+/** ['tr'=>,'en'=>,'ru'=>] biçimindeki her diziye de/ar ekler (iç içe) */
+function ec_i18n_fill(array $a): array
+{
+    if (isset($a['tr'], $a['en'], $a['ru']) && is_string($a['en'])) {
+        $a['de'] = $a['de'] ?? ec_i18n_x($a['en'], 'de');
+        $a['ar'] = $a['ar'] ?? ec_i18n_x($a['en'], 'ar');
+    }
+    foreach ($a as $k => $v) {
+        if (is_array($v)) {
+            $a[$k] = ec_i18n_fill($v);
+        }
+    }
+    return $a;
+}
+
+/** Bir metin dizisinden dile göre seçer: ['tr'=>..] ya da [tr, en, ru, (de), (ar)] */
+function ec_i18n_pick(array $s, string $lang): string
+{
+    if (isset($s[$lang]) && is_string($s[$lang])) {
+        return $s[$lang];
+    }
+    $pos = ['tr' => 0, 'en' => 1, 'ru' => 2, 'de' => 3, 'ar' => 4][$lang] ?? 0;
+    if (isset($s[$pos]) && is_string($s[$pos])) {
+        return $s[$pos];
+    }
+    $en = $s['en'] ?? $s[1] ?? $s['tr'] ?? $s[0] ?? '';
+    return in_array($lang, ['de', 'ar'], true) ? ec_i18n_x((string) $en, $lang) : (string) $en;
+}
+
+function ec_is_rtl(string $lang): bool
+{
+    return $lang === 'ar';
+}
 const EC_DEFAULT_LANG = 'tr';
 const EC_CURRENCIES = ['GBP', 'EUR', 'USD', 'TRY'];
 
@@ -17,24 +75,25 @@ const EC_CURRENCIES = ['GBP', 'EUR', 'USD', 'TRY'];
 function ec_sections(): array
 {
     return [
-        'listing' => ['tr' => 'ilan', 'en' => 'property', 'ru' => 'property'],
-        'sale'    => ['tr' => 'satilik', 'en' => 'for-sale', 'ru' => 'prodazha'],
-        'rent'    => ['tr' => 'kiralik', 'en' => 'for-rent', 'ru' => 'arenda'],
-        'daily'   => ['tr' => 'gunluk-kiralik', 'en' => 'holiday-rentals', 'ru' => 'posutochno'],
-        'project' => ['tr' => 'projeler', 'en' => 'projects', 'ru' => 'proekty'],
-        'add'     => ['tr' => 'ilan-ver', 'en' => 'list-property', 'ru' => 'razmestit'],
-        'favs'    => ['tr' => 'favoriler', 'en' => 'favourites', 'ru' => 'izbrannoe'],
-        'projectd' => ['tr' => 'proje', 'en' => 'project', 'ru' => 'proekt'],
-        'index'   => ['tr' => 'fiyat-endeksi', 'en' => 'price-index', 'ru' => 'indeks-tsen'],
-        'login'   => ['tr' => 'giris', 'en' => 'login', 'ru' => 'vhod'],
-        'register' => ['tr' => 'kayit', 'en' => 'register', 'ru' => 'registratsiya'],
-        'verify'  => ['tr' => 'dogrula', 'en' => 'verify', 'ru' => 'podtverzhdenie'],
-        'panel'   => ['tr' => 'panelim', 'en' => 'my-account', 'ru' => 'kabinet'],
-        'review'  => ['tr' => 'onay', 'en' => 'review', 'ru' => 'moderatsiya'],
-        'office'  => ['tr' => 'ofis', 'en' => 'agent', 'ru' => 'agent'],
-        'offices' => ['tr' => 'firmalar', 'en' => 'agencies', 'ru' => 'agentstva'],
-        'faq'     => ['tr' => 'sss', 'en' => 'faq', 'ru' => 'voprosy'],
-        'legal'   => ['tr' => 'yasal', 'en' => 'legal', 'ru' => 'pravo'],
+        'listing' => ['tr' => 'ilan', 'en' => 'property', 'ru' => 'property', 'de' => 'immobilie', 'ar' => 'aqar'],
+        'sale'    => ['tr' => 'satilik', 'en' => 'for-sale', 'ru' => 'prodazha', 'de' => 'kaufen', 'ar' => 'lilbay'],
+        'rent'    => ['tr' => 'kiralik', 'en' => 'for-rent', 'ru' => 'arenda', 'de' => 'mieten', 'ar' => 'lilijar'],
+        'daily'   => ['tr' => 'gunluk-kiralik', 'en' => 'holiday-rentals', 'ru' => 'posutochno', 'de' => 'ferienwohnungen', 'ar' => 'ijar-yawmi'],
+        'project' => ['tr' => 'projeler', 'en' => 'projects', 'ru' => 'proekty', 'de' => 'projekte', 'ar' => 'mashari'],
+        'add'     => ['tr' => 'ilan-ver', 'en' => 'list-property', 'ru' => 'razmestit', 'de' => 'inserieren', 'ar' => 'adif-ilan'],
+        'favs'    => ['tr' => 'favoriler', 'en' => 'favourites', 'ru' => 'izbrannoe', 'de' => 'favoriten', 'ar' => 'mufaddala'],
+        'projectd' => ['tr' => 'proje', 'en' => 'project', 'ru' => 'proekt', 'de' => 'projekt', 'ar' => 'mashru'],
+        'index'   => ['tr' => 'fiyat-endeksi', 'en' => 'price-index', 'ru' => 'indeks-tsen', 'de' => 'preisindex', 'ar' => 'muashir-alasaar'],
+        'login'   => ['tr' => 'giris', 'en' => 'login', 'ru' => 'vhod', 'de' => 'anmelden', 'ar' => 'dukhul'],
+        'register' => ['tr' => 'kayit', 'en' => 'register', 'ru' => 'registratsiya', 'de' => 'registrieren', 'ar' => 'tasjil'],
+        'verify'  => ['tr' => 'dogrula', 'en' => 'verify', 'ru' => 'podtverzhdenie', 'de' => 'bestaetigen', 'ar' => 'taakid'],
+        'panel'   => ['tr' => 'panelim', 'en' => 'my-account', 'ru' => 'kabinet', 'de' => 'mein-konto', 'ar' => 'hisabi'],
+        'review'  => ['tr' => 'onay', 'en' => 'review', 'ru' => 'moderatsiya', 'de' => 'pruefung', 'ar' => 'muraja'],
+        'office'  => ['tr' => 'ofis', 'en' => 'agent', 'ru' => 'agent', 'de' => 'makler', 'ar' => 'wakil'],
+        'offices' => ['tr' => 'firmalar', 'en' => 'agencies', 'ru' => 'agentstva', 'de' => 'makler-verzeichnis', 'ar' => 'wukala'],
+        'faq'     => ['tr' => 'sss', 'en' => 'faq', 'ru' => 'voprosy', 'de' => 'haeufige-fragen', 'ar' => 'asila'],
+        'legal'   => ['tr' => 'yasal', 'en' => 'legal', 'ru' => 'pravo', 'de' => 'rechtliches', 'ar' => 'qanuni'],
+        'area'    => ['tr' => 'bolge', 'en' => 'area', 'ru' => 'rayon', 'de' => 'gebiete', 'ar' => 'manatiq'],
     ];
 }
 
@@ -46,7 +105,7 @@ function ec_modes(): array
 /** Şehirler: anahtar => [adlar, bölgeler] */
 function ec_cities(): array
 {
-    return [
+    return ec_i18n_fill([
         'lefkosa' => [
             'name' => ['tr' => 'Lefkoşa', 'en' => 'Nicosia', 'ru' => 'Никосия'],
             'districts' => ['Merkez', 'Gönyeli', 'Hamitköy', 'Yenikent', 'Köşklüçiftlik', 'Ortaköy', 'Kızılbaş', 'Taşkınköy', 'Metehan', 'Alayköy', 'Haspolat', 'Değirmenlik'],
@@ -71,7 +130,7 @@ function ec_cities(): array
             'name' => ['tr' => 'Lefke', 'en' => 'Lefka', 'ru' => 'Лефке'],
             'districts' => ['Merkez', 'Gemikonağı', 'Yedidalga'],
         ],
-    ];
+    ]);
 }
 
 function ec_city_name(string $key, string $lang): string
@@ -83,7 +142,7 @@ function ec_city_name(string $key, string $lang): string
 /** Emlak tipleri ve alt tipleri */
 function ec_property_types(): array
 {
-    return [
+    return ec_i18n_fill([
         'konut' => [
             'name' => ['tr' => 'Konut', 'en' => 'Residential', 'ru' => 'Жильё'],
             'sub' => [
@@ -113,7 +172,7 @@ function ec_property_types(): array
                 'otel'   => ['tr' => 'Otel', 'en' => 'Hotel', 'ru' => 'Отель'],
             ],
         ],
-    ];
+    ]);
 }
 
 function ec_type_name(string $type, string $lang): string
@@ -137,14 +196,14 @@ function ec_room_options(): array
  */
 function ec_deed_types(): array
 {
-    return [
+    return ec_i18n_fill([
         'turk-kocani' => ['tr' => 'Türk Koçanı', 'en' => 'Turkish Title Deed', 'ru' => 'Турецкий титул (Türk Koçanı)'],
         'esdeger'     => ['tr' => 'Eşdeğer Koçan', 'en' => 'Exchange Title (Eşdeğer)', 'ru' => 'Эквивалентный титул (Eşdeğer)'],
         'tahsis'      => ['tr' => 'Tahsis Koçanı', 'en' => 'Allocation Title (Tahsis)', 'ru' => 'Титул по распределению (Tahsis)'],
         'vakif'       => ['tr' => 'Vakıf (Evkaf) Arazisi', 'en' => 'Evkaf (Foundation) Land', 'ru' => 'Земля фонда Эвкаф (Vakıf)'],
         'proje'       => ['tr' => 'Projeden (Sözleşmeli, tapu bekleniyor)', 'en' => 'Off-plan (Contract, title pending)', 'ru' => 'Строящийся объект (договор, титул ожидается)'],
         'diger'       => ['tr' => 'Diğer / İlan sahibine sorun', 'en' => 'Other / ask the seller', 'ru' => 'Другое / уточните у продавца'],
-    ];
+    ]);
 }
 
 /** Tapu türlerinin kısa, genel açıklamaları (hukuki tavsiye değildir) */
@@ -182,13 +241,13 @@ function ec_deed_desc(string $key, string $lang): string
             'ru' => 'Уточните статус титула у продавца и проверьте его у юриста перед покупкой.',
         ],
     ];
-    return $d[$key][$lang] ?? ($d[$key]['tr'] ?? '');
+    return isset($d[$key]) ? ec_i18n_pick($d[$key], $lang) : '';
 }
 
 /** İlan özellikleri (çoklu seçim) */
 function ec_features(): array
 {
-    return [
+    return ec_i18n_fill([
         'deniz_manzarasi' => ['tr' => 'Deniz manzarası', 'en' => 'Sea view', 'ru' => 'Вид на море'],
         'dag_manzarasi'   => ['tr' => 'Dağ manzarası', 'en' => 'Mountain view', 'ru' => 'Вид на горы'],
         'denize_sifir'    => ['tr' => 'Denize sıfır', 'en' => 'Beachfront', 'ru' => 'Первая линия'],
@@ -214,13 +273,13 @@ function ec_features(): array
         'evcil_hayvan'    => ['tr' => 'Evcil hayvana uygun', 'en' => 'Pets allowed', 'ru' => 'Можно с животными'],
         'ogrenciye_uygun' => ['tr' => 'Öğrenciye uygun', 'en' => 'Suitable for students', 'ru' => 'Подходит студентам'],
         'engelli_erisimi' => ['tr' => 'Engelli erişimi', 'en' => 'Wheelchair access', 'ru' => 'Доступ для колясок'],
-    ];
+    ]);
 }
 
 /** İlan özelliklerinin grupları (ilan detayında dış / iç / konum diye gösterilir) */
 function ec_feature_groups(): array
 {
-    return [
+    return ec_i18n_fill([
         'outdoor' => [
             'name' => ['tr' => 'Dış özellikler', 'en' => 'Exterior', 'ru' => 'Снаружи'],
             'keys' => ['ozel_havuz', 'ortak_havuz', 'bahce', 'teras', 'balkon', 'otopark', 'kapali_otopark', 'gunes_paneli', 'su_deposu', 'jenerator'],
@@ -237,29 +296,29 @@ function ec_feature_groups(): array
             'name' => ['tr' => 'Kullanım', 'en' => 'Suitability', 'ru' => 'Условия'],
             'keys' => ['evcil_hayvan', 'ogrenciye_uygun'],
         ],
-    ];
+    ]);
 }
 
 /** Proje tipleri */
 function ec_project_types(): array
 {
-    return [
+    return ec_i18n_fill([
         'konut'  => ['tr' => 'Konut projesi', 'en' => 'Residential', 'ru' => 'Жилой комплекс'],
         'villa'  => ['tr' => 'Villa projesi', 'en' => 'Villa development', 'ru' => 'Виллы'],
         'karma'  => ['tr' => 'Karma (konut + ticari)', 'en' => 'Mixed-use', 'ru' => 'Многофункциональный'],
         'ticari' => ['tr' => 'Ticari', 'en' => 'Commercial', 'ru' => 'Коммерческий'],
         'tatil'  => ['tr' => 'Tatil köyü / rezidans', 'en' => 'Resort / residence', 'ru' => 'Курортный комплекс'],
-    ];
+    ]);
 }
 
 /** İnşaat durumu */
 function ec_build_statuses(): array
 {
-    return [
+    return ec_i18n_fill([
         'planned'   => ['tr' => 'Projeden (başlamadı)', 'en' => 'Off-plan', 'ru' => 'Котлован / проект'],
         'ongoing'   => ['tr' => 'İnşaat devam ediyor', 'en' => 'Under construction', 'ru' => 'Строится'],
         'completed' => ['tr' => 'Tamamlandı', 'en' => 'Completed', 'ru' => 'Сдан'],
-    ];
+    ]);
 }
 
 /** Şehir merkezleri (harita ve yakın yerler için yaklaşık konum) */
@@ -271,7 +330,7 @@ function ec_city_coords(): array
 /** Proje sosyal alanları */
 function ec_amenities(): array
 {
-    return [
+    return ec_i18n_fill([
         'havuz'        => ['tr' => 'Açık havuz', 'en' => 'Outdoor pool', 'ru' => 'Открытый бассейн'],
         'kapali_havuz' => ['tr' => 'Kapalı havuz', 'en' => 'Indoor pool', 'ru' => 'Крытый бассейн'],
         'spa'          => ['tr' => 'SPA / sauna / hamam', 'en' => 'Spa / sauna / hammam', 'ru' => 'Спа / сауна / хаммам'],
@@ -286,24 +345,24 @@ function ec_amenities(): array
         'jenerator'    => ['tr' => 'Merkezi jeneratör', 'en' => 'Central generator', 'ru' => 'Центральный генератор'],
         'plaj'         => ['tr' => 'Plaja erişim / servis', 'en' => 'Beach access / shuttle', 'ru' => 'Доступ к пляжу / трансфер'],
         'kira_garanti' => ['tr' => 'Kira garantisi', 'en' => 'Rental guarantee', 'ru' => 'Гарантированная аренда'],
-    ];
+    ]);
 }
 
 /** Üyelik türleri. needs_review: ilanları yönetici onayından geçer */
 function ec_member_kinds(): array
 {
-    return [
+    return ec_i18n_fill([
         'ofis'     => ['name' => ['tr' => 'Emlak Ofisi', 'en' => 'Estate Agency', 'ru' => 'Агентство недвижимости'], 'needs_review' => false, 'account_review' => true, 'projects' => true],
         'insaat'   => ['name' => ['tr' => 'İnşaat Firması', 'en' => 'Developer', 'ru' => 'Застройщик'], 'needs_review' => false, 'account_review' => true, 'projects' => true],
         'danisman' => ['name' => ['tr' => 'Bireysel Danışman', 'en' => 'Independent Agent', 'ru' => 'Частный агент'], 'needs_review' => true, 'account_review' => false, 'projects' => false],
         'sahibi'   => ['name' => ['tr' => 'Mülk Sahibi (Sahibinden)', 'en' => 'Private Owner', 'ru' => 'Собственник'], 'needs_review' => true, 'account_review' => false, 'projects' => false],
-    ];
+    ]);
 }
 
 /** Sosyal ağlar: anahtar => [ad, adres örneği] */
 function ec_social_networks(): array
 {
-    return [
+    return ec_i18n_fill([
         'instagram' => ['Instagram', 'https://instagram.com/...'],
         'facebook'  => ['Facebook', 'https://facebook.com/...'],
         'tiktok'    => ['TikTok', 'https://tiktok.com/@...'],
@@ -312,7 +371,7 @@ function ec_social_networks(): array
         'linkedin'  => ['LinkedIn', 'https://linkedin.com/...'],
         'telegram'  => ['Telegram', 'https://t.me/...'],
         'whatsapp'  => ['WhatsApp', 'https://wa.me/90...'],
-    ];
+    ]);
 }
 
 /** Sosyal ağ linklerini temizler (sadece http/https, bilinen ağlar) */

@@ -295,7 +295,7 @@ function ec_listings_present(array $rows, string $lang, bool $full = false): arr
     foreach ($rows as $r) {
         $id = (int) $r['id'];
         $all = $texts[$id] ?? [];
-        $t = $all[$lang] ?? $all[EC_DEFAULT_LANG] ?? (reset($all) ?: ['title' => '#' . $id, 'slug' => 'ilan', 'description' => '']);
+        $t = $all[$lang] ?? (in_array($lang, ['de', 'ar'], true) ? ($all['en'] ?? null) : null) ?? $all[EC_DEFAULT_LANG] ?? (reset($all) ?: ['title' => '#' . $id, 'slug' => 'ilan', 'description' => '']);
         $ph = array_map('ec_photo_present', $photos[$id] ?? []);
         $item = [
             'id' => $id,

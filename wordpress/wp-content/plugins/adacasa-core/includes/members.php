@@ -194,12 +194,12 @@ function ec_member_send_verification(int $id): bool
     }
     $site = get_bloginfo('name');
     $lang = ec_member_lang((int) $a['wp_user_id']);
-    $subj = ['tr' => "$site: e-posta adresinizi doğrulayın", 'en' => "$site: please verify your email", 'ru' => "$site: подтвердите e-mail"][$lang];
-    $body = [
+    $subj = ec_i18n_pick(['tr' => "$site: e-posta adresinizi doğrulayın", 'en' => "$site: please verify your email", 'ru' => "$site: подтвердите e-mail"], $lang);
+    $body = ec_i18n_pick([
         'tr' => "Merhaba {$a['name']},\n\n$site üyeliğinizi tamamlamak için aşağıdaki bağlantıya tıklayın:\n\n%s\n\nBu işlemi siz yapmadıysanız bu e-postayı yok sayabilirsiniz.",
         'en' => "Hello {$a['name']},\n\nPlease click the link below to complete your $site registration:\n\n%s\n\nIf you did not sign up, you can ignore this email.",
         'ru' => "Здравствуйте, {$a['name']}!\n\nЧтобы завершить регистрацию на $site, перейдите по ссылке:\n\n%s\n\nЕсли вы не регистрировались, просто проигнорируйте это письмо.",
-    ][$lang];
+    ], $lang);
     return wp_mail($a['email'], $subj, sprintf($body, ec_verify_url($a)));
 }
 

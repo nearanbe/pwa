@@ -162,6 +162,14 @@ if (class_exists('WP_Sitemaps_Provider')) {
                 foreach (['project', 'offices', 'index', 'faq'] as $s) {
                     $out[] = ['loc' => ec_url_section($s, $l)];
                 }
+                if (function_exists('ec_areas_all') && ($areas = ec_areas_all())) {
+                    $out[] = ['loc' => ec_url_area(null, $l)];
+                    foreach ($areas as $slug => $t) {
+                        if (isset(ec_area_list()[$slug])) {
+                            $out[] = ['loc' => ec_url_area($slug, $l), 'lastmod' => gmdate('c', strtotime(($t['reviewed'] ?? $t['generated_at'] ?? ec_now()) . ' UTC'))];
+                        }
+                    }
+                }
                 if (function_exists('ec_legal_docs')) {
                     foreach (array_keys(ec_legal_docs()) as $doc) {
                         $out[] = ['loc' => ec_url_legal($doc, $l)];

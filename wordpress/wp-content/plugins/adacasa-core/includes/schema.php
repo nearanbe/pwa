@@ -158,6 +158,7 @@ function ec_install_schema(): void
   height int(10) unsigned DEFAULT NULL,
   phash bigint(20) DEFAULT NULL,
   phash2 bigint(20) DEFAULT NULL,
+  staged tinyint(1) NOT NULL DEFAULT 0,
   created_at datetime NOT NULL,
   PRIMARY KEY  (id),
   KEY listing_id (listing_id,sort),

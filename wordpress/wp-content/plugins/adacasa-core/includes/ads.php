@@ -18,12 +18,12 @@ if (!defined('ABSPATH')) {
 /** Alanlar: ad, yer, masaüstü ve mobil önerilen ölçü */
 function ec_ad_slots(): array
 {
-    return [
+    return ec_i18n_fill([
         'top' => ['name' => 'Ana sayfa üst', 'where' => 'Ana sayfa, son ilanların üstü', 'd' => [970, 250], 'm' => [320, 100]],
         'feed' => ['name' => 'İlan arası kart', 'where' => 'Ana sayfa ve arama sonuçlarında ilan kartlarının arasında', 'd' => [300, 250], 'm' => [300, 250]],
         'mid' => ['name' => 'Orta şerit', 'where' => 'Ana sayfa ortası ve arama sonuçları altı', 'd' => [728, 90], 'm' => [320, 100]],
         'detail' => ['name' => 'İlan detay', 'where' => 'Her ilan sayfasında, açıklamanın altında', 'd' => [728, 90], 'm' => [320, 100]],
-    ];
+    ]);
 }
 
 function ec_ad_config(string $slot): array

@@ -26,6 +26,7 @@ function ec_photo_present(array $p): array
         'small' => $b . '-s.webp',
         'width' => $p['width'] ? (int) $p['width'] : null,
         'height' => $p['height'] ? (int) $p['height'] : null,
+        'staged' => !empty($p['staged']),
     ];
 }
 

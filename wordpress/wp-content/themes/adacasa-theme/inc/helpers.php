@@ -181,14 +181,14 @@ function ae_ad(string $slot, string $extra_class = ''): string
             break;
         case 'adsense':
             // İzin yoksa (ya da AdSense doldurmazsa) yerine kendi "reklam verebilirsiniz" görselimiz görünür; ec-ads-on sınıfı izinle eklenir
-            $l = in_array(ec_lang(), ['tr', 'en', 'ru'], true) ? ec_lang() : 'tr';
+            $l = in_array(ec_lang(), EC_LANGS, true) ? ec_lang() : 'tr';
             $f = fn(array $wh) => get_template_directory_uri() . '/assets/img/reklam/reklam-' . $wh[0] . 'x' . $wh[1] . '-' . $l . '.webp';
             $inner = $label . '<ins class="adsbygoogle" style="display:block" data-ad-client="' . esc_attr($r['client']) . '" data-ad-slot="' . esc_attr($r['id']) . '" data-ad-format="auto" data-full-width-responsive="true"></ins>'
                 . '<a class="ad-yedek" href="' . esc_url(function_exists('ec_ad_house_url') ? ec_ad_house_url() : '#', ['https', 'http', 'mailto', 'tel']) . '" rel="nofollow">' . $pic($f($sz['d']), $f($sz['m']), ae_t('ad_here')) . '</a>';
             $cls = 'ad-img ad-g';
             break;
         case 'house':
-            $l = in_array(ec_lang(), ['tr', 'en', 'ru'], true) ? ec_lang() : 'tr';
+            $l = in_array(ec_lang(), EC_LANGS, true) ? ec_lang() : 'tr';
             $f = fn(array $wh) => get_template_directory_uri() . '/assets/img/reklam/reklam-' . $wh[0] . 'x' . $wh[1] . '-' . $l . '.webp';
             $inner = '<a href="' . esc_url($r['href'], ['https', 'http', 'mailto', 'tel']) . '" rel="nofollow">' . $pic($f($sz['d']), $f($sz['m']), ae_t('ad_here')) . '</a>';
             $cls = 'ad-img ad-house';
@@ -235,11 +235,24 @@ function ae_date(int $ts): string
         'tr' => ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'],
         'en' => ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
         'ru' => ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'],
+    'de' => ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'],
+    'ar' => ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'],
     ][ec_lang()] ?? null;
     return $m ? wp_date('j', $ts) . ' ' . $m[(int) wp_date('n', $ts) - 1] . ' ' . wp_date('Y', $ts) : wp_date('j.m.Y', $ts);
 }
 
 /** Arama kutusu. $s = geçerli filtreler */
+/** Doğal dille arama kutusu ("Akıllı arama") */
+function ae_ai_search_box(string $extra = ''): string
+{
+    if (!function_exists('ec_ai_search') || !function_exists('ec_ai_settings') || !ec_ai_settings()['key']) {
+        return '';
+    }
+    return '<form class="aisearch ' . esc_attr($extra) . '" role="search" data-ai-search><label class="vh" for="ais-' . esc_attr($extra) . '">' . esc_html(ae_t('ai_label')) . '</label>'
+        . '<span class="aiic" aria-hidden="true">🪄</span><input id="ais-' . esc_attr($extra) . '" name="q" maxlength="300" autocomplete="off" placeholder="' . esc_attr(ae_t('ai_ph')) . '">'
+        . '<button class="btn sm" type="submit">' . esc_html(ae_t('ai_go')) . '</button><p class="aimsg sub" role="status"></p></form>';
+}
+
 function ae_search_box(array $s = []): void
 {
     $lang = ec_lang();
@@ -434,7 +447,7 @@ function ae_logo_word(): string
     if (strcasecmp(str_replace(' ', '', $b), 'AdaCasa') !== 0) {
         return '<span class="lgw">' . esc_html($b) . '</span>';
     }
-    $tag = ['tr' => 'GAYRİMENKUL & YATIRIM', 'en' => 'REAL ESTATE & INVESTMENT', 'ru' => 'НЕДВИЖИМОСТЬ И ИНВЕСТИЦИИ'][ec_lang()] ?? 'GAYRİMENKUL & YATIRIM';
+    $tag = ec_i18n_pick(['tr' => 'GAYRİMENKUL & YATIRIM', 'en' => 'REAL ESTATE & INVESTMENT', 'ru' => 'НЕДВИЖИМОСТЬ И ИНВЕСТИЦИИ', 'de' => 'IMMOBILIEN & INVESTITION', 'ar' => 'عقارات واستثمار'], ec_lang());
     return '<span class="lgt"><span class="lgw">Ada<em>Casa</em></span><small>' . esc_html($tag) . '</small></span>';
 }
 
@@ -515,6 +528,8 @@ function ae_month_label(string $date, bool $short = false): string
         'tr' => ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'],
         'en' => ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
         'ru' => ['январь', 'февраль', 'март', 'апрель', 'май', 'июнь', 'июль', 'август', 'сентябрь', 'октябрь', 'ноябрь', 'декабрь'],
+    'de' => ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'],
+    'ar' => ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'],
     ];
     $ts = strtotime(strlen($date) === 7 ? $date . '-01' : $date);
     if (!$ts) {

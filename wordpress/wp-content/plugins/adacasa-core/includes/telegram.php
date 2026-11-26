@@ -482,6 +482,9 @@ function ec_tg_prepare(int $id): void
     ec_tg_draft_save($id, ['state' => 'preview', 'listing_id' => $lid, 'data' => $data, 'error' => null]);
     ec_tg_sync_photos(ec_tg_draft_get($id));
     ec_tg_preview($id);
+    if (function_exists('ec_stage_offer')) {
+        ec_stage_offer($id); // boş oda varsa "eşyalı hâlini de gösterelim mi?"
+    }
 }
 
 /** Yapay zekâ çıktısından ilan alanları (boş olanlar atlanır) */
@@ -702,6 +705,22 @@ function ec_tg_handle_callback(array $q): void
     $agent = ec_tg_agent_by_chat($chat);
     if (!$d || $d['chat_id'] !== $chat || !$agent) {
         $ack('Bu taslak bulunamadı');
+        return;
+    }
+    if (in_array($act, ['stg', 'stn', 'sta', 'stx'], true) && function_exists('ec_stage_make')) {
+        if ($act === 'stg') {
+            $ack('Hazırlanıyor…');
+            ec_tg_send($chat, '⏳ Eşyalı görünüm hazırlanıyor (1–2 dakika)…');
+            ec_tg_defer(fn() => ec_stage_make((int) $d['id']));
+        } elseif ($act === 'stn') {
+            $ack('Tamam');
+        } else {
+            $ack();
+            ec_tg_send($chat, ec_stage_apply((int) $d['id'], $act === 'sta'));
+        }
+        if (!empty($q['message']['message_id'])) {
+            ec_tg_api('editMessageReplyMarkup', ['chat_id' => $chat, 'message_id' => $q['message']['message_id'], 'reply_markup' => ['inline_keyboard' => []]], false);
+        }
         return;
     }
     switch ($act) {

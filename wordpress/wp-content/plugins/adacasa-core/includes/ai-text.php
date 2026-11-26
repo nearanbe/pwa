@@ -47,7 +47,7 @@ function ec_ai_listing_schema(): array
         'sea_distance_m' => $nullable(['type' => 'integer']),
         'payment_plan' => $nullable(['type' => 'string']),
         'features' => ['type' => 'array', 'items' => ['type' => 'string', 'enum' => array_keys(ec_features())]],
-        'i18n' => ['type' => 'object', 'additionalProperties' => false, 'required' => ['tr', 'en', 'ru'], 'properties' => ['tr' => $text, 'en' => $text, 'ru' => $text]],
+        'i18n' => ['type' => 'object', 'additionalProperties' => false, 'required' => EC_LANGS, 'properties' => array_fill_keys(EC_LANGS, $text)],
         'missing' => ['type' => 'array', 'items' => ['type' => 'string']],
     ];
     return ['type' => 'object', 'additionalProperties' => false, 'required' => array_keys($props), 'properties' => $props];
@@ -84,7 +84,7 @@ function ec_ai_system_prompt(): string
         . "- deed_type keys: " . implode('; ', $deeds) . ". 'Türk malı' / 'Türk koçanı' = turk-kocani. Only for sale listings; for rent and daily listings deed_type is always null and is never listed as missing.\n"
         . "- subtype keys: " . implode('; ', $subs) . "\n"
         . "- features keys: " . implode('; ', $feats) . "\n"
-        . "- i18n: write a short, factual title (max 70 characters, no emojis, no all-caps, no phone numbers) and a clear description in Turkish (tr), English (en) and Russian (ru). Translate the agent's facts faithfully; do not add marketing claims that are not in the message. Remove phone numbers, prices in the description are allowed.\n"
+        . "- i18n: write a short, factual title (max 70 characters, no emojis, no all-caps, no phone numbers) and a clear description in Turkish (tr), English (en), Russian (ru), German (de) and Arabic (ar, Modern Standard Arabic). Translate the agent's facts faithfully; do not add marketing claims that are not in the message. Remove phone numbers, prices in the description are allowed.\n"
         . "- missing: list in Turkish the important fields that are missing for this listing to be published (for sale: fiyat, şehir, tapu türü; always: emlak tipi). Empty array if nothing important is missing.\n"
         . "- When a CURRENT LISTING JSON and a CORRECTION are given, return the full listing with the correction applied and everything else unchanged.";
 }
@@ -170,7 +170,7 @@ function ec_ai_normalize(array $d): array
             }
         }
     }
-    foreach (['tr', 'en', 'ru'] as $l) {
+    foreach (EC_LANGS as $l) {
         if (isset($d['i18n'][$l]['title'])) {
             $d['i18n'][$l]['title'] = mb_substr(trim($d['i18n'][$l]['title']), 0, 120);
         }

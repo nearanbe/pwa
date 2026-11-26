@@ -17,7 +17,7 @@ const EC_LEAD_STATUSES = ['new', 'read', 'done', 'spam'];
 
 function ec_report_reasons(): array
 {
-    return [
+    return ec_i18n_fill([
         'sold'      => ['tr' => 'Satıldı / kiralandı', 'en' => 'Already sold / let', 'ru' => 'Уже продано / сдано'],
         'price'     => ['tr' => 'Fiyat yanlış', 'en' => 'Wrong price', 'ru' => 'Неверная цена'],
         'photos'    => ['tr' => 'Fotoğraflar bu mülke ait değil', 'en' => 'Photos are not of this property', 'ru' => 'Фото не этого объекта'],
@@ -25,7 +25,7 @@ function ec_report_reasons(): array
         'duplicate' => ['tr' => 'Aynı ilan birden fazla kez girilmiş', 'en' => 'Duplicate listing', 'ru' => 'Дубликат'],
         'fraud'     => ['tr' => 'Dolandırıcılık şüphesi', 'en' => 'Suspected fraud', 'ru' => 'Подозрение на мошенничество'],
         'other'     => ['tr' => 'Diğer', 'en' => 'Other', 'ru' => 'Другое'],
-    ];
+    ]);
 }
 
 function ec_ip_hash(): string

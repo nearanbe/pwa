@@ -1,0 +1,320 @@
+<title>AdaCasa Emlakçı Rehberi</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap">
+<style>
+/* AdaCasa logosu: lacivert (#14284B), mavi (#4A8FC7/#7DB3DF), altın (#B8893F). Düzen: broşür / kılavuz. Kapak bandı, ardından numaralı bölümler (gerçek bir sıra oldukları için numaralı),
+   yazdırmada (PDF) her ana bölüm yeni sayfada başlar. Renkler sitenin kendi paletinden. */
+:root{
+  --bg:#f6f8fb; --paper:#ffffff; --ink:#142036; --muted:#5a677d; --line:#e1e7f0;
+  --teal:#14284b; --teal-2:#24477a; --gold:#b8893f; --gold-2:#e2c48b; --soft:#edf2f8; --ok:#1f7a45;
+  --blue:#4a8fc7; --on-teal:#f4f1ea; --on-teal-muted:#c4d0e2;
+  --display:"Cormorant Garamond", Georgia, "Times New Roman", serif;
+  --body:Inter, "Segoe UI", system-ui, -apple-system, sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0b1526; --paper:#111f36; --ink:#eef2f7; --muted:#9aaac0; --line:#22324d;
+  --teal:#0a1a33; --teal-2:#1a3560; --gold:#d9bd83; --gold-2:#e8d3a2; --soft:#172843; --ok:#5cc58a;
+  --on-teal:#f4efe4; --on-teal-muted:#aebbd0; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0b1526; --paper:#111f36; --ink:#eef2f7; --muted:#9aaac0; --line:#22324d;
+  --teal:#0a1a33; --teal-2:#1a3560; --gold:#d9bd83; --gold-2:#e8d3a2; --soft:#172843; --ok:#5cc58a;
+  --on-teal:#f4efe4; --on-teal-muted:#aebbd0; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:16px/1.65 var(--body)}
+.w{max-width:980px;margin:0 auto;padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px))}
+h1,h2,h3{font-family:var(--display);font-weight:600;line-height:1.08;margin:0;text-wrap:balance;font-variant-numeric:lining-nums}
+.sh .n,.pkg .price{font-variant-numeric:lining-nums}
+h2{font-size:clamp(32px,4.6vw,46px)}
+h3{font-size:24px}
+p{margin:0}
+.muted{color:var(--muted)}
+.eyebrow{font:600 12px/1 var(--body);letter-spacing:.14em;text-transform:uppercase;color:var(--gold)}
+
+/* Kapak */
+.cover{background:radial-gradient(900px 380px at 90% -10%, rgba(74,143,199,.35), transparent 60%), linear-gradient(160deg,var(--teal),var(--teal-2));color:var(--on-teal);margin-top:calc(-1 * env(safe-area-inset-top, 0px));padding-top:calc(env(safe-area-inset-top, 0px) + 56px);padding-bottom:64px}
+.cover .w{display:grid;gap:22px}
+.brand{display:flex;align-items:center;gap:12px}
+.brand b{display:block;font:600 44px/1 var(--display);letter-spacing:.01em;color:#fff}.brand b em{font-style:normal;color:var(--gold-2)}
+.brand small{display:block;font:600 10px/1 var(--body);letter-spacing:.22em;color:var(--on-teal-muted);margin-top:5px}
+.cover .eyebrow{color:var(--gold-2)}
+.cover h1{font-size:clamp(44px,8vw,84px);letter-spacing:-.01em}
+.cover h1 em{font-style:italic;color:var(--gold-2)}
+.cover .lead{font-size:clamp(17px,2.2vw,20px);max-width:58ch;color:var(--on-teal-muted)}
+.chain{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:6px}
+.chain span{border:1px solid rgba(255,255,255,.25);border-radius:999px;padding:7px 13px;font-size:14px;color:var(--on-teal)}
+.chain b{color:var(--gold-2);font-weight:600}
+.chain i{font-style:normal;color:var(--gold-2)}
+.cover .meta{font-size:13px;color:var(--on-teal-muted)}
+
+/* Bölümler */
+section.sec{padding:64px 0;border-bottom:1px solid var(--line)}
+.sh{display:grid;grid-template-columns:72px minmax(0,1fr);gap:18px;align-items:start;margin-bottom:28px}
+.sh .n{font:600 54px/0.9 var(--display);color:var(--gold)}
+.sh p{margin-top:10px;max-width:64ch;color:var(--muted)}
+@media(max-width:620px){.sh{grid-template-columns:1fr;gap:6px}.sh .n{font-size:40px}}
+
+/* Bir bakışta: 6 neden */
+.reasons{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.reason{background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:20px;display:grid;gap:8px;align-content:start}
+.reason h3{font-size:23px}
+.reason p{color:var(--muted);font-size:15px}
+.reason .tag{justify-self:start;font:600 12px/1 var(--body);background:var(--soft);border-radius:999px;padding:5px 9px;color:var(--ink)}
+
+/* Akış şeması */
+.flow{background:var(--paper);border:1px solid var(--line);border-radius:18px;padding:18px;overflow-x:auto}
+.flow svg{display:block;min-width:820px;width:100%;height:auto}
+.flow text{font-family:var(--body);fill:var(--ink)}
+.flow .sub{fill:var(--muted);font-size:12px}
+.flow .box{fill:var(--bg);stroke:var(--line)}
+.flow .hl{fill:var(--teal);stroke:var(--teal)}
+.flow .hlt{fill:var(--on-teal)}
+.flow .arrow{stroke:var(--gold);stroke-width:2;fill:none}
+.flow .ah{fill:var(--gold)}
+
+/* Kılavuz adımları */
+.steps{display:grid;gap:14px;counter-reset:s}
+.step{display:grid;grid-template-columns:44px minmax(0,1fr);gap:14px;background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:18px 20px}
+.step::before{counter-increment:s;content:counter(s);width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--teal);color:var(--on-teal);font:600 20px/1 var(--display)}
+.step h3{font-size:22px;margin-bottom:6px}
+.step ol,.step ul{margin:6px 0 0;padding-left:20px;display:grid;gap:4px}
+.step .where{display:inline-block;font:600 12.5px/1.2 var(--body);background:var(--soft);border-radius:8px;padding:4px 8px;margin-bottom:8px}
+.tip{margin-top:10px;font-size:14.5px;border-left:3px solid var(--gold);padding:4px 0 4px 12px;color:var(--muted)}
+kbd{font:600 13px var(--body);background:var(--soft);border:1px solid var(--line);border-bottom-width:2px;border-radius:6px;padding:1px 6px}
+
+/* Telegram sohbet örneği */
+.chat{display:grid;gap:8px;max-width:520px;margin-top:12px}
+.msg{padding:10px 13px;border-radius:14px;font-size:14.5px;max-width:92%}
+.msg.me{justify-self:end;background:var(--teal);color:var(--on-teal);border-bottom-right-radius:4px}
+.msg.bot{background:var(--soft);border-bottom-left-radius:4px}
+.msg .btns{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.msg .btns span{background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:4px 9px;font-size:13px;font-weight:600}
+
+/* Alıcı tarafı */
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:20px}
+.card h3{font-size:22px;margin-bottom:6px}
+.card p{color:var(--muted);font-size:15px}
+
+/* Karşılaştırma ve paketler */
+.tw{overflow-x:auto;border:1px solid var(--line);border-radius:16px;background:var(--paper)}
+table{border-collapse:collapse;width:100%;min-width:620px;font-size:15px}
+th,td{padding:12px 14px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{font:600 12px/1.3 var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);background:var(--soft)}
+tr:last-child td{border-bottom:0}
+td.yes{color:var(--ok);font-weight:600}
+.pk{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}
+.pkg{background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:20px;text-align:center;display:grid;gap:6px}
+.pkg.best{border:2px solid var(--gold)}
+.pkg .price{font:600 46px/1 var(--display)}
+.pkg .per{color:var(--muted);font-size:14px}
+.pkg ul{list-style:none;padding:0;margin:8px 0 0;text-align:left;font-size:14px;display:grid;gap:4px}
+.pkg li::before{content:"✓ ";color:var(--gold);font-weight:700}
+
+/* Güven */
+.trust{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+.trust div{border-top:3px solid var(--gold);padding-top:12px}
+.trust h3{font-size:21px;margin-bottom:4px}
+.trust p{color:var(--muted);font-size:14.5px}
+
+/* Kapanış */
+.close{background:linear-gradient(160deg,var(--teal),var(--teal-2));color:var(--on-teal);border-radius:22px;padding:36px 28px;margin:56px 0;display:grid;gap:14px}
+.close h2{color:var(--on-teal)}
+.close p{color:var(--on-teal-muted);max-width:62ch}
+.close ol{margin:0;padding-left:20px;display:grid;gap:6px}
+.foot{color:var(--muted);font-size:13px;padding-bottom:48px}
+
+@media print{
+  @page{size:A4;margin:14mm 14mm 16mm}
+  body{background:#fff;font-size:11pt}
+  .cover{margin-top:0;padding:28mm 0 22mm}
+  section.sec{break-before:page;padding:6mm 0 0;border-bottom:0}
+  .reason,.step,.card,.pkg,.trust div,.flow,.tw{break-inside:avoid}
+  .close{break-inside:avoid}
+  .flow svg{min-width:0}
+}
+</style>
+
+<header class="cover">
+  <div class="w">
+    <div class="brand"><svg viewBox="0 0 330 200" width="96" height="58" aria-hidden="true"><defs><linearGradient id="swa" x1="0" x2="1"><stop offset="0" stop-color="#7db3df"/><stop offset=".55" stop-color="#4a8fc7"/><stop offset="1" stop-color="#ffffff"/></linearGradient><linearGradient id="aua" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#d9b77a"/><stop offset=".5" stop-color="#b8893f"/><stop offset="1" stop-color="#8f6427"/></linearGradient></defs>
+<g ><path d="M128 122 180 14l44 78" fill="none" stroke="#ffffff" stroke-width="14"/><path d="M218 86 262 30l60 66" fill="none" stroke="#ffffff" stroke-width="11"/><path d="M284 30h10v34h-10zM289 62h9v88h-9z" fill="#ffffff"/><path d="M262 46 232 82" stroke="url(#aua)" stroke-width="4" stroke-linecap="round"/><path d="M212 94c42 6 52 40 30 70 8-32-4-54-30-70z" fill="url(#aua)"/><path d="M50 106c50-36 110-6 162-22l28-32 10 8-22 34c-60 24-120-4-178 12z" fill="url(#swa)"/><path d="M4 152c56-40 146-36 196-16 46 18 96 14 126-32-20 56-82 68-136 52C130 138 64 134 4 152z" fill="#7db3df"/><path d="M4 152c36-20 72-26 106-24-40 4-70 14-106 24z" fill="#4a8fc7"/><path d="M22 168c54-32 134-26 182-10 46 16 96 8 122-42-14 62-80 74-130 60-60-18-116-22-174-8z" fill="#ffffff"/><path d="M56 178c54-18 114-8 158 4 40 10 76 4 98-18-20 30-62 36-102 26-50-12-102-20-154-12z" fill="url(#aua)"/></g>
+</svg><span><b>ada<em>ca</em>sa</b><small>GAYRİMENKUL &amp; YATIRIM</small></span></div>
+    <span class="eyebrow">Emlak ofisleri, inşaat firmaları ve danışmanlar için rehber</span>
+    <h1>İlanı bir kez girin.<br><em>Her yerde, beş dilde</em> yayında olsun.</h1>
+    <p class="lead">AdaCasa, Kuzey Kıbrıs için kurulan, beş dilde (Türkçe, İngilizce, Rusça, Almanca, Arapça) yayın yapan bir emlak ilan sitesidir. İlan vermek ücretsizdir. Bu rehber AdaCasa’nın işinizi nasıl kolaylaştırdığını ve sistemi adım adım nasıl kullanacağınızı anlatır.</p>
+    <div class="chain" aria-label="Bir ilanın gittiği yerler">
+      <span><b>Telegram</b> ya da panel</span><i>→</i><span>AdaCasa (TR · EN · RU · DE · AR)</span><i>→</i><span>101evler</span><span>hangiev</span><i>→</i><span>Facebook</span><span>Instagram</span>
+    </div>
+    <p class="meta">Sürüm 2 · Kasım 2026 · adacasa.com · bilgi@adacasa.com</p>
+  </div>
+</header>
+
+<main class="w">
+  <section class="sec" id="neden">
+    <div class="sh"><span class="n">01</span><div><h2>Neden AdaCasa? Bir bakışta</h2><p>Emlakçının en çok vaktini alan işler: aynı ilanı birçok yere tek tek girmek, yabancı müşteriye kendi dilinde cevap vermek ve gelen müşteriyi takip etmek. AdaCasa bu işleri sizin yerinize yapmak için kuruldu.</p></div></div>
+    <div class="reasons">
+      <div class="reason"><span class="tag">Ücretsiz</span><h3>İlan vermek ücretsiz</h3><p>İlan sayısı sınırı ve ilan ücreti yok. Ücretli olan yalnızca isteğe bağlı otomasyon paketleri.</p></div>
+      <div class="reason"><span class="tag">5 dil</span><h3>TR · EN · RU · DE · AR</h3><p>İlanınız Türkçe, İngilizce, Rusça, Almanca ve Arapça, her dilin kendi adresinde yayınlanır. Çeviriyi yapay zekâ yapar.</p></div>
+      <div class="reason"><span class="tag">Telegram</span><h3>Fotoğraf atın, ilan hazır</h3><p>Fotoğrafları ve birkaç satır notu bota gönderin; ilan beş dilde hazırlanır. Sonra fiyatı değiştirmek, fotoğraf silmek, “satıldı” demek de Telegram’dan.</p></div>
+      <div class="reason"><span class="tag">Otomasyon</span><h3>101evler ve hangiev’e aktarım</h3><p>İlan Aktarıcı eklentisi aynı ilanı bu sitelerin formlarına doldurur. Son tık sizde kalır.</p></div>
+      <div class="reason"><span class="tag">Müşteri</span><h3>Hiçbir müşteriyi kaçırmayın</h3><p>Her talep anında telefonunuza, Telegram’ınıza ve e-postanıza gelir. Panelde müşteri notu, durumu ve hatırlatma (1 gün, 1 saat, 5 dakika önce bildirim).</p></div>
+      <div class="reason"><span class="tag">Güven</span><h3>Doğrulanmış ve güncel ilan</h3><p>Tapu ya da yetki belgesini gönderin, ilanınız “✔ Doğrulanmış ilan” rozeti alsın. Ayda bir “hâlâ satışta mı?” teyidiyle ilanlarınız hep güncel görünür.</p></div>
+      <div class="reason"><span class="tag">Alıcıyı geri getirir</span><h3>Fiyat ve arama bildirimleri</h3><p>İlanınıza bakan alıcı “fiyat düşerse haber ver” diyebilir; aramasını kaydeden alıcıya yeni ilanınız bildirim olarak gider.</p></div>
+      <div class="reason"><span class="tag">Sosyal medya</span><h3>Facebook ve Instagram</h3><p>İlanınız yayına girer girmez sayfanızda ve Instagram işletme hesabınızda paylaşılır (paket).</p></div>
+    </div>
+  </section>
+
+  <section class="sec" id="yolculuk">
+    <div class="sh"><span class="n">02</span><div><h2>Bir ilanın yolculuğu</h2><p>Siz yalnızca ilk adımı yaparsınız. Gerisi sistemde.</p></div></div>
+    <div class="flow" role="img" aria-label="İlan akışı: Telegram ya da panel, yapay zekâ ile 5 dil, sitede yayın, 101evler ve hangiev, Facebook ve Instagram, gelen talepler ve müşteri takibi">
+      <svg viewBox="0 0 900 250" xmlns="http://www.w3.org/2000/svg">
+        <defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah" d="M0,0 L10,5 L0,10 z"/></marker></defs>
+        <rect class="hl" x="10" y="85" width="150" height="80" rx="14"/>
+        <text class="hlt" x="85" y="118" text-anchor="middle" font-size="15" font-weight="600">Siz</text>
+        <text class="hlt" x="85" y="140" text-anchor="middle" font-size="12">Telegram ya da panel</text>
+        <path class="arrow" d="M160 125 H205" marker-end="url(#ah)"/>
+        <rect class="box" x="210" y="85" width="160" height="80" rx="14"/>
+        <text x="290" y="116" text-anchor="middle" font-size="15" font-weight="600">Yapay zekâ</text>
+        <text class="sub" x="290" y="136" text-anchor="middle">alanları doldurur</text>
+        <text class="sub" x="290" y="152" text-anchor="middle">5 dilde metin</text>
+        <path class="arrow" d="M370 125 H415" marker-end="url(#ah)"/>
+        <rect class="hl" x="420" y="85" width="150" height="80" rx="14"/>
+        <text class="hlt" x="495" y="118" text-anchor="middle" font-size="15" font-weight="600">AdaCasa’da yayın</text>
+        <text class="hlt" x="495" y="140" text-anchor="middle" font-size="12">TR·EN·RU·DE·AR · vitrin</text>
+        <path class="arrow" d="M570 110 C 610 110, 610 40, 650 40" marker-end="url(#ah)"/>
+        <path class="arrow" d="M570 125 H645" marker-end="url(#ah)"/>
+        <path class="arrow" d="M570 140 C 610 140, 610 210, 650 210" marker-end="url(#ah)"/>
+        <rect class="box" x="655" y="12" width="230" height="56" rx="12"/>
+        <text x="770" y="36" text-anchor="middle" font-size="14" font-weight="600">101evler · hangiev</text>
+        <text class="sub" x="770" y="54" text-anchor="middle">eklenti doldurur, “Yayınla” sizde</text>
+        <rect class="box" x="655" y="97" width="230" height="56" rx="12"/>
+        <text x="770" y="121" text-anchor="middle" font-size="14" font-weight="600">Facebook · Instagram</text>
+        <text class="sub" x="770" y="139" text-anchor="middle">otomatik paylaşım</text>
+        <rect class="box" x="655" y="182" width="230" height="56" rx="12"/>
+        <text x="770" y="206" text-anchor="middle" font-size="14" font-weight="600">Talepler · müşteri takibi</text>
+        <text class="sub" x="770" y="224" text-anchor="middle">telefon bildirimi · Telegram · panel</text>
+      </svg>
+    </div>
+  </section>
+
+  <section class="sec" id="kilavuz">
+    <div class="sh"><span class="n">03</span><div><h2>Kullanım kılavuzu: adım adım</h2><p>İlk ilanınızı yayına almak yaklaşık 10 dakika sürer. Sonraki ilanlar Telegram’dan birkaç dakika.</p></div></div>
+    <div class="steps">
+      <div class="step"><div><span class="where">Sitede → Kayıt ol</span><h3>Üye olun</h3>
+        <ul><li>Hesap türünüzü seçin: <b>emlak ofisi</b>, <b>inşaat firması</b>, <b>bireysel danışman</b> ya da <b>mülk sahibi</b>. Google ya da Facebook hesabınızla da kayıt olabilirsiniz.</li>
+        <li>E-postanıza gelen bağlantıyla hesabınızı doğrulayın.</li></ul>
+        <p class="tip">Emlak ofisi ve inşaat firması hesapları bir kez onaylanır; sonra ilanlarınız beklemeden yayına girer.</p></div></div>
+      <div class="step"><div><span class="where">Panelim → Profil ve vitrin</span><h3>Vitrin sayfanızı hazırlayın</h3>
+        <ul><li>Logonuzu, adresinizi, web sitenizi ve ruhsat numaranızı ekleyin; Instagram, Facebook, TikTok, YouTube hesaplarınızı bağlayın.</li>
+        <li>Vitrin adresinizi seçin (ör. <b>/tr/ofis/ofisinizin-adi/</b>) ve kartvizitinizde kullanın.</li></ul></div></div>
+      <div class="step"><div><span class="where">Panelim → Telegram</span><h3>Telegram’ı bağlayın, ilanı oradan verin</h3>
+        <ul><li><kbd>Telegram’ı bağla</kbd>’ya basın, açılan sohbette <kbd>Başlat</kbd>. Hesabınız yalnızca sizin Telegram’ınıza bağlanır.</li>
+        <li>Fotoğrafları ve notunuzu WhatsApp’a yazar gibi gönderin, <kbd>İlanı hazırla</kbd>’ya basın. Eksik bilgi varsa bot sorar.</li></ul>
+        <div class="chat" aria-label="Telegram örneği">
+          <div class="msg me">📷 📷 📷 📷 (4 fotoğraf)</div>
+          <div class="msg me">Alsancak’ta satılık 2+1, 95 m², deniz manzaralı, ortak havuz. 145.000 stg. Türk koçanı, KDV ödendi.</div>
+          <div class="msg bot">📝 <b>Önizleme · #11024</b><br>Alsancak deniz manzaralı 2+1 daire<br>💰 £145.000 · 95 m² · 2+1 · 📜 Türk Koçanı<br>📷 4 fotoğraf · 🌐 TR / EN / RU / DE / AR<div class="btns"><span>✅ Yayınla</span><span>✏️ Düzelt</span></div></div>
+          <div class="msg me">fiyat 139.000 olsun</div>
+          <div class="msg bot">🎉 İlanınız yayında.</div>
+        </div></div></div>
+      <div class="step"><div><span class="where">Telegram → /ilanlarim</span><h3>İlanlarınızı Telegram’dan yönetin</h3>
+        <ul><li><kbd>/ilanlarim</kbd> yazın; her ilanın altında <kbd>✏️</kbd> düğmesi çıkar. Değişikliği normal cümleyle yazın: “fiyat 175.000 sterlin”, “eşyalı, otopark da var”. Beş dildeki metin birlikte güncellenir.</li>
+        <li><kbd>📷 Fotoğraflar</kbd>: fotoğraf silin ya da kapak yapın; yeni fotoğrafı göndermeniz yeterli.</li>
+        <li><kbd>🏷 Satıldı / Kiralandı</kbd> ve <kbd>🗑 İlanı kaldır</kbd> (onay ister, sonra geri açılabilir).</li></ul>
+        <p class="tip">Herkes yalnızca kendi ilanlarını düzenleyebilir. Ofisten ayrılan danışmanın ofisteyken açtığı ilanlar ofisin portföyü sayılır ve korunur.</p></div></div>
+      <div class="step"><div><span class="where">Telegram → otomatik</span><h3>Boş odaya sanal eşya</h3>
+        <ul><li>Gönderdiğiniz fotoğraflarda boş oda varsa bot sorar: “3. fotoğraftaki oda boş görünüyor. Eşyalı hâlini de göstermek ister misiniz?”</li>
+        <li><kbd>Evet</kbd> derseniz aynı odaya eşya yerleştirilmiş görsel hazırlanır ve önce size gösterilir. Beğenirseniz ilana eklenir.</li></ul>
+        <p class="tip">Asıl fotoğraf yerinde kalır; eşyalı görselin üzerinde “Temsili eşyalı görünüm” yazar. Alıcıyı yanıltmadan boş evi daha davetkâr gösterir.</p></div></div>
+      <div class="step"><div><span class="where">Panelim → İlanlarım · ya da Telegram</span><h3>“✔ Doğrulanmış ilan” rozeti alın</h3>
+        <ul><li>İlanın satırındaki <kbd>📄 Doğrulama belgesi</kbd> ile tapu fotokopisini ya da mal sahibi yetki belgesini yükleyin (Telegram’da <kbd>/duzenle</kbd> → <kbd>📄 Doğrulama belgesi gönder</kbd>).</li>
+        <li>AdaCasa kontrol eder; onaylanınca ilanda ve kartında rozet çıkar.</li></ul>
+        <p class="tip">Belge sitede yayınlanmaz, yalnızca yönetim görür ve karar verilince silinir.</p></div></div>
+      <div class="step"><div><span class="where">Otomatik · 30 günde bir</span><h3>İlanlarınız hep güncel</h3>
+        <ul><li>Ayda bir Telegram’dan sorarız: “#11024 hâlâ satışta mı?” <kbd>✅ Evet</kbd> <kbd>🏷 Satıldı</kbd> <kbd>⏸ Kaldır</kbd>. Tek dokunuş.</li>
+        <li>İlan sayfasında “İlan sahibi 3 gün önce teyit etti” yazar. Alıcı bayat ilanla vakit kaybetmez, size güvenle yazar.</li></ul>
+        <p class="tip">7 gün cevap gelmezse ilan yayından kalkar; “Evet” demeniz yeterli, geri gelir.</p></div></div>
+      <div class="step"><div><span class="where">Panelim → Talepler</span><h3>Müşteri takibi ve hatırlatmalar</h3>
+        <ul><li>Sitedeki mesaj formu, WhatsApp ve görüntülü gezi talepleri tek listede. Telefonla arayan müşteriyi de <kbd>＋ Müşteri ekle</kbd> ile girin.</li>
+        <li>Her müşteriye durum (Yeni, Arandı, Görüşme, Teklif, Satış oldu, Olumsuz), not ve hatırlatma zamanı yazın.</li>
+        <li><kbd>🔔 Hatırlatmaları bu cihazda aç</kbd>: hatırlatma telefonunuza <b>1 gün, 1 saat ve 5 dakika önce</b> bildirim olarak gelir. Yeni talepler de anında bildirim olur.</li></ul></div></div>
+      <div class="step"><div><span class="where">İlan sayfası → 📹</span><h3>Görüntülü gezi talepleri</h3>
+        <ul><li>Yurt dışındaki alıcı ilan sayfasından gün, saat ve uygulama (WhatsApp, Google Meet, Zoom, FaceTime) seçip görüntülü gezi ister.</li>
+        <li>Talep size Telegram ve bildirim olarak gelir; arayıp teyit edersiniz. Uçağa binmeden karar veren alıcıyı kaçırmazsınız.</li></ul></div></div>
+      <div class="step"><div><span class="where">İlan sayfası → 360° Tur</span><h3>360° fotoğraf ekleyin</h3>
+        <ul><li>360° kamerayla ya da telefonun “Fotoğraf küresi” moduyla çekin, diğer fotoğraflarla birlikte yükleyin; site ayırır. Telegram’dan <kbd>📎 → Dosya</kbd> olarak gönderin.</li></ul></div></div>
+      <div class="step"><div><span class="where">Chrome → İlan Aktarıcı (paket)</span><h3>101evler ve hangiev’e aktarın</h3>
+        <ul><li>Eklentiyi kurun, size verilen anahtarı yazın; 101evler ve hangiev’e kendi hesabınızla giriş yapmış olun.</li>
+        <li>Eklentiden ilanı seçin → <kbd>101evler’e aktar</kbd>. Form ve fotoğraflar dolar; kontrol edip <b>“Yayınla”ya siz basarsınız</b>. SMS kodu gerekirse Telegram botu sorar.</li></ul></div></div>
+      <div class="step"><div><span class="where">Panelim → Ekip (ofis hesabı)</span><h3>Ofis ekibinizi kurun</h3>
+        <ul><li>Danışmanlarınızı e-postayla ekibe davet edin; ilanları onay beklemeden yayına girer, isterseniz paketinizi aylık sınırlarla paylaşırsınız.</li>
+        <li>Ekipteyken açılan ilanlar ofisinizin portföyüdür: danışman ayrılırsa ilanlar kilitlenir ve başvurunuzla sizin bildirdiğiniz kişiye aktarılır.</li></ul></div></div>
+    </div>
+  </section>
+
+  <section class="sec" id="alici">
+    <div class="sh"><span class="n">04</span><div><h2>Alıcının gördüğü: neden ilanınız daha çok iş getirir</h2><p>İyi ilan, alıcının sorusunu sormadan cevaplayan ve onu tekrar geri getiren ilandır.</p></div></div>
+    <div class="two">
+      <div class="card"><h3>Kendi dilinde, kendi para biriminde</h3><p>Beş dil; İngiliz alıcı sterlin, Avrupalı euro, Türk alıcı TL görür. Döviz çevirici resmi kurlarla anında hesaplar.</p></div>
+      <div class="card"><h3>Toplam maliyet hesaplayıcı</h3><p>Satılık her ilanda tapu harcı, KDV, damga pulu, avukat ve trafo masrafları alıcının uyruğuna göre yaklaşık hesaplanır. Resmî oranlara göre güncellenir.</p></div>
+      <div class="card"><h3>Fiyat düştü bildirimi</h3><p>Alıcı “Fiyat düşerse haber ver” der. Fiyatı indirdiğiniz an telefonuna bildirim gider; ilanda “🔻 Fiyat düştü” etiketi ve fiyat geçmişi görünür.</p></div>
+      <div class="card"><h3>Kayıtlı arama bildirimi</h3><p>“Girne’de 2+1, 150 bin altı” arayan alıcı aramasını kaydeder. Yeni ilanınız eklenince ona “Aradığınız kriterlerde yeni ilan eklendi” bildirimi gider.</p></div>
+      <div class="card"><h3>Akıllı arama</h3><p>Alıcı filtrelerle uğraşmadan cümleyle arar: “Girne’de denize yakın, bahçeli 2+1 kiralık”. Rusça, İngilizce, Almanca ve Arapça yazılanı da anlar.</p></div>
+      <div class="card"><h3>Güven rozetleri</h3><p>“✔ Doğrulanmış ilan” ve “İlan sahibi X gün önce teyit etti” satırları alıcının ilk kuşkusunu giderir; ciddi müşteri yazar.</p></div>
+      <div class="card"><h3>Tapu türü, konum, fiyat trendi</h3><p>Tapu türü ve açıklaması, harita, yakındaki okul/market/plaj, bölgenin m² fiyat trendi ve ilanın bölge ortalamasına göre konumu.</p></div>
+      <div class="card"><h3>Bölge rehberleri</h3><p>Alsancak, Lapta, Gönyeli, Long Beach… Bölgeyi tanıtan sayfalar Google’dan alıcı getirir ve onu o bölgedeki ilanlarınıza yönlendirir.</p></div>
+      <div class="card"><h3>Kolay iletişim</h3><p>Telefonu göster, WhatsApp (ilan numarasıyla hazır mesaj), mesaj formu ve görüntülü gezi. Ofis kartında logonuz ve diğer ilanlarınız.</p></div>
+      <div class="card"><h3>Galeri, 360° ve sanal eşya</h3><p>Tam ekran galeri, oda oda 360° tur ve boş odalar için etiketli eşyalı görünüm. Telefonda hızlı açılır, uygulama gibi ana ekrana eklenir.</p></div>
+    </div>
+  </section>
+
+  <section class="sec" id="karsilastirma">
+    <div class="sh"><span class="n">05</span><div><h2>Elle mi, AdaCasa ile mi?</h2><p>Aynı işi yapmanın iki yolu.</p></div></div>
+    <div class="tw"><table>
+      <thead><tr><th>İş</th><th>Elle</th><th>AdaCasa ile</th></tr></thead>
+      <tbody>
+        <tr><td>İlan metni ve çeviri</td><td>Her dil, her site için tekrar yazılır</td><td class="yes">Bir kez; beş dile otomatik</td></tr>
+        <tr><td>İlanı güncellemek</td><td>Bilgisayar başında form form</td><td class="yes">Telegram’dan tek cümle</td></tr>
+        <tr><td>101evler / hangiev formu</td><td>Alan alan doldurulur</td><td class="yes">Eklenti doldurur, siz onaylarsınız</td></tr>
+        <tr><td>Facebook / Instagram</td><td>Ayrı ayrı hazırlanıp paylaşılır</td><td class="yes">Yayına girince otomatik</td></tr>
+        <tr><td>Gelen müşteri</td><td>WhatsApp, telefon, not defteri</td><td class="yes">Tek liste, not, durum, hatırlatma bildirimi</td></tr>
+        <tr><td>Satılmış ilanlar</td><td>Unutulur, alıcı boşuna arar</td><td class="yes">Ayda bir tek dokunuşla teyit</td></tr>
+        <tr><td>Alıcıya güven</td><td>Sözle anlatılır</td><td class="yes">Doğrulanmış ilan rozeti, maliyet hesabı</td></tr>
+        <tr><td>Fiyat indirimi</td><td>Kimse fark etmeyebilir</td><td class="yes">İlgilenen alıcılara anında bildirim</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <section class="sec" id="paketler">
+    <div class="sh"><span class="n">06</span><div><h2>Ne ücretsiz, ne paketli?</h2><p>İlan vermek her zaman ücretsiz. Paketler yalnızca zaman kazandıran otomasyonlar içindir.</p></div></div>
+    <div class="two">
+      <div class="card"><h3>Ücretsiz</h3><p>Sınırsız ilan · beş dilde otomatik çeviri · Telegram’dan ilan verme ve yönetme · sanal eşya · doğrulanmış ilan rozeti · 30 günlük teyit · talepler ve müşteri takibi · hatırlatma bildirimleri · görüntülü gezi talepleri · 360° tur · ofis ekibi.</p></div>
+      <div class="card"><h3>Paketli</h3><p>101evler ve hangiev’e aktarım (İlan Aktarıcı) · Facebook ve Instagram’da otomatik paylaşım · vitrin seçenekleri (ana sayfa, kategori, acil, öne çıkar). Lansman dönemindeki paket koşullarını görüşmemizde konuşalım.</p></div>
+    </div>
+  </section>
+
+  <section class="sec" id="guven">
+    <div class="sh"><span class="n">07</span><div><h2>Güven ve kurallar</h2><p>Dürüst ilanın kazandığı bir site olması için.</p></div></div>
+    <div class="trust">
+      <div><h3>Kopya ilan denetimi</h3><p>Fotoğrafların görsel parmak izi ve açıklamalar otomatik karşılaştırılır; başkasının fotoğrafını kullanan ilan incelenir.</p></div>
+      <div><h3>Güncel ilan</h3><p>30 günlük teyit sayesinde satılmış ilanlar sitede kalmaz; alıcı da emlakçı da vakit kaybetmez.</p></div>
+      <div><h3>Belgeler gizli</h3><p>Doğrulama belgeleri yalnızca yönetim tarafından görülür, sitede yayınlanmaz ve karardan sonra silinir.</p></div>
+      <div><h3>Portföyünüz korunur</h3><p>Herkes yalnız kendi ilanını düzenler; ekipte açılan ilanlar ofisin portföyüdür.</p></div>
+      <div><h3>Son tık sizde</h3><p>101evler ve hangiev’e aktarımda “Yayınla”ya siz basarsınız; SMS ve captcha sizin kontrolünüzde.</p></div>
+      <div><h3>Kişisel veriler</h3><p>Alıcı bilgileri yalnızca size iletilir; bildirimler alıcının izniyle gönderilir (KVKK).</p></div>
+    </div>
+  </section>
+
+  <div class="close">
+    <h2>Bugün başlayın</h2>
+    <ol>
+      <li>adacasa.com → <b>Kayıt ol</b> → hesap türünüzü seçin.</li>
+      <li>Panelim → <b>Telegram’ı bağla</b>.</li>
+      <li>İlk ilanınızın fotoğraflarını ve notunuzu bota gönderin.</li>
+      <li>Panelim → Talepler → <b>🔔 Hatırlatmaları bu cihazda aç</b>.</li>
+    </ol>
+    <p>Sorularınız için: <b>bilgi@adacasa.com</b> · <b>adacasa.com</b> · sitedeki “Sıkça sorulan sorular” sayfası.</p>
+  </div>
+  <p class="foot">Sürüm: Kasım 2026. Ekran adları sitenin Türkçe arayüzüne göredir. Maliyet hesaplayıcı ve tapu bilgileri genel bilgidir; alıcılarınızı bağımsız bir avukata yönlendirin.</p>
+</main>

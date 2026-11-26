@@ -15,7 +15,7 @@ if (!defined('ABSPATH')) {
 
 function ec_legal_docs(): array
 {
-    return [
+    return ec_i18n_fill([
         'about' => [
             'slug' => ['tr' => 'hakkimizda', 'en' => 'about', 'ru' => 'o-nas'],
             'title' => ['tr' => 'Hakkımızda', 'en' => 'About us', 'ru' => 'О нас'],
@@ -720,5 +720,5 @@ H,
 H,
             ],
         ],
-    ];
+    ]);
 }

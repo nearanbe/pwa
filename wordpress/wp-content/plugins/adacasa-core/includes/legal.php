@@ -46,11 +46,11 @@ function ec_legal_render(string $doc, string $lang): array
 {
     $d = ec_legal_docs()[$doc];
     $c = ec_company();
-    $months = ['tr' => ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'], 'en' => ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'], 'ru' => ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря']];
+    $months = ['tr' => ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'], 'en' => ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'], 'ru' => ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'], 'de' => ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'], 'ar' => ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر']];
     $ts = strtotime($c['updated']) ?: time();
     $wa = preg_replace('/\D/', '', (string) ((array) get_option('ec_contact', []))['whatsapp'] ?? '');
-    $taxLbl = ['tr' => 'Vergi no', 'en' => 'Tax no', 'ru' => 'Налоговый номер'][$lang];
-    $phoneLbl = ['tr' => 'Telefon', 'en' => 'Phone', 'ru' => 'Телефон'][$lang];
+    $taxLbl = ec_i18n_pick(['tr' => 'Vergi no', 'en' => 'Tax no', 'ru' => 'Налоговый номер'], $lang);
+    $phoneLbl = ec_i18n_pick(['tr' => 'Telefon', 'en' => 'Phone', 'ru' => 'Телефон'], $lang);
     $rep = [
         '{brand}' => esc_html(get_bloginfo('name')),
         '{company}' => esc_html($c['name']),

@@ -205,13 +205,12 @@ function emlak_tema_strings(): array
 /** Metni geçerli dilde döndürür; %s yer tutucuları için ek argüman alır. */
 function ae_t(string $key, ...$args): string
 {
-    static $idx = ['tr' => 0, 'en' => 1, 'ru' => 2];
     $s = emlak_tema_strings()[$key] ?? null;
     if (!$s) {
         return $key;
     }
     $lang = function_exists('ec_lang') ? ec_lang() : 'tr';
-    $txt = $s[$idx[$lang] ?? 0] ?? $s[0];
+    $txt = function_exists('ec_i18n_pick') ? ec_i18n_pick($s, $lang) : ($s[['tr' => 0, 'en' => 1, 'ru' => 2][$lang] ?? 0] ?? $s[0]);
     return $args ? vsprintf($txt, $args) : $txt;
 }
 

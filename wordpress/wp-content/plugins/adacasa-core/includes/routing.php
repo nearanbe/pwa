@@ -25,6 +25,8 @@ function ec_register_rewrites(): void
         add_rewrite_rule("^$l/{$s['projectd'][$l]}/([a-z0-9-]+)-([0-9]+)/?$", 'index.php?ec_lang=' . $l . '&ec_page=projectd&ec_id=$matches[2]', 'top');
         add_rewrite_rule("^$l/{$s['office'][$l]}/([a-z0-9-]+)/?$", 'index.php?ec_lang=' . $l . '&ec_page=office&ec_slug=$matches[1]', 'top');
         add_rewrite_rule("^$l/{$s['legal'][$l]}/([a-z-]+)/?$", 'index.php?ec_lang=' . $l . '&ec_page=legal&ec_slug=$matches[1]', 'top');
+        add_rewrite_rule("^$l/{$s['area'][$l]}/?$", "index.php?ec_lang=$l&ec_page=area", 'top');
+        add_rewrite_rule("^$l/{$s['area'][$l]}/([a-z0-9-]+)/?$", 'index.php?ec_lang=' . $l . '&ec_page=area&ec_slug=$matches[1]', 'top');
         foreach (['project', 'add', 'favs', 'index', 'login', 'register', 'verify', 'panel', 'review', 'offices', 'faq'] as $p) {
             add_rewrite_rule("^$l/{$s[$p][$l]}/?$", "index.php?ec_lang=$l&ec_page=$p", 'top');
         }

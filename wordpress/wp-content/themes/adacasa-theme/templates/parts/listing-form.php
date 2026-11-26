@@ -86,7 +86,7 @@ $steps = ['basics' => 'f_step_basics', 'location' => 'f_step_location', 'details
     <div class="ltabs" role="tablist">
       <?php foreach (['tr' => 'Türkçe', 'en' => 'English', 'ru' => 'Русский'] as $l => $n) : ?><button type="button" data-l="<?php echo $l; ?>" class="<?php echo $l === 'tr' ? 'on' : ''; ?>"><?php echo $n; ?></button><?php endforeach; ?>
     </div>
-    <?php foreach (['tr', 'en', 'ru'] as $l) : ?>
+    <?php foreach (EC_LANGS as $l) : ?>
       <div class="lpane" data-l="<?php echo $l; ?>" <?php echo $l === 'tr' ? '' : 'hidden'; ?>>
         <label><?php ae_e('f_title'); ?><?php echo $l === 'tr' ? ' *' : ''; ?><input name="title_<?php echo $l; ?>" maxlength="200"></label>
         <label><?php ae_e('f_desc'); ?><textarea name="desc_<?php echo $l; ?>" rows="8"></textarea></label>

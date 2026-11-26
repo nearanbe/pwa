@@ -15,9 +15,9 @@ a{color:inherit}
 img{max-width:100%;display:block}
 button{font:inherit;cursor:pointer}
 .vh{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
-.hp{position:absolute;left:-9999px}
-.skip{position:absolute;left:-9999px;top:8px;z-index:50;background:var(--acc);color:var(--acc-t);padding:8px 12px;border-radius:8px}
-.skip:focus{left:8px}
+.hp{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap}
+.skip{position:absolute;inset-inline-start:8px;top:8px;transform:translateY(-200%);z-index:50;background:var(--acc);color:var(--acc-t);padding:8px 12px;border-radius:8px}
+.skip:focus{transform:none}
 :focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 
 /* Üst bar */
@@ -1009,7 +1009,7 @@ html.ec-ads-on .ad-g .adsbygoogle{display:block!important}html.ec-ads-on .ad-g .
 .alertbtn{width:100%;margin-top:10px;justify-content:center}.alertbtn.on{border-color:#2f9e5b;color:#2f9e5b}
 .stools .alertbtn{width:auto;margin:0}
 .alov .alpush{width:100%;margin:6px 0 12px}.alov .alform .row{display:flex;gap:8px}.alov .alform input[type=email]{flex:1;min-width:0}
-.alov .almsg{min-height:1.2em;font-size:14px;margin:10px 0 0}.hp{position:absolute;left:-9999px;width:1px;height:1px;opacity:0}
+.alov .almsg{min-height:1.2em;font-size:14px;margin:10px 0 0}
 .alprompt{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:center;max-width:92vw}.alprompt .btn{padding:6px 12px}.alprompt .linkbtn{color:inherit;font-size:18px}
 .dbadge{position:absolute;right:12px;bottom:12px;background:#2f9e5b;color:#fff;font-size:12px;font-weight:700;padding:4px 10px;border-radius:999px}
 .dropline .dbadge{position:static;display:inline-block;margin-top:4px}.dropline s{margin-left:6px}
@@ -1032,3 +1032,22 @@ html.ec-ads-on .ad-g .adsbygoogle{display:block!important}html.ec-ads-on .ad-g .
 .crmf{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px;padding-top:10px;border-top:1px dashed var(--line)}.crmf label{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--muted)}.crmf .wide{grid-column:1/-1}
 @media(max-width:560px){.crmf{grid-template-columns:1fr}}
 #vtov,#reportov{z-index:60}.vtform .fg label{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--muted)}
+.aisearch{display:flex;flex-wrap:wrap;align-items:center;gap:8px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:8px 8px 8px 12px;margin:12px 0;box-shadow:var(--shadow)}
+.aisearch input{flex:1;min-width:0;border:0;background:transparent;padding:6px 0;font-size:15px}.aisearch input:focus{outline:none}.aisearch .aiic{font-size:18px}
+.aisearch .aimsg{flex-basis:100%;margin:0;min-height:0}.aisearch .aimsg:empty{display:none}
+.hero .aisearch{max-width:760px;margin:12px auto 0;color:var(--text)}
+.ainote{margin:8px 0}
+.arstats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:16px}.arstat{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;text-decoration:none;color:var(--text);display:flex;flex-direction:column;gap:4px}.arstat b{font-size:22px}.arstat span{font-size:13px;color:var(--muted)}
+.arbody h2{font-size:22px;margin:22px 0 8px}.arbody p{line-height:1.7}.ardisc{margin-top:18px;font-size:12px}
+.arlist{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}.arcard{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;text-decoration:none;color:var(--text);display:flex;flex-direction:column;gap:6px}.arcard b{font-size:17px}
+.arsib a{display:inline-block}.argo{margin:6px 0 10px}
+.gslide,.gv-ph{position:relative}.stagecap{position:absolute;left:10px;top:10px;background:rgba(10,20,35,.78);color:#fff;font-size:12px;font-weight:600;padding:4px 10px;border-radius:999px;pointer-events:none}
+/* 1.7: Arapça (sağdan sola) */
+html[dir=rtl] body{direction:rtl;text-align:right}
+html[lang=ar] body,html[lang=ar] input,html[lang=ar] select,html[lang=ar] textarea,html[lang=ar] button{font-family:"Noto Sans Arabic","Segoe UI","Tahoma","Geeza Pro",system-ui,sans-serif}
+html[lang=ar] h1,html[lang=ar] h2,html[lang=ar] h3,html[lang=ar] .sec,html[lang=ar] .price{font-family:"Noto Naskh Arabic","Noto Sans Arabic","Segoe UI","Tahoma",serif;letter-spacing:0}
+html[dir=rtl] .fbadge{left:auto;right:12px}html[dir=rtl] .sbadge,html[dir=rtl] .dbadge{right:auto;left:12px}
+html[dir=rtl] .heart{right:auto;left:12px}html[dir=rtl] .tag{left:auto;right:12px}
+html[dir=rtl] .ctbl td,html[dir=rtl] .ctbl th{text-align:right}html[dir=rtl] .ctbl td:last-child,html[dir=rtl] .ctbl th:last-child{text-align:left}
+html[dir=rtl] .stagecap{left:auto;right:10px}
+html[dir=rtl] .price,html[dir=rtl] .ctbl td:last-child,html[dir=rtl] .phlist b{unicode-bidi:plaintext}

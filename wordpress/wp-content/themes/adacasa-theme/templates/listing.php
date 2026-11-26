@@ -180,6 +180,7 @@ echo ae_sticky_head(['logo' => $a['agent']['logo']['small'] ?? '', 'title' => $a
             <?php foreach ($a['photos'] as $i => $p) : ?>
               <figure class="gslide<?php echo $i === 0 ? ' on' : ''; ?>" role="group" aria-roledescription="slide" aria-label="<?php echo esc_attr(ae_t('gallery', $i + 1, $n)); ?>">
                 <img src="<?php echo esc_url($p['large']); ?>" alt="<?php echo esc_attr($a['title'] . ' – ' . ($i + 1)); ?>" loading="<?php echo $i === 0 ? 'eager' : 'lazy'; ?>" <?php echo $i === 0 ? 'fetchpriority="high"' : ''; ?> decoding="async" <?php if ($p['width']) : ?>width="<?php echo (int) $p['width']; ?>" height="<?php echo (int) $p['height']; ?>"<?php endif; ?>>
+                <?php if (!empty($p['staged'])) : ?><figcaption class="stagecap">🛋 <?php ae_e('staged_cap'); ?></figcaption><?php endif; ?>
               </figure>
             <?php endforeach; ?>
           </div>
