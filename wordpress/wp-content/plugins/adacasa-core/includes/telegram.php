@@ -7,7 +7,7 @@
  *     Bot kodu doğrular ve üyenin telegram_chat_id alanını doldurur.
  *  2. Üye fotoğrafları ve ilan metnini arka arkaya gönderir. Hepsi açık "taslak"ta (ec_tg_drafts) toplanır.
  *     Bot tek bir durum mesajını günceller: "4 fotoğraf, 1 metin alındı · [İlanı hazırla]".
- *  3. "İlanı hazırla" (ya da 45 sn sessizlik): Claude metinden alanları çıkarır, 3 dile çevirir,
+ *  3. "İlanı hazırla" (ya da 45 sn sessizlik): Claude metinden alanları çıkarır, 5 dile çevirir,
  *     sitede taslak ilan açılır, fotoğraflar eklenir ve önizleme gönderilir: [✅ Yayınla] [✏️ Düzelt] [🗑 İptal].
  *  4. Düzelt: üye düzeltmeyi yazar ("fiyat 165.000 sterlin, tapu eşdeğer"), ilan güncellenir, yeni önizleme gelir.
  *  5. Yayınla: ofis ve inşaat firması → anında yayında. Bireysel danışman / mülk sahibi → onaya düşer ve
@@ -316,7 +316,7 @@ function ec_tg_help(array $agent): string
 {
     return "Merhaba <b>" . ec_tg_esc($agent['name']) . "</b> 👋\n\n"
         . "📸 İlan vermek için fotoğrafları ve ilan metnini gönderin (sırası önemli değil).\n"
-        . "🪄 Sonra <b>İlanı hazırla</b>'ya basın: yapay zekâ bilgileri çıkarır, Türkçe, İngilizce ve Rusçaya çevirir.\n"
+        . "🪄 Sonra <b>İlanı hazırla</b>'ya basın: yapay zekâ bilgileri çıkarır, Türkçe, İngilizce, Rusça, Almanca ve Arapçaya çevirir.\n"
         . "✅ Önizlemeyi kontrol edip <b>Yayınla</b> ya da <b>Düzelt</b> deyin.\n\n"
         . "✏️ Yayındaki bir ilanı değiştirmek, bilgi eklemek, fotoğraf eklemek/silmek ya da ilanı kaldırmak için /ilanlarim yazıp ilanın düğmesine basın (ya da <i>/duzenle 123</i>).\n\n"
         . "Komutlar:\n/yeni – yeni ilana başla\n/iptal – açık taslağı ya da düzenlemeyi kapat\n/ilanlarim – son ilanlarım ve düzenleme\n/duzenle 123 – 123 numaralı ilanı düzenle\n/yardim – bu mesaj";
@@ -731,7 +731,7 @@ function ec_tg_handle_callback(array $q): void
             }
             $ack('Hazırlanıyor…');
             wp_clear_scheduled_hook('ec_tg_auto', [(int) $d['id']]);
-            ec_tg_send($chat, '⏳ İlanınız hazırlanıyor: bilgiler çıkarılıyor ve 3 dile çevriliyor…');
+            ec_tg_send($chat, '⏳ İlanınız hazırlanıyor: bilgiler çıkarılıyor ve 5 dile çevriliyor…');
             ec_tg_defer(fn() => ec_tg_prepare((int) $d['id']));
             return;
         case 'pub':
