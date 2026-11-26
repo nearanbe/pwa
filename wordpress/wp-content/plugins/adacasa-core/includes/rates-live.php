@@ -21,15 +21,48 @@ function ec_rates_live_settings(): array
         'enabled' => 0,
         'provider' => 'auto',   // auto | twelvedata | yahoo
         'key' => '',            // Twelve Data API anahtarı
-        'interval' => 5,        // dakika
+        'interval' => 5,        // dakika; 0 = Twelve Data günlük kotasına göre (~109 sn)
         'max_dev' => 5,         // TCMB'ye göre en çok sapma (%)
         'max_age' => 30,        // dakika; daha eski değer kullanılmaz
     ], (array) get_option('ec_rates_live', []));
 }
 
+/** Twelve Data ücretsiz plan: günde 800 istek. Bir istek pay bırakılır (günde en çok 799). */
+const EC_TD_DAILY = 799;
+
+/**
+ * Gün içi çekim aralığı (saniye). interval=0 → "kotaya göre": görev her dakika uyanır, ama Twelve Data isteği
+ * ec_td_due() ile güne eşit yayılır (ortalama 86400/799 ≈ 108 sn, günde en çok 799). Sunucu zamanlayıcısı
+ * wp-cron.php'yi dakikada bir çağırmalı (Plesk görev 71).
+ */
+function ec_rates_live_seconds(): int
+{
+    $m = (int) ec_rates_live_settings()['interval'];
+    return $m > 0 ? $m * MINUTE_IN_SECONDS : MINUTE_IN_SECONDS;
+}
+
+/** Kotaya göre modda şimdi istek sırası geldi mi? (UTC günün geçen kısmına düşen pay) */
+function ec_td_due(): bool
+{
+    $elapsed = time() - strtotime(gmdate('Y-m-d') . ' 00:00:00 UTC');
+    return ec_td_used() < min(EC_TD_DAILY, (int) floor($elapsed * EC_TD_DAILY / DAY_IN_SECONDS) + 1);
+}
+
+/** Bugün (UTC; Twelve Data kotası UTC gece yarısı sıfırlanır) yapılan Twelve Data isteği */
+function ec_td_used(): int
+{
+    $d = (array) get_option('ec_td_count', []);
+    return ($d['day'] ?? '') === gmdate('Y-m-d') ? (int) $d['n'] : 0;
+}
+
 /** Kaynaktan GBP/TRY çeker. @return array{rate: float, time: int, source: string}|WP_Error */
 function ec_rates_live_fetch_twelvedata(string $key)
 {
+    $used = ec_td_used();
+    if ($used >= EC_TD_DAILY) {
+        return new WP_Error('ec_live', 'Twelve Data: günlük kota doldu (' . $used . '), Yahoo kullanılıyor');
+    }
+    update_option('ec_td_count', ['day' => gmdate('Y-m-d'), 'n' => $used + 1], false);
     $url = add_query_arg(['symbol' => 'GBP/TRY', 'apikey' => $key], 'https://api.twelvedata.com/exchange_rate');
     $res = wp_remote_get($url, ['timeout' => 10]);
     if (is_wp_error($res)) {
@@ -141,8 +174,8 @@ function ec_recompute_price_gbp_currency(string $cur): void
 }
 
 add_filter('cron_schedules', function ($s) {
-    $min = max(1, (int) ec_rates_live_settings()['interval']);
-    $s['ec_live_rates'] = ['interval' => $min * MINUTE_IN_SECONDS, 'display' => "Her $min dakikada bir (gün içi kur)"];
+    $sec = ec_rates_live_seconds();
+    $s['ec_live_rates'] = ['interval' => $sec, 'display' => "Her $sec saniyede bir (gün içi kur)"];
     return $s;
 });
 
@@ -161,7 +194,11 @@ add_action('ec_rates_live', function () {
     if (!$s['enabled'] || get_transient('ec_rates_live_lock')) {
         return;
     }
-    set_transient('ec_rates_live_lock', 1, 60);
+    // Kotaya göre mod: sıra gelmediyse bekle (mevcut kur 30 dk geçerli kalır)
+    if ((int) $s['interval'] === 0 && $s['key'] && $s['provider'] !== 'yahoo' && !ec_td_due()) {
+        return;
+    }
+    set_transient('ec_rates_live_lock', 1, 50);
     ec_rates_live_update();
     delete_transient('ec_rates_live_lock');
 });

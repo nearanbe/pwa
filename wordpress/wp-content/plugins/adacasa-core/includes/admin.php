@@ -308,8 +308,9 @@ function ec_admin_settings(): void
         echo '<option value="' . $k . '"' . selected($lv['provider'], $k, false) . '>' . esc_html($n) . '</option>';
     }
     echo '</select></td></tr>';
-    echo '<tr><th>Twelve Data API anahtarı</th><td>' . $secret_early('live_key', (string) $lv['key']) . '<p class="description">Ücretsiz: twelvedata.com → Sign up → API Keys. Günde 800 istek; 5 dakikada bir çekim günde 288 istek harcar.</p></td></tr>';
+    echo '<tr><th>Twelve Data API anahtarı</th><td>' . $secret_early('live_key', (string) $lv['key']) . '<p class="description">Ücretsiz: twelvedata.com → Sign up → API Keys. Günde 800 istek; 5 dakikada bir çekim günde 288 istek harcar. Bugün kullanılan: ' . (int) ec_td_used() . ' / ' . EC_TD_DAILY . '</p></td></tr>';
     echo '<tr><th>Sıklık</th><td><select name="live_interval">';
+    echo '<option value="0"' . selected((int) $lv['interval'], 0, false) . '>Twelve Data kotasına göre (ortalama ' . (int) round(DAY_IN_SECONDS / EC_TD_DAILY) . ' saniyede bir, günde en çok ' . EC_TD_DAILY . ' istek)</option>';
     foreach ([5, 10, 15, 30] as $m) {
         echo '<option value="' . $m . '"' . selected((int) $lv['interval'], $m, false) . '>' . $m . ' dakikada bir</option>';
     }
@@ -530,7 +531,7 @@ add_action('admin_post_ec_settings', function () {
         'enabled' => !empty($p['live_enabled']) ? 1 : 0,
         'provider' => in_array($p['live_provider'] ?? '', ['auto', 'twelvedata', 'yahoo'], true) ? $p['live_provider'] : 'auto',
         'key' => $keep($lv, 'key', preg_replace('/[^A-Za-z0-9]/', '', (string) ($p['live_key'] ?? ''))),
-        'interval' => in_array((int) ($p['live_interval'] ?? 5), [5, 10, 15, 30], true) ? (int) $p['live_interval'] : 5,
+        'interval' => in_array((int) ($p['live_interval'] ?? 5), [0, 5, 10, 15, 30], true) ? (int) $p['live_interval'] : 5,
         'max_dev' => max(1, min(20, (float) ($p['live_max_dev'] ?? 5))),
         'max_age' => 30,
     ]);
