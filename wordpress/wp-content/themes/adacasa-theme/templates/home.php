@@ -58,7 +58,7 @@ $nFirm = (int) $wpdb->get_var("SELECT COUNT(*) FROM " . ec_table('agents') . " W
     <h1><?php ae_e('hero_title'); ?></h1>
     <p class="hsub"><?php ae_e('hero_sub'); ?></p>
     <?php ae_search_box(['mode' => 'sale']); ?>
-    <?php echo ae_ai_search_box('hero'); ?>
+    <?php echo ae_ai_search_box('ais-hero'); ?>
     <?php if ($nList >= 20) : ?><p class="hstats"><?php ae_e('hero_stats', number_format_i18n($nList), number_format_i18n($nFirm)); ?></p><?php endif; ?>
   </div>
   <?php if (!empty($hp['credit'])) : ?><p class="hcredit"><?php echo $hp['credit']; // phpcs:ignore -- kaçışlı ?></p><?php endif; ?>
