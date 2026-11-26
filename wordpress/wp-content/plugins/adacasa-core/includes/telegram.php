@@ -170,7 +170,7 @@ add_action('shutdown', function () {
     }
     ignore_user_abort(true);
     @set_time_limit(300);
-    foreach ($GLOBALS['ec_tg_jobs'] as $job) {
+    while ($job = array_shift($GLOBALS['ec_tg_jobs'])) {
         $job();
     }
 });
@@ -218,6 +218,33 @@ function ec_tg_handle_update(array $u): void
     }
     if ($agent['status'] === 'suspended') {
         ec_tg_send($chat, 'Hesabınız askıya alınmış. Lütfen site yönetimiyle iletişime geçin.');
+        return;
+    }
+
+    // Sesli mesaj (ya da ses dosyası): yazıya çevrilir, sonra yazılı mesaj gibi işlenir
+    if ($text === '' && (!empty($m['voice']) || !empty($m['audio']))) {
+        $v = $m['voice'] ?? $m['audio'];
+        if ((int) ($v['duration'] ?? 0) > EC_TG_VOICE_MAX) {
+            ec_tg_send($chat, '🎙 Sesli mesaj en fazla ' . (EC_TG_VOICE_MAX / 60) . ' dakika olabilir. Lütfen bölerek gönderin.');
+            return;
+        }
+        if (!empty($v['file_size']) && (int) $v['file_size'] > 15 * MB_IN_BYTES) {
+            ec_tg_send($chat, '🎙 Ses dosyası çok büyük. Lütfen daha kısa bir kayıt gönderin.');
+            return;
+        }
+        ec_tg_api('sendChatAction', ['chat_id' => $chat, 'action' => 'typing'], false);
+        ec_tg_defer(function () use ($u, $m, $chat, $v) {
+            $t = ec_tg_transcribe((string) $v['file_id']);
+            if (is_wp_error($t)) {
+                ec_tg_send($chat, '🎙 ' . ec_tg_esc($t->get_error_message()));
+                return;
+            }
+            ec_tg_send($chat, '🎙 <i>Anladığım:</i> “' . ec_tg_esc($t) . '”');
+            $m2 = $m;
+            unset($m2['voice'], $m2['audio']);
+            $m2['text'] = $t;
+            ec_tg_handle_update(isset($u['edited_message']) ? ['edited_message' => $m2] : ['message' => $m2]);
+        });
         return;
     }
 
@@ -316,6 +343,7 @@ function ec_tg_help(array $agent): string
 {
     return "Merhaba <b>" . ec_tg_esc($agent['name']) . "</b> 👋\n\n"
         . "📸 İlan vermek için fotoğrafları ve ilan metnini gönderin (sırası önemli değil).\n"
+        . "🎙 İsterseniz metni yazmak yerine <b>sesli mesaj</b> gönderin; yazıya çevrilip aynı şekilde işlenir (düzeltmeler de sesle olur).\n"
         . "🪄 Sonra <b>İlanı hazırla</b>'ya basın: yapay zekâ bilgileri çıkarır, Türkçe, İngilizce, Rusça, Almanca ve Arapçaya çevirir.\n"
         . "✅ Önizlemeyi kontrol edip <b>Yayınla</b> ya da <b>Düzelt</b> deyin.\n\n"
         . "✏️ Yayındaki bir ilanı değiştirmek, bilgi eklemek, fotoğraf eklemek/silmek ya da ilanı kaldırmak için /ilanlarim yazıp ilanın düğmesine basın (ya da <i>/duzenle 123</i>).\n\n"
@@ -392,6 +420,46 @@ function ec_tg_collect_photo(array $d, array $m): void
 }
 
 /** Telegram dosyasını geçici dosyaya indirir. @return string|WP_Error */
+/** Sesli mesajın en uzun süresi (saniye) */
+const EC_TG_VOICE_MAX = 180;
+
+/**
+ * Telegram sesli mesajını yazıya çevirir: Cloudflare Workers AI Whisper (Emlak → Ayarlar → Cloudflare hesabı).
+ * Dil kendiliğinden algılanır (Türkçe, İngilizce, Rusça …). @return string|WP_Error
+ */
+function ec_tg_transcribe(string $fileId)
+{
+    $cf = (array) get_option('ec_cloudflare', []);
+    if (empty($cf['account']) || empty($cf['token'])) {
+        return new WP_Error('ec_voice', 'Sesli mesaj şu an kullanılamıyor. Lütfen yazarak gönderin.');
+    }
+    $tmp = ec_tg_download($fileId);
+    if (is_wp_error($tmp)) {
+        return new WP_Error('ec_voice', 'Ses dosyası alınamadı. Lütfen tekrar gönderin.');
+    }
+    $audio = (string) file_get_contents($tmp);
+    @unlink($tmp);
+    $res = wp_remote_post('https://api.cloudflare.com/client/v4/accounts/' . rawurlencode($cf['account']) . '/ai/run/@cf/openai/whisper-large-v3-turbo', [
+        'timeout' => 90,
+        'headers' => ['Authorization' => 'Bearer ' . $cf['token'], 'Content-Type' => 'application/json'],
+        'body' => wp_json_encode(['audio' => base64_encode($audio), 'task' => 'transcribe', 'vad_filter' => true]),
+    ]);
+    $j = is_wp_error($res) ? null : json_decode((string) wp_remote_retrieve_body($res), true);
+    if (empty($j['success'])) {
+        if (function_exists('ec_notify_admin')) {
+            ec_notify_admin('⚠️ Sesli mesaj yazıya çevrilemedi: ' . (is_wp_error($res) ? $res->get_error_message() : wp_remote_retrieve_response_code($res) . ' ' . substr((string) wp_remote_retrieve_body($res), 0, 200)), '', false);
+        }
+        return new WP_Error('ec_voice', 'Sesli mesaj şu an yazıya çevrilemedi. Lütfen yazarak gönderin.');
+    }
+    $text = trim(preg_replace('/\s+/u', ' ', (string) ($j['result']['text'] ?? '')));
+    // Whisper sessizlikte bilinen "hayalet" altyazı cümleleri üretebilir
+    $ghost = '/^(altyaz[ıi].{0,20}|abone ol.{0,30}|izlediğiniz için teşekkürler.?|thank you( for watching)?.?|thanks for watching.?|subtitles by.{0,40}|продолжение следует.{0,5}|субтитры.{0,40})$/iu';
+    if ($text === '' || preg_match($ghost, $text) || (float) ($j['result']['transcription_info']['duration_after_vad'] ?? 1) <= 0.2) {
+        return new WP_Error('ec_voice', 'Sesli mesajda konuşma anlaşılamadı. Lütfen daha yakından ve sessiz bir yerde tekrar deneyin.');
+    }
+    return $text;
+}
+
 function ec_tg_download(string $fileId)
 {
     require_once ABSPATH . 'wp-admin/includes/file.php';
