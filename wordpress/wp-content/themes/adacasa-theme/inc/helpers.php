@@ -143,12 +143,12 @@ function ae_card(array $a): string
     <span class="tag"><?php echo esc_html($a['subtype_name']); ?></span>
     <?php if ($a['featured']) : ?><span class="fbadge"><?php ae_e('featured_badge'); ?></span><?php endif; ?>
     <?php if (!empty($a['urgent'])) : ?><span class="ubadge"><?php ae_e('urgent_badge'); ?></span><?php endif; ?>
-    <?php if ($a['status'] === 'sold') : ?><span class="sbadge"><?php ae_e('sold'); ?></span><?php endif; ?>
+    <?php if ($a['status'] === 'sold') : ?><span class="sbadge"><?php ae_e('sold'); ?></span><?php elseif (!empty($a['price_drop'])) : ?><span class="dbadge">🔻 <?php ae_e('ph_drop_badge'); ?></span><?php endif; ?>
     <span class="cbadges"><?php if (!empty($a['photo_count'])) : ?><span class="phbadge" title="<?php ae_e('all_photos', (int) $a['photo_count']); ?>"><?php echo ae_icon('grid', 13); ?> <?php echo (int) $a['photo_count']; ?></span><?php endif; ?><?php if (!empty($a['pano_count'])) : ?><span class="pbadge" title="<?php ae_e('pano_tour'); ?>">360°</span><?php endif; ?></span>
     <button class="heart<?php echo $fav ? ' on' : ''; ?>" type="button" data-fav="<?php echo (int) $a['id']; ?>" aria-pressed="<?php echo $fav ? 'true' : 'false'; ?>" aria-label="<?php ae_e('favourites'); ?>">♥</button>
   </div>
   <div class="body">
-    <div class="price"><?php echo ae_price($a['price_gbp'], $a['mode']); ?></div>
+    <div class="price"><?php echo ae_price($a['price_gbp'], $a['mode']); ?><?php if (!empty($a['verified'])) : ?> <span class="vfmini" title="<?php ae_e('vf_badge'); ?>">✔</span><?php endif; ?></div>
     <h3 class="ttl"><?php echo esc_html($a['title']); ?></h3>
     <div class="sub"><?php echo esc_html(trim(($a['district'] ? $a['district'] . ', ' : '') . $a['city_name'])); ?></div>
     <?php if ($specs) : ?><ul class="cspecs"><?php foreach ($specs as [$ic, $v, $lb]) : ?><li title="<?php echo esc_attr($lb); ?>"><?php echo ae_icon($ic, 16); ?><span><?php echo esc_html($v); ?></span></li><?php endforeach; ?></ul><?php endif; ?>

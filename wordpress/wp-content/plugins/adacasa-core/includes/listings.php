@@ -172,6 +172,9 @@ function ec_listing_create(array $in, ?int $agent_id = null, string $source = 'p
     }
     $id = (int) $wpdb->insert_id;
     ec_listing_save_i18n($id, $i18n);
+    if (function_exists('ec_price_history_add')) {
+        ec_price_history_add($id, (float) $d['price'], $d['currency'], (float) $d['price_gbp']);
+    }
     if ($d['status'] === 'published') {
         do_action('ec_listing_published', $id);
     }
@@ -210,9 +213,16 @@ function ec_listing_update(int $id, array $in)
         $d['published_at'] = ec_now();
     }
     $d['updated_at'] = ec_now();
+    if (($d['status'] ?? null) === 'published' && $row['status'] !== 'published') {
+        $d['confirmed_at'] = ec_now(); // yeniden yayına alınan ilan: teyit sayacı baştan
+    }
     $wpdb->update(ec_table('listings'), $d, ['id' => $id]);
     if ($i18n) {
         ec_listing_save_i18n($id, $i18n);
+    }
+    if (isset($d['price_gbp']) && (abs((float) $d['price_gbp'] - (float) $row['price_gbp']) >= 0.5 || ($d['currency'] ?? $row['currency']) !== $row['currency']) && function_exists('ec_price_history_add')) {
+        ec_price_history_add($id, (float) ($d['price'] ?? $row['price']), $d['currency'] ?? $row['currency'], (float) $d['price_gbp']);
+        do_action('ec_listing_price_changed', $id, (float) $row['price_gbp'], (float) $d['price_gbp']);
     }
     if (($d['status'] ?? null) === 'published' && $row['status'] !== 'published') {
         do_action('ec_listing_published', $id);
@@ -264,6 +274,20 @@ function ec_listings_present(array $rows, string $lang, bool $full = false): arr
         $photos[$p['listing_id']][] = $p;
     }
     $panoN = function_exists('ec_pano_counts') ? ec_pano_counts($ids) : [];
+    // Son 30 günde fiyatı düşen ilanlar (kartta "Fiyat düştü" etiketi)
+    $drops = [];
+    if (function_exists('ec_price_history_add')) {
+        $hist = [];
+        foreach ($wpdb->get_results('SELECT listing_id, price_gbp, created_at FROM ' . ec_table('price_history') . " WHERE listing_id IN ($in) ORDER BY listing_id, id", ARRAY_A) as $h) {
+            $hist[$h['listing_id']][] = $h;
+        }
+        foreach ($hist as $lid => $hs) {
+            $n = count($hs);
+            if ($n >= 2 && (float) $hs[$n - 1]['price_gbp'] < (float) $hs[$n - 2]['price_gbp'] - 0.5 && strtotime($hs[$n - 1]['created_at'] . ' UTC') > time() - 30 * DAY_IN_SECONDS) {
+                $drops[(int) $lid] = ['from' => (float) $hs[$n - 2]['price_gbp'], 'pct' => (int) round(100 * (1 - (float) $hs[$n - 1]['price_gbp'] / max(1, (float) $hs[$n - 2]['price_gbp'])))];
+            }
+        }
+    }
     $agentIds = array_filter(array_unique(array_map(fn($r) => (int) $r['agent_id'], $rows)));
     $agents = $agentIds ? ec_agents_by_ids($agentIds) : [];
 
@@ -308,6 +332,9 @@ function ec_listings_present(array $rows, string $lang, bool $full = false): arr
             'cover' => $ph[0] ?? null,
             'agent' => isset($agents[(int) $r['agent_id']]) ? ec_agent_public($agents[(int) $r['agent_id']]) : null,
             'published_at' => $r['published_at'],
+            'price_drop' => $drops[$id] ?? null,
+            'confirmed_at' => $r['confirmed_at'] ?? null,
+            'verified' => !empty($r['verified_at']),
         ];
         if ($full) {
             $feat = $r['features'] ? (array) json_decode($r['features'], true) : [];
@@ -392,6 +419,10 @@ function ec_listing_search(array $f, string $lang, int $page = 1, int $per = 24)
     if ($kinds) {
         $where[] = 'agent_id IN (SELECT id FROM ' . ec_table('agents') . ' WHERE kind IN (' . implode(',', array_fill(0, count($kinds), '%s')) . '))';
         array_push($args, ...$kinds);
+    }
+    if (!empty($f['since']) && preg_match('/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/', (string) $f['since'])) {
+        $where[] = 'published_at > %s'; // kayıtlı arama: son kontrolden sonra yayına girenler
+        $args[] = (string) $f['since'];
     }
     if (!empty($f['days']) && in_array((int) $f['days'], [1, 3, 7, 30], true)) {
         $where[] = 'published_at >= DATE_SUB(UTC_TIMESTAMP(), INTERVAL %d DAY)';

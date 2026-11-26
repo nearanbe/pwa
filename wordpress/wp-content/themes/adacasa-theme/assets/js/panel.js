@@ -74,6 +74,16 @@
     });
   });
 
+  /* ---------- İlan teyidi: "Hâlâ güncel" ---------- */
+  $$('.myrow [data-confirm]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      b.disabled = true;
+      api('POST', 'listings/' + b.closest('.myrow').dataset.id + '/confirm', {})
+        .then(function () { location.reload(); })
+        .catch(function (e) { alert(T.errSave + e.message); b.disabled = false; });
+    });
+  });
+
   /* ---------- Dil sekmeleri (ilan ve proje formu) ---------- */
   $$('.ltabs').forEach(function (tabs) {
     var scope = tabs.parentNode;

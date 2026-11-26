@@ -1004,3 +1004,20 @@ body:has(.mbar) .pwabar{bottom:calc(82px + env(safe-area-inset-bottom,0px))}
 /* AdSense: pazarlama izni yoksa reklam yerine kendi görselimiz */
 .ad-g .adsbygoogle{display:none!important}.ad-g .ad-yedek{display:block;line-height:0}.ad-g .ad-yedek img{display:block;margin:0 auto;max-width:100%;height:auto;border-radius:12px}
 html.ec-ads-on .ad-g .adsbygoogle{display:block!important}html.ec-ads-on .ad-g .ad-yedek{display:none}
+
+/* 1.3: uyarılar, fiyat geçmişi, teyit, doğrulanmış ilan */
+.alertbtn{width:100%;margin-top:10px;justify-content:center}.alertbtn.on{border-color:#2f9e5b;color:#2f9e5b}
+.stools .alertbtn{width:auto;margin:0}
+.alov .alpush{width:100%;margin:6px 0 12px}.alov .alform .row{display:flex;gap:8px}.alov .alform input[type=email]{flex:1;min-width:0}
+.alov .almsg{min-height:1.2em;font-size:14px;margin:10px 0 0}.hp{position:absolute;left:-9999px;width:1px;height:1px;opacity:0}
+.alprompt{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:center;max-width:92vw}.alprompt .btn{padding:6px 12px}.alprompt .linkbtn{color:inherit;font-size:18px}
+.dbadge{position:absolute;right:12px;bottom:12px;background:#2f9e5b;color:#fff;font-size:12px;font-weight:700;padding:4px 10px;border-radius:999px}
+.dropline .dbadge{position:static;display:inline-block;margin-top:4px}.dropline s{margin-left:6px}
+.phlist{list-style:none;padding:0;margin:0}.phlist li{display:flex;gap:12px;align-items:baseline;padding:8px 0;border-bottom:1px solid var(--line)}.phlist li:last-child{border:0}
+.phlist .down{color:#2f9e5b;font-weight:700}.phlist .up{color:#c0392b;font-weight:700}
+.dtrust{display:flex;flex-wrap:wrap;gap:8px 14px;margin-top:8px;font-size:13px}
+.vfbadge{background:#e6f5ec;color:#1d7a45;font-weight:700;padding:3px 10px;border-radius:999px}
+.cfline{color:var(--muted)}
+.vfmini{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;background:#2f9e5b;color:#fff;font-size:11px;vertical-align:middle}
+@media(prefers-color-scheme:dark){.vfbadge{background:#173726;color:#7fdca3}}
+.ov.alov{z-index:60}

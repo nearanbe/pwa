@@ -179,6 +179,8 @@ get_header();
     <div class="stools">
       <button type="button" class="ghost sf-open" data-sf-open>☰ <?php ae_e('filters'); ?><?php if ($nFilters) : ?> <span class="count"><?php echo (int) $nFilters; ?></span><?php endif; ?></button>
       <b class="scount"><?php ae_e('listings_count', number_format_i18n($res['total'])); ?></b>
+      <?php $alUrl = remove_query_arg(['sayfa', 'gorunum'], esc_url_raw(home_url(wp_unslash($_SERVER['REQUEST_URI'] ?? '/')))); $alQ = array_diff_key($f, ['sort' => 1, 'agent_id' => 1]); ?>
+      <button type="button" class="ghost sm alertbtn" data-alert-search data-url="<?php echo esc_attr($alUrl); ?>" data-q="<?php echo esc_attr(wp_json_encode($alQ, JSON_UNESCAPED_UNICODE)); ?>" data-label="<?php echo esc_attr($heading); ?>" aria-pressed="false">🔔 <span class="allbl"><?php ae_e('al_search_btn'); ?></span></button>
       <form method="get" class="sortf">
         <?php foreach (array_diff_key($q, ['sort' => 1, 'sayfa' => 1]) as $k => $v) : foreach ((array) $v as $vv) : ?>
           <input type="hidden" name="<?php echo esc_attr($k) . (is_array($v) ? '[]' : ''); ?>" value="<?php echo esc_attr((string) $vv); ?>">

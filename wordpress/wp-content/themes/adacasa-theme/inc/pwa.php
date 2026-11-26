@@ -125,6 +125,7 @@ function ae_pwa_sw(): void
         'off' => $off,
         'brand' => ae_brand(),
         'icon' => $u('assets/img/favicon.svg'),
+        'icon192' => $u('assets/img/icon-192.png'),
         'skip' => ['/wp-admin', '/wp-login.php', '/wp-json', '/api/', '/wp-cron.php', '/xmlrpc.php', '/sw.js', '/manifest.webmanifest', '/feed'],
         'skipq' => 'ec_pwa',
     ];
@@ -206,6 +207,23 @@ self.addEventListener('fetch', e => {
       return hit || net;
     })());
   }
+});
+
+// Anlık bildirimler (fiyat düştü, kayıtlı arama, hatırlatma)
+self.addEventListener('push', e => {
+  let d = {};
+  try { d = e.data ? e.data.json() : {}; } catch (err) { d = { title: CFG.brand, body: e.data ? e.data.text() : '' }; }
+  e.waitUntil(self.registration.showNotification(d.title || CFG.brand, {
+    body: d.body || '', icon: CFG.icon192, badge: CFG.icon192, tag: d.tag || 'ec', renotify: true, data: { url: d.url || '/' }
+  }));
+});
+self.addEventListener('notificationclick', e => {
+  e.notification.close();
+  const url = (e.notification.data && e.notification.data.url) || '/';
+  e.waitUntil(self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(cs => {
+    for (const c of cs) { if (c.url === url && 'focus' in c) return c.focus(); }
+    return self.clients.openWindow(url);
+  }));
 });
 JS;
 }

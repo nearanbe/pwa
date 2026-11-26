@@ -211,6 +211,8 @@ $statusLabel = fn(string $s) => '<span class="st st-' . esc_attr($s) . '">' . es
                   </div>
                 </details>
               <?php endif; ?>
+              <?php $cfd = !empty($rowById[$a['id']]['confirmed_at']) ? (int) floor((time() - strtotime($rowById[$a['id']]['confirmed_at'] . ' UTC')) / DAY_IN_SECONDS) : 99; ?>
+              <button class="ghost sm<?php echo !empty($rowById[$a['id']]['confirm_asked_at']) ? ' gold' : ''; ?>" data-confirm title="<?php echo esc_attr(ae_t('cf_days', $cfd)); ?>">✓ <?php ae_e('p_still'); ?><?php if ($cfd >= 25) : ?> (<?php echo esc_html(ae_t('cf_days', $cfd)); ?>)<?php endif; ?></button>
               <button class="ghost sm" data-status="sold"><?php ae_e('act_sold'); ?></button>
               <button class="ghost sm" data-status="passive"><?php ae_e('act_passive'); ?></button>
             <?php elseif (in_array($a['status'], ['draft', 'rejected', 'sold', 'passive'], true)) : ?>

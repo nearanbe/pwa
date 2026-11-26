@@ -636,6 +636,20 @@ function ec_tg_handle_callback(array $q): void
         return;
     }
 
+    if (in_array($act, ['cfy', 'cfs', 'cfo'], true) && function_exists('ec_confirm_apply')) {
+        $agent = ec_tg_agent_by_chat($chat);
+        $row = ec_listing_row((int) $arg);
+        if (!$agent || !$row || (int) $row['agent_id'] !== (int) $agent['id'] || !empty($row['hold_office_id'])) {
+            $ack('Bu ilan size ait değil');
+            return;
+        }
+        $ack('Kaydedildi');
+        if (!empty($q['message']['message_id'])) {
+            ec_tg_api('editMessageReplyMarkup', ['chat_id' => $chat, 'message_id' => $q['message']['message_id'], 'reply_markup' => ['inline_keyboard' => []]], false);
+        }
+        ec_tg_send($chat, ec_confirm_apply((int) $arg, ['cfy' => 'yes', 'cfs' => 'sold', 'cfo' => 'off'][$act]));
+        return;
+    }
     if ($act === 'el') {
         $agent = ec_tg_agent_by_chat($chat);
         $ack();

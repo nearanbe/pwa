@@ -42,7 +42,7 @@ ae_seo([
 $ag = $a['agent'];
 $tel = $ag['phone'] ?? '';
 $wa = $ag ? preg_replace('/\D/', '', (string) $ag['whatsapp']) : preg_replace('/\D/', '', (string) (get_option('ec_contact')['whatsapp'] ?? ''));
-$waText = rawurlencode(ae_t('wa_msg', $a['id'], $a['url']));
+$waText = rawurlencode(ae_t('wa_msg', $a['id'], $a['url'], $a['title']));
 $similar = array_values(array_filter(
     ec_listing_search(['mode' => $a['mode'], 'city' => $a['city'], 'ptype' => $a['ptype']], $lang, 1, 5)['items'],
     fn($x) => $x['id'] !== $a['id']
@@ -127,6 +127,8 @@ if (count($series) >= 2) {
 }
 $sections['iletisim'] = ae_t('sec_contact');
 $waLink = $wa ? 'https://wa.me/' . $wa . '?text=' . $waText : '';
+$priceHist = function_exists('ec_price_history') ? ec_price_history($a['id']) : [];
+$cfDays = $a['confirmed_at'] ? max(0, (int) floor((time() - strtotime($a['confirmed_at'] . ' UTC')) / DAY_IN_SECONDS)) : null;
 get_header();
 $priceHtml = ae_price($a['price_gbp'], $a['mode']);
 echo ae_sticky_head(['logo' => $a['agent']['logo']['small'] ?? '', 'title' => $a['title'], 'price' => ae_money($a['price_gbp']) . esc_html(ae_price_suffix($a['mode'])), 'tel' => $tel, 'wa' => $waLink, 'sections' => $sections]);
@@ -144,9 +146,14 @@ echo ae_sticky_head(['logo' => $a['agent']['logo']['small'] ?? '', 'title' => $a
     <div>
       <h1 class="dtitle"><?php echo esc_html($a['title']); ?></h1>
       <div class="sub"><?php echo ae_icon('pin', 16); ?> <?php echo esc_html($loc); ?> · <?php ae_e('ref'); ?> #<?php echo (int) $a['id']; ?><?php if ($coords) : ?> · <a href="#konum" class="link"><?php ae_e('see_on_map'); ?></a><?php endif; ?></div>
+      <div class="dtrust">
+        <?php if (!empty($a['verified'])) : ?><span class="vfbadge" title="<?php ae_e('vf_desc'); ?>">✔ <?php ae_e('vf_badge'); ?></span><?php endif; ?>
+        <?php if ($cfDays !== null && $a['status'] === 'published' && $cfDays <= 45) : ?><span class="cfline">🟢 <?php ae_e('cf_line', $cfDays === 0 ? ae_t('cf_today') : ae_t('cf_days', $cfDays)); ?></span><?php endif; ?>
+      </div>
     </div>
     <div class="dprice">
       <div class="price big"><?php echo $priceHtml; ?></div>
+      <?php if (!empty($a['price_drop'])) : ?><div class="dropline"><span class="dbadge">🔻 <?php ae_e('ph_drop_badge'); ?></span> <s class="sub"><?php echo ae_money($a['price_drop']['from']); ?></s></div><?php endif; ?>
       <?php if ($a['currency'] !== ae_currency()) : ?><div class="sub"><?php ae_e('original_price'); ?>: <?php echo esc_html(AE_SYM[$a['currency']] . number_format($a['price'], 0, ',', '.')); ?></div><?php endif; ?>
       <?php if ($rl = ae_rate_line()) : ?><div class="sub rateline"><button type="button" class="linkbtn" data-conv="<?php echo esc_attr((string) $a['price_gbp']); ?>">⇄ <?php ae_e('conv_title'); ?></button> · <?php echo esc_html($rl); ?></div><?php endif; ?>
     </div>
@@ -267,6 +274,16 @@ echo ae_sticky_head(['logo' => $a['agent']['logo']['small'] ?? '', 'title' => $a
       <?php endif; ?>
 
       <?php if (count($series) >= 2) : $cmp = ec_index_compare($a); ?>
+        <?php if (count($priceHist) >= 2) : ?>
+        <section class="panel" id="fiyatgecmisi"><h2><?php ae_e('ph_title'); ?></h2>
+          <ol class="phlist">
+            <?php foreach (array_reverse($priceHist) as $i => $h) : $prevH = $priceHist[count($priceHist) - 2 - $i] ?? null; $diff = $prevH ? (float) $h['price_gbp'] - (float) $prevH['price_gbp'] : 0; ?>
+              <li><span class="sub"><?php echo esc_html(wp_date('d.m.Y', strtotime($h['created_at'] . ' UTC'))); ?></span> <b><?php echo esc_html(AE_SYM[$h['currency']] . number_format((float) $h['price'], 0, ',', '.')); ?></b>
+                <?php if ($prevH && abs($diff) >= 1) : ?><span class="<?php echo $diff < 0 ? 'down' : 'up'; ?>"><?php echo $diff < 0 ? '▼' : '▲'; ?> <?php echo esc_html(abs((int) round(100 * $diff / max(1, (float) $prevH['price_gbp'])))); ?>%</span><?php elseif (!$prevH) : ?><span class="sub"><?php ae_e('ph_first'); ?></span><?php endif; ?></li>
+            <?php endforeach; ?>
+          </ol>
+        </section>
+        <?php endif; ?>
         <section class="panel" id="trend"><h2><?php ae_e('trend_title', $seriesCity); ?></h2>
           <p class="sub"><?php ae_e($a['mode'] === 'rent' ? 'trend_sub_rent' : 'trend_sub'); ?><?php if (!empty(end($series)['demo'])) : ?> · <b><?php ae_e('demo_data'); ?></b><?php endif; ?></p>
           <?php echo ae_chart($series, ae_t('trend_title', $seriesCity)); ?>
@@ -289,6 +306,9 @@ echo ae_sticky_head(['logo' => $a['agent']['logo']['small'] ?? '', 'title' => $a
           <button class="btn" type="button" id="telbtn" data-tel="<?php echo esc_attr($tel); ?>"><?php echo ae_icon('phone', 16); ?> <?php ae_e('show_phone'); ?></button>
           <?php if ($wa) : ?><a class="wa" href="<?php echo esc_url($waLink); ?>" target="_blank" rel="noopener"><?php ae_e('whatsapp'); ?></a><?php endif; ?>
         </div>
+        <?php if ($a['status'] === 'published' && $a['mode'] !== 'daily') : ?>
+          <button type="button" class="ghost alertbtn" data-alert-price="<?php echo (int) $a['id']; ?>" aria-pressed="false">🔔 <span class="allbl"><?php ae_e('al_price_btn'); ?></span></button>
+        <?php endif; ?>
         <?php if (in_array($a['status'], ['published', 'sold'], true)) {
             echo ae_lead_form('listing', $a['id'], '#' . $a['id'] . ' ' . $a['title']);
         } ?>

@@ -83,6 +83,9 @@ function ec_install_schema(): void
   office_id bigint(20) unsigned DEFAULT NULL,
   hold_office_id bigint(20) unsigned DEFAULT NULL,
   hold_prev_status varchar(20) DEFAULT NULL,
+  confirmed_at datetime DEFAULT NULL,
+  confirm_asked_at datetime DEFAULT NULL,
+  verified_at datetime DEFAULT NULL,
   status varchar(20) NOT NULL DEFAULT 'draft',
   mode varchar(10) NOT NULL,
   ptype varchar(20) NOT NULL,
@@ -266,6 +269,59 @@ function ec_install_schema(): void
   KEY listing_id (listing_id),
   KEY status (status)
 ) $c;");
+
+    // 1.4: tarayıcı bildirim abonelikleri, ziyaretçi uyarıları, fiyat geçmişi
+    $ps = ec_table('push_subs');
+    dbDelta("CREATE TABLE $ps (
+  id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  ep_hash char(40) NOT NULL,
+  endpoint varchar(700) NOT NULL,
+  p256dh varchar(120) NOT NULL,
+  auth varchar(40) NOT NULL,
+  lang varchar(5) NOT NULL DEFAULT 'tr',
+  agent_id bigint(20) unsigned DEFAULT NULL,
+  created_at datetime NOT NULL,
+  seen_at datetime DEFAULT NULL,
+  PRIMARY KEY  (id),
+  UNIQUE KEY ep_hash (ep_hash),
+  KEY agent_id (agent_id)
+) $c;");
+    $al = ec_table('alerts');
+    dbDelta("CREATE TABLE $al (
+  id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  kind varchar(10) NOT NULL,
+  token char(32) NOT NULL,
+  sub_id bigint(20) unsigned DEFAULT NULL,
+  email varchar(190) DEFAULT NULL,
+  confirmed tinyint(1) NOT NULL DEFAULT 0,
+  lang varchar(5) NOT NULL DEFAULT 'tr',
+  listing_id bigint(20) unsigned DEFAULT NULL,
+  query text,
+  label varchar(190) DEFAULT NULL,
+  last_value decimal(14,2) DEFAULT NULL,
+  last_check datetime DEFAULT NULL,
+  last_sent datetime DEFAULT NULL,
+  created_at datetime NOT NULL,
+  PRIMARY KEY  (id),
+  UNIQUE KEY token (token),
+  KEY kind_listing (kind,listing_id),
+  KEY sub_id (sub_id),
+  KEY email (email)
+) $c;");
+    $ph = ec_table('price_history');
+    dbDelta("CREATE TABLE $ph (
+  id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  listing_id bigint(20) unsigned NOT NULL,
+  price decimal(14,2) NOT NULL,
+  currency char(3) NOT NULL,
+  price_gbp decimal(14,2) NOT NULL,
+  created_at datetime NOT NULL,
+  PRIMARY KEY  (id),
+  KEY listing_id (listing_id)
+) $c;");
+    // Mevcut ilanların ilk fiyatı geçmişe yazılsın; teyit tarihi yayın tarihinden başlasın
+    $wpdb->query("INSERT INTO $ph (listing_id, price, currency, price_gbp, created_at) SELECT id, price, currency, price_gbp, COALESCE(published_at, created_at) FROM $listings l WHERE NOT EXISTS (SELECT 1 FROM $ph x WHERE x.listing_id = l.id)");
+    $wpdb->query("UPDATE $listings SET confirmed_at = COALESCE(published_at, created_at) WHERE confirmed_at IS NULL");
 
     // Telegram botu: sohbet başına açık taslak (gelen fotoğraf ve metinler tek ilanda toplanır)
     $tg = ec_table('tg_drafts');

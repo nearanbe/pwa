@@ -98,7 +98,7 @@ function emlak_tema_strings(): array
         'show_phone' => ['Telefonu göster', 'Show phone', 'Показать телефон'],
         'no_phone' => ['Numara yok', 'No number', 'Нет номера'],
         'whatsapp' => ['WhatsApp', 'WhatsApp', 'WhatsApp'],
-        'wa_msg' => ['Merhaba, %s numaralı ilan hakkında bilgi almak istiyorum: %s', 'Hello, I would like information about property ref %s: %s', 'Здравствуйте, меня интересует объявление № %s: %s'],
+        'wa_msg' => ['Merhaba, AdaCasa’daki #%1$s numaralı “%3$s” ilanınızla ilgileniyorum. Bilgi alabilir miyim? %2$s', 'Hello, I am interested in your listing #%1$s “%3$s” on AdaCasa. Could you send me more information? %2$s', 'Здравствуйте! Меня интересует ваше объявление №%1$s «%3$s» на AdaCasa. Расскажите подробнее, пожалуйста. %2$s'],
         'share' => ['Paylaş', 'Share', 'Поделиться'],
         'copied' => ['Link kopyalandı', 'Link copied', 'Ссылка скопирована'],
         'sold' => ['Satıldı', 'Sold', 'Продано'],
