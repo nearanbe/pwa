@@ -3,7 +3,7 @@
  * Plugin Name: AdaCasa Core
  * Plugin URI: https://adacasa.com
  * Description: AdaCasa ilan portalının çekirdeği: kendi veri tabloları, çok dilli link yapısı (TR/EN/RU), REST API (/api/v1) ve yönetim ekranları. Tüm iş mantığı burada; tema sadece görünümdür. (Eski adı: Emlak Core)
- * Version: 1.4.0
+ * Version: 1.5.0
  * Requires PHP: 8.1
  * Text Domain: adacasa-core
  */
@@ -55,8 +55,8 @@ add_action('admin_notices', function () {
     }
 });
 
-define('EC_VERSION', '1.4.0');
-define('EC_DB_VERSION', '13');
+define('EC_VERSION', '1.5.0');
+define('EC_DB_VERSION', '15');
 define('EC_DIR', __DIR__);
 define('EC_FILE', __FILE__);
 
@@ -82,6 +82,9 @@ require_once EC_DIR . '/includes/ai-text.php';
 require_once EC_DIR . '/includes/telegram.php';
 require_once EC_DIR . '/includes/push.php';
 require_once EC_DIR . '/includes/confirm.php';
+require_once EC_DIR . '/includes/costs.php';
+require_once EC_DIR . '/includes/verify.php';
+require_once EC_DIR . '/includes/crm.php';
 require_once EC_DIR . '/includes/extension.php';
 require_once EC_DIR . '/includes/packages.php';
 require_once EC_DIR . '/includes/promos.php';

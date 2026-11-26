@@ -260,6 +260,21 @@ function ec_tg_handle_update(array $u): void
         return;
     }
     if (in_array($d['state'], ['preview', 'editing'], true)) {
+        $ddata = ec_tg_j($d['data']);
+        if (!empty($ddata['awaiting_doc']) && (!empty($m['photo']) || !empty($m['document'])) && function_exists('ec_verify_submit')) {
+            unset($ddata['awaiting_doc']);
+            ec_tg_draft_save((int) $d['id'], ['data' => $ddata]);
+            $fid = !empty($m['photo']) ? (end($m['photo'])['file_id'] ?? '') : ($m['document']['file_id'] ?? '');
+            ec_tg_defer(function () use ($d, $chat, $fid) {
+                $tmp = ec_tg_download($fid);
+                $res = is_wp_error($tmp) ? $tmp : ec_verify_submit((int) $d['listing_id'], (int) $d['agent_id'], $tmp, 'tapu');
+                if (!is_wp_error($tmp)) {
+                    @unlink($tmp);
+                }
+                ec_tg_send($chat, is_wp_error($res) ? '⚠️ ' . ec_tg_esc($res->get_error_message()) : '📄 Belge alındı. İnceleme sonucunu buradan bildireceğiz.');
+            });
+            return;
+        }
         if (!empty($m['photo']) || !empty($m['document'])) {
             ec_tg_collect_photo($d, $m);
             $d = ec_tg_draft_get((int) $d['id']);
@@ -374,6 +389,17 @@ function ec_tg_collect_photo(array $d, array $m): void
             ec_tg_send($d['chat_id'], "🌐 360° fotoğraf algıladım. Telegram fotoğrafları küçülttüğü için 360° görüntü bulanık olur.\nEn iyi sonuç için 360° fotoğrafı <b>📎 → Dosya</b> olarak gönderin.");
         }
     }
+}
+
+/** Telegram dosyasını geçici dosyaya indirir. @return string|WP_Error */
+function ec_tg_download(string $fileId)
+{
+    require_once ABSPATH . 'wp-admin/includes/file.php';
+    $f = ec_tg_api('getFile', ['file_id' => $fileId]);
+    if (is_wp_error($f) || empty($f['file_path'])) {
+        return new WP_Error('ec_tg_file', 'Dosya Telegram\'dan alınamadı');
+    }
+    return download_url('https://api.telegram.org/file/bot' . ec_tg_settings()['token'] . '/' . $f['file_path'], 60);
 }
 
 /** Telegram'daki fotoğrafları indirip ilana ekler (eklenmemiş olanları) */
@@ -636,6 +662,18 @@ function ec_tg_handle_callback(array $q): void
         return;
     }
 
+    if (in_array($act, ['vok', 'vrj'], true) && function_exists('ec_verify_decide')) {
+        if (!ec_tg_is_admin($chat)) {
+            $ack('Yetkiniz yok');
+            return;
+        }
+        $ok = ec_verify_decide((int) $arg, $act === 'vok' ? 'approve' : 'reject', $act === 'vrj' ? 'Belge okunamadı ya da ilan bilgileriyle eşleşmedi.' : '');
+        $ack($ok ? ($act === 'vok' ? 'Onaylandı' : 'Reddedildi') : 'Bu belge artık beklemiyor');
+        if (!empty($q['message']['message_id'])) {
+            ec_tg_api('editMessageReplyMarkup', ['chat_id' => $chat, 'message_id' => $q['message']['message_id'], 'reply_markup' => ['inline_keyboard' => []]], false);
+        }
+        return;
+    }
     if (in_array($act, ['cfy', 'cfs', 'cfo'], true) && function_exists('ec_confirm_apply')) {
         $agent = ec_tg_agent_by_chat($chat);
         $row = ec_listing_row((int) $arg);
@@ -773,6 +811,9 @@ function ec_tg_edit_start(string $chat, array $agent, int $lid): void
 function ec_tg_edit_keyboard(int $id, array $it, string $panel): array
 {
     $kb = [[['text' => '✅ Bitti', 'callback_data' => 'done:' . $id], ['text' => '📷 Fotoğraflar', 'callback_data' => 'ph:' . $id]]];
+    if (empty($it['verified']) && function_exists('ec_verify_submit')) {
+        $kb[] = [['text' => '📄 Doğrulama belgesi gönder', 'callback_data' => 'vdoc:' . $id]];
+    }
     $row2 = [];
     if ($it['status'] === 'published') {
         $row2[] = ['text' => $it['mode'] === 'sale' ? '🏷 Satıldı' : '🏷 Kiralandı', 'callback_data' => 'sold:' . $id];
@@ -872,6 +913,13 @@ function ec_tg_edit_callback(array $d, string $act, string $sub, callable $ack):
         case 'edit':
             $ack();
             ec_tg_send($chat, '✏️ Değiştirmek ya da eklemek istediğinizi yazın.');
+            return;
+        case 'vdoc':
+            $data = ec_tg_j($d['data']);
+            $data['awaiting_doc'] = 1;
+            ec_tg_draft_save($id, ['data' => $data]);
+            $ack();
+            ec_tg_send($chat, "📄 #$lid için <b>tapu (koçan) fotokopisinin</b> ya da <b>mal sahibi yetki belgesinin</b> fotoğrafını veya PDF'ini şimdi gönderin.\n\nBelge yalnızca AdaCasa yönetimi tarafından görülür, sitede yayınlanmaz ve inceleme bitince silinir. Onaylanınca ilanınızda “✔ Doğrulanmış ilan” rozeti çıkar.");
             return;
     }
     $ack();

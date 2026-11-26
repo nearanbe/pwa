@@ -232,7 +232,8 @@
     f.addEventListener('submit', function (e) {
       e.preventDefault();
       var m = $('.formmsg', f), btn = $('button[type=submit]', f);
-      var d = { name: f.name.value.trim(), phone: f.phone.value.trim(), email: f.email.value.trim(), message: f.message.value.trim(), consent: f.consent.checked ? 1 : 0, website: f.website.value };
+      if (f.dataset.kind === 'video') f.message.value = '📹 ' + (T.vtMsg || 'Video tour') + '\n' + f.vt_date.value + ' · ' + f.vt_slot.value + ' · ' + f.vt_app.value;
+      var d = { kind: f.dataset.kind || '', name: f.name.value.trim(), phone: f.phone.value.trim(), email: f.email.value.trim(), message: f.message.value.trim(), consent: f.consent.checked ? 1 : 0, website: f.website.value };
       var ts = $('[name="cf-turnstile-response"]', f); if (ts) d['cf-turnstile-response'] = ts.value;
       $$('.bad', f).forEach(function (x) { x.classList.remove('bad'); });
       if (!d.name) { f.name.classList.add('bad'); f.name.focus(); m.className = 'formmsg err'; m.textContent = T.leadName; return; }

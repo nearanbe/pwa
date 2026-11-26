@@ -74,6 +74,43 @@
     });
   });
 
+  /* ---------- Müşteri takibi ---------- */
+  $$('form.crmf').forEach(function (f) {
+    f.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var m = f.querySelector('.crmmsg'); m.textContent = '…';
+      api('POST', 'me/leads/' + f.dataset.crm + '/crm', { stage: f.stage.value, notes: f.notes.value, follow_at: f.follow_at.value })
+        .then(function () { m.textContent = '✓'; setTimeout(function () { m.textContent = ''; }, 1500); })
+        .catch(function (x) { m.textContent = x.message; });
+    });
+  });
+  var addf = document.querySelector('form.crmaddf');
+  if (addf) addf.addEventListener('submit', function (e) {
+    e.preventDefault();
+    if (!addf.name.value.trim()) { addf.name.focus(); return; }
+    api('POST', 'me/leads/add', { name: addf.name.value, phone: addf.phone.value, email: addf.email.value, follow_at: addf.follow_at.value, notes: addf.notes.value })
+      .then(function () { location.reload(); })
+      .catch(function (x) { alert(T.errSave + x.message); });
+  });
+  var pb = document.querySelector('[data-crm-push]');
+  if (pb) pb.addEventListener('click', function () {
+    if (!window.ecEnsurePush) return;
+    pb.disabled = true;
+    window.ecEnsurePush(true).then(function () { pb.textContent = '🔔 ✓'; }, function (x) { alert((x && x.message) || 'Bildirim açılamadı'); pb.disabled = false; });
+  });
+
+  /* ---------- Doğrulama belgesi yükle ---------- */
+  $$('.myrow [data-verify]').forEach(function (inp) {
+    inp.addEventListener('change', function () {
+      if (!inp.files[0]) return;
+      var fd = new FormData(); fd.append('doc', inp.files[0]); fd.append('kind', 'tapu');
+      var lbl = inp.closest('label'); lbl.classList.add('busy');
+      api('POST', 'listings/' + inp.closest('.myrow').dataset.id + '/verify', fd, true)
+        .then(function (r) { alert(r.message); lbl.classList.remove('busy'); })
+        .catch(function (e) { alert(T.errSave + e.message); lbl.classList.remove('busy'); });
+    });
+  });
+
   /* ---------- İlan teyidi: "Hâlâ güncel" ---------- */
   $$('.myrow [data-confirm]').forEach(function (b) {
     b.addEventListener('click', function () {

@@ -128,6 +128,19 @@ if (count($series) >= 2) {
 $sections['iletisim'] = ae_t('sec_contact');
 $waLink = $wa ? 'https://wa.me/' . $wa . '?text=' . $waText : '';
 $priceHist = function_exists('ec_price_history') ? ec_price_history($a['id']) : [];
+$showCosts = $a['mode'] === 'sale' && $a['status'] === 'published' && function_exists('ec_cost_rules') && $a['price_gbp'] > 0;
+if ($showCosts) {
+    $cr = ec_cost_rules();
+    wp_enqueue_script('ae-costs', get_theme_file_uri('assets/js/costs.js'), ['ae-main'], AE_VER, ['in_footer' => true, 'strategy' => 'defer']);
+    $ct = [];
+    foreach (['deed' => 'co_deed', 'deedNote' => 'co_deed_note', 'promoNote' => 'co_promo_note', 'vat' => 'co_vat', 'vatNote' => 'co_vat_note', 'stamp' => 'co_stamp', 'stampNote' => 'co_stamp_note', 'lawyer' => 'co_lawyer', 'lawyerNote' => 'co_lawyer_note', 'trafo' => 'co_trafo', 'trafoNote' => 'co_trafo_note', 'util' => 'co_util', 'permit' => 'co_permit', 'permitNote' => 'co_permit_note', 'extra' => 'co_extra', 'total' => 'co_total'] as $k => $key) {
+        $ct[$k] = ae_t($key);
+    }
+    if ($cr['promo']) {
+        $ct['promoNote'] = ae_t('co_promo_note', wp_date('d.m.Y', strtotime($cr['promo_until'] . ' 12:00')));
+    }
+    wp_localize_script('ae-costs', 'AECOST', ['r' => $cr, 'price' => (float) $a['price_gbp'], 'area' => (int) $a['area_m2'], 't' => $ct]);
+}
 $cfDays = $a['confirmed_at'] ? max(0, (int) floor((time() - strtotime($a['confirmed_at'] . ' UTC')) / DAY_IN_SECONDS)) : null;
 get_header();
 $priceHtml = ae_price($a['price_gbp'], $a['mode']);
@@ -274,6 +287,18 @@ echo ae_sticky_head(['logo' => $a['agent']['logo']['small'] ?? '', 'title' => $a
       <?php endif; ?>
 
       <?php if (count($series) >= 2) : $cmp = ec_index_compare($a); ?>
+        <?php if ($showCosts) : $isNew = !empty($a['project_id']) || ((int) ($a['year_built'] ?? 0) >= (int) wp_date('Y') - 1); ?>
+        <section class="panel" id="maliyet"><h2><?php ae_e('co_title'); ?></h2>
+          <p class="sub"><?php ae_e('co_sub'); ?></p>
+          <form class="cform" onsubmit="return false">
+            <label><?php ae_e('co_who'); ?><select name="who"><option value="foreign"><?php ae_e('co_who_foreign'); ?></option><option value="tr"><?php ae_e('co_who_tr'); ?></option><option value="kktc"><?php ae_e('co_who_kktc'); ?></option></select></label>
+            <label><?php ae_e('co_nth'); ?><select name="nth"><option value="1"><?php ae_e('co_nth_1'); ?></option><option value="2">2.</option><option value="3">3.</option><option value="4">4.+</option></select></label>
+            <label><?php ae_e('co_seller'); ?><select name="seller"><option value="new" <?php selected($isNew); ?>><?php ae_e('co_seller_new'); ?></option><option value="resale" <?php selected(!$isNew); ?>><?php ae_e('co_seller_resale'); ?></option></select></label>
+          </form>
+          <div class="cout" aria-live="polite"></div>
+          <p class="sub cdisc">⚠️ <?php ae_e('co_disclaimer', wp_date('d.m.Y', strtotime($cr['as_of'] . ' 12:00'))); ?></p>
+        </section>
+        <?php endif; ?>
         <?php if (count($priceHist) >= 2) : ?>
         <section class="panel" id="fiyatgecmisi"><h2><?php ae_e('ph_title'); ?></h2>
           <ol class="phlist">
@@ -308,6 +333,9 @@ echo ae_sticky_head(['logo' => $a['agent']['logo']['small'] ?? '', 'title' => $a
         </div>
         <?php if ($a['status'] === 'published' && $a['mode'] !== 'daily') : ?>
           <button type="button" class="ghost alertbtn" data-alert-price="<?php echo (int) $a['id']; ?>" aria-pressed="false">🔔 <span class="allbl"><?php ae_e('al_price_btn'); ?></span></button>
+        <?php endif; ?>
+        <?php if ($a['status'] === 'published' && $agentRow) : ?>
+          <button type="button" class="ghost alertbtn" data-open="vtov">📹 <?php ae_e('vt_btn'); ?></button>
         <?php endif; ?>
         <?php if (in_array($a['status'], ['published', 'sold'], true)) {
             echo ae_lead_form('listing', $a['id'], '#' . $a['id'] . ' ' . $a['title']);
@@ -349,6 +377,31 @@ echo ae_gallery_view([
     'agentHtml' => ae_agent_card($agentRow, ['count' => $agentCount > 1 ? $agentCount : null]), 'tel' => $tel, 'wa' => $waLink,
 ]);
 ?>
+<?php if ($a['status'] === 'published' && $agentRow) : ?>
+<div class="ov" id="vtov" hidden role="dialog" aria-modal="true" aria-labelledby="vt-h">
+  <div class="sheet">
+    <button class="ovx" type="button" data-close aria-label="<?php ae_e('close'); ?>">✕</button>
+    <h2 id="vt-h">📹 <?php ae_e('vt_title'); ?></h2>
+    <p class="sub"><?php ae_e('vt_sub'); ?></p>
+    <form class="leadform vtform" data-lead="listings/<?php echo (int) $a['id']; ?>" data-kind="video" novalidate>
+      <div class="fg">
+        <label><?php ae_e('lead_name'); ?> *<input name="name" autocomplete="name" required></label>
+        <label><?php ae_e('vt_phone'); ?> *<input name="phone" type="tel" autocomplete="tel"></label>
+        <label><?php ae_e('vt_date'); ?><input name="vt_date" type="date" min="<?php echo esc_attr(wp_date('Y-m-d')); ?>" value="<?php echo esc_attr(wp_date('Y-m-d', time() + DAY_IN_SECONDS)); ?>"></label>
+        <label><?php ae_e('vt_time'); ?><select name="vt_slot"><?php foreach (['10:00–12:00', '12:00–14:00', '14:00–16:00', '16:00–18:00', '18:00–20:00'] as $sl) : ?><option><?php echo esc_html($sl); ?></option><?php endforeach; ?></select></label>
+        <label class="wide"><?php ae_e('vt_app'); ?><select name="vt_app"><option>WhatsApp</option><option>Google Meet</option><option>Zoom</option><option>FaceTime</option><option>Telegram</option></select></label>
+        <input type="hidden" name="email" value="">
+        <textarea name="message" hidden></textarea>
+      </div>
+      <input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+      <label class="chk sub"><input type="checkbox" name="consent" value="1" required> <?php ae_e('lead_consent'); ?> <a href="<?php echo esc_url(ec_url_legal('privacy')); ?>" target="_blank"><?php ae_e('privacy'); ?></a></label>
+      <?php echo ae_turnstile(); ?>
+      <p class="formmsg" role="status"></p>
+      <button class="btn wide" type="submit"><?php ae_e('vt_send'); ?></button>
+    </form>
+  </div>
+</div>
+<?php endif; ?>
 <div class="ov" id="reportov" hidden role="dialog" aria-modal="true" aria-labelledby="report-h">
   <div class="sheet">
     <button class="ovx" type="button" data-close aria-label="<?php ae_e('close'); ?>">✕</button>

@@ -104,8 +104,10 @@ function ec_lead_create(array $in, array $target)
         $url = ec_project_present($p, 'tr')['url'];
     }
     $lang = in_array($in['lang'] ?? '', EC_LANGS, true) ? $in['lang'] : 'tr';
+    $kind = ($in['kind'] ?? '') === 'video' ? 'video' : 'message';
 
     $wpdb->insert(ec_table('leads'), [
+        'kind' => $kind,
         'agent_id' => $agent['id'] ?? null,
         'listing_id' => $target['listing_id'] ?? null,
         'project_id' => $target['project_id'] ?? null,
@@ -114,7 +116,7 @@ function ec_lead_create(array $in, array $target)
     ]);
     $id = (int) $wpdb->insert_id;
 
-    $body = "📩 Yeni mesaj: $title\n\nAd: $name\n" . ($phone ? "Telefon: $phone\n" : '') . ($email ? "E-posta: $email\n" : '') . 'Dil: ' . strtoupper($lang) . "\n\n$message\n\n$url";
+    $body = ($kind === 'video' ? '📹 Görüntülü gezi talebi' : '📩 Yeni mesaj') . ": $title\n\nAd: $name\n" . ($phone ? "Telefon: $phone\n" : '') . ($email ? "E-posta: $email\n" : '') . 'Dil: ' . strtoupper($lang) . "\n\n$message\n\n$url";
     if ($agent) {
         if (!empty($agent['email']) && !preg_match('/@example\.(com|org|net)$/i', (string) $agent['email'])) { // demo ofisler: sahte adrese gönderme (geri dönen e-posta itibarı düşürür)
             $headers = $email ? ['Reply-To: ' . $name . ' <' . $email . '>'] : [];
@@ -122,6 +124,9 @@ function ec_lead_create(array $in, array $target)
         }
         if (!empty($agent['telegram_chat_id']) && function_exists('ec_tg_send')) {
             ec_tg_send($agent['telegram_chat_id'], $body);
+        }
+        if (function_exists('ec_push_agent')) {
+            ec_push_agent((int) $agent['id'], ['title' => $kind === 'video' ? '📹 Görüntülü gezi talebi' : '📩 Yeni talep', 'body' => $name . ' · ' . $title, 'url' => add_query_arg('bolum', 'talepler', ec_url_section('panel', 'tr')), 'tag' => 'ec-lead-' . $id]);
         }
     }
     if (!$agent || get_option('ec_lead_admin_copy', 1)) {
@@ -142,6 +147,8 @@ function ec_lead_present(array $r): array
     return [
         'id' => (int) $r['id'], 'name' => $r['name'], 'email' => $r['email'], 'phone' => $r['phone'], 'message' => $r['message'],
         'lang' => $r['lang'], 'status' => $r['status'], 'created_at' => $r['created_at'], 'about' => $ctx,
+        'kind' => $r['kind'] ?? 'message', 'stage' => $r['stage'] ?? 'new', 'notes' => $r['notes'] ?? '',
+        'follow_at' => $r['follow_at'] ?? null,
     ];
 }
 

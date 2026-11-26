@@ -213,6 +213,7 @@ $statusLabel = fn(string $s) => '<span class="st st-' . esc_attr($s) . '">' . es
               <?php endif; ?>
               <?php $cfd = !empty($rowById[$a['id']]['confirmed_at']) ? (int) floor((time() - strtotime($rowById[$a['id']]['confirmed_at'] . ' UTC')) / DAY_IN_SECONDS) : 99; ?>
               <button class="ghost sm<?php echo !empty($rowById[$a['id']]['confirm_asked_at']) ? ' gold' : ''; ?>" data-confirm title="<?php echo esc_attr(ae_t('cf_days', $cfd)); ?>">✓ <?php ae_e('p_still'); ?><?php if ($cfd >= 25) : ?> (<?php echo esc_html(ae_t('cf_days', $cfd)); ?>)<?php endif; ?></button>
+              <?php if (empty($rowById[$a['id']]['verified_at'])) : ?><label class="ghost sm vfup" title="<?php ae_e('vf_desc'); ?>">📄 <?php ae_e('p_verify'); ?><input type="file" accept="image/*,application/pdf" data-verify hidden></label><?php else : ?><span class="vfbadge">✔ <?php ae_e('vf_badge'); ?></span><?php endif; ?>
               <button class="ghost sm" data-status="sold"><?php ae_e('act_sold'); ?></button>
               <button class="ghost sm" data-status="passive"><?php ae_e('act_passive'); ?></button>
             <?php elseif (in_array($a['status'], ['draft', 'rejected', 'sold', 'passive'], true)) : ?>
@@ -228,7 +229,21 @@ $statusLabel = fn(string $s) => '<span class="st st-' . esc_attr($s) . '">' . es
 
   <?php if ($tab === 'ilan') : include __DIR__ . '/parts/listing-form.php'; endif; ?>
 
-  <?php if ($tab === 'talepler') : $leads = ec_leads_for_agent((int) $agent['id']); ?>
+  <?php if ($tab === 'talepler') : $leads = ec_leads_for_agent((int) $agent['id']); $stages = function_exists('ec_crm_stages') ? ec_crm_stages() : []; $li = ['tr' => 0, 'en' => 1, 'ru' => 2][$lang] ?? 0; ?>
+    <div class="crmbar">
+      <button type="button" class="ghost sm" data-crm-push>🔔 <?php ae_e('crm_push'); ?></button>
+      <details class="crmadd"><summary class="btn sm">＋ <?php ae_e('crm_add'); ?></summary>
+        <form class="crmaddf fg" novalidate>
+          <label><span class="vh"><?php ae_e('lead_name'); ?></span><input name="name" placeholder="<?php ae_e('lead_name'); ?> *" required></label>
+          <label><span class="vh"><?php ae_e('reg_phone'); ?></span><input name="phone" type="tel" placeholder="<?php ae_e('reg_phone'); ?>"></label>
+          <label><span class="vh"><?php ae_e('email'); ?></span><input name="email" type="email" placeholder="<?php ae_e('email'); ?>"></label>
+          <label><?php ae_e('crm_follow'); ?><input name="follow_at" type="datetime-local"></label>
+          <label class="wide"><?php ae_e('crm_notes'); ?><textarea name="notes" rows="2"></textarea></label>
+          <button class="btn" type="submit"><?php ae_e('save'); ?></button>
+        </form>
+      </details>
+    </div>
+    <p class="sub"><?php ae_e('crm_hint'); ?></p>
     <div class="mylist leads">
       <?php foreach ($leads as $ld) : ?>
         <article class="myrow lead st-<?php echo esc_attr($ld['status']); ?>" data-lead="<?php echo (int) $ld['id']; ?>">
@@ -237,7 +252,15 @@ $statusLabel = fn(string $s) => '<span class="st st-' . esc_attr($s) . '">' . es
             <h3><?php echo esc_html($ld['name']); ?></h3>
             <div class="sub"><?php if ($ld['phone']) : ?><a href="tel:<?php echo esc_attr($ld['phone']); ?>">📞 <?php echo esc_html($ld['phone']); ?></a> · <a href="https://wa.me/<?php echo esc_attr(preg_replace('/\D/', '', $ld['phone'])); ?>" target="_blank" rel="noopener">WhatsApp</a><?php endif; ?><?php if ($ld['email']) : ?> · <a href="mailto:<?php echo esc_attr($ld['email']); ?>">✉ <?php echo esc_html($ld['email']); ?></a><?php endif; ?></div>
             <?php if ($ld['about']) : ?><div class="sub"><a href="<?php echo esc_url($ld['about']['url']); ?>" target="_blank"><?php echo esc_html(($ld['about']['type'] === 'listing' ? '#' . $ld['about']['id'] . ' ' : '') . $ld['about']['title']); ?></a></div><?php endif; ?>
-            <p class="rvdesc"><?php echo nl2br(esc_html((string) $ld['message'])); ?></p>
+            <?php if ($ld['message']) : ?><p class="rvdesc"><?php echo nl2br(esc_html((string) $ld['message'])); ?></p><?php endif; ?>
+            <?php if ($stages) : ?>
+            <form class="crmf" data-crm="<?php echo (int) $ld['id']; ?>">
+              <label><?php ae_e('crm_stage'); ?><select name="stage"><?php foreach ($stages as $sk => $sn) : ?><option value="<?php echo esc_attr($sk); ?>" <?php selected($ld['stage'], $sk); ?>><?php echo esc_html($sn[$li]); ?></option><?php endforeach; ?></select></label>
+              <label><?php ae_e('crm_follow'); ?><input name="follow_at" type="datetime-local" value="<?php echo $ld['follow_at'] ? esc_attr(get_date_from_gmt($ld['follow_at'], 'Y-m-d\TH:i')) : ''; ?>"></label>
+              <label class="wide"><?php ae_e('crm_notes'); ?><textarea name="notes" rows="2"><?php echo esc_textarea((string) $ld['notes']); ?></textarea></label>
+              <button class="ghost sm" type="submit"><?php ae_e('save'); ?></button> <span class="sub crmmsg" role="status"></span>
+            </form>
+            <?php endif; ?>
           </div>
           <div class="myact">
             <?php if ($ld['status'] === 'new') : ?><button class="ghost sm" data-lead-st="read"><?php ae_e('lead_mark_read'); ?></button><?php endif; ?>

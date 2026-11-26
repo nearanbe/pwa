@@ -7,7 +7,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-define('AE_VER', '1.3.0');
+define('AE_VER', '1.4.0');
 
 if (!function_exists('ec_table')) {
     // Eklenti kapalıysa: hiçbir eklenti fonksiyonu TANIMLANMAZ (aksi halde eklenti etkinleştirilirken
@@ -83,7 +83,7 @@ add_action('wp_enqueue_scripts', function () {
             'panoLoading' => ae_t('pano_loading'), 'panoFail' => ae_t('pano_fail'),
             'gallery' => ae_t('lb_gallery'), 'slideshow' => ae_t('lb_slideshow'), 'allPhotos' => ae_t('lb_grid'), 'close' => ae_t('close'),
             'nearbyNone' => ae_t('nearby_none'), 'nearbyFail' => ae_t('nearby_fail'), 'nearbySource' => ae_t('nearby_source', '%s'),
-            'leadName' => ae_t('lead_err_name'), 'leadContact' => ae_t('lead_err_contact'), 'leadConsent' => ae_t('lead_err_consent'),
+            'leadName' => ae_t('lead_err_name'), 'leadContact' => ae_t('lead_err_contact'), 'leadConsent' => ae_t('lead_err_consent'), 'vtMsg' => ae_t('vt_msg'),
             'leadOk' => ae_t('lead_ok'), 'leadErr' => ae_t('lead_err'), 'reportReason' => ae_t('report_err_reason'), 'reportOk' => ae_t('report_ok'),
         ]]);
     }

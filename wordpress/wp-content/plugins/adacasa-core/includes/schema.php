@@ -247,10 +247,17 @@ function ec_install_schema(): void
   message text,
   lang char(2) NOT NULL DEFAULT 'tr',
   status varchar(12) NOT NULL DEFAULT 'new',
+  kind varchar(12) NOT NULL DEFAULT 'message',
+  stage varchar(16) NOT NULL DEFAULT 'new',
+  notes text,
+  follow_at datetime DEFAULT NULL,
+  rem_sent varchar(10) NOT NULL DEFAULT '',
+  source varchar(12) NOT NULL DEFAULT 'site',
   ip_hash char(40) DEFAULT NULL,
   created_at datetime NOT NULL,
   PRIMARY KEY  (id),
   KEY agent_id (agent_id,status),
+  KEY follow_at (follow_at),
   KEY listing_id (listing_id)
 ) $c;");
 
@@ -307,6 +314,22 @@ function ec_install_schema(): void
   KEY kind_listing (kind,listing_id),
   KEY sub_id (sub_id),
   KEY email (email)
+) $c;");
+    $vd = ec_table('verify_docs');
+    dbDelta("CREATE TABLE $vd (
+  id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  listing_id bigint(20) unsigned NOT NULL,
+  agent_id bigint(20) unsigned NOT NULL,
+  kind varchar(12) NOT NULL DEFAULT 'tapu',
+  path varchar(80) NOT NULL DEFAULT '',
+  mime varchar(40) NOT NULL DEFAULT '',
+  status varchar(12) NOT NULL DEFAULT 'pending',
+  note varchar(255) DEFAULT NULL,
+  created_at datetime NOT NULL,
+  reviewed_at datetime DEFAULT NULL,
+  PRIMARY KEY  (id),
+  KEY listing_id (listing_id),
+  KEY status (status)
 ) $c;");
     $ph = ec_table('price_history');
     dbDelta("CREATE TABLE $ph (
