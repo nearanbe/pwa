@@ -7,7 +7,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-define('AE_VER', '1.8.1');
+define('AE_VER', '1.8.2');
 
 if (!function_exists('ec_table')) {
     // Eklenti kapalıysa: hiçbir eklenti fonksiyonu TANIMLANMAZ (aksi halde eklenti etkinleştirilirken
@@ -140,7 +140,8 @@ add_action('wp_head', function () {
 }, 1);
 
 add_filter('language_attributes', function ($out) {
-    return 'lang="' . esc_attr(ec_lang()) . '"' . (function_exists('ec_is_rtl') && ec_is_rtl(ec_lang()) ? ' dir="rtl"' : '');
+    // translate="no": site zaten 5 dilde; tarayıcının otomatik çevirisi (Chrome/Edge/Safari) metni bozmasın, ziyaretçi dili üstteki seçiciden değiştirir
+    return 'lang="' . esc_attr(ec_lang()) . '" translate="no"' . (function_exists('ec_is_rtl') && ec_is_rtl(ec_lang()) ? ' dir="rtl"' : '');
 });
 
 /**
