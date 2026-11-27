@@ -447,7 +447,7 @@ function ae_logo_word(): string
     if (strcasecmp(str_replace(' ', '', $b), 'AdaCasa') !== 0) {
         return '<span class="lgw">' . esc_html($b) . '</span>';
     }
-    $tag = ec_i18n_pick(['tr' => 'GAYRİMENKUL & YATIRIM', 'en' => 'REAL ESTATE & INVESTMENT', 'ru' => 'НЕДВИЖИМОСТЬ И ИНВЕСТИЦИИ', 'de' => 'IMMOBILIEN & INVESTITION', 'ar' => 'عقارات واستثمار'], ec_lang());
+    $tag = ec_i18n_pick(['tr' => 'EMLAK İLAN PLATFORMU', 'en' => 'PROPERTY LISTINGS PLATFORM', 'ru' => 'ПОРТАЛ НЕДВИЖИМОСТИ', 'de' => 'IMMOBILIENPORTAL', 'ar' => 'منصة إعلانات عقارية'], ec_lang());
     return '<span class="lgt"><span class="lgw">Ada<em>Casa</em></span><small>' . esc_html($tag) . '</small></span>';
 }
 
