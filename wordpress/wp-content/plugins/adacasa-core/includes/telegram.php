@@ -211,6 +211,9 @@ function ec_tg_handle_update(array $u): void
         ec_tg_admin_pending($chat);
         return;
     }
+    if (function_exists('ec_tga_command') && ec_tga_command($chat, $text)) {
+        return;
+    }
 
     if (!$agent) {
         ec_tg_send($chat, "Bu sohbet bir üyeliğe bağlı değil.\nSiteye giriş yapıp <b>Panelim → Telegram → Telegram'ı bağla</b> düğmesine basın.\n" . ec_url_section('panel', 'tr'));
@@ -347,7 +350,8 @@ function ec_tg_help(array $agent): string
         . "🪄 Sonra <b>İlanı hazırla</b>'ya basın: yapay zekâ bilgileri çıkarır, Türkçe, İngilizce, Rusça, Almanca ve Arapçaya çevirir.\n"
         . "✅ Önizlemeyi kontrol edip <b>Yayınla</b> ya da <b>Düzelt</b> deyin.\n\n"
         . "✏️ Yayındaki bir ilanı değiştirmek, bilgi eklemek, fotoğraf eklemek/silmek ya da ilanı kaldırmak için /ilanlarim yazıp ilanın düğmesine basın (ya da <i>/duzenle 123</i>).\n\n"
-        . "Komutlar:\n/yeni – yeni ilana başla\n/iptal – açık taslağı ya da düzenlemeyi kapat\n/ilanlarim – son ilanlarım ve düzenleme\n/duzenle 123 – 123 numaralı ilanı düzenle\n/yardim – bu mesaj";
+        . "Komutlar:\n/yeni – yeni ilana başla\n/iptal – açık taslağı ya da düzenlemeyi kapat\n/ilanlarim – son ilanlarım ve düzenleme\n/duzenle 123 – 123 numaralı ilanı düzenle\n/yardim – bu mesaj"
+        . (!empty($agent['telegram_chat_id']) && ec_tg_is_admin((string) $agent['telegram_chat_id']) ? "\n\n🛠 Yönetici: /yonetim yazın (tüm ilanlar ve üyeler)." : '');
 }
 
 function ec_tg_link(string $chat, string $code, array $from): void
@@ -707,6 +711,11 @@ function ec_tg_handle_callback(array $q): void
     [$act, $arg] = array_pad(explode(':', $data, 2), 2, '');
     $ack = fn(string $t = '') => ec_tg_api('answerCallbackQuery', ['callback_query_id' => $q['id'], 'text' => $t], false);
 
+    if ($act === 'ax' && function_exists('ec_tga_callback')) {
+        ec_tga_callback($chat, $arg, $ack, $q);
+        return;
+    }
+
     // Yönetici onayı
     if (in_array($act, ['ap', 'rj'], true)) {
         if (!ec_tg_is_admin($chat)) {
@@ -833,6 +842,9 @@ function ec_tg_handle_callback(array $q): void
  */
 function ec_tg_can_edit(string $chat, array $agent, ?array $row): bool
 {
+    if ($row && ec_tg_is_admin($chat)) {
+        return true; // yönetici her ilanı düzenleyebilir
+    }
     return $row && (int) $row['agent_id'] === (int) $agent['id'] && $agent['status'] !== 'suspended' && empty($row['hold_office_id']);
 }
 
@@ -981,7 +993,7 @@ function ec_tg_edit_callback(array $d, string $act, string $sub, callable $ack):
             $ack('Vazgeçildi');
             return;
         case 'repub':
-            $target = ec_listing_target_status($agent, 'published');
+            $target = ec_tg_is_admin($chat) ? 'published' : ec_listing_target_status($agent, 'published');
             $r = ec_listing_update($lid, ['status' => $target]);
             if (is_wp_error($r)) {
                 $ack();
